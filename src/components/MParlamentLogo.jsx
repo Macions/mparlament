@@ -1,4 +1,3 @@
-import "./MParlamentLogo.css";
 import logo from "../assets/main-logo.png";
 
 export default function MParlamentLogo() {

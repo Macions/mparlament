@@ -1,41 +1,63 @@
+:root {
+	--color-bg-start: #ffffff;
+	--color-bg-end: #59567f;
+	--color-primary: #141644;
+	--color-white: #ffffff;
+	--color-white-85: rgba(255, 255, 255, 0.85);
+	--color-white-90: rgba(255, 255, 255, 0.9);
+	--color-white-75: rgba(255, 255, 255, 0.75);
+	--shadow-header: 0 4px 12px rgba(0, 0, 0, 0.41), 0 8px 16px -6px rgba(0, 0, 0, 0.404);
+	--shadow-button: 0 8px 20px rgba(20, 22, 68, 0.35);
+	--radius-header: 0 0 1.75rem 1.75rem;
+	--radius-button: 50px;
+	--transition-fast: 0.15s ease;
+	--transition-medium: 0.2s ease;
+	--transition-slow: 0.35s ease;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
 .app {
 	min-height: 100svh;
 	display: flex;
 	flex-direction: column;
-	background: linear-gradient(180deg, #ffffff 0%, #59567f 100%);
+	background: linear-gradient(180deg, var(--color-bg-start) 0%, var(--color-bg-end) 100%);
 }
 
 .header {
 	display: grid;
 	grid-template-columns: 1fr auto 1fr;
 	align-items: center;
-	gap: 0.75rem;
-	background: #141644;
-	border-radius: 0 0 1.75rem 1.75rem;
-	color: #fff;
-	box-shadow:
-		0 4px 12px rgba(0, 0, 0, 0.41),
-		0 8px 16px -6px rgba(0, 0, 0, 0.404);
+	gap: 0.5rem;
+	background: var(--color-primary);
+	border-radius: var(--radius-header);
+	color: var(--color-white);
+	box-shadow: var(--shadow-header);
 	padding: 1rem 1.25rem;
-	min-height: 80px;
+	min-height: 85px;
+	width: 100%;
+	box-sizing: border-box;
 }
 
 .parlament-logo {
 	display: flex;
 	align-items: center;
-	gap: 0.35rem;
+	gap: 12px;
 	justify-self: start;
 }
 
-.parlament-logo__shield {
-	width: 1.9rem;
+.parlament-logo__img {
+	width: 20em;
 	height: auto;
-	flex-shrink: 0;
 }
 
 .parlament-logo__text {
 	margin: 0;
-	font-size: 0.38rem;
+	font-size: 0.4rem;
 	font-weight: 700;
 	line-height: 1.25;
 	letter-spacing: 0.02em;
@@ -46,20 +68,20 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	gap: 12px;
 	justify-self: center;
 }
 
-.mparlament-logo__icon {
-	width: 4rem;
-	height: auto;
+.mparlament-logo__img {
+	height: 120px;
+	width: auto;
+	object-fit: contain;
 }
 
-.mparlament-logo__title {
-	margin-top: 0.1rem;
-	font-size: 1.1rem;
-	font-weight: 700;
-	letter-spacing: 0.01em;
-	text-align: center;
+.mparlament-logo__text {
+	font-size: 45px;
+	font-weight: bold;
+	transform: translateY(-10px);
 }
 
 .login-button {
@@ -71,7 +93,7 @@
 	padding: 0;
 	border: none;
 	background: transparent;
-	color: #fff;
+	color: var(--color-white);
 	cursor: pointer;
 	font: inherit;
 }
@@ -80,16 +102,17 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 46px;
-	height: 46px;
-	border: 2px solid #fff;
+	width: 48px;
+	height: 48px;
+	border: 2px solid var(--color-white);
 	border-radius: 50%;
-	font-size: 1.2rem;
+	font-size: 1.3rem;
 }
 
 .login-button__label {
-	font-size: 1.1rem;
+	font-size: 1rem;
 	font-weight: 600;
+	white-space: nowrap;
 }
 
 .main {
@@ -98,7 +121,7 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	padding: 0 1.5rem;
+	padding: 1.5rem 1.5rem;
 }
 
 .menu {
@@ -107,7 +130,7 @@
 	align-items: center;
 	gap: 1.5rem;
 	width: 100%;
-	max-width: 20rem;
+	max-width: 22rem;
 }
 
 .menu__button {
@@ -116,25 +139,17 @@
 	justify-content: center;
 	width: 100%;
 	padding: 1rem 2rem;
-	border-radius: 50px;
-	background: #141644;
-	color: #fff;
+	border-radius: var(--radius-button);
+	background: var(--color-primary);
+	color: var(--color-white);
 	font-size: 1.5rem;
 	font-weight: 700;
 	text-decoration: none;
-	transition:
-		transform 0.15s ease,
-		width 0.35s ease,
-		box-shadow 0.15s ease;
-}
-
-.menu__button:hover {
-	box-shadow: 0 8px 20px rgba(20, 22, 68, 0.35);
-	width: 110%;
+	transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .menu__button:active {
-	transform: scale(0.97);
+	transform: scale(0.96);
 }
 
 .social-footer {
@@ -149,7 +164,7 @@
 
 .social-footer__title {
 	margin: 0;
-	color: rgba(255, 255, 255, 0.85);
+	color: var(--color-white-85);
 	font-size: 0.8rem;
 	font-weight: 600;
 	letter-spacing: 0.2em;
@@ -169,61 +184,81 @@
 	flex-direction: column;
 	align-items: center;
 	gap: 0.35rem;
-	color: rgba(255, 255, 255, 0.9);
+	color: var(--color-white-90);
 	text-decoration: none;
-	transition:
-		transform 0.2s ease,
-		opacity 0.2s ease;
+	transition: transform var(--transition-medium), opacity var(--transition-medium);
 	will-change: transform;
 }
 
-.social-footer__link:hover {
-	transform: translateY(-3px);
+.social-footer__link:active {
+	transform: translateY(-2px);
 	opacity: 1;
 }
 
 .social-footer__icon {
-	font-size: 1.8rem;
-	transition: filter 0.2s ease;
+	font-size: 1.7rem;
+	transition: filter var(--transition-medium);
 }
 
 .social-footer__label {
 	font-size: 0.65rem;
 	font-weight: 600;
 	letter-spacing: 0.05em;
-	color: rgba(255, 255, 255, 0.75);
+	color: var(--color-white-75);
+}
+
+@media (max-width: 479px) {
+	.parlament-logo {
+		gap: 4px;
+	}
+
+	.parlament-logo__img {
+		width: 4em;
+	}
+
+	.mparlament-logo {
+		gap: 4px;
+	}
+
+	.mparlament-logo__img {
+		height: 40px;
+	}
+
+	.mparlament-logo__text {
+		font-size: 0.85rem;
+		transform: translateY(-2px);
+	}
+
+	.login-button__icon {
+		width: 22px;
+		height: 22px;
+		border-width: 1px;
+		font-size: 0.65rem;
+	}
+
+	.login-button__label {
+		font-size: 0.5rem;
+	}
 }
 
 @media (min-width: 480px) {
 	.header {
 		padding: 1.15rem 2rem;
-		min-height: 85px;
-	}
-
-	.parlament-logo__shield {
-		width: 2.1rem;
+		min-height: 90px;
 	}
 
 	.parlament-logo__text {
-		font-size: 0.42rem;
-	}
-
-	.mparlament-logo__icon {
-		width: 5rem;
-	}
-
-	.mparlament-logo__title {
-		font-size: 1.25rem;
+		font-size: 0.45rem;
 	}
 
 	.login-button__icon {
-		width: 52px;
-		height: 52px;
-		font-size: 1.35rem;
+		width: 56px;
+		height: 56px;
+		font-size: 1.4rem;
 	}
 
 	.login-button__label {
-		font-size: 1.25rem;
+		font-size: 1.2rem;
 	}
 
 	.menu {
@@ -234,6 +269,10 @@
 	.menu__button {
 		font-size: 1.7rem;
 		padding: 1.1rem 3rem;
+	}
+
+	.menu__button:hover {
+		box-shadow: var(--shadow-button);
 	}
 
 	.social-footer__title {
@@ -251,28 +290,33 @@
 	.social-footer__label {
 		font-size: 0.68rem;
 	}
+
+	.social-footer__link:hover {
+		transform: translateY(-3px);
+		opacity: 1;
+	}
 }
 
 @media (min-width: 768px) {
 	.header {
 		padding: 1.25rem 5rem;
-		min-height: 90px;
 	}
 
-	.parlament-logo__shield {
-		width: 2.75rem;
+	.parlament-logo__img {
+		width: 20em;
 	}
 
 	.parlament-logo__text {
 		font-size: 0.55rem;
 	}
 
-	.mparlament-logo__icon {
-		width: 6.5rem;
+	.mparlament-logo__img {
+		height: 120px;
 	}
 
-	.mparlament-logo__title {
-		font-size: 1.5rem;
+	.mparlament-logo__text {
+		font-size: 45px;
+		transform: translateY(-10px);
 	}
 
 	.login-button__icon {
@@ -293,6 +337,10 @@
 	.menu__button {
 		font-size: 1.9rem;
 		padding: 1.2rem 5rem;
+	}
+
+	.menu__button:hover {
+		width: 110%;
 	}
 
 	.social-footer__title {

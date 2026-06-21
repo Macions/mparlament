@@ -1,5 +1,4 @@
 import logo from '../assets/full_logo.png'
-import './ParlamentLogo.css'
 
 export default function ParlamentLogo() {
   return (
