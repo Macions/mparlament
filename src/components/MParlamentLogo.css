@@ -1,0 +1,17 @@
+.mparlament-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mparlament-logo__img {
+  height: 120px;
+  width: auto;
+  object-fit: contain;
+}
+
+.mparlament-logo__text {
+  font-size: 45px;
+  font-weight: bold;
+  transform: translateY(-10px);
+}

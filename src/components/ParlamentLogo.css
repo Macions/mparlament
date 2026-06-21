@@ -1,0 +1,10 @@
+.parlament-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.parlament-logo__img {
+  width: 20em;
+  height: auto;
+}
