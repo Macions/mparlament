@@ -1,229 +1,313 @@
 .app {
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  background: linear-gradient(180deg, #ffffff 0%, #b0b5d1 100%);
+	min-height: 100svh;
+	display: flex;
+	flex-direction: column;
+	background: linear-gradient(180deg, #ffffff 0%, #59567f 100%);
 }
 
 .header {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem 1.5rem;
-  background: #141644;
-  border-radius: 0 0 1.75rem 1.75rem;
-  color: #fff;
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+	gap: 0.75rem;
+	background: #141644;
+	border-radius: 0 0 1.75rem 1.75rem;
+	color: #fff;
+	box-shadow:
+		0 4px 12px rgba(0, 0, 0, 0.41),
+		0 8px 16px -6px rgba(0, 0, 0, 0.404);
+	padding: 1rem 1.25rem;
+	min-height: 80px;
 }
 
 .parlament-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  justify-self: start;
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+	justify-self: start;
 }
 
 .parlament-logo__shield {
-  width: 2.25rem;
-  height: auto;
-  flex-shrink: 0;
+	width: 1.9rem;
+	height: auto;
+	flex-shrink: 0;
 }
 
 .parlament-logo__text {
-  margin: 0;
-  font-size: 0.45rem;
-  font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: 0.02em;
-  text-align: left;
+	margin: 0;
+	font-size: 0.38rem;
+	font-weight: 700;
+	line-height: 1.25;
+	letter-spacing: 0.02em;
+	text-align: left;
 }
 
 .mparlament-logo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-self: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-self: center;
 }
 
 .mparlament-logo__icon {
-  width: 5.5rem;
-  height: auto;
+	width: 4rem;
+	height: auto;
 }
 
 .mparlament-logo__title {
-  margin-top: 0.15rem;
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+	margin-top: 0.1rem;
+	font-size: 1.1rem;
+	font-weight: 700;
+	letter-spacing: 0.01em;
+	text-align: center;
 }
 
 .login-button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
-  justify-self: end;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: #fff;
-  cursor: pointer;
-  font: inherit;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.2rem;
+	justify-self: end;
+	padding: 0;
+	border: none;
+	background: transparent;
+	color: #fff;
+	cursor: pointer;
+	font: inherit;
 }
 
 .login-button__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border: 2px solid #fff;
-  border-radius: 50%;
-}
-
-.login-button__icon svg {
-  width: 1.35rem;
-  height: 1.35rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 46px;
+	height: 46px;
+	border: 2px solid #fff;
+	border-radius: 50%;
+	font-size: 1.2rem;
 }
 
 .login-button__label {
-  font-size: 0.7rem;
-  font-weight: 600;
+	font-size: 1.1rem;
+	font-weight: 600;
 }
 
 .main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 3.5rem 1.5rem 2.5rem;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 0 1.5rem;
 }
 
 .menu {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.75rem;
-  width: 100%;
-  max-width: 22rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1.5rem;
+	width: 100%;
+	max-width: 20rem;
 }
 
 .menu__button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 1.1rem 2rem;
-  border-radius: 999px;
-  background: #141644;
-  color: #fff;
-  font-size: 1.35rem;
-  font-weight: 700;
-  text-decoration: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	padding: 1rem 2rem;
+	border-radius: 50px;
+	background: #141644;
+	color: #fff;
+	font-size: 1.5rem;
+	font-weight: 700;
+	text-decoration: none;
+	transition:
+		transform 0.15s ease,
+		width 0.35s ease,
+		box-shadow 0.15s ease;
 }
 
 .menu__button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(20, 22, 68, 0.35);
+	box-shadow: 0 8px 20px rgba(20, 22, 68, 0.35);
+	width: 110%;
 }
 
 .menu__button:active {
-  transform: translateY(0);
+	transform: scale(0.97);
 }
 
 .social-footer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.25rem;
-  width: 100%;
-  margin-top: 2rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1.25rem;
+	width: 100%;
+	margin-top: auto;
+	padding: 1.5rem 0 2rem;
 }
 
 .social-footer__title {
-  margin: 0;
-  color: #fff;
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+	margin: 0;
+	color: rgba(255, 255, 255, 0.85);
+	font-size: 0.8rem;
+	font-weight: 600;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
 }
 
 .social-footer__icons {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 1.75rem;
-  flex-wrap: wrap;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1.75rem;
+	flex-wrap: wrap;
 }
 
 .social-footer__link {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  color: #fff;
-  text-decoration: none;
-  transition: opacity 0.15s ease;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.35rem;
+	color: rgba(255, 255, 255, 0.9);
+	text-decoration: none;
+	transition:
+		transform 0.2s ease,
+		opacity 0.2s ease;
+	will-change: transform;
 }
 
 .social-footer__link:hover {
-  opacity: 0.8;
+	transform: translateY(-3px);
+	opacity: 1;
 }
 
 .social-footer__icon {
-  font-size: 2rem;
+	font-size: 1.8rem;
+	transition: filter 0.2s ease;
 }
 
 .social-footer__label {
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+	font-size: 0.65rem;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	color: rgba(255, 255, 255, 0.75);
 }
 
 @media (min-width: 480px) {
-  .parlament-logo__text {
-    font-size: 0.5rem;
-  }
+	.header {
+		padding: 1.15rem 2rem;
+		min-height: 85px;
+	}
 
-  .mparlament-logo__icon {
-    width: 6.5rem;
-  }
+	.parlament-logo__shield {
+		width: 2.1rem;
+	}
 
-  .mparlament-logo__title {
-    font-size: 1.5rem;
-  }
+	.parlament-logo__text {
+		font-size: 0.42rem;
+	}
 
-  .menu {
-    max-width: 24rem;
-  }
+	.mparlament-logo__icon {
+		width: 5rem;
+	}
 
-  .menu__button {
-    font-size: 1.5rem;
-    padding: 1.2rem 2.5rem;
-  }
+	.mparlament-logo__title {
+		font-size: 1.25rem;
+	}
+
+	.login-button__icon {
+		width: 52px;
+		height: 52px;
+		font-size: 1.35rem;
+	}
+
+	.login-button__label {
+		font-size: 1.25rem;
+	}
+
+	.menu {
+		max-width: 24rem;
+		gap: 1.75rem;
+	}
+
+	.menu__button {
+		font-size: 1.7rem;
+		padding: 1.1rem 3rem;
+	}
+
+	.social-footer__title {
+		font-size: 0.88rem;
+	}
+
+	.social-footer__icons {
+		gap: 2rem;
+	}
+
+	.social-footer__icon {
+		font-size: 1.9rem;
+	}
+
+	.social-footer__label {
+		font-size: 0.68rem;
+	}
 }
 
 @media (min-width: 768px) {
-  .header {
-    padding: 1.25rem 2rem 1.75rem;
-  }
+	.header {
+		padding: 1.25rem 5rem;
+		min-height: 90px;
+	}
 
-  .parlament-logo__shield {
-    width: 2.75rem;
-  }
+	.parlament-logo__shield {
+		width: 2.75rem;
+	}
 
-  .parlament-logo__text {
-    font-size: 0.55rem;
-  }
+	.parlament-logo__text {
+		font-size: 0.55rem;
+	}
 
-  .menu {
-    max-width: 28rem;
-    gap: 2rem;
-  }
+	.mparlament-logo__icon {
+		width: 6.5rem;
+	}
 
-  .social-footer__icons {
-    gap: 2.5rem;
-  }
+	.mparlament-logo__title {
+		font-size: 1.5rem;
+	}
+
+	.login-button__icon {
+		width: 60px;
+		height: 60px;
+		font-size: 1.5rem;
+	}
+
+	.login-button__label {
+		font-size: 1.5rem;
+	}
+
+	.menu {
+		max-width: 28rem;
+		gap: 2rem;
+	}
+
+	.menu__button {
+		font-size: 1.9rem;
+		padding: 1.2rem 5rem;
+	}
+
+	.social-footer__title {
+		font-size: 0.95rem;
+	}
+
+	.social-footer__icons {
+		gap: 2.5rem;
+	}
+
+	.social-footer__icon {
+		font-size: 2.1rem;
+	}
+
+	.social-footer__label {
+		font-size: 0.7rem;
+	}
 }

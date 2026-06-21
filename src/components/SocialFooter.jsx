@@ -1,8 +1,8 @@
 import { FaFacebookF, FaInstagram, FaTiktok, FaYoutube } from 'react-icons/fa'
 
 const socialLinks = [
-  { label: 'Instagram', href: 'https://instagram.com', icon: FaInstagram },
-  { label: 'Facebook', href: 'https://facebook.com', icon: FaFacebookF },
+  { label: 'Instagram', href: 'https://instagram.com', icon: FaInstagram, showLabel: true },
+  { label: 'Facebook', href: 'https://facebook.com', icon: FaFacebookF, showLabel: true },
   { label: 'TikTok', href: 'https://tiktok.com', icon: FaTiktok, showLabel: true },
   { label: 'YouTube', href: 'https://youtube.com', icon: FaYoutube, showLabel: true },
 ]
