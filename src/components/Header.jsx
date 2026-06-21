@@ -1,5 +1,7 @@
+import { Link } from "react-router-dom";
 import ParlamentLogo from "./ParlamentLogo";
 import MParlamentLogo from "./MParlamentLogo";
+import "../App.css";
 
 export default function Header() {
 	return (
@@ -8,13 +10,13 @@ export default function Header() {
 
 			<MParlamentLogo />
 
-			<button type="button" className="login-button">
+			<Link to="/zaloguj" className="login-button">
 				<span className="login-button__icon">
 					<LoginIcon />
 				</span>
 
 				<span className="login-button__label">Zaloguj się</span>
-			</button>
+			</Link>
 		</header>
 	);
 }

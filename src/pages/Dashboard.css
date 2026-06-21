@@ -1,0 +1,203 @@
+.dashboard {
+	width: 100%;
+	max-width: 72rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.75rem;
+}
+
+.dashboard__user {
+	text-align: center;
+}
+
+.dashboard__user-name {
+	margin: 0;
+	color: #000000;
+	font-size: 1.45rem;
+	font-weight: 700;
+}
+
+.dashboard__user-club {
+	margin: 0.4rem 0 0;
+	color: #9b86d3;
+	font-size: 0.8rem;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.dashboard__grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 1rem;
+	align-items: stretch;
+}
+
+.dashboard__card {
+	display: flex;
+	flex-direction: column;
+	padding: 1.5rem 1.35rem;
+	background: #141644;
+	border-radius: 1.5rem;
+	box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+	color: #ffffff;
+}
+
+.dashboard__card--session {
+	min-height: 16rem;
+}
+
+.dashboard__card--calendar {
+	min-height: 16rem;
+}
+
+.dashboard__card-title {
+	margin: 0;
+	font-size: 1.35rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+}
+
+.dashboard__card-text {
+	margin: 1rem 0 0;
+	font-size: 0.95rem;
+	line-height: 1.45;
+}
+
+.dashboard__card-button {
+	margin-top: auto;
+	width: 100%;
+	padding: 0.85rem 1rem;
+	border: none;
+	border-radius: 999px;
+	background: #00bfff;
+	color: #ffffff;
+	font-size: 0.95rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	font-family: inherit;
+	cursor: pointer;
+	transition: filter 0.15s ease;
+}
+
+.dashboard__card-button:hover {
+	filter: brightness(1.06);
+}
+
+.dashboard__actions {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	min-height: 16rem;
+}
+
+.dashboard__action {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1.25rem 1rem;
+	border: none;
+	border-radius: 1.5rem;
+	color: #ffffff;
+	font-size: 1rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-align: center;
+	font-family: inherit;
+	cursor: pointer;
+	box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+	transition: filter 0.15s ease;
+}
+
+.dashboard__action--resolutions {
+	background: #141644;
+}
+
+.dashboard__action--submit {
+	background: #ef233c;
+}
+
+.dashboard__action:hover {
+	filter: brightness(1.06);
+}
+
+.dashboard__calendar-wrap {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: 1rem;
+}
+
+.dashboard__calendar-icon {
+	width: 7.5rem;
+	height: 7.5rem;
+	color: #ffffff;
+}
+
+@media (min-width: 768px) {
+	.dashboard {
+		gap: 2rem;
+	}
+
+	.dashboard__user-name {
+		font-size: 1.65rem;
+	}
+
+	.dashboard__user-club {
+		font-size: 0.9rem;
+	}
+
+	.dashboard__grid {
+		grid-template-columns: 1fr 1fr 1fr;
+		gap: 1.25rem;
+	}
+
+	.dashboard__card,
+	.dashboard__actions {
+		min-height: 18rem;
+	}
+
+	.dashboard__card-title {
+		font-size: 1.5rem;
+	}
+
+	.dashboard__card-text {
+		font-size: 1rem;
+	}
+
+	.dashboard__card-button {
+		font-size: 1rem;
+		padding: 0.95rem 1rem;
+	}
+
+	.dashboard__action {
+		font-size: 1.05rem;
+	}
+
+	.dashboard__calendar-icon {
+		width: 8.5rem;
+		height: 8.5rem;
+	}
+}
+
+@media (min-width: 1024px) {
+	.dashboard__card,
+	.dashboard__actions {
+		min-height: 20rem;
+	}
+
+	.dashboard__card {
+		padding: 1.75rem 1.5rem;
+	}
+
+	.dashboard__card-title {
+		font-size: 1.65rem;
+	}
+
+	.dashboard__calendar-icon {
+		width: 9.5rem;
+		height: 9.5rem;
+	}
+}

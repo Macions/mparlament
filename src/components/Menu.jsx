@@ -1,17 +1,23 @@
+import { NavLink } from "react-router-dom";
+
 const menuItems = [
-  { label: 'O parlamencie', href: '#o-parlamencie' },
-  { label: 'Posiedzenia', href: '#posiedzenia' },
-  { label: 'Parlamentarzyści', href: '#parlamentarzysci' },
-]
+  { label: "O parlamencie", to: "/o-parlamencie" },
+  { label: "Posiedzenia", to: "/posiedzenia" },
+  { label: "Parlamentarzyści", to: "/parlamentarzysci" },
+];
 
 export default function Menu() {
   return (
-    <nav className="menu" aria-label="Menu główne">
+    <nav className="menu">
       {menuItems.map((item) => (
-        <a key={item.label} href={item.href} className="menu__button">
+        <NavLink
+          key={item.label}
+          to={item.to}
+          className="menu__button"
+        >
           {item.label}
-        </a>
+        </NavLink>
       ))}
     </nav>
-  )
+  );
 }

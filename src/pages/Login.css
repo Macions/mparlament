@@ -1,0 +1,102 @@
+*{
+    font-family: 'Ubuntu', sans-serif;
+}
+.login {
+	width: 100%;
+	max-width: 40rem;
+	padding: 2.25rem 2rem 2.5rem;
+	background: #141644;
+	border-radius: 1.75rem;
+	box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+}
+
+.login__title {
+	margin: 0 0 1.75rem;
+	color: #ffffff;
+	font-size: 2rem;
+	font-weight: 700;
+	text-align: center;
+}
+
+.login__form {
+	display: flex;
+	flex-direction: column;
+	gap: 1.35rem;
+	width: 100%;
+}
+
+.login__field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.45rem;
+	width: 100%;
+}
+
+.login__label {
+	color: #ffffff;
+	font-size: 1.15rem;
+	font-weight: 400;
+	text-align: left;
+    transform: translateX(15px);
+}
+
+.login__input {
+	width: 100%;
+	padding: 0.85rem 1.25rem;
+	border: none;
+	border-radius: 999px;
+	background: #e6e6e6;
+	color: #141644;
+	font-size: 1.2rem;
+	font-family: inherit;
+	outline: none;
+}
+
+.login__input:focus {
+	box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.45);
+}
+
+.login__button {
+	margin-top: 0.35rem;
+	width: 100%;
+	padding: 0.95rem 1.25rem;
+	border: none;
+	border-radius: 999px;
+	background: #1b82a4;
+	color: #ffffff;
+	font-size: 1.35rem;
+	font-weight: 700;
+	font-family: inherit;
+	cursor: pointer;
+	transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.login__button:hover {
+    background: #00a5e6;
+    box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.45);
+
+}
+
+.login__button:active {
+    background: #008fb3;
+}
+
+@media (min-width: 480px) {
+	.login {
+		padding: 2.5rem 2.25rem 2.75rem;
+	}
+
+	.login__title {
+		margin-bottom: 2rem;
+		font-size: 2.15rem;
+	}
+
+	.login__form {
+		gap: 1.5rem;
+	}
+
+	.login__button {
+		font-size: 1.45rem;
+		padding: 1rem 1.25rem;
+	}
+}
