@@ -1,42 +1,21 @@
+import { Link } from "react-router-dom";
 import "./Dashboard.css";
 
 function CalendarIcon() {
 	return (
 		<svg
-			className="dashboard__calendar-icon"
-			viewBox="0 0 120 120"
-			aria-hidden="true"
+			width="256"
+			height="256"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
 		>
-			<rect
-				x="14"
-				y="28"
-				width="92"
-				height="78"
-				rx="8"
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="4"
+			<path
+				d="M3 9H21M7 3V5M17 3V5M6 12H8M11 12H13M16 12H18M6 15H8M11 15H13M16 15H18M6 18H8M11 18H13M16 18H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z"
+				stroke="#ffffff"
+				strokeWidth="0.992"
+				strokeLinecap="round"
 			/>
-			<line x1="14" y1="48" x2="106" y2="48" stroke="currentColor" strokeWidth="4" />
-			<circle cx="38" cy="20" r="6" fill="none" stroke="currentColor" strokeWidth="4" />
-			<circle cx="60" cy="20" r="6" fill="none" stroke="currentColor" strokeWidth="4" />
-			<circle cx="82" cy="20" r="6" fill="none" stroke="currentColor" strokeWidth="4" />
-			<line x1="38" y1="20" x2="38" y2="32" stroke="currentColor" strokeWidth="4" />
-			<line x1="60" y1="20" x2="60" y2="32" stroke="currentColor" strokeWidth="4" />
-			<line x1="82" y1="20" x2="82" y2="32" stroke="currentColor" strokeWidth="4" />
-			{[0, 1, 2, 3].map((row) =>
-				[0, 1, 2].map((col) => (
-					<rect
-						key={`${row}-${col}`}
-						x={26 + col * 28}
-						y={58 + row * 14}
-						width="18"
-						height="10"
-						rx="2"
-						fill="currentColor"
-					/>
-				)),
-			)}
 		</svg>
 	);
 }
@@ -45,28 +24,38 @@ export default function Dashboard() {
 	return (
 		<div className="dashboard">
 			<section className="dashboard__user">
-				<p className="dashboard__user-name">Zalogowano jako Jan Kowalski</p>
-				<p className="dashboard__user-club">KLUB PARLAMENTARNY CZAS MŁODYCH</p>
+				<p className="dashboard__user-name">
+					Zalogowano jako Jan Kowalski
+				</p>
+				<p className="dashboard__user-club">
+					KLUB PARLAMENTARNY CZAS MŁODYCH
+				</p>
 			</section>
 
 			<div className="dashboard__grid">
 				<article className="dashboard__card dashboard__card--session">
 					<h2 className="dashboard__card-title">POSIEDZENIE</h2>
+
 					<p className="dashboard__card-text">
 						W tej chwili nie odbywa się żadne posiedzenie.
 					</p>
-					<button type="button" className="dashboard__card-button">
+
+					<button
+						type="button"
+						className="dashboard__card-button"
+					>
 						ŚLEDŹ POSIEDZENIE
 					</button>
 				</article>
 
 				<div className="dashboard__actions">
-					<button
-						type="button"
+					<Link
+						to="/uchwaly"
 						className="dashboard__action dashboard__action--resolutions"
 					>
 						SPRAWDŹ UCHWAŁY
-					</button>
+					</Link>
+
 					<button
 						type="button"
 						className="dashboard__action dashboard__action--submit"
@@ -77,6 +66,7 @@ export default function Dashboard() {
 
 				<article className="dashboard__card dashboard__card--calendar">
 					<h2 className="dashboard__card-title">KALENDARZ</h2>
+
 					<div className="dashboard__calendar-wrap">
 						<CalendarIcon />
 					</div>

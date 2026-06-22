@@ -9,6 +9,7 @@ import Meetings from "./pages/Meetings";
 import Members from "./pages/Members";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import Resolutions from "./pages/Resolutions";
 
 import "./App.css";
 
@@ -27,6 +28,7 @@ export default function App() {
 
 					<Route path="/zaloguj" element={<Login />} />
 					<Route path="/dashboard" element={<Dashboard />} />
+					<Route path="/uchwaly" element={<Resolutions />} />
 				</Routes>
 			</main>
 
