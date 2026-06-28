@@ -1,0 +1,139 @@
+:root {
+	--font-base: 20px;
+}
+.submit-page {
+	padding-top: 20px;
+	width: 100%;
+	font-size: var(--font-base);
+}
+
+.uchwaly-bar {
+	background: #1a2a44;
+	color: white;
+	padding: 1.25rem 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin: 0 auto 40px auto;
+	width: 100%;
+	max-width: 1400px;
+	box-shadow: 7px 12px 27px rgba(0, 0, 0, 0.506);
+	border-radius: 12px;
+}
+
+.uchwaly-title {
+	margin: 0;
+	font-size: calc(var(--font-base) * 2);
+	font-weight: 700;
+	letter-spacing: 0.5px;
+}
+
+.session-info {
+	background: #00b4ff;
+	color: white;
+	padding: 0.7rem 1.6rem;
+	border-radius: 50px;
+	text-align: center;
+	font-weight: 600;
+	line-height: 1.3;
+	box-shadow: 0 4px 8px rgba(0, 180, 255, 0.25);
+	font-size: calc(var(--font-base) * 0.95);
+}
+
+.submit-container {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	padding: 0 20px 60px;
+}
+
+.form-card {
+	width: 100%;
+	max-width: 1150px;
+	background: white;
+	border-radius: 12px;
+	padding: 2.5rem 2.2rem;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.09);
+}
+
+.form-group {
+	margin-bottom: 2.2rem;
+	background: #0000002d;
+	padding: 1.2rem 1.5rem;
+	border-radius: 12px;
+}
+
+.label {
+	display: block;
+	margin-bottom: 10px;
+	font-weight: 600;
+	color: #000000;
+	font-size: calc(var(--font-base) * 1.15);
+}
+
+.text-input {
+	width: 100%;
+	padding: 15px 18px;
+	border: 1px solid #ced4da;
+	border-radius: 8px;
+	font-size: calc(var(--font-base) * 1.05);
+	outline: none;
+	transition: border 0.2s;
+}
+
+.text-input:focus {
+	border-color: #00b4ff;
+}
+
+.file-upload-area {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.file-button {
+	display: inline-block;
+	background: #1a2a44;
+	color: white;
+	padding: 14px 32px;
+	border-radius: 8px;
+	cursor: pointer;
+	font-weight: 600;
+	font-size: calc(var(--font-base) * 1.05);
+	text-align: center;
+	transition: all 0.2s;
+	width: fit-content;
+}
+
+.file-button:hover {
+	background: #253a5c;
+	transform: translateY(-2px);
+}
+
+.selected-file {
+	padding: 14px 18px;
+	background: #f1f5f9;
+	border-radius: 8px;
+	color: #334155;
+	font-size: var(--font-base);
+	border: 1px solid #e2e8f0;
+}
+
+.submit-btn {
+	background: #e74c3c;
+	color: white;
+	border: none;
+	padding: 16px 92px;
+	font-size: calc(var(--font-base) * 1.25);
+	font-weight: 700;
+	border-radius: 50px;
+	cursor: pointer;
+	float: right;
+	margin-top: 10px;
+	transition: all 0.2s;
+}
+
+.submit-btn:hover {
+	background: #c0392b;
+	transform: translateY(-3px);
+}

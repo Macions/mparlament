@@ -56,12 +56,12 @@ export default function Dashboard() {
 						SPRAWDŹ UCHWAŁY
 					</Link>
 
-					<button
-						type="button"
+					<Link
+						to="/zloz-uchwale"
 						className="dashboard__action dashboard__action--submit"
 					>
 						ZŁÓŻ UCHWAŁĘ
-					</button>
+					</Link>
 				</div>
 
 				<article className="dashboard__card dashboard__card--calendar">

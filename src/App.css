@@ -49,6 +49,13 @@ body {
 	);
 }
 
+.app.no-bg {
+  	background: linear-gradient(
+		180deg,
+		var(--color-bg-start) 78%,
+		var(--color-bg-end) 100%
+	);
+}
 .header {
 	display: grid;
 	grid-template-columns: 1fr auto 1fr;
