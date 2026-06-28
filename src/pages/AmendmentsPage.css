@@ -1,0 +1,180 @@
+:root {
+	--navy: #161a4a;
+	--navy-deep: #11144a;
+	--cyan: #29c5f0;
+	--cyan-hover: #1ab3e0;
+	--red: #ee2b3e;
+	--red-hover: #d81f33;
+	--bg-grey: #e9e9ef;
+	--text-light: #f4f6fb;
+}
+
+/* Podstawowe przyciski */
+.btn {
+	border: none;
+	cursor: pointer;
+	font-weight: 800;
+	letter-spacing: 0.3px;
+	color: white;
+	transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn:hover {
+	transform: translateY(-3px);
+}
+
+.btn:active {
+	transform: translateY(0);
+}
+
+.btn-pill {
+	border-radius: 50px;
+}
+
+/* KARTA GŁÓWNA */
+.amendments-container {
+	background: white;
+	width: 100%;
+	max-width: 1900px;
+	margin: 0 auto;
+	border-radius: 22px;
+	padding: 48px 60px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* TYTUŁ STRONY */
+.page-title {
+	color: var(--navy);
+	font-size: 42px;
+	font-weight: 800;
+	margin: 0 0 40px 0;
+	text-align: center;
+}
+
+/* PASEK NAWIGACYJNY */
+.nav-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	max-width: 1900px;
+	margin: 0 auto 30px;
+	padding: 0 30px;
+	gap: 20px;
+}
+
+.back-btn {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	background: #0a1f3d;
+	color: white;
+	border: none;
+	border-radius: 50px;
+	padding: 16px 32px;
+	font-size: 19px;
+	font-weight: 700;
+	cursor: pointer;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	transition: all 0.2s ease;
+	text-decoration: none;
+}
+
+.back-btn:hover {
+	background: #e63946;
+	transform: translateY(-2px);
+	box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+}
+
+.meeting-pill {
+	background: #00b4d8;
+	color: white;
+	padding: 16px 36px;
+	border-radius: 999px;
+	font-size: 19px;
+	font-weight: 700;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+	white-space: nowrap;
+}
+
+/* LISTA POPRAWEK */
+.amendments-list {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.amendment-card {
+	background: white;
+	border-radius: 18px;
+	padding: 32px 40px;
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	transition: all 0.2s;
+}
+
+.amendment-card:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+.amendment-main {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.amendment-id {
+	font-size: 24px;
+	font-weight: 800;
+	color: #00b4d8;
+}
+
+.amendment-title {
+	font-size: 28px;
+	font-weight: 700;
+	color: #1a1a1a;
+}
+
+.amendment-author {
+	font-size: 20px;
+	color: #444;
+	font-weight: 600;
+}
+
+/* Status */
+.status-badge {
+	padding: 14px 32px;
+	border-radius: 50px;
+	font-weight: 700;
+	font-size: 19px;
+}
+
+.status-badge.pending {
+	background: #ffc107;
+	color: #1a1a1a;
+}
+
+.status-badge.accepted {
+	background: #28a745;
+	color: white;
+}
+
+.status-badge.rejected {
+	background: #dc3545;
+	color: white;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+	.amendments-container {
+		padding: 32px 24px;
+	}
+
+	.amendment-card {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 20px;
+	}
+}

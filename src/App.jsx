@@ -12,6 +12,7 @@ import SubmitResolution from "./pages/SubmitResolution";
 import { Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
 import ResolutionDetails from "./pages/ResolutionDetails";
+import AmendmentsPage from "./pages/AmendmentsPage";
 
 export default function App() {
 	const location = useLocation();
@@ -34,6 +35,7 @@ export default function App() {
 					<Route path="/uchwaly" element={<Resolutions />} />
 					<Route path="/zloz-uchwale" element={<SubmitResolution />} />
 					<Route path="/uchwaly/:id" element={<ResolutionDetails />} />
+					<Route path="/uchwaly/:id/poprawki" element={<AmendmentsPage />} />
 				</Routes>
 			</main>
 			<SocialFooter />

@@ -172,7 +172,11 @@
 	padding: 0 30px;
 	gap: 20px;
 }
-
+.amend-btn{
+    text-decoration: none;
+    color: white;
+    text-align: center;
+}
 .back-btn {
 	display: flex;
 	align-items: center;
