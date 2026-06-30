@@ -30,12 +30,15 @@
 .btn-pill {
 	border-radius: 50px;
 }
-
+.amendments-page{
+	width: 100%;
+	max-width: 1200px;
+}
 /* KARTA GŁÓWNA */
 .amendments-container {
 	background: white;
 	width: 100%;
-	max-width: 1900px;
+	max-width: 1200px;
 	margin: 0 auto;
 	border-radius: 22px;
 	padding: 48px 60px;
@@ -49,6 +52,11 @@
 	font-weight: 800;
 	margin: 0 0 40px 0;
 	text-align: center;
+}
+
+.page-title blockquote {
+	font-size: 28px;
+	font-weight: 400;
 }
 
 /* PASEK NAWIGACYJNY */
@@ -96,6 +104,29 @@
 	white-space: nowrap;
 }
 
+.addAmendment {
+	width: 100%;
+	border: 2px dashed #ff0000;
+	border-radius: 10px;
+	margin: 30px 0;
+	transition: transform 0.2s ease;
+	transform: translateZ(0);
+	will-change: transform;
+}
+
+.addAmendment:hover {
+	transform: scale(0.97);
+}
+.addAmendment button{
+	background: none;
+	border: none;
+	color: var(--red);
+	font-size: 30px;
+	width: 100%;
+	min-height: 150px;
+	cursor: pointer;
+	font-weight: 500;
+}
 /* LISTA POPRAWEK */
 .amendments-list {
 	display: flex;
@@ -104,7 +135,7 @@
 }
 
 .amendment-card {
-	background: white;
+	background: rgb(224, 224, 224);
 	border-radius: 18px;
 	padding: 32px 40px;
 	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
@@ -149,6 +180,7 @@
 	border-radius: 50px;
 	font-weight: 700;
 	font-size: 19px;
+	text-align: center;
 }
 
 .status-badge.pending {
@@ -164,6 +196,27 @@
 .status-badge.rejected {
 	background: #dc3545;
 	color: white;
+}
+
+.amendment-status{
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.amendment-status .read-more{
+	padding: 14px 32px;
+	border-radius: 50px;
+	font-size: 19px;
+	border: 1px solid #000;
+	font-weight: 400;
+	text-decoration: none;
+	color: inherit;
+	transition: all 0.2s;
+}
+
+.amendment-status .read-more:hover{
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* RESPONSIVE */
