@@ -1,60 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import "./ResolutionDetails.css";
-import { useEffect } from "react";
-
-const resolutions = [
-	{
-		id: 1,
-		title: "Uchwała dotycząca wydobycia złota",
-		fileName: "uchwała wydobycie złota.docx",
-		author: "Piotr Nowak",
-		party: "UNIA LIBERALNA",
-		meeting: "Posiedzenie: Warszawa 20.05",
-		signatures: 6,
-		content: "Pełna treść uchwały o wydobyciu złota...",
-	},
-	{
-		id: 2,
-		title: "Uchwała dotycząca kalafiorów",
-		fileName: "uchwała kalafiory.docx",
-		author: "Anna Kowalska",
-		party: "UNIA LIBERALNA",
-		meeting: "Posiedzenie: Warszawa 20.05",
-		signatures: 3,
-		content: "Kalafiory są bardzo ważnym elementem gospodarki...",
-	},
-	{
-		id: 3,
-		title: "Uchwała na temat rolnictwa",
-		fileName: "uchwała rolnictwo.docx",
-		author: "Jan Wiśniewski",
-		party: "UNIA LIBERALNA",
-		meeting: "Posiedzenie: Warszawa 20.05",
-		signatures: 8,
-		content: "Rolnictwo to fundament państwa...",
-	},
-	{
-		id: 4,
-		title: "Uchwała na temat rolnictwa",
-		fileName: "uchwała rolnictwo 2.docx",
-		author: "Jan Wiśniewski",
-		party: "UNIA LIBERALNA",
-		meeting: "Posiedzenie: Warszawa 20.05",
-		signatures: 2,
-		content: "Druga uchwała o rolnictwie...",
-	},
-];
+import { resolutions } from "../data/legislation";
 
 export default function ResolutionDetails() {
 	useEffect(() => {
-  window.scrollTo({
-    top: 0,
-    behavior: "instant"
-  });
-}, []);
-	const { id } = useParams();
+		window.scrollTo({
+			top: 0,
+			behavior: "instant",
+		});
+	}, []);
 
+	const { id } = useParams();
 	const resolution = resolutions.find((r) => r.id === Number(id));
 
 	if (!resolution) {
@@ -121,7 +78,10 @@ export default function ResolutionDetails() {
 							PODPISZ UCHWAŁĘ
 						</button>
 
-						<Link to={`/uchwaly/${resolution.id}/poprawki`} className="btn btn-pill btn-red btn-wide amend-btn">
+						<Link
+							to={`/uchwala/${resolution.id}/poprawki`}
+							className="btn btn-pill btn-red btn-wide amend-btn"
+						>
 							WYŚWIETL POPRAWKI
 						</Link>
 					</div>

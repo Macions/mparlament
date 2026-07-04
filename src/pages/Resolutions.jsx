@@ -1,28 +1,8 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import "./resolutions.css";
-import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
 
-const resolutions = [
-	{
-		id: 1,
-		title: "Uchwała dotycząca wydobycia złota",
-	},
-	{
-		id: 2,
-		title: "Uchwała dotycząca kalafiorów",
-	},
-	{
-		id: 3,
-		title: "Uchwała na temat rolnictwa",
-	},
-	{
-		id: 4,
-		title: "Uchwała na temat rolnictwa",
-	},
-];
-
+import { resolutions } from "../data/legislation";
 
 export default function Resolutions() {
   const location = useLocation();
@@ -32,7 +12,6 @@ export default function Resolutions() {
 
     if (savedScroll) {
       window.scrollTo(0, Number(savedScroll));
-
       sessionStorage.removeItem("resolutionsScroll");
     }
   }, [location.pathname]);
@@ -50,7 +29,7 @@ export default function Resolutions() {
               <p className="resolution-title">{resolution.title}</p>
 
               <Link
-                to={`/uchwaly/${resolution.id}`}
+                to={`/uchwala/${resolution.id}`}
                 onClick={() => {
                   sessionStorage.setItem(
                     "resolutionsScroll",

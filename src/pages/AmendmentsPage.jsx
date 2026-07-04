@@ -2,94 +2,36 @@ import React from "react";
 import { useParams, Link } from "react-router-dom";
 import "./AmendmentsPage.css";
 
-const amendments = [
-	{
-		id: 1,
-		billId: 1,
-		title: "Zmiana art. 4",
-		status: "pending",
-		author: "Klub XYZ",
-	},
-	{
-		id: 2,
-		billId: 2,
-		title: "Usunięcie punktu",
-		status: "accepted",
-		author: "Klub ABC",
-	},
-	{
-		id: 3,
-		billId: 1,
-		title: "Dodanie nowego ustępu",
-		status: "rejected",
-		author: "Klub DEF",
-	},
-	{
-		id: 3,
-		billId: 1,
-		title: "Dodanie nowego ustępu",
-		status: "rejected",
-		author: "Klub DEF",
-	},
-	{
-		id: 3,
-		billId: 1,
-		title: "Dodanie nowego ustępu",
-		status: "rejected",
-		author: "Klub DEF",
-	},
-	{
-		id: 3,
-		billId: 1,
-		title: "Dodanie nowego ustępu",
-		status: "rejected",
-		author: "Klub DEF",
-	},
-	{
-		id: 3,
-		billId: 1,
-		title: "Dodanie nowego ustępu",
-		status: "rejected",
-		author: "Klub DEF",
-	},
-	{
-		id: 3,
-		billId: 1,
-		title: "Dodanie nowego ustępu",
-		status: "rejected",
-		author: "Klub DEF",
-	},
-	{
-		id: 3,
-		billId: 1,
-		title: "Dodanie nowego ustępu",
-		status: "rejected",
-		author: "Klub DEF",
-	},
-	{
-		id: 3,
-		billId: 1,
-		title: "Dodanie nowego ustępu",
-		status: "rejected",
-		author: "Klub DEF",
-	},
-	{
-		id: 3,
-		billId: 1,
-		title: "Dodanie nowego ustępu",
-		status: "rejected",
-		author: "Klub DEF",
-	},
-];
+import { bills, amendments, resolutions } from "../data/legislation";
 
 export default function AmendmentsPage() {
 	const { id } = useParams();
+	const billId = Number(id);
+
+	const currentBill = bills.find((bill) => bill.id === billId);
+	const currentResolution = resolutions.find((r) => r.id === billId);
+
+	const billAmendments = amendments.filter(
+		(amendment) => amendment.billId === billId
+	);
+
+	if (!currentBill && !currentResolution) {
+		return <div>Nie znaleziono uchwały #{id}</div>;
+	}
+
+	// Pobieramy dane z bills lub resolutions
+	const title = currentBill?.title || currentResolution?.title;
+	const submittedBy = currentResolution?.submittedBy;
+	const date = currentResolution?.date;
+	const meeting = currentResolution?.meeting;
+
+	// Rozbijamy meeting na części
+	const meetingParts = meeting ? meeting.split(": ") : ["Posiedzenie: Warszawa", "20.05"];
 
 	return (
 		<div className="amendments-page">
-			{/* Pasek nawigacyjny */}
 			<div className="uchwaly-bar">
-				<a className="uchwaly-title" href="/uchwaly">
+				<Link to={`/uchwala/${billId}`} className="uchwaly-title">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						width="50"
@@ -104,55 +46,74 @@ export default function AmendmentsPage() {
 						/>
 					</svg>
 					WRÓĆ
-				</a>
+				</Link>
+
 				<div className="session-info">
-					Posiedzenie: Warszawa
+					{meetingParts[0]}
 					<br />
-					<span>20.05</span>
+					<span>{meetingParts[1] || ""}</span>
 				</div>
 			</div>
 
-			{/* Główna zawartość */}
 			<div className="amendments-container">
 				<h1 className="page-title">
-					Poprawki do uchwały #{id}
-					{name !== "" && (
+					Poprawki do uchwały #{billId}
+					{title && (
 						<>
 							<br />
-							<blockquote>&bdquo;{name}&rdquo;</blockquote>
+							<blockquote>&bdquo;{title}&rdquo;</blockquote>
 						</>
 					)}
 				</h1>
+
+				{submittedBy && (
+					<p className="submitted-info">
+						Wrzucona przez: <strong>{submittedBy}</strong>
+					</p>
+				)}
+
+				{date && (
+					<p className="date-info">
+						Data: <strong>{date}</strong>
+					</p>
+				)}
+
 				<div className="addAmendment">
 					<button>Dodaj poprawkę</button>
 				</div>
+
 				<div className="amendments-list">
-					{amendments.map((amendment) => (
-						<div key={amendment.id} className="amendment-card">
-							<div className="amendment-main">
-								<div className="amendment-id">Poprawka nr {amendment.id}</div>
-								<div className="amendment-title">{amendment.title}</div>
-								<div className="amendment-author">
-									Autor: {amendment.author}
-								</div>
-							</div>
-
-							<div className="amendment-status">
-								<div className={`status-badge ${amendment.status}`}>
-									{amendment.status === "accepted" && "Przyjęta"}
-									{amendment.status === "pending" && "Oczekuje"}
-									{amendment.status === "rejected" && "Odrzucona"}
+					{billAmendments.length > 0 ? (
+						billAmendments.map((amendment) => (
+							<div key={amendment.id} className="amendment-card">
+								<div className="amendment-main">
+									<div className="amendment-id">Poprawka nr {amendment.id}</div>
+									<div className="amendment-title">{amendment.title}</div>
+									<div className="amendment-author">
+										Autor: {amendment.author}
+									</div>
 								</div>
 
-								<Link
-									to={`/uchwaly/${id}/poprawki/${amendment.id}`}
-									className="read-more"
-								>
-									Wyświetl szczegóły
-								</Link>
+								<div className="amendment-status">
+									<div className={`status-badge ${amendment.status}`}>
+										{amendment.status === "accepted" && "Przyjęta"}
+										{amendment.status === "pending" && "Oczekuje"}
+										{amendment.status === "rejected" && "Odrzucona"}
+									</div>
+
+									<Link
+										to={`/uchwala/${billId}/poprawka/${amendment.id}`}
+										className="read-more"
+										state={{ amendment }}
+									>
+										Wyświetl szczegóły
+									</Link>
+								</div>
 							</div>
-						</div>
-					))}
+						))
+					) : (
+						<p>Nie ma jeszcze żadnych poprawek do tej uchwały.</p>
+					)}
 				</div>
 			</div>
 		</div>

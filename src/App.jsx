@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Resolutions from "./pages/Resolutions";
 import SubmitResolution from "./pages/SubmitResolution";
+import AmendmentDetails from "./pages/AmendmentDetails";
 import { Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
 import ResolutionDetails from "./pages/ResolutionDetails";
@@ -34,10 +35,10 @@ export default function App() {
 					<Route path="/dashboard" element={<Dashboard />} />
 					<Route path="/uchwaly" element={<Resolutions />} />
 					<Route path="/zloz-uchwale" element={<SubmitResolution />} />
-					<Route path="/uchwaly/:id" element={<ResolutionDetails />} />
-					<Route path="/uchwaly/:id/poprawki" element={<AmendmentsPage />} />
+					<Route path="/uchwala/:id" element={<ResolutionDetails />} />
+					<Route path="/uchwala/:id/poprawki" element={<AmendmentsPage />} />
 					<Route
-						path="/uchwaly/:id/poprawka/:amendmentId"
+						path="/uchwala/:id/poprawka/:amendmentId"
 						element={<AmendmentDetails />}
 					/>
 				</Routes>
