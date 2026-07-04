@@ -81,11 +81,11 @@
 	letter-spacing: 0.04em;
 	font-family: inherit;
 	cursor: pointer;
-	transition: filter 0.15s ease;
+	transition: background 0.15s ease;
 }
 
 .dashboard__card-button:hover {
-	filter: brightness(1.06);
+	background: #0d94c2;
 }
 
 .dashboard__actions {
@@ -111,7 +111,7 @@
 	font-family: inherit;
 	cursor: pointer;
 	box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
-	transition: filter 0.15s ease;
+	transition: filter 0.5s ease;
 	text-decoration: none;
 }
 
@@ -124,7 +124,7 @@
 }
 
 .dashboard__action:hover {
-	filter: brightness(1.06);
+	filter: brightness(1.5);
 }
 
 .dashboard__calendar-wrap {

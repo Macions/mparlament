@@ -1,6 +1,7 @@
 import React from "react";
 import { useParams, Link } from "react-router-dom";
 import "./ResolutionDetails.css";
+import { useEffect } from "react";
 
 const resolutions = [
 	{
@@ -46,6 +47,12 @@ const resolutions = [
 ];
 
 export default function ResolutionDetails() {
+	useEffect(() => {
+  window.scrollTo({
+    top: 0,
+    behavior: "instant"
+  });
+}, []);
 	const { id } = useParams();
 
 	const resolution = resolutions.find((r) => r.id === Number(id));

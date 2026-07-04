@@ -13,31 +13,36 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
 import ResolutionDetails from "./pages/ResolutionDetails";
 import AmendmentsPage from "./pages/AmendmentsPage";
+import { useEffect } from "react";
+import usePageAnim from "./useReveal";
 
 export default function App() {
 	const location = useLocation();
+	usePageAnim();
 
 	return (
-		<div
-			className={`app ${location.pathname === "/zloz-uchwale" ? "no-bg" : ""}`}
-		>
+		<div className="app" key={location.pathname}>
 			<Header />
-			<main className="main">
+
+			<main className="main" key={location.pathname}>
 				<Routes>
 					<Route path="/" element={<Home />} />
-
 					<Route path="/o-parlamencie" element={<About />} />
 					<Route path="/posiedzenia" element={<Meetings />} />
 					<Route path="/parlamentarzysci" element={<Members />} />
-
 					<Route path="/zaloguj" element={<Login />} />
 					<Route path="/dashboard" element={<Dashboard />} />
 					<Route path="/uchwaly" element={<Resolutions />} />
 					<Route path="/zloz-uchwale" element={<SubmitResolution />} />
 					<Route path="/uchwaly/:id" element={<ResolutionDetails />} />
 					<Route path="/uchwaly/:id/poprawki" element={<AmendmentsPage />} />
+					<Route
+						path="/uchwaly/:id/poprawka/:amendmentId"
+						element={<AmendmentDetails />}
+					/>
 				</Routes>
 			</main>
+
 			<SocialFooter />
 		</div>
 	);
