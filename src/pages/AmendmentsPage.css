@@ -112,21 +112,27 @@
 	transition: transform 0.2s ease;
 	transform: translateZ(0);
 	will-change: transform;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
+.AddBtn {
+  all: unset;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 150px;
 
+  color: var(--red);
+  font-size: 30px;
+  font-weight: 500;
+  cursor: pointer;
+}
 .addAmendment:hover {
 	transform: scale(0.97);
 }
-.addAmendment button{
-	background: none;
-	border: none;
-	color: var(--red);
-	font-size: 30px;
-	width: 100%;
-	min-height: 150px;
-	cursor: pointer;
-	font-weight: 500;
-}
+
 /* LISTA POPRAWEK */
 .amendments-list {
 	display: flex;

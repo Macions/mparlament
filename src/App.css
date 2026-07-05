@@ -278,6 +278,11 @@ body {
 	letter-spacing: 0.05em;
 	color: var(--color-white-75);
 }
+.zlozUchwale-button {
+	text-decoration: none;
+	color: inherit;
+}
+
 .zlozUchwale-button__label {
 	font-size: 2.5rem;
 	font-weight: 600;
@@ -287,6 +292,8 @@ body {
 	transition:
 		background 0.15s ease,
 		box-shadow 0.15s ease;
+	text-decoration: none;
+	color: inherit;
 }
 
 .zlozUchwale-button__label:hover {

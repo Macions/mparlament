@@ -5,33 +5,39 @@ import "./AmendmentsPage.css";
 import { bills, amendments, resolutions } from "../data/legislation";
 
 export default function AmendmentsPage() {
-	const { id } = useParams();
-	const billId = Number(id);
+	const { slug } = useParams();
 
-	const currentBill = bills.find((bill) => bill.id === billId);
-	const currentResolution = resolutions.find((r) => r.id === billId);
+	// lookup po slug zamiast po ID
+	const currentBill = bills.find((b) => b.slug === slug);
+	const currentResolution = resolutions.find((r) => r.slug === slug);
 
+	// warstwa pośrednia – wyciągamy ID z tego, co znaleźliśmy
+	const relatedBillId = currentBill?.id || currentResolution?.billId;
+
+	// filtrowanie po relacji ID, nie po slugu
 	const billAmendments = amendments.filter(
-		(amendment) => amendment.billId === billId
+		(amendment) => amendment.billId === relatedBillId,
 	);
 
 	if (!currentBill && !currentResolution) {
-		return <div>Nie znaleziono uchwały #{id}</div>;
+		return <div>Nie znaleziono uchwały #{slug}</div>;
 	}
 
-	// Pobieramy dane z bills lub resolutions
-	const title = currentBill?.title || currentResolution?.title;
+	// dane z bills lub resolutions
+	const title = currentResolution?.title;
 	const submittedBy = currentResolution?.submittedBy;
 	const date = currentResolution?.date;
 	const meeting = currentResolution?.meeting;
 
-	// Rozbijamy meeting na części
-	const meetingParts = meeting ? meeting.split(": ") : ["Posiedzenie: Warszawa", "20.05"];
+	const meetingParts = meeting
+		? meeting.split(": ")
+		: ["Posiedzenie: Warszawa", "20.05"];
 
 	return (
 		<div className="amendments-page">
 			<div className="uchwaly-bar">
-				<Link to={`/uchwala/${billId}`} className="uchwaly-title">
+				{/* link z użyciem sluga */}
+				<Link to={`/${slug}`} className="uchwaly-title">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						width="50"
@@ -56,8 +62,9 @@ export default function AmendmentsPage() {
 			</div>
 
 			<div className="amendments-container">
+				{/* header z slugiem zamiast ID */}
 				<h1 className="page-title">
-					Poprawki do uchwały #{billId}
+					Poprawki do uchwały
 					{title && (
 						<>
 							<br />
@@ -66,20 +73,10 @@ export default function AmendmentsPage() {
 					)}
 				</h1>
 
-				{submittedBy && (
-					<p className="submitted-info">
-						Wrzucona przez: <strong>{submittedBy}</strong>
-					</p>
-				)}
-
-				{date && (
-					<p className="date-info">
-						Data: <strong>{date}</strong>
-					</p>
-				)}
-
 				<div className="addAmendment">
-					<button>Dodaj poprawkę</button>
+					<Link to={`/${slug}/dodaj-poprawke`} className="AddBtn">
+						Dodaj poprawkę
+					</Link>
 				</div>
 
 				<div className="amendments-list">
@@ -87,8 +84,9 @@ export default function AmendmentsPage() {
 						billAmendments.map((amendment) => (
 							<div key={amendment.id} className="amendment-card">
 								<div className="amendment-main">
-									<div className="amendment-id">Poprawka nr {amendment.id}</div>
-									<div className="amendment-title">{amendment.title}</div>
+									<div className="amendment-title">
+										Poprawka nr {amendment.id}
+									</div>
 									<div className="amendment-author">
 										Autor: {amendment.author}
 									</div>
@@ -101,8 +99,9 @@ export default function AmendmentsPage() {
 										{amendment.status === "rejected" && "Odrzucona"}
 									</div>
 
+									{/* link do szczegółów poprawki też ze slugiem */}
 									<Link
-										to={`/uchwala/${billId}/poprawka/${amendment.id}`}
+										to={`/${slug}/poprawka/${amendment.id}`}
 										className="read-more"
 										state={{ amendment }}
 									>

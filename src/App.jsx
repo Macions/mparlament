@@ -14,6 +14,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
 import ResolutionDetails from "./pages/ResolutionDetails";
 import AmendmentsPage from "./pages/AmendmentsPage";
+import AddAmendment from "./pages/AddAmendment";
 import { useEffect } from "react";
 import usePageAnim from "./useReveal";
 
@@ -35,10 +36,11 @@ export default function App() {
 					<Route path="/dashboard" element={<Dashboard />} />
 					<Route path="/uchwaly" element={<Resolutions />} />
 					<Route path="/zloz-uchwale" element={<SubmitResolution />} />
-					<Route path="/uchwala/:id" element={<ResolutionDetails />} />
-					<Route path="/uchwala/:id/poprawki" element={<AmendmentsPage />} />
+					<Route path="/:slug" element={<ResolutionDetails />} />
+					<Route path="/:slug/poprawki" element={<AmendmentsPage />} />
+					<Route path="/:slug/dodaj-poprawke" element={<AddAmendment />} />
 					<Route
-						path="/uchwala/:id/poprawka/:amendmentId"
+						path="/:slug/poprawka/:amendmentId"
 						element={<AmendmentDetails />}
 					/>
 				</Routes>

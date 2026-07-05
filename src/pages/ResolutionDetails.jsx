@@ -11,8 +11,8 @@ export default function ResolutionDetails() {
 		});
 	}, []);
 
-	const { id } = useParams();
-	const resolution = resolutions.find((r) => r.id === Number(id));
+	const { slug } = useParams();
+	const resolution = resolutions.find((r) => r.slug === slug);
 
 	if (!resolution) {
 		return <h2>Nie znaleziono uchwały</h2>;
@@ -21,7 +21,7 @@ export default function ResolutionDetails() {
 	return (
 		<div className="mparlament-page">
 			<div className="uchwaly-bar">
-				<a className="uchwaly-title" href="/uchwaly">
+				<Link className="uchwaly-title" to="/uchwaly">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						width="50"
@@ -36,13 +36,15 @@ export default function ResolutionDetails() {
 						/>
 					</svg>
 					WRÓĆ
-				</a>
+				</Link>
+
 				<div className="session-info">
 					Posiedzenie: Warszawa
 					<br />
 					<span>20.05</span>
 				</div>
 			</div>
+
 			<main className="resolution-card">
 				<h1 className="resolution-title">{resolution.title}</h1>
 
@@ -79,7 +81,7 @@ export default function ResolutionDetails() {
 						</button>
 
 						<Link
-							to={`/uchwala/${resolution.id}/poprawki`}
+							to={`/${resolution.slug}/poprawki`}
 							className="btn btn-pill btn-red btn-wide amend-btn"
 						>
 							WYŚWIETL POPRAWKI
