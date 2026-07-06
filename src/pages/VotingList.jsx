@@ -105,6 +105,8 @@ function getResult(vote) {
 export default function Votings() {
 	const [filter, setFilter] = useState("all");
 	const [now, setNow] = useState(Date.now());
+	// Tymczasowo true dla testów
+	const [isAdmin, setIsAdmin] = useState(true);
 
 	useEffect(() => {
 		const interval = setInterval(() => setNow(Date.now()), 1000);
@@ -154,6 +156,16 @@ export default function Votings() {
 			</div>
 
 			<div className="votings-grid">
+				{/* Kafelek tworzenia nowego głosowania - zawsze pierwszy */}
+				{isAdmin && (
+					<Link to="/glosowania/nowe" className="voting-card create-vote-card">
+						<div className="create-vote-content">
+							<div className="create-vote-icon">+</div>
+							<h3>Utwórz nowe głosowanie</h3>
+						</div>
+					</Link>
+				)}
+
 				{filteredVotes.map((vote) => {
 					const status = getVoteStatus(vote);
 					const end = new Date(vote.startTime).getTime() + vote.durationMs;

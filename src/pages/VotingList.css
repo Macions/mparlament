@@ -1,7 +1,7 @@
 .votings-page {
 	padding: 40px 20px;
-	
-    width: 100%;
+
+	width: 100%;
 	margin: 0 auto;
 }
 
@@ -19,6 +19,51 @@
 .votings-header p {
 	font-size: 1.15rem;
 	color: #555;
+}
+
+.create-vote-card {
+	border: 2px dashed var(--primary-color, #2563eb) !important;
+	background: rgba(37, 99, 235, 0.03) !important;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 200px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	text-decoration: none;
+}
+
+.create-vote-card:hover {
+	background: rgba(37, 99, 235, 0.08) !important;
+	border-color: var(--primary-hover, #1d4ed8) !important;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
+.create-vote-content {
+	text-align: center;
+	color: var(--primary-color, #2563eb);
+}
+
+.create-vote-icon {
+	font-size: 3rem;
+	font-weight: 300;
+	line-height: 1;
+	margin-bottom: 1rem;
+	color: var(--primary-color, #2563eb);
+}
+
+.create-vote-content h3 {
+	font-size: 1.25rem;
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+	color: var(--primary-color, #2563eb);
+}
+
+.create-vote-content p {
+	font-size: 0.875rem;
+	color: #64748b;
+	margin: 0;
 }
 
 
@@ -146,7 +191,7 @@
 
 .vote-now-btn:hover {
 	background: var(--navy-deep);
-	
+
 }
 
 

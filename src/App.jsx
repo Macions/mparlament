@@ -19,6 +19,7 @@ import { useEffect } from "react";
 import usePageAnim from "./useReveal";
 import VotingList from "./pages/VotingList";
 import VotingPage from "./pages/VotingPage";
+import CreateVoting from "./pages/CreateVoting";
 
 export default function App() {
 	const location = useLocation();
@@ -47,6 +48,7 @@ export default function App() {
 					/>
 					<Route path="/glosowania" element={<VotingList />} />
 					<Route path="/glosowanie/:id" element={<VotingPage />} />
+					<Route path="/glosowania/nowe" element={<CreateVoting />} />
 				</Routes>
 			</main>
 
