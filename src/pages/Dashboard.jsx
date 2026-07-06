@@ -24,12 +24,8 @@ export default function Dashboard() {
 	return (
 		<div className="dashboard">
 			<section className="dashboard__user">
-				<p className="dashboard__user-name">
-					Zalogowano jako Jan Kowalski
-				</p>
-				<p className="dashboard__user-club">
-					KLUB PARLAMENTARNY CZAS MŁODYCH
-				</p>
+				<p className="dashboard__user-name">Zalogowano jako Jan Kowalski</p>
+				<p className="dashboard__user-club">KLUB PARLAMENTARNY CZAS MŁODYCH</p>
 			</section>
 
 			<div className="dashboard__grid">
@@ -40,10 +36,7 @@ export default function Dashboard() {
 						W tej chwili nie odbywa się żadne posiedzenie.
 					</p>
 
-					<button
-						type="button"
-						className="dashboard__card-button"
-					>
+					<button type="button" className="dashboard__card-button">
 						ŚLEDŹ POSIEDZENIE
 					</button>
 				</article>
@@ -61,6 +54,12 @@ export default function Dashboard() {
 						className="dashboard__action dashboard__action--submit"
 					>
 						ZŁÓŻ UCHWAŁĘ
+					</Link>
+					<Link
+						to="/glosowania"
+						className="dashboard__action dashboard__action--voting"
+					>
+						GŁOSOWANIA
 					</Link>
 				</div>
 

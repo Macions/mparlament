@@ -7,14 +7,14 @@ import { bills, amendments, resolutions } from "../data/legislation";
 export default function AmendmentsPage() {
 	const { slug } = useParams();
 
-	// lookup po slug zamiast po ID
+
 	const currentBill = bills.find((b) => b.slug === slug);
 	const currentResolution = resolutions.find((r) => r.slug === slug);
 
-	// warstwa pośrednia – wyciągamy ID z tego, co znaleźliśmy
+
 	const relatedBillId = currentBill?.id || currentResolution?.billId;
 
-	// filtrowanie po relacji ID, nie po slugu
+
 	const billAmendments = amendments.filter(
 		(amendment) => amendment.billId === relatedBillId,
 	);
@@ -23,7 +23,7 @@ export default function AmendmentsPage() {
 		return <div>Nie znaleziono uchwały #{slug}</div>;
 	}
 
-	// dane z bills lub resolutions
+
 	const title = currentResolution?.title;
 	const submittedBy = currentResolution?.submittedBy;
 	const date = currentResolution?.date;
@@ -36,7 +36,7 @@ export default function AmendmentsPage() {
 	return (
 		<div className="amendments-page">
 			<div className="uchwaly-bar">
-				{/* link z użyciem sluga */}
+				
 				<Link to={`/${slug}`} className="uchwaly-title">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -62,7 +62,7 @@ export default function AmendmentsPage() {
 			</div>
 
 			<div className="amendments-container">
-				{/* header z slugiem zamiast ID */}
+				
 				<h1 className="page-title">
 					Poprawki do uchwały
 					{title && (
@@ -99,7 +99,7 @@ export default function AmendmentsPage() {
 										{amendment.status === "rejected" && "Odrzucona"}
 									</div>
 
-									{/* link do szczegółów poprawki też ze slugiem */}
+									
 									<Link
 										to={`/${slug}/poprawka/${amendment.id}`}
 										className="read-more"

@@ -29,7 +29,7 @@
 	pointer-events: auto;
 }
 
-/* Główna animacja modalu */
+
 @keyframes modalPop {
 	from {
 		transform: scale(0.75) translateY(40px);
@@ -41,7 +41,7 @@
 	}
 }
 
-/* ====================== CHECKMARK ====================== */
+
 
 .check-wrapper {
 	display: flex;
@@ -100,7 +100,7 @@
 	}
 }
 
-/* ====================== TREŚĆ Z ANIMACJAMI ====================== */
+
 
 .success-modal h2 {
 	margin: 16px 0 12px;
@@ -135,7 +135,7 @@
 	color: var(--color-primary);
 }
 
-/* Przycisk */
+
 .redirect-btn {
 	background: var(--color-primary);
 	color: var(--color-white);
@@ -160,7 +160,7 @@
 	box-shadow: 0 15px 35px rgba(20, 22, 68, 0.28);
 }
 
-/* Animacja fade + slide */
+
 @keyframes fadeUp {
 	from {
 		opacity: 0;

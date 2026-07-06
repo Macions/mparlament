@@ -6,7 +6,7 @@
 	--red: #ee2b3e;
 }
 
-/* Podstawowe przyciski */
+
 .btn {
 	border: none;
 	cursor: pointer;
@@ -25,7 +25,7 @@
 	transform: translateY(0);
 }
 
-/* Główny layout */
+
 .amendment-details {
 	width: 100%;
 	max-width: 1200px;
@@ -61,7 +61,7 @@
 	color: var(--navy);
 }
 
-/* Główna zawartość */
+
 .main-content {
 	background: white;
 	border-radius: 22px;
@@ -77,7 +77,7 @@
 	margin: 0 0 24px 0;
 }
 
-/* Status badge */
+
 .status-badge {
 	text-align: center;
 	margin: 0 auto 36px;
@@ -105,7 +105,7 @@
 	color: #721c24;
 }
 
-/* Grupa zmian – kontener dla każdej poprawki */
+
 .changes-group {
 	margin-bottom: 40px;
 	padding-bottom: 32px;
@@ -125,7 +125,7 @@
 	padding-left: 4px;
 }
 
-/* Sekcja diff – porównanie obok siebie */
+
 .diff-section {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
@@ -174,7 +174,7 @@
 	margin: 0;
 }
 
-/* Pusty stan */
+
 .no-changes {
 	text-align: center;
 	color: #999;
@@ -182,7 +182,7 @@
 	padding: 40px 0;
 }
 
-/* Przycisk */
+
 .generate-section {
 	text-align: center;
 	margin-top: 12px;
@@ -206,7 +206,7 @@
 	transform: translateY(-4px);
 }
 
-/* Responsywność */
+
 @media (max-width: 900px) {
 	.diff-section {
 		grid-template-columns: 1fr;

@@ -17,7 +17,7 @@ export default function SubmitResolution() {
 
 	const navigate = useNavigate();
 
-	// ==================== FILE HANDLING ====================
+
 	const handleFileChange = (e) => {
 		const f = e.target.files[0];
 		if (f && f.name.endsWith(".docx")) {
@@ -50,7 +50,7 @@ export default function SubmitResolution() {
 		}
 	};
 
-	// ==================== EDYCJA ====================
+
 	const updateField = (path, value) => {
 		setEditedData((prev) => {
 			const newData = { ...prev };
@@ -104,7 +104,7 @@ export default function SubmitResolution() {
 		});
 	};
 
-	// ==================== SUBMIT ====================
+
 	const handleSubmit = () => {
 		if (!editedData || submitting) return;
 
@@ -127,7 +127,7 @@ export default function SubmitResolution() {
 
 			<div className="submit-container">
 				<div className="form-card">
-					{/* Nazwa uchwały */}
+					
 					<div className="form-group">
 						<label className="label">Nazwa uchwały</label>
 						<input
@@ -139,7 +139,7 @@ export default function SubmitResolution() {
 						/>
 					</div>
 
-					{/* Upload */}
+					
 					<div className="form-group">
 						<label className="label">Dodaj plik DOCX</label>
 						<div className="file-upload-area">
@@ -172,7 +172,7 @@ export default function SubmitResolution() {
 								: "Analizuj ustawę"}
 					</button>
 
-					{/* EDYTOR */}
+					
 					{editedData && (
 						<div className="editor-section">
 							<div className="editor-header">

@@ -4,7 +4,7 @@ import "./AddAmendment.css";
 
 import { bills, resolutions } from "../data/legislation";
 
-// Tymczasowo – później z kontekstu auth
+
 const CURRENT_USER = {
 	name: "Jan Wiśniewski",
 	club: "Klub Postępu",
@@ -69,7 +69,7 @@ export default function AddAmendment() {
 		{ id: Date.now(), articleId: "", type: "", to: "" },
 	]);
 
-	// Podgląd na żywo
+
 	const previewBill = useMemo(() => {
 		if (!relatedBill) return null;
 		const validChanges = changes.filter(
@@ -199,7 +199,7 @@ export default function AddAmendment() {
 					{resolution?.title || relatedBill.title}
 				</p>
 
-				{/* Autor z sesji – tylko podgląd */}
+				
 				<div className="author-badge">
 					<span className="author-icon">👤</span>
 					{CURRENT_USER.name} – {CURRENT_USER.club}
@@ -233,7 +233,7 @@ export default function AddAmendment() {
 									)}
 								</div>
 
-								{/* Krok 1: Wybór artykułu (tylko dla modify i delete) */}
+								
 								{change.type !== "add" && (
 									<div className="form-group">
 										<label>Wybierz artykuł</label>
@@ -258,7 +258,7 @@ export default function AddAmendment() {
 									</div>
 								)}
 
-								{/* Krok 2: Rodzaj zmiany – zawsze widoczny */}
+								
 								<div className="form-group">
 									<label>Rodzaj zmiany</label>
 									<div className="change-types">
@@ -275,7 +275,7 @@ export default function AddAmendment() {
 									</div>
 								</div>
 
-								{/* Krok 3: Treść dla modify i add */}
+								
 								{(change.type === "modify" || change.type === "add") && (
 									<div className="form-group">
 										<label>
@@ -300,7 +300,7 @@ export default function AddAmendment() {
 									</div>
 								)}
 
-								{/* Info dla delete */}
+								
 								{change.type === "delete" && change.articleId && (
 									<div className="delete-info">
 										⚠️ Ten artykuł zostanie <strong>usunięty</strong> z ustawy.
@@ -310,7 +310,7 @@ export default function AddAmendment() {
 						))}
 					</div>
 
-					{/* Podgląd diffa */}
+					
 					{changedArticles.length > 0 && (
 						<div className="preview-section">
 							<h2 className="preview-title">Podgląd zmian</h2>

@@ -9,7 +9,7 @@
 	--text-light: #f4f6fb;
 }
 
-/* Podstawowe przyciski */
+
 .btn {
 	border: none;
 	cursor: pointer;
@@ -34,7 +34,7 @@
 	width: 100%;
 	max-width: 1200px;
 }
-/* KARTA GŁÓWNA */
+
 .amendments-container {
 	background: white;
 	width: 100%;
@@ -45,7 +45,7 @@
 	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-/* TYTUŁ STRONY */
+
 .page-title {
 	color: var(--navy);
 	font-size: 42px;
@@ -59,7 +59,7 @@
 	font-weight: 400;
 }
 
-/* PASEK NAWIGACYJNY */
+
 .nav-bar {
 	display: flex;
 	align-items: center;
@@ -133,7 +133,7 @@
 	transform: scale(0.97);
 }
 
-/* LISTA POPRAWEK */
+
 .amendments-list {
 	display: flex;
 	flex-direction: column;
@@ -180,7 +180,7 @@
 	font-weight: 600;
 }
 
-/* Status */
+
 .status-badge {
 	padding: 14px 32px;
 	border-radius: 50px;
@@ -225,7 +225,7 @@
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* RESPONSIVE */
+
 @media (max-width: 900px) {
 	.amendments-container {
 		padding: 32px 24px;

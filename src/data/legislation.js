@@ -61,7 +61,7 @@ export const bills = [
 ];
 
 export const amendments = [
-	// ========== BILL 1 – Ustawa o edukacji ==========
+
 	{
 		id: "am_101",
 		billId: "bill_1",
@@ -163,7 +163,7 @@ export const amendments = [
 		],
 	},
 
-	// ========== BILL 2 – Ustawa o rolnictwie ==========
+
 	{
 		id: "am_201",
 		billId: "bill_2",
@@ -265,7 +265,7 @@ export const amendments = [
 		],
 	},
 
-	// ========== BILL 3 – Ustawa o ochronie zdrowia ==========
+
 	{
 		id: "am_301",
 		billId: "bill_3",
@@ -361,7 +361,7 @@ export const amendments = [
 		],
 	},
 
-	// ========== BILL 4 – Ustawa o górnictwie ==========
+
 	{
 		id: "am_401",
 		billId: "bill_4",

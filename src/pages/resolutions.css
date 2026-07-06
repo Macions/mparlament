@@ -60,7 +60,7 @@
 	box-shadow: 0 10px 22px rgba(230, 57, 70, 0.45);
 }
 
-/* GŁÓWNY PASEK */
+
 .uchwaly-bar {
 	background: #0a1f3d;
 	color: white;
@@ -97,7 +97,7 @@
 	font-weight: 700;
 }
 
-/* LISTA UCHWAŁ */
+
 .resolutions-list {
 	max-width: 1900px;
 	margin: 0 auto;

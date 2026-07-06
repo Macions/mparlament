@@ -42,7 +42,7 @@
 	font-style: italic;
 }
 
-/* Autor badge */
+
 .author-badge {
 	display: flex;
 	align-items: center;
@@ -63,7 +63,7 @@
 	font-size: 20px;
 }
 
-/* Form */
+
 .form-group {
 	margin-bottom: 22px;
 }
@@ -107,7 +107,7 @@
 	cursor: not-allowed;
 }
 
-/* Change types */
+
 .change-types {
 	display: flex;
 	gap: 12px;
@@ -140,7 +140,7 @@
 	border-color: var(--darkcyan);
 }
 
-/* Zmiany */
+
 .changes-section {
 	margin: 32px 0;
 }
@@ -222,7 +222,7 @@
 	border-left: 4px solid #f59e0b;
 }
 
-/* Podgląd */
+
 .preview-section {
 	margin: 36px 0;
 	padding: 28px;
@@ -305,7 +305,7 @@
 	font-weight: 700;
 }
 
-/* Akcje */
+
 .form-actions {
 	display: flex;
 	gap: 16px;

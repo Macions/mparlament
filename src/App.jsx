@@ -17,6 +17,8 @@ import AmendmentsPage from "./pages/AmendmentsPage";
 import AddAmendment from "./pages/AddAmendment";
 import { useEffect } from "react";
 import usePageAnim from "./useReveal";
+import VotingList from "./pages/VotingList";
+import VotingPage from "./pages/VotingPage";
 
 export default function App() {
 	const location = useLocation();
@@ -43,6 +45,8 @@ export default function App() {
 						path="/:slug/poprawka/:amendmentId"
 						element={<AmendmentDetails />}
 					/>
+					<Route path="/glosowania" element={<VotingList />} />
+					<Route path="/glosowanie/:id" element={<VotingPage />} />
 				</Routes>
 			</main>
 

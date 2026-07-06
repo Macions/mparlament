@@ -120,13 +120,18 @@
 }
 
 .dashboard__action--submit {
-	background: #ef233c;
+	background: #2a9d8f;
 }
 
 .dashboard__action:hover {
 	filter: brightness(1.5);
 }
-
+.dashboard__action--voting {
+	background: #ef233c;
+}
+.dashboard__action:hover {
+	filter: brightness(1.1);
+}
 .dashboard__calendar-wrap {
 	flex: 1;
 	display: flex;

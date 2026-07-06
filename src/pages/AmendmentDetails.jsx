@@ -31,7 +31,7 @@ export default function AmendmentDetails() {
 
 	const group = amendments.find((a) => a.id === amendmentId);
 
-	// bierzemy wszystkie zmiany które pasują do tego billa
+
 	const changes =
 		group?.changes?.filter((c) =>
 			relatedBill?.articles.some((a) => a.id === c.articleId),
@@ -46,7 +46,7 @@ export default function AmendmentDetails() {
 		return <div>Nie znaleziono poprawki</div>;
 	}
 
-	// console.log(group?.changes);
+
 	const changedArticles =
 		processedBill?.articles.filter((a) => a.changed) || [];
 
