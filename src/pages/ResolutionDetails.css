@@ -1,12 +1,56 @@
+@import "./uchwalyBar.css";
+
 :root {
 	--navy: #161a4a;
 	--navy-deep: #11144a;
 	--cyan: #29c5f0;
 	--cyan-hover: #1ab3e0;
+	--darkcyan: #0090bb;
 	--red: #ee2b3e;
 	--red-hover: #d81f33;
 	--bg-grey: #e9e9ef;
 	--text-light: #f4f6fb;
+
+	/* Kolory dla statusów */
+	--de-color-primary: #102360;
+	--de-color-primary-hover: #1e3a8a;
+	--de-color-primary-light: #eff6ff;
+	--de-color-primary-border: #bfdbfe;
+	--de-color-success: #15803d;
+	--de-color-success-light: #f0fdf4;
+	--de-color-success-border: #bbf7d0;
+	--de-color-danger: #dc2626;
+	--de-color-danger-light: #fef2f2;
+
+	/* Kolory tekstu */
+	--color-ink-900: #0f172a;
+	--color-ink-700: #334155;
+	--color-ink-500: #64748b;
+	--color-ink-400: #94a3b8;
+
+	/* Kolory tła i obramowań */
+	--color-border: #e2e8f0;
+	--color-border-strong: #cbd5e1;
+	--color-surface: #ffffff;
+	--color-surface-muted: #f8fafc;
+	--color-surface-subtle: #f1f5f9;
+
+	/* Cienie */
+	--shadow-button: 0 6px 14px rgba(30, 64, 175, 0.35);
+	--shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+	--shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
+	--shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.1);
+	--shadow-focus: 0 0 0 4px rgba(30, 64, 175, 0.12);
+
+	/* Zaokrąglenia */
+	--radius-sm: 8px;
+	--radius-md: 12px;
+	--radius-lg: 22px;
+	--radius-full: 9999px;
+
+	/* Przejścia */
+	--transition-fast: 0.15s ease;
+	--transition-base: 0.2s ease;
 }
 
 .btn {
@@ -29,12 +73,11 @@
 }
 
 .btn-pill {
-	border-radius: 50px;
+	border-radius: var(--radius-full);
 }
 
-
 .btn-primary {
-	background: var(--color-primary);
+	background: var(--de-color-primary);
 	box-shadow: var(--shadow-button);
 }
 
@@ -42,37 +85,33 @@
 	filter: brightness(1.1);
 }
 
-
 .btn-red {
-	background: #f11d39;
-	box-shadow: 0 6px 14px rgba(241, 29, 57, 0.35);
-    transition: filter 0.5s ease;
+	background: var(--red);
+	box-shadow: 0 6px 14px rgba(238, 43, 62, 0.35);
+	transition: filter 0.5s ease;
 }
 
 .btn-red:hover {
-	filter: brightness(2.0);
+	filter: brightness(2);
 }
 
-
 .resolution-card {
-	background: white;
+	background: var(--color-surface);
 	width: 100%;
 	max-width: 1900px;
 	margin: 0 auto;
-	border-radius: 22px;
+	border-radius: var(--radius-lg);
 	padding: 48px 60px;
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+	box-shadow: var(--shadow-lg);
 }
 
-
 .resolution-title {
-	color: var(--color-primary);
+	color: black;
 	font-size: 36px;
 	font-weight: 800;
 	margin: 0 0 36px 0;
 	text-align: center;
 }
-
 
 .resolution-grid {
 	display: flex;
@@ -83,7 +122,6 @@
 	flex-wrap: wrap;
 }
 
-
 .resolution-left {
 	display: flex;
 	flex-direction: column;
@@ -91,7 +129,7 @@
 }
 
 .file-box {
-	background: var(--color-primary);
+	background: var(--de-color-primary);
 	color: white;
 	font-weight: 700;
 	font-size: 28px;
@@ -102,11 +140,11 @@
 	padding: 0 40px;
 	justify-content: center;
 }
+
 .file-box a {
 	text-decoration: none;
 	color: inherit;
 }
-
 
 .signatures-row {
 	display: flex;
@@ -122,7 +160,7 @@
 	gap: 35px;
 	align-items: center;
 	justify-content: space-between;
-	background: var(--color-primary);
+	background: var(--de-color-primary);
 	color: white;
 	font-weight: 800;
 	font-size: 20px;
@@ -131,7 +169,7 @@
 }
 
 .signatures-count .check-signatures-btn {
-	background: #03bfed;
+	background: var(--cyan);
 	color: white;
 	font-weight: 900;
 	font-size: 22px;
@@ -149,20 +187,20 @@
 }
 
 .btn-wide.sign-btn {
-	background: #03bfed;
-    transition: filter 0.5s all ease;
+	background: var(--cyan);
+	transition: filter 0.5s all ease;
 }
 
 .btn-wide.sign-btn:hover {
-    filter: brightness(2.0);
+	filter: brightness(2);
 }
-
 
 .resolution-right {
 	display: flex;
 	flex-direction: column;
 	gap: 22px;
 }
+
 .mparlament-subbar {
 	display: flex;
 	align-items: center;
@@ -172,110 +210,61 @@
 	padding: 0 30px;
 	gap: 20px;
 }
-.amend-btn{
-    text-decoration: none;
-    color: white;
-    text-align: center;
+
+.amend-btn {
+	text-decoration: none;
+	color: white;
+	text-align: center;
 }
+
 .back-btn {
 	display: flex;
 	align-items: center;
 	gap: 10px;
-
-	background: #0a1f3d;
+	background: var(--navy);
 	color: white;
-
 	border: none;
-	border-radius: 50px;
-
+	border-radius: var(--radius-full);
 	padding: 14px 28px;
-
 	font-size: 18px;
 	font-weight: 700;
-
 	cursor: pointer;
-
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-	transition: all 0.2s ease;
+	box-shadow: var(--shadow-sm);
+	transition: all var(--transition-base);
 }
 
 .back-btn:hover {
-	background: #e63946;
+	background: var(--red);
 	transform: translateY(-2px);
-	box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+	box-shadow: var(--shadow-md);
 }
+
 .meeting-pill {
-	background: #00b4d8;
+	background: var(--cyan);
 	color: white;
-
 	padding: 14px 32px;
-	border-radius: 999px;
-
+	border-radius: var(--radius-full);
 	font-size: 18px;
 	font-weight: 700;
-
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+	box-shadow: var(--shadow-sm);
 	white-space: nowrap;
 }
+
 .back-arrow {
 	font-size: 24px;
 	font-weight: 900;
 	line-height: 1;
 	transform: translateY(-1px);
 }
+
 .resolution-author {
-	color: var(--color-primary);
+	color: black;
 	font-size: 19px;
 	font-weight: 700;
 	margin: 0 0 10px 0;
 }
-.uchwaly-bar {
-	background: #0a1f3d;
-	color: white;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 28px 60px;
-	margin: 40px auto;
-	max-width: 1900px;
-	border-radius: 16px;
-	box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
-}
 
-.uchwaly-title {
-	font-size: 46px;
-	font-weight: 800;
-	margin: 0;
-	letter-spacing: 1.2px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration:none;
-    color: inherit;
-    transition: gap 0.2s ease;
-}
-
-.uchwaly-title:hover {
-    gap: 5px;
-}
-
-.session-info {
-	background: #00b4d8;
-	color: white;
-	padding: 18px 40px;
-	border-radius: 50px;
-	font-weight: 600;
-	font-size: 21px;
-	text-align: center;
-	min-width: 280px;
-}
-
-.session-info span {
-	font-size: 34px;
-	font-weight: 700;
-}
-
-
+/* Responsywność */
 @media (max-width: 900px) {
 	.resolution-grid {
 		flex-direction: column;
@@ -285,4 +274,198 @@
 	.resolution-card {
 		padding: 32px 24px;
 	}
+
+	.mparlament-subbar {
+		flex-direction: column;
+		align-items: stretch;
+		padding: 0 16px;
+	}
+
+	.meeting-pill {
+		text-align: center;
+		white-space: normal;
+	}
+}
+/* Panel podpisów - WYSUNIĘTY POZA KONTENER */
+.signatures-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.45);
+	z-index: 999;
+	animation: fadeIn 0.25s ease;
+}
+
+.signatures-panel {
+	position: fixed;
+	right: -450px !important;
+	top: 0;
+	width: 420px;
+	max-width: 90vw;
+	height: 100vh;
+	background: white;
+	z-index: 1000;
+	padding: 30px;
+	box-shadow: -15px 0 40px rgba(0, 0, 0, 0.2);
+	overflow-y: auto;
+	
+	/* Użyj transformacji do wysunięcia */
+	transform: translateX(100%);
+	animation: slidePanel 0.3s ease forwards;
+}
+
+/* Jeśli chcesz żeby był całkowicie poza kontenerem - użyj calc() */
+.signatures-panel {
+	position: fixed;
+	right: 0;
+	top: 0;
+	width: 420px;
+	max-width: 90vw;
+	height: 100vh;
+	background: white;
+	z-index: 1000;
+	padding: 30px;
+	box-shadow: -15px 0 40px rgba(0, 0, 0, 0.2);
+	overflow-y: auto;
+	
+	/* Wysuń panel poza kontener */
+	transform: translateX(100%);
+	animation: slidePanel 0.3s ease forwards;
+}
+
+/* Alternatywnie - użyj left: auto i right: 0 z margin */
+.signatures-panel {
+	position: fixed;
+	right: 0;
+	top: 0;
+	width: 420px;
+	max-width: 90vw;
+	height: 100vh;
+	background: white;
+	z-index: 1000;
+	padding: 30px;
+	box-shadow: -15px 0 40px rgba(0, 0, 0, 0.2);
+	overflow-y: auto;
+	
+	/* To wymusi wyświetlenie na samej krawędzi ekranu */
+	margin-right: 0;
+}
+
+@keyframes slidePanel {
+	0% {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	100% {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+/* Reszta stylów pozostaje bez zmian */
+.signatures-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 25px;
+}
+
+.signatures-header h2 {
+	margin: 0;
+	font-size: 24px;
+	color: var(--navy);
+}
+
+.close-panel {
+	border: none;
+	background: transparent;
+	font-size: 28px;
+	cursor: pointer;
+	padding: 5px 10px;
+	color: #666;
+	transition: all 0.2s;
+}
+
+.close-panel:hover {
+	color: var(--red);
+	transform: rotate(90deg);
+}
+
+.signatures-total {
+	background: #e8f9ff;
+	padding: 15px 20px;
+	border-radius: 12px;
+	margin-bottom: 20px;
+	font-size: 16px;
+	color: var(--navy);
+}
+
+.signatures-total strong {
+	color: var(--darkcyan);
+	font-size: 20px;
+}
+
+.signatures-list {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.signature-item {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	padding: 14px 16px;
+	border-radius: 12px;
+	transition: all 0.2s;
+}
+
+.signature-item:hover {
+	background: #f5f8ff;
+}
+
+.signature-item:not(:last-child) {
+	border-bottom: 1px solid #f0f2f5;
+}
+
+.signature-avatar {
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #eefaff;
+	font-size: 22px;
+	flex-shrink: 0;
+}
+
+.signature-info {
+	flex: 1;
+	min-width: 0;
+}
+
+.signature-info strong {
+	display: block;
+	font-size: 16px;
+	color: var(--navy);
+}
+
+.signature-info p {
+	margin: 2px 0;
+	font-size: 14px;
+	color: #666;
+}
+
+.signature-info span {
+	font-size: 12px;
+	color: #999;
 }

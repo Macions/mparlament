@@ -7,9 +7,9 @@
 
 .add-amendment {
 	width: 100%;
-	max-width: 960px;
-	margin: 40px auto;
-	padding: 0 20px;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 20px;
 }
 
 .not-found {
@@ -42,7 +42,6 @@
 	font-style: italic;
 }
 
-
 .author-badge {
 	display: flex;
 	align-items: center;
@@ -62,7 +61,6 @@
 .author-icon {
 	font-size: 20px;
 }
-
 
 .form-group {
 	margin-bottom: 22px;
@@ -88,17 +86,29 @@
 	font-family: inherit;
 	transition: border-color 0.2s;
 	box-sizing: border-box;
+	background: white;
+}
+
+.form-select {
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 16px center;
+	padding-right: 40px;
+	cursor: pointer;
 }
 
 .form-select:focus,
 .form-textarea:focus {
 	outline: none;
 	border-color: var(--cyan);
+	box-shadow: 0 0 0 4px rgba(41, 197, 240, 0.15);
 }
 
 .form-textarea {
 	resize: vertical;
 	min-height: 80px;
+	font-family: inherit;
 }
 
 .form-textarea:disabled {
@@ -106,7 +116,6 @@
 	color: #aaa;
 	cursor: not-allowed;
 }
-
 
 .change-types {
 	display: flex;
@@ -136,10 +145,8 @@
 
 .type-btn.active {
 	background: var(--darkcyan);
-	color: white;
 	border-color: var(--darkcyan);
 }
-
 
 .changes-section {
 	margin: 32px 0;
@@ -150,6 +157,8 @@
 	align-items: center;
 	justify-content: space-between;
 	margin-bottom: 22px;
+	flex-wrap: wrap;
+	gap: 12px;
 }
 
 .changes-header h2 {
@@ -168,11 +177,14 @@
 	font-weight: 700;
 	cursor: pointer;
 	transition: all 0.2s;
+	white-space: nowrap;
 }
 
 .add-change-btn:hover {
 	background: var(--darkcyan);
 	color: white;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(0, 144, 187, 0.3);
 }
 
 .change-card {
@@ -181,6 +193,12 @@
 	border-radius: 16px;
 	padding: 28px;
 	margin-bottom: 20px;
+	transition: all 0.2s;
+}
+
+.change-card:hover {
+	border-color: var(--cyan);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .change-card-header {
@@ -210,6 +228,7 @@
 
 .remove-change-btn:hover {
 	background: #fca5a5;
+	transform: scale(1.1);
 }
 
 .delete-info {
@@ -221,7 +240,6 @@
 	margin: 0;
 	border-left: 4px solid #f59e0b;
 }
-
 
 .preview-section {
 	margin: 36px 0;
@@ -271,6 +289,14 @@
 	border: 1px solid #e5eaf1;
 }
 
+.diff-old {
+	border-left: 4px solid #f87171;
+}
+
+.diff-new {
+	border-left: 4px solid #34d399;
+}
+
 .diff-old span,
 .diff-new span {
 	display: block;
@@ -305,7 +331,6 @@
 	font-weight: 700;
 }
 
-
 .form-actions {
 	display: flex;
 	gap: 16px;
@@ -329,6 +354,7 @@
 .generate-btn:hover {
 	background: #1e2470;
 	transform: translateY(-3px);
+	box-shadow: 0 8px 24px rgba(22, 26, 74, 0.3);
 }
 
 .submit-btn {
@@ -346,6 +372,7 @@
 .submit-btn:hover {
 	background: #1ab3e0;
 	transform: translateY(-3px);
+	box-shadow: 0 8px 24px rgba(0, 144, 187, 0.35);
 }
 
 .cancel-btn {
@@ -357,31 +384,83 @@
 	border-radius: 50px;
 	text-decoration: none;
 	transition: all 0.25s;
+	text-align: center;
 }
 
 .cancel-btn:hover {
 	background: #e2e6ea;
+	transform: translateY(-2px);
+}
+
+/* Responsywność */
+@media (max-width: 1024px) {
+	.main-content {
+		padding: 36px 32px;
+	}
 }
 
 @media (max-width: 768px) {
+	.add-amendment {
+		padding: 10px;
+	}
+
 	.main-content {
-		padding: 30px 22px;
+		padding: 24px 18px;
+		border-radius: 16px;
 	}
 
 	.uchwaly-bar {
 		flex-direction: column;
 		gap: 14px;
 		text-align: center;
+		padding: 14px 20px;
+		border-radius: 12px;
+	}
+
+	.uchwaly-title {
+		font-size: 16px;
+	}
+
+	.uchwaly-title svg {
+		width: 28px;
+		height: 28px;
 	}
 
 	.session-info {
 		text-align: center;
+		font-size: 14px;
+	}
+
+	.page-title {
+		font-size: 26px;
+	}
+
+	.page-subtitle {
+		font-size: 15px;
+	}
+
+	.author-badge {
+		font-size: 14px;
+		padding: 10px 20px;
+		flex-wrap: wrap;
 	}
 
 	.changes-header {
 		flex-direction: column;
-		gap: 12px;
-		align-items: flex-start;
+		align-items: stretch;
+	}
+
+	.changes-header h2 {
+		text-align: center;
+	}
+
+	.add-change-btn {
+		width: 100%;
+		text-align: center;
+	}
+
+	.change-card {
+		padding: 20px 16px;
 	}
 
 	.change-types {
@@ -410,5 +489,27 @@
 	.cancel-btn {
 		width: 100%;
 		text-align: center;
+		padding: 14px 20px;
+		font-size: 16px;
+	}
+}
+
+@media (max-width: 480px) {
+	.main-content {
+		padding: 16px 12px;
+	}
+
+	.page-title {
+		font-size: 22px;
+	}
+
+	.form-select,
+	.form-textarea {
+		padding: 12px 14px;
+		font-size: 14px;
+	}
+
+	.change-card-header {
+		font-size: 15px;
 	}
 }

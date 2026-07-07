@@ -1,4 +1,4 @@
-:root {
+.amendments-details {
 	--navy: #161a4a;
 	--cyan: #29c5f0;
 	--cyan-hover: #1ab3e0;
@@ -6,8 +6,7 @@
 	--red: #ee2b3e;
 }
 
-
-.btn {
+.amendments-details .btn {
 	border: none;
 	cursor: pointer;
 	font-weight: 800;
@@ -18,58 +17,29 @@
 		box-shadow 0.2s;
 }
 
-.btn:hover {
+.amendments-details .btn:hover {
 	transform: translateY(-3px);
 }
-.btn:active {
+
+.amendments-details .btn:active {
 	transform: translateY(0);
 }
 
-
-.amendment-details {
+.amendments-details .amendment-details {
 	width: 100%;
 	max-width: 1200px;
 	margin: 40px auto;
 	padding: 0 20px;
 }
 
-.uchwaly-bar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 35px;
-	padding: 0 10px;
-}
-
-.uchwaly-title {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	background: #0a1f3d;
-	color: white;
-	border-radius: 50px;
-	padding: 16px 32px;
-	font-size: 19px;
-	font-weight: 700;
-	text-decoration: none;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.session-info {
-	text-align: right;
-	font-size: 18px;
-	color: var(--navy);
-}
-
-
-.main-content {
+.amendments-details .main-content {
 	background: white;
 	border-radius: 22px;
 	padding: 50px 60px;
 	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.09);
 }
 
-.page-title {
+.amendments-details .page-title {
 	color: var(--navy);
 	font-size: 37px;
 	font-weight: 800;
@@ -77,8 +47,7 @@
 	margin: 0 0 24px 0;
 }
 
-
-.status-badge {
+.amendments-details .status-badge {
 	text-align: center;
 	margin: 0 auto 36px;
 	padding: 8px 24px;
@@ -90,34 +59,33 @@
 	width: fit-content;
 }
 
-.status-badge.pending {
+.amendments-details .status-badge.pending {
 	background: #fff3cd;
 	color: #856404;
 }
 
-.status-badge.accepted {
+.amendments-details .status-badge.accepted {
 	background: #d4edda;
 	color: #155724;
 }
 
-.status-badge.rejected {
+.amendments-details .status-badge.rejected {
 	background: #f8d7da;
 	color: #721c24;
 }
 
-
-.changes-group {
+.amendments-details .changes-group {
 	margin-bottom: 40px;
 	padding-bottom: 32px;
 	border-bottom: 2px solid #eef2f7;
 }
 
-.changes-group:last-of-type {
+.amendments-details .changes-group:last-of-type {
 	border-bottom: none;
 	margin-bottom: 32px;
 }
 
-.changes-group h3 {
+.amendments-details .changes-group h3 {
 	color: var(--navy);
 	font-size: 22px;
 	font-weight: 700;
@@ -125,22 +93,21 @@
 	padding-left: 4px;
 }
 
-
-.diff-section {
+.amendments-details .diff-section {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 30px;
 }
 
-.old-section,
-.new-section {
+.amendments-details .old-section,
+.amendments-details .new-section {
 	background: #f8f9fa;
 	padding: 24px 28px;
 	border-radius: 14px;
 	border: 1px solid #e9ecef;
 }
 
-.old-section h4 {
+.amendments-details .old-section h4 {
 	color: #888;
 	font-size: 15px;
 	margin: 0 0 12px 0;
@@ -149,7 +116,7 @@
 	letter-spacing: 0.4px;
 }
 
-.new-section h4 {
+.amendments-details .new-section h4 {
 	color: var(--darkcyan);
 	font-size: 15px;
 	margin: 0 0 12px 0;
@@ -158,7 +125,7 @@
 	letter-spacing: 0.4px;
 }
 
-.old-section p {
+.amendments-details .old-section p {
 	font-size: 16px;
 	line-height: 1.75;
 	color: #666;
@@ -166,7 +133,7 @@
 	font-style: italic;
 }
 
-.new-section p {
+.amendments-details .new-section p {
 	font-size: 16px;
 	line-height: 1.75;
 	color: #1a3a2a;
@@ -174,21 +141,19 @@
 	margin: 0;
 }
 
-
-.no-changes {
+.amendments-details .no-changes {
 	text-align: center;
 	color: #999;
 	font-size: 17px;
 	padding: 40px 0;
 }
 
-
-.generate-section {
+.amendments-details .generate-section {
 	text-align: center;
 	margin-top: 12px;
 }
 
-.generate-btn {
+.amendments-details .generate-btn {
 	background: var(--darkcyan);
 	color: white;
 	padding: 18px 56px;
@@ -201,43 +166,32 @@
 	cursor: pointer;
 }
 
-.generate-btn:hover {
+.amendments-details .generate-btn:hover {
 	background: var(--cyan-hover);
 	transform: translateY(-4px);
 }
 
-
 @media (max-width: 900px) {
-	.diff-section {
+	.amendments-details .diff-section {
 		grid-template-columns: 1fr;
 		gap: 20px;
 	}
 
-	.main-content {
+	.amendments-details .main-content {
 		padding: 40px 30px;
 	}
 
-	.page-title {
+	.amendments-details .page-title {
 		font-size: 28px;
 	}
 }
 
 @media (max-width: 768px) {
-	.uchwaly-bar {
-		flex-direction: column;
-		text-align: center;
-		gap: 16px;
-	}
-
-	.session-info {
-		text-align: center;
-	}
-
-	.main-content {
+	.amendments-details .main-content {
 		padding: 30px 20px;
 	}
 
-	.changes-group h3 {
+	.amendments-details .changes-group h3 {
 		font-size: 19px;
 	}
 }

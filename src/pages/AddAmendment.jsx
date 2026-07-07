@@ -4,7 +4,6 @@ import "./AddAmendment.css";
 
 import { bills, resolutions } from "../data/legislation";
 
-
 const CURRENT_USER = {
 	name: "Jan Wiśniewski",
 	club: "Klub Postępu",
@@ -16,9 +15,42 @@ const CHANGE_TYPES = [
 	{ value: "delete", label: "Usunięcie artykułu" },
 ];
 
+// POMOCNICZA FUNKCJA DO POBRANIA WSZYSTKICH ARTYKUŁÓW Z ROZDZIAŁÓW
+function getAllArticles(bill) {
+	if (!bill) return [];
+	if (bill.articles) return bill.articles;
+	if (bill.chapters) {
+		return bill.chapters.flatMap((ch) => ch.articles || []);
+	}
+	return [];
+}
+
+// POMOCNICZA FUNKCJA DO ZAPISANIA ZMIENIONYCH ARTYKUŁÓW Z POWROTEM DO STRUKTURY
+function saveArticles(bill, articles) {
+	if (!bill) return bill;
+	if (bill.articles) {
+		return { ...bill, articles };
+	}
+	if (bill.chapters) {
+		// Aktualizuj artykuły w rozdziałach
+		const updatedChapters = bill.chapters.map((ch) => ({
+			...ch,
+			articles: articles.filter(
+				(a) =>
+					a.id.startsWith(ch.id) || ch.articles.some((ca) => ca.id === a.id),
+			),
+		}));
+		return { ...bill, chapters: updatedChapters };
+	}
+	return bill;
+}
+
 function applyChanges(bill, changes) {
-	const updated = structuredClone(bill);
-	const articles = [...updated.articles];
+	if (!bill) return null;
+
+	// Pobierz wszystkie artykuły
+	const allArticles = getAllArticles(bill);
+	const articles = [...allArticles];
 
 	changes.forEach((change) => {
 		if (change.type === "add") {
@@ -48,7 +80,7 @@ function applyChanges(bill, changes) {
 		}
 	});
 
-	return { ...updated, articles };
+	return saveArticles(bill, articles);
 }
 
 export default function AddAmendment() {
@@ -69,7 +101,6 @@ export default function AddAmendment() {
 		{ id: Date.now(), articleId: "", type: "", to: "" },
 	]);
 
-
 	const previewBill = useMemo(() => {
 		if (!relatedBill) return null;
 		const validChanges = changes.filter(
@@ -79,7 +110,17 @@ export default function AddAmendment() {
 		return applyChanges(relatedBill, validChanges);
 	}, [relatedBill, changes]);
 
-	const changedArticles = previewBill?.articles.filter((a) => a.changed) || [];
+	// Pobierz wszystkie artykuły do wyświetlenia
+	const allArticles = useMemo(() => {
+		return getAllArticles(relatedBill);
+	}, [relatedBill]);
+
+	// Pobierz zmienione artykuły z podglądu
+	const changedArticles = useMemo(() => {
+		if (!previewBill) return [];
+		const articles = getAllArticles(previewBill);
+		return articles.filter((a) => a.changed) || [];
+	}, [previewBill]);
 
 	if (!relatedBill) {
 		return <div className="not-found">Nie znaleziono ustawy dla: {slug}</div>;
@@ -92,7 +133,7 @@ export default function AddAmendment() {
 	};
 
 	const handleArticleSelect = (changeId, articleId) => {
-		const article = relatedBill.articles.find((a) => a.id === articleId);
+		const article = allArticles.find((a) => a.id === articleId);
 		setChanges((prev) =>
 			prev.map((c) =>
 				c.id === changeId
@@ -157,7 +198,7 @@ export default function AddAmendment() {
 			changes: validChanges.map((c, i) => ({
 				id: `am_${Date.now()}_${i + 1}`,
 				articleId: c.type === "add" ? `new_${i}` : c.articleId,
-				from: c.type === "add" ? "" : c.from,
+				from: c.type === "add" ? "" : c.from || "",
 				to: c.type === "delete" ? "" : c.to.trim(),
 			})),
 		};
@@ -199,9 +240,7 @@ export default function AddAmendment() {
 					{resolution?.title || relatedBill.title}
 				</p>
 
-				
 				<div className="author-badge">
-					<span className="author-icon">👤</span>
 					{CURRENT_USER.name} – {CURRENT_USER.club}
 				</div>
 
@@ -233,7 +272,6 @@ export default function AddAmendment() {
 									)}
 								</div>
 
-								
 								{change.type !== "add" && (
 									<div className="form-group">
 										<label>Wybierz artykuł</label>
@@ -245,20 +283,15 @@ export default function AddAmendment() {
 											className="form-select"
 										>
 											<option value="">-- wybierz artykuł --</option>
-											{relatedBill.chapters?.map((ch) => (
-												<optgroup key={ch.id} label={ch.title}>
-													{ch.articles.map((art) => (
-														<option key={art.id} value={art.id}>
-															{art.content}
-														</option>
-													))}
-												</optgroup>
+											{allArticles.map((art) => (
+												<option key={art.id} value={art.id}>
+													{art.content}
+												</option>
 											))}
 										</select>
 									</div>
 								)}
 
-								
 								<div className="form-group">
 									<label>Rodzaj zmiany</label>
 									<div className="change-types">
@@ -275,7 +308,6 @@ export default function AddAmendment() {
 									</div>
 								</div>
 
-								
 								{(change.type === "modify" || change.type === "add") && (
 									<div className="form-group">
 										<label>
@@ -300,7 +332,6 @@ export default function AddAmendment() {
 									</div>
 								)}
 
-								
 								{change.type === "delete" && change.articleId && (
 									<div className="delete-info">
 										⚠️ Ten artykuł zostanie <strong>usunięty</strong> z ustawy.
@@ -310,7 +341,6 @@ export default function AddAmendment() {
 						))}
 					</div>
 
-					
 					{changedArticles.length > 0 && (
 						<div className="preview-section">
 							<h2 className="preview-title">Podgląd zmian</h2>

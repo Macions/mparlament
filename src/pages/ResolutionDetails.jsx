@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import "./ResolutionDetails.css";
 import { resolutions } from "../data/legislation";
@@ -12,7 +12,28 @@ export default function ResolutionDetails() {
 	}, []);
 
 	const { slug } = useParams();
+
+	const [showSignatures, setShowSignatures] = useState(false);
+
 	const resolution = resolutions.find((r) => r.slug === slug);
+
+	const signedUsers = [
+		{
+			name: "Jan Kowalski",
+			club: "Klub Postępu",
+			date: "07.07.2026, 14:32",
+		},
+		{
+			name: "Anna Nowak",
+			club: "Grono Koordynatorskie",
+			date: "07.07.2026, 15:10",
+		},
+		{
+			name: "Piotr Wiśniewski",
+			club: "Koło Młodych",
+			date: "07.07.2026, 16:05",
+		},
+	];
 
 	if (!resolution) {
 		return <h2>Nie znaleziono uchwały</h2>;
@@ -64,7 +85,11 @@ export default function ResolutionDetails() {
 						<div className="signatures-row">
 							<div className="signatures-count">
 								<div>Podpisy: {resolution.signatures}</div>
-								<button className="btn btn-pill btn-cyan btn-small check-signatures-btn">
+
+								<button
+									className="btn btn-pill btn-cyan btn-small check-signatures-btn"
+									onClick={() => setShowSignatures(true)}
+								>
 									Sprawdź kto podpisał
 								</button>
 							</div>
@@ -89,6 +114,45 @@ export default function ResolutionDetails() {
 					</div>
 				</div>
 			</main>
+			{showSignatures && (
+				<>
+					<div
+						className="signatures-overlay"
+						onClick={() => setShowSignatures(false)}
+					></div>
+
+					<div className="signatures-panel">
+						<div className="signatures-header">
+							<h2>Kto podpisał?</h2>
+
+							<button
+								className="close-panel"
+								onClick={() => setShowSignatures(false)}
+							>
+								✕
+							</button>
+						</div>
+
+						<div className="signatures-total">
+							Liczba podpisów: <strong>{signedUsers.length}</strong>
+						</div>
+
+						<div className="signatures-list">
+							{signedUsers.map((user, index) => (
+								<div className="signature-item" key={index}>
+									<div className="signature-avatar">👤</div>
+
+									<div className="signature-info">
+										<strong>{user.name}</strong>
+										<p>{user.club}</p>
+										<span>{user.date}</span>
+									</div>
+								</div>
+							))}
+						</div>
+					</div>
+				</>
+			)}
 		</div>
 	);
 }

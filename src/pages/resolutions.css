@@ -1,3 +1,4 @@
+@import "./uchwalyBar.css";
 .resolutions-page {
 	font-family: "Arial", "Helvetica", sans-serif;
 	color: #1a1a1a;
@@ -59,44 +60,6 @@
 	transform: translateY(-3px);
 	box-shadow: 0 10px 22px rgba(230, 57, 70, 0.45);
 }
-
-
-.uchwaly-bar {
-	background: #0a1f3d;
-	color: white;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 28px 60px;
-	margin: 40px auto;
-	max-width: 1900px;
-	border-radius: 16px;
-	box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
-}
-
-.uchwaly-title {
-	font-size: 46px;
-	font-weight: 800;
-	margin: 0;
-	letter-spacing: 1.2px;
-}
-
-.session-info {
-	background: #00b4d8;
-	color: white;
-	padding: 18px 40px;
-	border-radius: 50px;
-	font-weight: 600;
-	font-size: 21px;
-	text-align: center;
-	min-width: 280px;
-}
-
-.session-info span {
-	font-size: 34px;
-	font-weight: 700;
-}
-
 
 .resolutions-list {
 	max-width: 1900px;

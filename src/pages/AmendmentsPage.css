@@ -9,33 +9,35 @@
 	--text-light: #f4f6fb;
 }
 
-
-.btn {
+.amendments-page .btn {
 	border: none;
 	cursor: pointer;
 	font-weight: 800;
 	letter-spacing: 0.3px;
 	color: white;
-	transition: transform 0.2s, box-shadow 0.2s;
+	transition:
+		transform 0.2s,
+		box-shadow 0.2s;
 }
 
-.btn:hover {
+.amendments-page .btn:hover {
 	transform: translateY(-3px);
 }
 
-.btn:active {
+.amendments-page .btn:active {
 	transform: translateY(0);
 }
 
-.btn-pill {
+.amendments-page .btn-pill {
 	border-radius: 50px;
 }
-.amendments-page{
+
+.amendments-page {
 	width: 100%;
 	max-width: 1200px;
 }
 
-.amendments-container {
+.amendments-page .amendments-container {
 	background: white;
 	width: 100%;
 	max-width: 1200px;
@@ -45,8 +47,7 @@
 	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-
-.page-title {
+.amendments-page .page-title {
 	color: var(--navy);
 	font-size: 42px;
 	font-weight: 800;
@@ -54,13 +55,12 @@
 	text-align: center;
 }
 
-.page-title blockquote {
+.amendments-page .page-title blockquote {
 	font-size: 28px;
 	font-weight: 400;
 }
 
-
-.nav-bar {
+.amendments-page .nav-bar {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -70,7 +70,7 @@
 	gap: 20px;
 }
 
-.back-btn {
+.amendments-page .back-btn {
 	display: flex;
 	align-items: center;
 	gap: 10px;
@@ -87,13 +87,13 @@
 	text-decoration: none;
 }
 
-.back-btn:hover {
+.amendments-page .back-btn:hover {
 	background: #e63946;
 	transform: translateY(-2px);
 	box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
 }
 
-.meeting-pill {
+.amendments-page .meeting-pill {
 	background: #00b4d8;
 	color: white;
 	padding: 16px 36px;
@@ -104,7 +104,7 @@
 	white-space: nowrap;
 }
 
-.addAmendment {
+.amendments-page .addAmendment {
 	width: 100%;
 	border: 2px dashed #ff0000;
 	border-radius: 10px;
@@ -116,31 +116,32 @@
 	justify-content: center;
 	align-items: center;
 }
-.AddBtn {
-  all: unset;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  min-height: 150px;
 
-  color: var(--red);
-  font-size: 30px;
-  font-weight: 500;
-  cursor: pointer;
+.amendments-page .AddBtn {
+	all: unset;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	min-height: 150px;
+
+	color: var(--red);
+	font-size: 30px;
+	font-weight: 500;
+	cursor: pointer;
 }
-.addAmendment:hover {
+
+.amendments-page .addAmendment:hover {
 	transform: scale(0.97);
 }
 
-
-.amendments-list {
+.amendments-page .amendments-list {
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
 }
 
-.amendment-card {
+.amendments-page .amendment-card {
 	background: rgb(224, 224, 224);
 	border-radius: 18px;
 	padding: 32px 40px;
@@ -151,66 +152,65 @@
 	transition: all 0.2s;
 }
 
-.amendment-card:hover {
+.amendments-page .amendment-card:hover {
 	transform: translateY(-4px);
 	box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
 }
 
-.amendment-main {
+.amendments-page .amendment-main {
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
 }
 
-.amendment-id {
+.amendments-page .amendment-id {
 	font-size: 24px;
 	font-weight: 800;
 	color: #00b4d8;
 }
 
-.amendment-title {
+.amendments-page .amendment-title {
 	font-size: 28px;
 	font-weight: 700;
 	color: #1a1a1a;
 }
 
-.amendment-author {
+.amendments-page .amendment-author {
 	font-size: 20px;
 	color: #444;
 	font-weight: 600;
 }
 
-
-.status-badge {
-	padding: 14px 32px;
+.amendments-page .status-badge {
+	padding: 14px 32px !important;
 	border-radius: 50px;
 	font-weight: 700;
 	font-size: 19px;
 	text-align: center;
 }
 
-.status-badge.pending {
-	background: #ffc107;
+.amendments-page .status-badge.pending {
+	background: #000000 !important;
 	color: #1a1a1a;
 }
 
-.status-badge.accepted {
+.amendments-page .status-badge.accepted {
 	background: #28a745;
 	color: white;
 }
 
-.status-badge.rejected {
+.amendments-page .status-badge.rejected {
 	background: #dc3545;
 	color: white;
 }
 
-.amendment-status{
+.amendments-page .amendment-status {
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
 }
 
-.amendment-status .read-more{
+.amendments-page .amendment-status .read-more {
 	padding: 14px 32px;
 	border-radius: 50px;
 	font-size: 19px;
@@ -221,19 +221,132 @@
 	transition: all 0.2s;
 }
 
-.amendment-status .read-more:hover{
+.amendments-page .amendment-status .read-more:hover {
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-
 @media (max-width: 900px) {
-	.amendments-container {
+	.amendments-page .amendments-container {
 		padding: 32px 24px;
 	}
 
-	.amendment-card {
+	.amendments-page .amendment-card {
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 20px;
+	}
+}
+/* Status badges */
+.amendments-page .status-badge {
+	border-radius: var(--radius-full);
+	padding: 14px 32px;
+	font-size: 19px;
+	font-weight: 500;
+	transition: all 0.2s ease;
+	border: 1px solid transparent;
+	gap: 8px;
+}
+
+/* Zaakceptowane */
+.amendments-page .status-accepted {
+	background: #dcfce7;
+	color: #166534;
+	border-color: #86efac;
+}
+
+/* Oczekujące */
+.amendments-page .status-pending {
+	background: #fef3c7;
+	color: #92400e;
+	border-color: #f1b900;
+}
+
+/* Odrzucone */
+.amendments-page .status-rejected {
+	background: #fee2e2;
+	color: #991b1b;
+	border-color: #fca5a5;
+}
+
+/* Wycofane */
+.amendments-page .status-withdrawn {
+	background: #f3f4f6;
+	color: #4b5563;
+	border-color: #d1d5db;
+}
+
+/* Amendment card - wycofane */
+.amendments-page .amendment-card.withdrawn {
+	opacity: 0.65;
+	background: #f9fafb;
+	border-color: #d1d5db;
+}
+
+.amendments-page .amendment-card.withdrawn:hover {
+	opacity: 0.8;
+	border-color: #9ca3af;
+}
+.amendments-page .amendment-title {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+}
+
+.amendments-page .withdrawn-badge {
+	display: inline-block;
+	padding: 0.425rem 0.725rem;
+	background: #6b7280;
+	color: white;
+	font-size: 0.6875rem;
+	font-weight: 700;
+	border-radius: var(--radius-full);
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+}
+
+.amendments-page .withdrawn-reason {
+	margin-top: 0.5rem;
+	padding: 0.5rem 0.75rem;
+	background: #f3f4f6;
+	border-left: 3px solid #9ca3af;
+	border-radius: var(--radius-sm);
+	font-size: 0.8125rem;
+	color: #6b7280;
+	font-style: italic;
+}
+
+/* Read more - disabled */
+.amendments-page .read-more-disabled {
+	display: inline-block;
+	padding: 0.375rem 1rem;
+	background: #f3f4f6;
+	color: #9ca3af;
+	border-radius: var(--radius-sm);
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: not-allowed;
+	border: 1px solid #e5e7eb;
+}
+
+.amendments-page .read-more-disabled:hover {
+	background: #f3f4f6;
+	color: #9ca3af;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.amendments-page .amendment-title {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.5rem;
+	}
+
+	.amendments-page .withdrawn-badge {
+		font-size: 0.625rem;
+	}
+
+	.amendments-page .amendment-card.withdrawn {
+		opacity: 0.8;
 	}
 }

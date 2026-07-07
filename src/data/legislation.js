@@ -82,6 +82,7 @@ export const amendments = [
 			},
 		],
 	},
+	
 	{
 		id: "am_102",
 		billId: "bill_1",
@@ -168,7 +169,7 @@ export const amendments = [
 		id: "am_201",
 		billId: "bill_2",
 		author: "Klub Rolników",
-		status: "pending",
+		status: "withdrawn",
 		changes: [
 			{
 				id: "am_201_1",

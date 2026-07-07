@@ -51,7 +51,7 @@ export default function AmendmentDetails() {
 		processedBill?.articles.filter((a) => a.changed) || [];
 
 	return (
-		<div className="amendment-details">
+		<div className="amendments-details">
 			<div className="uchwaly-bar">
 				<Link to={`/${slug}/poprawki`} className="uchwaly-title">
 					<svg
