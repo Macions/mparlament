@@ -251,6 +251,11 @@ body {
 		gap: 0.5rem;
 	}
 
+	/* UKRYJ header__center na małych ekranach */
+	.header__center {
+		display: none !important;
+	}
+
 	/* ParlamentLogo - małe */
 	.parlament-logo__img {
 		width: 7.5em;
@@ -293,7 +298,6 @@ body {
 		transform: translateY(-1px);
 	}
 }
-
 /* === MAŁE EKRANY (480px - 767px) === */
 @media (min-width: 480px) and (max-width: 767px) {
 	.header {
@@ -303,6 +307,11 @@ body {
 
 	.header__top {
 		gap: 0.75rem;
+	}
+
+	/* UKRYJ header__center na małych ekranach */
+	.header__center {
+		display: none !important;
 	}
 
 	.parlament-logo__img {

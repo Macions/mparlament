@@ -10,7 +10,7 @@ export default function Header() {
 
 	return (
 		<header className="header">
-			{/* Górny rząd - ParlamentLogo + przycisk */}
+			{/* Górny rząd - ParlamentLogo + MParlamentLogo + przycisk */}
 			<div className="header__top">
 				<div className="header__left">
 					<a
@@ -19,6 +19,11 @@ export default function Header() {
 					>
 						<ParlamentLogo />
 					</a>
+				</div>
+
+				{/* Środek - MParlamentLogo (widoczny na dużych ekranach) */}
+				<div className="header__center">
+					<MParlamentLogo />
 				</div>
 
 				<div className="header__right">
