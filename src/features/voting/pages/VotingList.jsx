@@ -105,7 +105,7 @@ function getResult(vote) {
 export default function Votings() {
 	const [filter, setFilter] = useState("all");
 	const [now, setNow] = useState(Date.now());
-	// Tymczasowo true dla testów
+
 	const [isAdmin, setIsAdmin] = useState(true);
 
 	useEffect(() => {
@@ -156,7 +156,7 @@ export default function Votings() {
 			</div>
 
 			<div className="votings-grid">
-				{/* Kafelek tworzenia nowego głosowania - zawsze pierwszy */}
+
 				{isAdmin && (
 					<Link to="/glosowania/nowe" className="voting-card create-vote-card">
 						<div className="create-vote-content">

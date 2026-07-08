@@ -11,7 +11,7 @@
 	--bg-grey: #e9e9ef;
 	--text-light: #f4f6fb;
 
-	/* Kolory dla statusów */
+	
 	--de-color-primary: #102360;
 	--de-color-primary-hover: #1e3a8a;
 	--de-color-primary-light: #eff6ff;
@@ -22,33 +22,33 @@
 	--de-color-danger: #dc2626;
 	--de-color-danger-light: #fef2f2;
 
-	/* Kolory tekstu */
+	
 	--color-ink-900: #0f172a;
 	--color-ink-700: #334155;
 	--color-ink-500: #64748b;
 	--color-ink-400: #94a3b8;
 
-	/* Kolory tła i obramowań */
+	
 	--color-border: #e2e8f0;
 	--color-border-strong: #cbd5e1;
 	--color-surface: #ffffff;
 	--color-surface-muted: #f8fafc;
 	--color-surface-subtle: #f1f5f9;
 
-	/* Cienie */
+	
 	--shadow-button: 0 6px 14px rgba(30, 64, 175, 0.35);
 	--shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
 	--shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
 	--shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.1);
 	--shadow-focus: 0 0 0 4px rgba(30, 64, 175, 0.12);
 
-	/* Zaokrąglenia */
+	
 	--radius-sm: 8px;
 	--radius-md: 12px;
 	--radius-lg: 22px;
 	--radius-full: 9999px;
 
-	/* Przejścia */
+	
 	--transition-fast: 0.15s ease;
 	--transition-base: 0.2s ease;
 }
@@ -264,7 +264,7 @@
 	margin: 0 0 10px 0;
 }
 
-/* Responsywność */
+
 @media (max-width: 900px) {
 	.resolution-grid {
 		flex-direction: column;

@@ -29,12 +29,12 @@ export default function AmendmentsPage() {
 		? meeting.split(": ")
 		: ["Posiedzenie: Warszawa", "20.05"];
 
-	// Funkcja do sprawdzenia czy poprawka jest wycofana
+
 	const isAmendmentWithdrawn = (amendment) => {
 		return amendment.status === "withdrawn";
 	};
 
-	// Funkcja do tłumaczenia statusu
+
 	const getStatusLabel = (status) => {
 		const statusMap = {
 			accepted: "Przyjęta",
@@ -45,7 +45,7 @@ export default function AmendmentsPage() {
 		return statusMap[status] || status;
 	};
 
-	// Funkcja do pobierania klasy CSS dla statusu
+
 	const getStatusClass = (status) => {
 		const classMap = {
 			accepted: "status-accepted",

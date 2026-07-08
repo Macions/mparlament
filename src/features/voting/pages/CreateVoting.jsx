@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CreateVoting.css";
 
-// Mock danych - w produkcji z API
+
 const mockGroups = [
 	{ id: "committee-1", name: "Komisja Finansów Publicznych", type: "group" },
 	{ id: "committee-2", name: "Komisja Oświaty i Nauki", type: "group" },
@@ -197,7 +197,7 @@ export default function CreateVoting() {
 
 	const handleNextStep = () => {
 		if (validateStep(currentStep)) {
-			setCurrentStep((prev) => Math.min(prev + 1, 5)); // Zmień z 4 na 5
+			setCurrentStep((prev) => Math.min(prev + 1, 5)); 
 		}
 	};
 
@@ -214,7 +214,7 @@ export default function CreateVoting() {
 		}));
 		setErrors({});
 	};
-	// Filtrowanie grup/komisji
+
 	const getFilteredGroups = () => {
 		if (!searchQuery.trim()) return mockGroups;
 		return mockGroups.filter((group) =>
@@ -222,7 +222,7 @@ export default function CreateVoting() {
 		);
 	};
 
-	// Filtrowanie członków
+
 	const getFilteredMembers = () => {
 		if (!searchQueryMembers.trim()) return mockMembers;
 		return mockMembers.filter(
@@ -334,7 +334,7 @@ export default function CreateVoting() {
 				{ num: 2, label: "Odbiorcy głosowania" },
 				{ num: 3, label: "Czas i data" },
 				{ num: 4, label: "Ustawienia zaawansowane" },
-				{ num: 5, label: "Podsumowanie" }, // Dodaj nowy krok
+				{ num: 5, label: "Podsumowanie" }, 
 			].map((step) => (
 				<div
 					key={step.num}
@@ -413,7 +413,7 @@ export default function CreateVoting() {
 			</div>
 		</div>
 	);
-	// Dodaj tę funkcję przed renderStep5
+
 	const renderStep5 = () => {
 		const startDate = formData.startDateTime
 			? new Date(formData.startDateTime).toLocaleString("pl-PL", {
@@ -463,7 +463,7 @@ export default function CreateVoting() {
 				</p>
 
 				<div className="summary-grid">
-					{/* Sekcja 1: Podstawowe informacje */}
+
 					<div className="summary-section">
 						<h3 className="summary-section-title">Podstawowe informacje</h3>
 						<div className="summary-item">
@@ -500,7 +500,7 @@ export default function CreateVoting() {
 						)}
 					</div>
 
-					{/* Sekcja 2: Odbiorcy */}
+
 					<div className="summary-section">
 						<h3 className="summary-section-title">Odbiorcy głosowania</h3>
 						<div className="summary-item">
@@ -549,7 +549,7 @@ export default function CreateVoting() {
 						) : null}
 					</div>
 
-					{/* Sekcja 3: Czas i data */}
+
 					<div className="summary-section">
 						<h3 className="summary-section-title">Czas i data</h3>
 						<div className="summary-item">
@@ -566,7 +566,7 @@ export default function CreateVoting() {
 						</div>
 					</div>
 
-					{/* Sekcja 4: Ustawienia dodatkowe */}
+
 					<div className="summary-section">
 						<h3 className="summary-section-title">Ustawienia dodatkowe</h3>
 						<div className="summary-item">
@@ -602,7 +602,7 @@ export default function CreateVoting() {
 					</div>
 				</div>
 
-				{/* Przycisk do edycji sekcji */}
+
 				<div className="summary-edit-actions">
 					<button
 						type="button"
@@ -749,7 +749,7 @@ export default function CreateVoting() {
 						</div>
 					</div>
 
-					{/* Dodaj pole wyszukiwania */}
+
 					<div className="search-box">
 						<input
 							type="text"
@@ -824,7 +824,7 @@ export default function CreateVoting() {
 						</div>
 					</div>
 
-					{/* Dodaj pole wyszukiwania */}
+
 					<div className="search-box">
 						<input
 							type="text"
@@ -1297,7 +1297,7 @@ export default function CreateVoting() {
 				{currentStep === 2 && renderStep2()}
 				{currentStep === 3 && renderStep3()}
 				{currentStep === 4 && renderStep4()}
-				{currentStep === 5 && renderStep5()} {/* Dodaj nowy krok */}
+				{currentStep === 5 && renderStep5()} {}
 			</div>
 
 			<div className="form-actions">
@@ -1310,7 +1310,7 @@ export default function CreateVoting() {
 						Wstecz
 					</button>
 				)}
-				{currentStep < 5 ? ( // Zmień z 4 na 5
+				{currentStep < 5 ? ( 
 					<button
 						type="button"
 						className="btn-primary"

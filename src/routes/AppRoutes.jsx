@@ -1,9 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 
 import Home from "../features/home/pages/Home";
-import About from "../features/about/pages/About";
 
-import Meetings from "../features/meetings/pages/Meetings";
 import SessionDetails from "../features/meetings/pages/SessionDetails";
 
 import Login from "../features/authentication/pages/Login";
@@ -29,9 +27,7 @@ export default function AppRoutes() {
 	return (
 		<Routes>
 			<Route path="/" element={<Home />} />
-			<Route path="/o-parlamencie" element={<About />} />
 
-			<Route path="/posiedzenia" element={<Meetings />} />
 			<Route path="/posiedzenie" element={<SessionDetails />} />
 
 			<Route path="/zaloguj" element={<Login />} />

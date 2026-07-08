@@ -1,563 +1,1360 @@
 .parliamentarians-page {
-    width: 100%;
-    max-width: 1480px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem;
-    font-family: "Ubuntu", system-ui, sans-serif;
+	width: 100%;
+	max-width: 1880px;
+	margin: 0 auto;
+	padding: 2rem 1.5rem;
+	font-family: "Ubuntu", system-ui, sans-serif;
 }
 
-/* Statystyki */
+/* ===== STATYSTYKI ===== */
 .stats-section {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 3rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 3rem;
 }
 
 .stat-card {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    padding: 2rem 1.75rem;
-    text-align: center;
-    box-shadow: 0 6px 16px rgba(0, 43, 92, 0.07);
-    transition: all 0.3s ease;
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 16px;
+	padding: 2rem 1.75rem;
+	text-align: center;
+	box-shadow: 0 6px 16px rgba(0, 43, 92, 0.07);
+	transition: all 0.3s ease;
 }
 
 .stat-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 28px rgba(0, 43, 92, 0.12);
+	transform: translateY(-6px);
+	box-shadow: 0 12px 28px rgba(0, 43, 92, 0.12);
 }
 
 .stat-number {
-    display: block;
-    font-size: 2.8rem;
-    font-weight: 800;
-    color: #002b5c;
-    line-height: 1;
-    margin-bottom: 0.5rem;
+	display: block;
+	font-size: 2.8rem;
+	font-weight: 800;
+	color: #002b5c;
+	line-height: 1;
+	margin-bottom: 0.5rem;
 }
 
 .stat-label {
-    font-size: 1rem;
-    color: #475569;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+	font-size: 1rem;
+	color: #475569;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
 }
 
-/* Główna siatka */
+/* ===== GŁÓWNA SIATKA ===== */
 .parliamentarians-content {
-    display: grid;
-    grid-template-columns: minmax(220px, 380px) minmax(0, 1fr);
-    gap: 2.25rem;
+	display: grid;
+	grid-template-columns: minmax(160px, 520px) minmax(0, 1fr);
+	gap: 1.25rem;
+}
+
+.parliamentarians-content.admin {
+	grid-template-columns: minmax(280px, 580px) minmax(0, 1fr);
 }
 
 @media (max-width: 1024px) {
-    .parliamentarians-content {
-        grid-template-columns: 1fr;
-    }
+	.parliamentarians-content,
+	.parliamentarians-content.admin {
+		grid-template-columns: 1fr;
+	}
 }
 
-/* Panel klubów */
+/* ===== PANEL KLUBÓW ===== */
 .clubs-panel {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 18px;
-    padding: 2rem;
-    height: fit-content;
-    max-width: 480px;
-    box-shadow: 0 8px 20px rgba(0, 43, 92, 0.08);
-    position: sticky;
-    top: 2rem;
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 18px;
+	padding: 2rem;
+	height: fit-content;
+	box-shadow: 0 8px 20px rgba(0, 43, 92, 0.08);
+	position: sticky;
+	top: 2rem;
+	min-width: 0;
+	overflow: hidden;
 }
 
 .clubs-panel h2 {
-    margin: 0 0 1.75rem 0;
-    font-size: 1.45rem;
-    color: #002b5c;
-    font-weight: 700;
+	margin: 0 0 1.75rem 0;
+	font-size: 1.45rem;
+	color: #002b5c;
+	font-weight: 700;
 }
 
+/* ===== PANEL HEADER ===== */
+.panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1.75rem;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.panel-header h2 {
+	margin: 0;
+	font-size: 1.45rem;
+	color: #002b5c;
+	font-weight: 700;
+}
+
+.panel-actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+/* ===== PRZYCISK WYCZYŚĆ FILTRY ===== */
+.panel-header .clear-filter {
+	padding: 10px 20px;
+	background: #ef4444;
+	color: white;
+	border: none;
+	border-radius: 9999px;
+	font-weight: 700;
+	font-size: 0.95rem;
+	cursor: pointer;
+	transition: all 0.25s ease;
+	white-space: nowrap;
+	min-height: 44px;
+}
+
+.panel-header .clear-filter:hover {
+	background: #dc2626;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+}
+
+/* ===== PRZYCISK DODAJ KLUB ===== */
+.add-club-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 10px 20px;
+	background: linear-gradient(135deg, #002b5c, #003d80);
+	color: white;
+	border: none;
+	border-radius: 9999px;
+	font-weight: 700;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	white-space: nowrap;
+	box-shadow: 0 2px 8px rgba(0, 43, 92, 0.2);
+	letter-spacing: 0.5px;
+	min-height: 44px;
+}
+
+.add-club-btn:hover {
+	transform: translateY(-2px) scale(1.02);
+	box-shadow: 0 6px 20px rgba(0, 43, 92, 0.4);
+	background: linear-gradient(135deg, #003d80, #0055b3);
+}
+
+.add-club-btn:active {
+	transform: translateY(0) scale(0.98);
+}
+
+/* ===== LISTA KLUBÓW ===== */
 .clubs-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
 }
 
+/* ===== ELEMENT KLUBU ===== */
 .club-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 18px;
-    border-radius: 14px;
-    background: #f8fafc;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 1px solid transparent;
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 14px 18px;
+	border-radius: 14px;
+	background: #f8fafc;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	border: 2px solid transparent;
+	position: relative;
+	min-height: 56px;
 }
 
 .club-item:hover {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
+	background: #f1f5f9;
+	border-color: #e2e8f0;
+	transform: translateX(4px);
 }
 
 .club-item.active {
-    background: #eff6ff;
-    border-color: #2563eb;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.18);
+	background: #eff6ff;
+	border-color: #2563eb;
+	box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
 }
 
-.club-color {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    flex-shrink: 0;
+.club-item.active:hover {
+	border-color: #2563eb;
+	background: #eff6ff;
 }
 
-.club-name {
-    flex: 1;
-    font-weight: 700;
-    color: #1e2937;
+.club-item .club-color {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	border: 2px solid rgba(0, 0, 0, 0.08);
 }
 
-.club-count {
-    font-weight: 800;
-    color: #334155;
-    font-size: 1.1rem;
+.club-item .club-name {
+	flex: 1;
+	min-width: 0;
+	font-weight: 600;
+	color: #1e2937;
+	font-size: 1.05rem;
+	white-space: normal;
+	overflow-wrap: break-word;
+	word-break: break-word;
 }
 
-.club-type-badge {
-    font-size: 0.78rem;
-    padding: 4px 12px;
-    background: #e2e8f0;
-    color: #475569;
-    border-radius: 9999px;
-    font-weight: 700;
-    text-transform: uppercase;
+.club-item .club-count {
+	font-weight: 700;
+	color: #475569;
+	font-size: 1rem;
+	background: #e2e8f0;
+	padding: 4px 14px;
+	border-radius: 999px;
+	min-width: 32px;
+	text-align: center;
+	flex-shrink: 0;
 }
 
-/* Prawy panel */
+.club-item.active .club-count {
+	background: #dbeafe;
+	color: #1e40af;
+}
+
+.club-item .club-type-badge {
+	font-size: 0.8rem;
+	padding: 4px 14px;
+	background: #e2e8f0;
+	color: #475569;
+	border-radius: 9999px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	flex-shrink: 0;
+}
+
+.club-item.active .club-type-badge {
+	background: #dbeafe;
+	color: #1e40af;
+}
+
+/* ===== ADMIN ACTIONS W KLUBACH ===== */
+.club-admin-actions {
+	display: flex;
+	gap: 4px;
+	margin-left: 6px;
+	flex-shrink: 0;
+}
+
+.club-admin-actions button {
+	width: 32px;
+	height: 32px;
+	border: none;
+	border-radius: 50%;
+	font-size: 0.95rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+	background: transparent;
+	opacity: 0.7;
+	line-height: 1;
+	font-weight: 700;
+	flex-shrink: 0;
+}
+
+.club-item:hover .club-admin-actions button {
+	opacity: 1;
+}
+
+/* Przycisk zarządzania członkami */
+.club-members-btn {
+	color: #7c3aed;
+	background: rgba(139, 92, 246, 0.1);
+	font-size: 1.1rem;
+	border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.club-members-btn:hover {
+	background: #ede9fe;
+	transform: scale(1.1);
+	opacity: 1;
+	box-shadow: 0 2px 12px rgba(139, 92, 246, 0.3);
+	border-color: #8b5cf6;
+}
+
+.club-members-btn:active {
+	transform: scale(0.9);
+}
+
+/* Przycisk edycji */
+.club-edit-btn {
+	color: #2563eb;
+	background: rgba(37, 99, 235, 0.05);
+}
+
+.club-edit-btn:hover {
+	background: #dbeafe;
+	transform: scale(1.1);
+	opacity: 1;
+	box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+}
+
+.club-edit-btn:active {
+	transform: scale(0.9);
+}
+
+/* Przycisk usuwania */
+.club-delete-btn {
+	color: #ef4444;
+	background: rgba(239, 68, 68, 0.05);
+}
+
+.club-delete-btn:hover {
+	background: #fee2e2;
+	transform: scale(1.1);
+	opacity: 1;
+	box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+}
+
+.club-delete-btn:active {
+	transform: scale(0.9);
+}
+
+/* ===== ADMIN TOGGLE ===== */
+.admin-toggle-container {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 16px;
+	padding: 1.5rem 1.75rem;
+	justify-content: center;
+	box-shadow: 0 6px 16px rgba(0, 43, 92, 0.07);
+	transition: all 0.3s ease;
+}
+
+.admin-toggle-container:hover {
+	transform: translateY(-6px);
+	box-shadow: 0 12px 28px rgba(0, 43, 92, 0.12);
+}
+
+.admin-toggle-label {
+	font-size: 1rem;
+	font-weight: 600;
+	color: #475569;
+}
+
+.admin-toggle {
+	position: relative;
+	width: 60px;
+	height: 34px;
+	flex-shrink: 0;
+	cursor: pointer;
+}
+
+.admin-toggle input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.admin-toggle-slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: #cbd5e1;
+	transition: 0.3s;
+	border-radius: 34px;
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-toggle-slider:before {
+	position: absolute;
+	content: "";
+	height: 26px;
+	width: 26px;
+	left: 4px;
+	bottom: 4px;
+	background: white;
+	transition: 0.3s;
+	border-radius: 50%;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.admin-toggle input:checked + .admin-toggle-slider {
+	background: linear-gradient(135deg, #002b5c, #003d80);
+}
+
+.admin-toggle input:checked + .admin-toggle-slider:before {
+	transform: translateX(26px);
+}
+
+.admin-toggle input:focus + .admin-toggle-slider {
+	box-shadow: 0 0 0 3px rgba(0, 43, 92, 0.3);
+}
+
+.admin-toggle-slider {
+	transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.admin-toggle-slider:before {
+	transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== PANEL CZŁONKÓW ===== */
 .members-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 1.75rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.75rem;
 }
 
+/* ===== SEARCH BAR ===== */
 .search-bar {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    background: white;
-    padding: 8px;
-    border-radius: 9999px;
-    border: 2px solid #e2e8f0;
-    box-shadow: 0 6px 16px rgba(0, 43, 92, 0.08);
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	background: white;
+	padding: 8px;
+	border-radius: 9999px;
+	border: 2px solid #e2e8f0;
+	box-shadow: 0 6px 16px rgba(0, 43, 92, 0.08);
 }
 
 .search-bar input {
-    flex: 1;
-    border: none;
-    outline: none;
-    padding: 14px 20px;
-    font-size: 1.1rem;
-    background: transparent;
+	flex: 1;
+	border: none;
+	outline: none;
+	padding: 14px 20px;
+	font-size: 1.1rem;
+	background: transparent;
 }
 
-.clear-filter {
-    padding: 12px 24px;
-    background: #ef4444;
-    color: white;
-    border: none;
-    border-radius: 9999px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.25s;
+.search-bar .clear-filter {
+	padding: 12px 24px;
+	background: #ef4444;
+	color: white;
+	border: none;
+	border-radius: 9999px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.25s;
 }
 
-.clear-filter:hover {
-    background: #dc2626;
+.search-bar .clear-filter:hover {
+	background: #dc2626;
 }
 
-/* Przycisk dodawania */
+/* ===== PRZYCISK DODAJ PARLAMENTARZYSTĘ ===== */
 .add-member-btn {
-    align-self: flex-start;
-    padding: 14px 28px;
-    background: linear-gradient(90deg, #002b5c, #003d80);
-    color: white;
-    border: none;
-    border-radius: 9999px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 6px 16px rgba(0, 43, 92, 0.25);
+	align-self: flex-start;
+	padding: 14px 28px;
+	background: linear-gradient(90deg, #002b5c, #003d80);
+	color: white;
+	border: none;
+	border-radius: 9999px;
+	font-weight: 700;
+	font-size: 1.1rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	box-shadow: 0 6px 16px rgba(0, 43, 92, 0.25);
 }
 
 .add-member-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 24px rgba(0, 43, 92, 0.35);
+	transform: translateY(-3px);
+	box-shadow: 0 10px 24px rgba(0, 43, 92, 0.35);
 }
 
-/* Grid członków */
+/* ===== GRID CZŁONKÓW ===== */
 .members-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-    gap: 1.5rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+	gap: 1.5rem;
 }
 
 .member-card {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 18px;
-    padding: 1.75rem;
-    display: flex;
-    gap: 18px;
-    cursor: pointer;
-    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 6px 16px rgba(0, 43, 92, 0.06);
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 18px;
+	padding: 1.75rem;
+	display: flex;
+	gap: 18px;
+	cursor: pointer;
+	transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow: 0 6px 16px rgba(0, 43, 92, 0.06);
 }
 
 .member-card:hover {
-    border-color: #94a3b8;
-    transform: translateY(-8px);
-    box-shadow: 0 16px 32px rgba(0, 43, 92, 0.14);
+	border-color: #94a3b8;
+	transform: translateY(-8px);
+	box-shadow: 0 16px 32px rgba(0, 43, 92, 0.14);
 }
 
 .member-card.selected {
-    border-color: #2563eb;
-    background: #f0f7ff;
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+	border-color: #2563eb;
+	background: #f0f7ff;
+	box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
 }
 
 .member-avatar {
-    width: 78px;
-    height: 78px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #1e40af, #3b82f6);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.65rem;
-    font-weight: 700;
-    flex-shrink: 0;
+	width: 78px;
+	height: 78px;
+	border-radius: 14px;
+	background: linear-gradient(135deg, #1e40af, #3b82f6);
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.65rem;
+	font-weight: 700;
+	flex-shrink: 0;
 }
 
 .member-info h4 {
-    margin: 0 0 10px 0;
-    font-size: 1.25rem;
-    color: #1e2937;
+	margin: 0 0 10px 0;
+	font-size: 1.25rem;
+	color: #1e2937;
 }
 
 .member-club {
-    font-weight: 700;
-    display: block;
-    margin-bottom: 12px;
-    font-size: 1.02rem;
+	font-weight: 700;
+	display: block;
+	margin-bottom: 12px;
+	font-size: 1.02rem;
 }
 
 .member-functions,
 .member-commissions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 12px;
 }
 
 .function-badge,
 .commission-badge {
-    font-size: 0.82rem;
-    padding: 5px 14px;
-    background: #f1f5f9;
-    border-radius: 999px;
-    color: #475569;
-    font-weight: 600;
+	font-size: 0.82rem;
+	padding: 5px 14px;
+	background: #f1f5f9;
+	border-radius: 999px;
+	color: #475569;
+	font-weight: 600;
 }
 
-/* Admin actions */
 .admin-actions {
-    margin-left: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+	margin-left: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
 
 .admin-actions button {
-    padding: 7px 14px;
-    font-size: 0.85rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
+	padding: 7px 14px;
+	font-size: 0.85rem;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
 }
 
 .admin-actions button:first-child {
-    background: #3b82f6;
-    color: white;
+	background: #3b82f6;
+	color: white;
 }
 
 .admin-actions button:last-child {
-    background: #ef4444;
-    color: white;
+	background: #ef4444;
+	color: white;
 }
 
-/* Modal */
+/* ===== MODAL SZCZEGÓŁÓW ===== */
 .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.75);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1100;
-    padding: 1rem;
-}
-
-.modal-content {
-    background: white;
-    max-width: 580px;
-    width: 100%;
-    border-radius: 22px;
-    box-shadow: 0 25px 50px rgba(0, 43, 92, 0.3);
-    overflow: hidden;
-}
-
-.modal-content h2 {
-    margin: 0;
-    padding: 2rem 2rem 0;
-    color: #002b5c;
-}
-
-.modal-content form {
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.modal-content input,
-.modal-content select {
-    padding: 14px 18px;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    font-size: 1.05rem;
-}
-
-.modal-content input:focus,
-.modal-content select:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
-}
-
-.modal-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-    padding-top: 1rem;
-}
-
-.modal-actions button {
-    padding: 14px 32px;
-    border: none;
-    border-radius: 9999px;
-    font-weight: 600;
-    font-size: 1.05rem;
-    cursor: pointer;
-}
-
-.modal-actions button:first-child {
-    background: #e2e8f0;
-    color: #1e2937;
-}
-
-.modal-actions button:last-child {
-    background: #002b5c;
-    color: white;
-}
-
-/* --- Modal --- */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.5);
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 1rem;
-    animation: modalFadeIn 0.25s ease;
+	position: fixed;
+	inset: 0;
+	background: rgba(15, 23, 42, 0.85);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	padding: 2rem;
+	animation: modalFadeIn 0.4s ease;
 }
 
 @keyframes modalFadeIn {
-    0% {
-        opacity: 0;
-    }
-
-    100% {
-        opacity: 1;
-    }
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
 
 .modal-content {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 2rem 1.75rem;
-    max-width: 500px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-    position: relative;
-    animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+	background: #ffffff;
+	border-radius: 32px;
+	max-width: 720px;
+	width: 100%;
+	max-height: 92vh;
+	overflow-y: auto;
+	box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+	position: relative;
+	animation: modalSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes modalSlideIn {
-    0% {
-        opacity: 0;
-        transform: scale(0.95) translateY(12px);
-    }
-
-    100% {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
+	from {
+		opacity: 0;
+		transform: scale(0.9) translateY(40px);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+	}
 }
 
 .modal-content::-webkit-scrollbar {
-    width: 4px;
+	width: 10px;
 }
 
 .modal-content::-webkit-scrollbar-track {
-    background: transparent;
+	background: #f1f5f9;
+	border-radius: 10px;
 }
 
 .modal-content::-webkit-scrollbar-thumb {
-    background: #e2e8f0;
-    border-radius: 10px;
+	background: linear-gradient(to bottom, #2563eb, #002b5c);
+	border-radius: 10px;
 }
 
-.modal-close {
-    position: absolute;
-    top: 0.75rem;
-    right: 1rem;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    line-height: 1;
-    color: #94a3b8;
-    cursor: pointer;
-    transition: color 0.2s, transform 0.2s;
-    padding: 0.25rem;
-}
-
-.modal-close:hover {
-    color: #0f172a;
-    transform: rotate(90deg);
+.modal-content::-webkit-scrollbar-thumb:hover {
+	background: linear-gradient(to bottom, #3b82f6, #003d80);
 }
 
 .modal-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    padding-right: 2rem;
+	display: flex;
+	align-items: center;
+	gap: 2rem;
+	padding: 2.5rem 3rem 2rem;
+	border-bottom: 3px solid #f1f5f9;
+	position: relative;
+	background: linear-gradient(135deg, #fafbff, #ffffff);
 }
 
 .modal-avatar {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: #2563eb;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.2rem;
-    flex-shrink: 0;
-    text-transform: uppercase;
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	background: linear-gradient(135deg, #002b5c, #2563eb);
+	color: #ffffff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 800;
+	font-size: 2.6rem;
+	flex-shrink: 0;
+	text-transform: uppercase;
+	box-shadow: 0 8px 32px rgba(37, 99, 235, 0.4);
+	border: 4px solid white;
+}
+
+.modal-header .info-wrapper {
+	flex: 1;
+	min-width: 0;
 }
 
 .modal-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #0f172a;
+	margin: 0 0 0.6rem 0;
+	font-size: 2.2rem;
+	font-weight: 800;
+	color: #0f172a;
+	line-height: 1.2;
+	letter-spacing: -0.5px;
 }
 
-.modal-header p {
-    margin: 0.2rem 0 0;
-    font-weight: 500;
+.modal-header .club-info {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 0;
+	padding: 8px 20px 8px 14px;
+	background: #f8fafc;
+	border-radius: 999px;
+	border: 2px solid #e2e8f0;
+	display: inline-flex;
+}
+
+.modal-header .club-dot {
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	display: inline-block;
+	flex-shrink: 0;
+	border: 2px solid rgba(255, 255, 255, 0.9);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header .club-name {
+	font-weight: 700;
+	font-size: 1.2rem;
+	margin: 0;
+	letter-spacing: 0.3px;
+}
+
+.modal-close {
+	position: absolute;
+	top: 1.5rem;
+	right: 1.5rem;
+	background: #f1f5f9;
+	border: none;
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	font-size: 1.8rem;
+	line-height: 1;
+	color: #64748b;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.modal-close:hover {
+	background: #fee2e2;
+	color: #ef4444;
+	transform: rotate(90deg) scale(1.1);
+	box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+}
+
+.modal-close:active {
+	transform: rotate(90deg) scale(0.9);
 }
 
 .modal-body {
-    padding-top: 0.25rem;
+	padding: 2.5rem 3rem 3rem;
 }
 
 .modal-body h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #0f172a;
-    margin: 1.2rem 0 0.4rem;
+	font-size: 1.2rem;
+	font-weight: 700;
+	color: #1e2937;
+	margin: 2.5rem 0 1.2rem;
+	padding: 10px 18px;
+	background: linear-gradient(to right, #f8fafc, transparent);
+	border-radius: 14px;
+	border-left: 6px solid #2563eb;
+	display: flex;
+	align-items: center;
+	gap: 12px;
 }
 
 .modal-body h3:first-of-type {
-    margin-top: 0;
+	margin-top: 0;
+}
+
+.modal-body h3 .badge-count {
+	background: #2563eb;
+	color: white;
+	padding: 4px 16px;
+	border-radius: 999px;
+	font-size: 0.9rem;
+	font-weight: 700;
+	margin-left: auto;
+}
+
+.modal-body h3 .badge-count.purple {
+	background: #7c3aed;
 }
 
 .modal-body ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 12px;
 }
 
 .modal-body li {
-    padding: 0.2rem 0;
-    font-size: 0.95rem;
-    color: #334155;
-    border-bottom: 1px solid #f1f5f9;
+	padding: 16px 22px;
+	font-size: 1.1rem;
+	color: #1e2937;
+	background: white;
+	border-radius: 16px;
+	border: 2px solid #f1f5f9;
+	transition: all 0.3s ease;
+	font-weight: 500;
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-.modal-body li:last-child {
-    border-bottom: none;
+.modal-body li:hover {
+	border-color: #2563eb;
+	transform: translateX(8px);
+	box-shadow: 0 4px 20px rgba(37, 99, 235, 0.15);
 }
 
-.modal-body li::before {
-    content: "• ";
-    color: #2563eb;
+.modal-body li .item-content {
+	flex: 1;
 }
 
-/* Responsywność modala */
-@media (max-width: 600px) {
-    .modal-content {
-        padding: 1.5rem 1rem;
-        margin: 0.5rem;
-        max-height: 95vh;
-    }
+.modal-body li .item-badge {
+	font-size: 0.8rem;
+	padding: 4px 16px;
+	border-radius: 999px;
+	background: #dbeafe;
+	color: #1e40af;
+	font-weight: 600;
+}
 
-    .modal-header {
-        flex-wrap: wrap;
-        gap: 0.75rem;
-    }
+.modal-body li .item-badge.commission {
+	background: #f3e8ff;
+	color: #6b21a5;
+}
 
-    .modal-avatar {
-        width: 44px;
-        height: 44px;
-        font-size: 1rem;
-    }
+.modal-body .member-stats {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+	margin: 0 0 1.5rem;
+}
 
-    .modal-header h2 {
-        font-size: 1.25rem;
-    }
+.modal-body .stat-chip {
+	background: white;
+	border: 2px solid #e2e8f0;
+	border-radius: 16px;
+	padding: 16px 20px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	transition: all 0.3s ease;
+}
 
-    .modal-close {
-        top: 0.5rem;
-        right: 0.75rem;
-        font-size: 1.3rem;
-    }
+.modal-body .stat-chip:hover {
+	border-color: #2563eb;
+	transform: translateY(-4px);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.modal-body .stat-chip .stat-label {
+	font-size: 0.95rem;
+	color: #64748b;
+	font-weight: 600;
+}
+
+.modal-body .stat-chip .stat-value {
+	font-size: 1.3rem;
+	font-weight: 800;
+	color: #0f172a;
+	margin-left: auto;
+}
+
+.modal-body .no-info {
+	text-align: center;
+	padding: 3.5rem 2rem;
+	color: #94a3b8;
+	font-size: 1.2rem;
+	background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+	border-radius: 20px;
+	border: 3px dashed #e2e8f0;
+}
+
+.modal-body .no-info .sub-text {
+	font-size: 1rem;
+	color: #cbd5e1;
+	margin-top: 0.75rem;
+}
+
+/* ===== RESPONSYWNOŚĆ ===== */
+@media (max-width: 1024px) {
+	.clubs-panel {
+		max-width: 100% !important;
+	}
+}
+
+@media (max-width: 768px) {
+	.club-item .club-type-badge {
+		display: none;
+	}
+
+	.admin-toggle-container {
+		padding: 1rem 1.25rem;
+	}
+
+	.admin-toggle {
+		width: 50px;
+		height: 28px;
+	}
+
+	.admin-toggle-slider:before {
+		height: 20px;
+		width: 20px;
+		left: 4px;
+		bottom: 4px;
+	}
+
+	.admin-toggle input:checked + .admin-toggle-slider:before {
+		transform: translateX(22px);
+	}
+
+	.admin-toggle-label {
+		font-size: 0.85rem;
+	}
+
+	.modal-content {
+		max-width: 100%;
+		margin: 1rem;
+		border-radius: 24px;
+	}
+
+	.modal-header {
+		padding: 2rem 1.5rem 1.5rem;
+		gap: 1.5rem;
+		flex-wrap: wrap;
+	}
+
+	.modal-avatar {
+		width: 80px;
+		height: 80px;
+		font-size: 2rem;
+	}
+
+	.modal-header h2 {
+		font-size: 1.8rem;
+	}
+
+	.modal-header .club-info {
+		padding: 6px 16px 6px 12px;
+	}
+
+	.modal-header .club-name {
+		font-size: 1.05rem;
+	}
+
+	.modal-close {
+		width: 40px;
+		height: 40px;
+		font-size: 1.5rem;
+		top: 1rem;
+		right: 1rem;
+	}
+
+	.modal-body {
+		padding: 1.5rem 1.5rem 2rem;
+	}
+
+	.modal-body h3 {
+		font-size: 1.05rem;
+		padding: 8px 14px;
+		margin: 2rem 0 1rem;
+	}
+
+	.modal-body li {
+		padding: 14px 18px;
+		font-size: 1rem;
+		gap: 12px;
+	}
+
+	.modal-body .member-stats {
+		grid-template-columns: 1fr;
+		gap: 12px;
+	}
+
+	.modal-body .stat-chip {
+		padding: 14px 18px;
+	}
+
+	.modal-body .stat-chip .stat-value {
+		font-size: 1.1rem;
+	}
+
+	.modal-body .no-info {
+		padding: 2.5rem 1.5rem;
+		font-size: 1.05rem;
+	}
+
+	.modal-body .no-info .sub-text {
+		font-size: 0.95rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.modal-header {
+		flex-direction: column;
+		text-align: center;
+		padding: 1.5rem 1.25rem 1.25rem;
+		gap: 1rem;
+	}
+
+	.modal-avatar {
+		width: 90px;
+		height: 90px;
+		font-size: 2.2rem;
+	}
+
+	.modal-header h2 {
+		font-size: 1.5rem;
+	}
+
+	.modal-header .club-info {
+		justify-content: center;
+		display: inline-flex;
+		margin: 0 auto;
+	}
+
+	.modal-close {
+		top: 0.75rem;
+		right: 0.75rem;
+		width: 36px;
+		height: 36px;
+		font-size: 1.3rem;
+	}
+
+	.modal-body {
+		padding: 1rem 1.25rem 1.5rem;
+	}
+
+	.modal-body h3 {
+		font-size: 0.95rem;
+		margin: 1.5rem 0 0.75rem;
+		padding: 6px 12px;
+	}
+
+	.modal-body h3 .badge-count {
+		font-size: 0.75rem;
+		padding: 2px 12px;
+	}
+
+	.modal-body li {
+		padding: 12px 16px;
+		font-size: 0.95rem;
+		border-radius: 12px;
+		gap: 10px;
+	}
+
+	.modal-body li .item-badge {
+		font-size: 0.7rem;
+		padding: 2px 12px;
+	}
+
+	.modal-body .stat-chip .stat-label {
+		font-size: 0.85rem;
+	}
+
+	.modal-body .stat-chip .stat-value {
+		font-size: 1rem;
+	}
+
+	.modal-body .no-info {
+		padding: 2rem 1rem;
+		font-size: 0.95rem;
+	}
+
+	.modal-body .no-info .sub-text {
+		font-size: 0.85rem;
+	}
+
+	.members-grid {
+		grid-template-columns: 1fr;
+	}
+}
+/* ===== MODAL DODAWANIA/EDYCJI PARLAMENTARZYSTY - WIĘKSZY ===== */
+.modal-content {
+	max-width: 780px !important; /* Większy modal */
+	padding: 0 !important;
+}
+
+.modal-content > h2 {
+	margin: 0 !important;
+	padding: 2rem 2.5rem 1.5rem !important;
+	font-size: 1.8rem !important;
+	color: #002b5c;
+	font-weight: 800;
+	border-bottom: 2px solid #f1f5f9;
+}
+
+.modal-content form {
+	display: flex;
+	flex-direction: column;
+	gap: 1.75rem;
+	padding: 2rem 2.5rem 2.5rem !important;
+}
+
+.modal-content form .form-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1.25rem;
+}
+
+.modal-content form input,
+.modal-content form select {
+	padding: 16px 20px !important;
+	border: 2px solid #e2e8f0;
+	border-radius: 14px;
+	font-size: 1.1rem !important;
+	font-family: inherit;
+	transition: all 0.3s ease;
+	background: white;
+	width: 100%;
+}
+
+.modal-content form input:focus,
+.modal-content form select:focus {
+	border-color: #2563eb;
+	box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+	outline: none;
+}
+
+.modal-content form input::placeholder {
+	color: #94a3b8;
+	font-size: 1rem;
+}
+
+.modal-content form label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: 700;
+	color: #1e2937;
+	font-size: 1.05rem;
+}
+
+/* ===== PRZYCISKI W FORMULARZU ===== */
+.modal-content form button[type="button"] {
+	padding: 12px 24px;
+	background: #f1f5f9;
+	color: #1e2937;
+	border: 2px solid #e2e8f0;
+	border-radius: 12px;
+	font-weight: 700;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all 0.25s ease;
+	white-space: nowrap;
+}
+
+.modal-content form button[type="button"]:hover {
+	background: #e2e8f0;
+	border-color: #94a3b8;
+	transform: translateY(-2px);
+}
+
+.modal-content form button[type="button"]:active {
+	transform: scale(0.95);
+}
+
+/* ===== TAGI (FUNKCJE/KOMISJE) ===== */
+.modal-content form .tags-container {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 10px;
+}
+
+.modal-content form .tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 18px;
+	border-radius: 999px;
+	font-size: 1rem;
+	font-weight: 600;
+	transition: all 0.2s ease;
+}
+
+.modal-content form .tag-function {
+	background: #e0f2fe;
+	color: #1e40af;
+}
+
+.modal-content form .tag-commission {
+	background: #f3e8ff;
+	color: #6b21a5;
+}
+
+.modal-content form .tag .remove-btn {
+	background: none;
+	border: none;
+	color: #94a3b8;
+	font-size: 1.4rem;
+	cursor: pointer;
+	padding: 0 4px;
+	transition: all 0.2s ease;
+	line-height: 1;
+}
+
+.modal-content form .tag .remove-btn:hover {
+	color: #ef4444;
+	transform: scale(1.3);
+}
+
+/* ===== MODAL ACTIONS ===== */
+.modal-actions {
+	display: flex;
+	gap: 16px;
+	justify-content: flex-end;
+	padding-top: 1.5rem;
+	margin-top: 1rem;
+	border-top: 2px solid #f1f5f9;
+}
+
+.modal-actions button {
+	padding: 16px 40px !important;
+	border: none;
+	border-radius: 9999px;
+	font-weight: 700;
+	font-size: 1.1rem !important;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	min-width: 140px;
+}
+
+.modal-actions button:first-child {
+	background: #f1f5f9;
+	color: #1e2937;
+}
+
+.modal-actions button:first-child:hover {
+	background: #e2e8f0;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.modal-actions button:last-child {
+	background: linear-gradient(135deg, #002b5c, #003d80);
+	color: white;
+	box-shadow: 0 4px 16px rgba(0, 43, 92, 0.3);
+}
+
+.modal-actions button:last-child:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 24px rgba(0, 43, 92, 0.4);
+}
+
+.modal-actions button:active {
+	transform: scale(0.97);
+}
+
+/* ===== SELECT ===== */
+.modal-content form select {
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 18px center;
+	padding-right: 48px;
+	cursor: pointer;
+	font-size: 1.1rem;
+}
+
+.modal-content form select option {
+	padding: 12px;
+	font-size: 1rem;
+}
+
+/* ===== RESPONSYWNOŚĆ ===== */
+@media (max-width: 768px) {
+	.modal-content {
+		max-width: 100% !important;
+		margin: 0.75rem;
+		border-radius: 24px;
+	}
+
+	.modal-content > h2 {
+		padding: 1.5rem 1.5rem 1rem !important;
+		font-size: 1.4rem !important;
+	}
+
+	.modal-content form {
+		padding: 1.25rem 1.5rem 1.5rem !important;
+		gap: 1.25rem;
+	}
+
+	.modal-content form .form-row {
+		grid-template-columns: 1fr;
+		gap: 1rem;
+	}
+
+	.modal-content form input,
+	.modal-content form select {
+		padding: 14px 16px !important;
+		font-size: 1rem !important;
+	}
+
+	.modal-actions {
+		flex-direction: column;
+		gap: 12px;
+		padding-top: 1.25rem;
+	}
+
+	.modal-actions button {
+		width: 100%;
+		justify-content: center;
+		padding: 14px 24px !important;
+		font-size: 1rem !important;
+		min-width: unset;
+	}
+
+	.modal-content form button[type="button"] {
+		padding: 10px 18px;
+		font-size: 0.9rem;
+	}
+
+	.modal-content form .tag {
+		font-size: 0.9rem;
+		padding: 8px 14px;
+	}
+}
+
+@media (max-width: 480px) {
+	.modal-content {
+		margin: 0.5rem;
+		border-radius: 20px;
+	}
+
+	.modal-content > h2 {
+		padding: 1.25rem 1.25rem 0.75rem !important;
+		font-size: 1.2rem !important;
+	}
+
+	.modal-content form {
+		padding: 1rem 1.25rem 1.25rem !important;
+		gap: 1rem;
+	}
+
+	.modal-content form input,
+	.modal-content form select {
+		padding: 12px 14px !important;
+		font-size: 0.95rem !important;
+	}
+
+	.modal-actions button {
+		padding: 12px 20px !important;
+		font-size: 0.95rem !important;
+	}
 }

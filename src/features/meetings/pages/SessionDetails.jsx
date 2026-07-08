@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./SessionDetails.css";
 
-// Bazowa lista mówców
+
 const defaultSpeakers = {
     "Jan Kowalski": { club: "Klub Parlamentarny Czas Młodych", role: "Parlamentarzysta" },
     "Anna Nowak": { club: "Klub Obywatelski", role: "Parlamentarzystka" },
@@ -61,7 +61,7 @@ export default function SessionDetails() {
     const [customSpeakers, setCustomSpeakers] = useState({});
     const allSpeakers = { ...defaultSpeakers, ...customSpeakers };
 
-    // Stan wyświetlany
+
     const [displaySpeaker, setDisplaySpeaker] = useState(initialSession.currentSpeaker);
     const [displayPoint, setDisplayPoint] = useState(initialSession.currentPoint);
     const [schedule, setSchedule] = useState(initialSession.schedule);
@@ -69,30 +69,30 @@ export default function SessionDetails() {
     const [title, setTitle] = useState(initialSession.title);
     const [date, setDate] = useState(initialSession.date);
 
-    // Tryb sesji: 'normal' | 'break' | 'zo'
+
     const [sessionMode, setSessionMode] = useState('normal');
-    // Kopia harmonogramu i aktywności do przywrócenia
+
     const [scheduleBackup, setScheduleBackup] = useState(null);
     const [activeIndexBackup, setActiveIndexBackup] = useState(null);
 
-    // Stan mówcy w edycji
+
     const [draftSpeakerName, setDraftSpeakerName] = useState("");
     const [showSuggestions, setShowSuggestions] = useState(false);
 
-    // Stan dla nowego mówcy
+
     const [newSpeakerName, setNewSpeakerName] = useState("");
     const [newSpeakerClub, setNewSpeakerClub] = useState("");
     const [newSpeakerRole, setNewSpeakerRole] = useState("Parlamentarzysta");
 
-    // Stan przerwy
+
     const [breakEndTime, setBreakEndTime] = useState("");
     const [breakStartTime, setBreakStartTime] = useState("");
 
-    // Flagi animacji
+
     const [speakerChanging, setSpeakerChanging] = useState(false);
     const [pointChanging, setPointChanging] = useState(false);
 
-    // Synchronizacja punktu z aktywnym elementem harmonogramu (tylko w trybie normalnym)
+
     useEffect(() => {
         if (sessionMode !== 'normal') return;
         const activeIndex = schedule.findIndex((item) => item.status === "active");
@@ -119,10 +119,10 @@ export default function SessionDetails() {
         window.scrollTo({ top: 0, behavior: "instant" });
     }, []);
 
-    // Wybór mówcy (z listy lub Enter)
+
     const selectSpeaker = (name) => {
         if (!name.trim()) return;
-        // Jeśli jesteśmy w trybie przerwy lub ZO, anuluj
+
         if (sessionMode === 'break') cancelBreak();
         if (sessionMode === 'zo') cancelZO();
         const data = getSpeakerData(name, customSpeakers);
@@ -140,7 +140,7 @@ export default function SessionDetails() {
         setSessionMode('normal');
     };
 
-    // Dodawanie niestandardowego mówcy
+
     const addCustomSpeaker = (e) => {
         e.preventDefault();
         const name = newSpeakerName.trim();
@@ -160,10 +160,10 @@ export default function SessionDetails() {
         setNewSpeakerRole("Parlamentarzysta");
     };
 
-    // --- PRZERWA ---
+
     const startBreak = () => {
         if (sessionMode === 'break') return;
-        // Zapamiętaj obecny harmonogram i aktywność
+
         const activeIdx = schedule.findIndex(item => item.status === 'active');
         setScheduleBackup([...schedule]);
         setActiveIndexBackup(activeIdx);
@@ -175,10 +175,10 @@ export default function SessionDetails() {
         const endStr = end.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
         setBreakEndTime(endStr);
 
-        // Tworzymy nowy punkt "Przerwa" z czasem rozpoczęcia
+
         const breakItem = { time: now, title: "Przerwa", status: "waiting" };
 
-        // Wstawiamy w odpowiednie miejsce chronologiczne
+
         const newSchedule = [...schedule];
         const newMinutes = parseTimeToMinutes(now);
         let insertIndex = newSchedule.length;
@@ -191,7 +191,7 @@ export default function SessionDetails() {
         }
         newSchedule.splice(insertIndex, 0, breakItem);
 
-        // Ustawiamy statusy: przed przerwą -> done, przerwa -> active, po -> waiting
+
         const updatedSchedule = newSchedule.map((item, idx) => {
             if (idx < insertIndex) return { ...item, status: "done" };
             if (idx === insertIndex) return { ...item, status: "active" };
@@ -200,7 +200,7 @@ export default function SessionDetails() {
 
         setSchedule(updatedSchedule);
 
-        // Ustaw punkt wyświetlany na przerwę
+
         const breakPoint = {
             number: "PRZERWA",
             title: "Przerwa",
@@ -210,14 +210,14 @@ export default function SessionDetails() {
         setPointChanging(true);
         setTimeout(() => setPointChanging(false), 400);
 
-        // Ukrywamy mówcę
+
         setDisplaySpeaker(null);
         setSessionMode('break');
     };
 
     const confirmBreakEnd = () => {
         if (!breakEndTime) return;
-        // Aktualizujemy tytuł punktu przerwy w harmonogramie
+
         const updatedSchedule = schedule.map(item => {
             if (item.status === 'active') {
                 return { ...item, title: `Przerwa do ${breakEndTime}` };
@@ -225,7 +225,7 @@ export default function SessionDetails() {
             return item;
         });
         setSchedule(updatedSchedule);
-        // Aktualizujemy displayPoint
+
         setDisplayPoint(prev => ({
             ...prev,
             title: `Przerwa do ${breakEndTime}`,
@@ -236,15 +236,15 @@ export default function SessionDetails() {
 
     const cancelBreak = () => {
         if (sessionMode !== 'break' || !scheduleBackup) return;
-        // Przywracamy zapisany harmonogram
+
         setSchedule(scheduleBackup);
         setScheduleBackup(null);
         setActiveIndexBackup(null);
         setBreakEndTime("");
         setBreakStartTime("");
         setSessionMode('normal');
-        // Przywracamy punkt i mówcę z backupu (lub domyślne)
-        // Ponieważ backup zawiera harmonogram, ale nie przechowuje mówcy, odtwarzamy z initialSession lub ostatniego wybranego
+
+
         setDisplaySpeaker(initialSession.currentSpeaker);
         setDisplayPoint(initialSession.currentPoint);
         setSpeakerChanging(true);
@@ -253,22 +253,22 @@ export default function SessionDetails() {
         setTimeout(() => setPointChanging(false), 400);
     };
 
-    // --- ZO ---
+
     const setOrganizationalTeam = () => {
         if (sessionMode === 'zo') return;
-        // Jeśli w trybie przerwy, anuluj przerwę
+
         if (sessionMode === 'break') cancelBreak();
 
-        // Zapamiętuj harmonogram i aktywność
+
         const activeIdx = schedule.findIndex(item => item.status === 'active');
         setScheduleBackup([...schedule]);
         setActiveIndexBackup(activeIdx);
 
-        // Tymczasowo usuń aktywność (ustaw wszystkie jako 'waiting')
+
         const neutralSchedule = schedule.map(item => ({ ...item, status: 'waiting' }));
         setSchedule(neutralSchedule);
 
-        // Ustaw punkt i mówcę ZO
+
         const zoPoint = {
             number: "ZO",
             title: "Zespół Organizacyjny",
@@ -294,12 +294,12 @@ export default function SessionDetails() {
 
     const cancelZO = () => {
         if (sessionMode !== 'zo' || !scheduleBackup) return;
-        // Przywracamy zapisany harmonogram
+
         setSchedule(scheduleBackup);
         setScheduleBackup(null);
         setActiveIndexBackup(null);
         setSessionMode('normal');
-        // Przywracamy punkt i mówcę z backupu (lub domyślne)
+
         setDisplaySpeaker(initialSession.currentSpeaker);
         setDisplayPoint(initialSession.currentPoint);
         setSpeakerChanging(true);
@@ -308,7 +308,7 @@ export default function SessionDetails() {
         setTimeout(() => setPointChanging(false), 400);
     };
 
-    // Funkcje harmonogramu (dodawanie, usuwanie, przesuwanie, ustawianie aktywnego, nawigacja)
+
     const addScheduleItem = (time, title) => {
         if (!title.trim()) return;
         const newItem = { time: time || "Nowy", title: title.trim(), status: "waiting" };
@@ -349,7 +349,7 @@ export default function SessionDetails() {
     };
 
     const setActiveItem = (index) => {
-        // Jeśli jesteśmy w trybie ZO, nie zmieniamy aktywności (neutral)
+
         if (sessionMode === 'zo') return;
         const newSchedule = schedule.map((item, i) => {
             if (i < index) return { ...item, status: "done" };
@@ -380,7 +380,7 @@ export default function SessionDetails() {
         name.toLowerCase().includes(draftSpeakerName.toLowerCase())
     );
 
-    // Czy pokazywać kartę mówcy? – tylko gdy nie ma przerwy
+
     const showSpeaker = sessionMode !== 'break' && displaySpeaker !== null;
 
     return (
@@ -394,7 +394,7 @@ export default function SessionDetails() {
             </header>
 
             <section className="session-live">
-                {/* Karta mówcy – ukryta tylko w trybie 'break' */}
+
                 {showSpeaker && (
                     <div className="live-card">
                         <h2>AKTUALNIE MÓWI</h2>
@@ -448,7 +448,7 @@ export default function SessionDetails() {
                                         </div>
                                     </div>
                                 </div>
-                                {/* Formularz dodawania mówcy */}
+
                                 <div className="admin-add-speaker">
                                     <h4>Dodaj nowego mówcę</h4>
                                     <form onSubmit={addCustomSpeaker} className="add-speaker-form">
@@ -500,7 +500,7 @@ export default function SessionDetails() {
                     </div>
                 )}
 
-                {/* Karta aktualnego punktu z przyciskami */}
+
                 <div className="live-card">
                     <h2>AKTUALNY PUNKT</h2>
                     <div className={`agenda-current ${pointChanging ? "changing" : ""}`}>
@@ -551,7 +551,7 @@ export default function SessionDetails() {
                 </div>
             </section>
 
-            {/* Harmonogram */}
+
             <section className="session-content">
                 <div className="session-panel">
                     <div className="panel-header">

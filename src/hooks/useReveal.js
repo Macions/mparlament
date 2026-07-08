@@ -16,7 +16,7 @@ export default function usePageAnim() {
     pageContent.style.opacity = "0";
     pageContent.style.transform = "translateY(30px)";
 
-    void pageContent.offsetWidth; // force reflow
+    void pageContent.offsetWidth; 
 
 
     pageContent.style.transition = "all 1s cubic-bezier(0.25, 0.1, 0.25, 1)";

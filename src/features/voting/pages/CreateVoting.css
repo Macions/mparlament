@@ -86,7 +86,7 @@
 	border-color: var(--color-border-strong);
 }
 
-/* Step Indicator */
+
 .step-indicator {
 	display: flex;
 	justify-content: space-between;
@@ -171,7 +171,7 @@
 	color: var(--color-ink-700);
 }
 
-/* Form Container */
+
 .form-container {
 	background: var(--color-surface);
 	border: 1px solid var(--color-border);
@@ -271,7 +271,7 @@
 	text-align: right;
 }
 
-/* Tags */
+
 .tags-input-container {
 	border: 1px solid var(--color-border);
 	border-radius: var(--radius-sm);
@@ -329,7 +329,7 @@
 	background: transparent;
 }
 
-/* Recipients Type Selector */
+
 .recipients-type-selector {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
@@ -381,7 +381,7 @@
 	line-height: 1.4;
 }
 
-/* Recipients Selection */
+
 .recipients-selection {
 	margin-top: 2rem;
 }
@@ -495,7 +495,7 @@
 	flex-shrink: 0;
 }
 
-/* Duration Selector */
+
 .duration-type-selector {
 	margin-bottom: 1.5rem;
 }
@@ -561,7 +561,7 @@
 	gap: 1rem;
 }
 
-/* Time Preview */
+
 .time-preview {
 	background: var(--color-surface-muted);
 	border: 1px solid var(--color-border);
@@ -598,7 +598,7 @@
 	font-weight: 600;
 }
 
-/* Settings Sections */
+
 .settings-section {
 	margin-bottom: 2rem;
 	padding-bottom: 2rem;
@@ -662,7 +662,7 @@
 	text-align: right;
 }
 
-/* Toggle Cards */
+
 .toggle-card {
 	display: flex;
 	justify-content: space-between;
@@ -742,7 +742,7 @@
 	transform: translateX(20px);
 }
 
-/* Form Actions */
+
 .form-actions {
 	display: flex;
 	justify-content: space-between;
@@ -786,7 +786,7 @@
 	border-color: var(--color-success-hover);
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
 	.create-voting-page {
 		padding: 1.5rem 1rem;
@@ -822,7 +822,7 @@
 	}
 }
 
-/* Statutory Rules */
+
 .statutory-rules {
 	background: var(--color-success-light);
 	border: 1px solid var(--color-success-border);
@@ -880,7 +880,7 @@
 		grid-template-columns: 1fr;
 	}
 }
-/* Search Box */
+
 .search-box {
 	position: relative;
 	margin-bottom: 1rem;
@@ -949,14 +949,14 @@
 	font-size: 0.9375rem;
 }
 
-/* Selection actions */
+
 .selection-actions {
 	display: flex;
 	align-items: center;
 	gap: 1rem;
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
 	.selection-header {
 		flex-direction: column;
@@ -968,7 +968,7 @@
 		justify-content: space-between;
 	}
 }
-/* Summary Step */
+
 .summary-step .step-description {
 	color: var(--color-ink-500);
 	margin-bottom: 2rem;
@@ -1116,7 +1116,7 @@
 	color: var(--color-ink-900);
 }
 
-/* Summary Edit Actions */
+
 .summary-edit-actions {
 	display: flex;
 	flex-wrap: wrap;
@@ -1131,12 +1131,12 @@
 	font-size: 0.8125rem;
 }
 
-/* Attachments in summary */
+
 .attachments-list .summary-list {
 	margin-top: 0.25rem;
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
 	.summary-grid {
 		grid-template-columns: 1fr;
@@ -1163,14 +1163,14 @@
 		width: 100%;
 	}
 }
-/* Step description */
+
 .step-description {
 	color: var(--color-ink-500);
 	margin-bottom: 1.75rem;
 	font-size: 0.9375rem;
 }
 
-/* Linked item selector */
+
 .linked-item-selector {
 	display: flex;
 	flex-direction: column;
@@ -1248,7 +1248,7 @@
 	background: var(--color-surface);
 }
 
-/* Attachments */
+
 .attachments-area {
 	display: flex;
 	flex-direction: column;
@@ -1406,7 +1406,7 @@
 	color: var(--color-border);
 }
 
-/* Responsive for attachment section */
+
 @media (max-width: 768px) {
 	.radio-group.horizontal {
 		grid-template-columns: 1fr;

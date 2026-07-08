@@ -164,7 +164,7 @@
     color: var(--text-secondary);
 }
 
-/* Animacja wejścia dla karty */
+
 .live-card {
     animation: fadeSlide 0.4s ease-out;
 }
@@ -181,7 +181,7 @@
     }
 }
 
-/* Harmonogram */
+
 .session-content {
     display: grid;
     grid-template-columns: 1fr;
@@ -272,7 +272,7 @@
     color: var(--accent);
 }
 
-/* Responsywność */
+
 @media (max-width: 768px) {
     .session-page {
         padding: 1.5rem 1rem;
@@ -310,7 +310,7 @@
     }
 }
 
-/* Style dla panelu admina */
+
 .admin-speaker-edit,
 .admin-point-edit {
     width: 100%;
@@ -488,7 +488,7 @@
     background: #16a34a;
 }
 
-/* Responsywność panelu admina */
+
 @media (max-width: 768px) {
     .panel-header {
         flex-direction: column;
@@ -549,7 +549,7 @@
     background: #eff6ff;
 }
 
-/* ---------- Animacje ---------- */
+
 @keyframes fadeSlide {
     0% {
         opacity: 0;
@@ -568,7 +568,7 @@
     animation: fadeSlide 0.4s ease forwards;
 }
 
-/* ---------- Autocomplete ---------- */
+
 .autocomplete-wrapper {
     position: relative;
     width: 100%;
@@ -602,7 +602,7 @@
     background: #eff6ff;
 }
 
-/* ---------- Przyciski zatwierdzania ---------- */
+
 .confirm-btn {
     padding: 6px 16px;
     border: none;
@@ -631,7 +631,7 @@
     margin: 0.5rem 0 1rem;
 }
 
-/* ---------- Pozostałe style (z poprzednich zadań) ---------- */
+
 .admin-speaker-edit,
 .admin-point-edit {
     width: 100%;
@@ -809,7 +809,7 @@
     background: #16a34a;
 }
 
-/* Responsywność */
+
 @media (max-width: 768px) {
     .panel-header {
         flex-direction: column;
@@ -846,7 +846,7 @@
     }
 }
 
-/* Podświetlenie aktywnego punktu w harmonogramie */
+
 .timeline-item.active {
     background: #f0f7ff;
     border-radius: 8px;
@@ -869,7 +869,7 @@
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
 }
 
-/* Formularz dodawania nowego mówcy */
+
 .admin-add-speaker {
     margin-top: 1.5rem;
     padding-top: 1rem;
@@ -922,7 +922,7 @@
     }
 }
 
-/* Przyciski w karcie punktu */
+
 .admin-point-actions {
     margin-top: 1rem;
     display: flex;
@@ -1003,7 +1003,7 @@
     background: #dc2626;
 }
 
-/* Animacja dla przerwy */
+
 .speaker-wrapper.changing .speaker,
 .speaker-wrapper.changing .speech-time {
     animation: fadeSlide 0.4s ease forwards;
@@ -1021,7 +1021,7 @@
     }
 }
 
-/* Style dla panelu admina i przycisków (z poprzednich wersji) – uzupełnij brakujące */
+
 .admin-input {
     width: 100%;
     padding: 6px 10px;
@@ -1149,7 +1149,7 @@
     align-items: center;
 }
 
-/* pozostałe style (autocomplete, timeline itp.) – zachowaj z poprzednich wersji */
+
 .autocomplete-wrapper {
     position: relative;
     width: 100%;
@@ -1229,7 +1229,7 @@
     background: #7c3aed;
 }
 
-/* Animacje */
+
 @keyframes fadeSlide {
     0% {
         opacity: 0;
@@ -1248,7 +1248,7 @@
     animation: fadeSlide 0.4s ease forwards;
 }
 
-/* Responsywność */
+
 @media (max-width: 768px) {
     .add-speaker-form {
         flex-direction: column;

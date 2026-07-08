@@ -41,7 +41,7 @@ export default function SubmitResolution() {
 		try {
 			const data = await parseDocx(file);
 			setParsed(data);
-			setEditedData(JSON.parse(JSON.stringify(data))); // głęboka kopia
+			setEditedData(JSON.parse(JSON.stringify(data))); 
 			setAnalyzed(true);
 		} catch (err) {
 			setError("Błąd parsowania: " + err.message);

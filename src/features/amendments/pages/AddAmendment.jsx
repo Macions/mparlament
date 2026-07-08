@@ -15,7 +15,7 @@ const CHANGE_TYPES = [
 	{ value: "delete", label: "Usunięcie artykułu" },
 ];
 
-// POMOCNICZA FUNKCJA DO POBRANIA WSZYSTKICH ARTYKUŁÓW Z ROZDZIAŁÓW
+
 function getAllArticles(bill) {
 	if (!bill) return [];
 	if (bill.articles) return bill.articles;
@@ -25,14 +25,14 @@ function getAllArticles(bill) {
 	return [];
 }
 
-// POMOCNICZA FUNKCJA DO ZAPISANIA ZMIENIONYCH ARTYKUŁÓW Z POWROTEM DO STRUKTURY
+
 function saveArticles(bill, articles) {
 	if (!bill) return bill;
 	if (bill.articles) {
 		return { ...bill, articles };
 	}
 	if (bill.chapters) {
-		// Aktualizuj artykuły w rozdziałach
+
 		const updatedChapters = bill.chapters.map((ch) => ({
 			...ch,
 			articles: articles.filter(
@@ -48,7 +48,7 @@ function saveArticles(bill, articles) {
 function applyChanges(bill, changes) {
 	if (!bill) return null;
 
-	// Pobierz wszystkie artykuły
+
 	const allArticles = getAllArticles(bill);
 	const articles = [...allArticles];
 
@@ -110,12 +110,12 @@ export default function AddAmendment() {
 		return applyChanges(relatedBill, validChanges);
 	}, [relatedBill, changes]);
 
-	// Pobierz wszystkie artykuły do wyświetlenia
+
 	const allArticles = useMemo(() => {
 		return getAllArticles(relatedBill);
 	}, [relatedBill]);
 
-	// Pobierz zmienione artykuły z podglądu
+
 	const changedArticles = useMemo(() => {
 		if (!previewBill) return [];
 		const articles = getAllArticles(previewBill);

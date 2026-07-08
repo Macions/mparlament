@@ -182,7 +182,7 @@ function parse(text) {
 				const isDuplicate = currentChapter.articles.some(
 					(a) => a.number === artNumber,
 				);
-				if (isDuplicate) continue; // Pomiń duplikat
+				if (isDuplicate) continue; 
 			}
 
 			articleIndex++;
