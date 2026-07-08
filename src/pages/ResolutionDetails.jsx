@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import "./ResolutionDetails.css";
+import { createPortal } from "react-dom";
 import { resolutions } from "../data/legislation";
 
 export default function ResolutionDetails() {
@@ -114,45 +115,48 @@ export default function ResolutionDetails() {
 					</div>
 				</div>
 			</main>
-			{showSignatures && (
-				<>
-					<div
-						className="signatures-overlay"
-						onClick={() => setShowSignatures(false)}
-					></div>
+			{showSignatures &&
+				createPortal(
+					<>
+						<div
+							className="signatures-overlay"
+							onClick={() => setShowSignatures(false)}
+						></div>
 
-					<div className="signatures-panel">
-						<div className="signatures-header">
-							<h2>Kto podpisał?</h2>
+						<div className="signatures-panel">
+							<div className="signatures-header">
+								<h2>Kto podpisał?</h2>
 
-							<button
-								className="close-panel"
-								onClick={() => setShowSignatures(false)}
-							>
-								✕
-							</button>
-						</div>
+								<button
+									className="close-panel"
+									onClick={() => setShowSignatures(false)}
+								>
+									✕
+								</button>
+							</div>
 
-						<div className="signatures-total">
-							Liczba podpisów: <strong>{signedUsers.length}</strong>
-						</div>
+							<div className="signatures-total">
+								Liczba podpisów: <strong>{signedUsers.length}</strong>
+							</div>
 
-						<div className="signatures-list">
-							{signedUsers.map((user, index) => (
-								<div className="signature-item" key={index}>
-									<div className="signature-avatar">👤</div>
-
-									<div className="signature-info">
-										<strong>{user.name}</strong>
-										<p>{user.club}</p>
-										<span>{user.date}</span>
+							<div className="signatures-list">
+								{signedUsers.map((user, index) => (
+									<div className="signature-item" key={index}>
+										<div className="signature-avatar" style={{ background: `hsl(${index * 45 % 360}, 70%, 90%)` }}>
+											{user.name.charAt(0).toUpperCase()}
+										</div>
+										<div className="signature-info">
+											<strong>{user.name}</strong>
+											<p>{user.club}</p>
+											<span>{user.date}</span>
+										</div>
 									</div>
-								</div>
-							))}
+								))}
+							</div>
 						</div>
-					</div>
-				</>
-			)}
+					</>,
+					document.body
+				)}
 		</div>
 	);
 }

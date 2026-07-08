@@ -1,0 +1,563 @@
+.parliamentarians-page {
+    width: 100%;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    font-family: "Ubuntu", system-ui, sans-serif;
+}
+
+/* Statystyki */
+.stats-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 2rem 1.75rem;
+    text-align: center;
+    box-shadow: 0 6px 16px rgba(0, 43, 92, 0.07);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 28px rgba(0, 43, 92, 0.12);
+}
+
+.stat-number {
+    display: block;
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: #002b5c;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1rem;
+    color: #475569;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* Główna siatka */
+.parliamentarians-content {
+    display: grid;
+    grid-template-columns: minmax(220px, 380px) minmax(0, 1fr);
+    gap: 2.25rem;
+}
+
+@media (max-width: 1024px) {
+    .parliamentarians-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Panel klubów */
+.clubs-panel {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 2rem;
+    height: fit-content;
+    max-width: 480px;
+    box-shadow: 0 8px 20px rgba(0, 43, 92, 0.08);
+    position: sticky;
+    top: 2rem;
+}
+
+.clubs-panel h2 {
+    margin: 0 0 1.75rem 0;
+    font-size: 1.45rem;
+    color: #002b5c;
+    font-weight: 700;
+}
+
+.clubs-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.club-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: 14px;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.club-item:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.club-item.active {
+    background: #eff6ff;
+    border-color: #2563eb;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.18);
+}
+
+.club-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.club-name {
+    flex: 1;
+    font-weight: 700;
+    color: #1e2937;
+}
+
+.club-count {
+    font-weight: 800;
+    color: #334155;
+    font-size: 1.1rem;
+}
+
+.club-type-badge {
+    font-size: 0.78rem;
+    padding: 4px 12px;
+    background: #e2e8f0;
+    color: #475569;
+    border-radius: 9999px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* Prawy panel */
+.members-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+.search-bar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    background: white;
+    padding: 8px;
+    border-radius: 9999px;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 6px 16px rgba(0, 43, 92, 0.08);
+}
+
+.search-bar input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 14px 20px;
+    font-size: 1.1rem;
+    background: transparent;
+}
+
+.clear-filter {
+    padding: 12px 24px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+}
+
+.clear-filter:hover {
+    background: #dc2626;
+}
+
+/* Przycisk dodawania */
+.add-member-btn {
+    align-self: flex-start;
+    padding: 14px 28px;
+    background: linear-gradient(90deg, #002b5c, #003d80);
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 16px rgba(0, 43, 92, 0.25);
+}
+
+.add-member-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0, 43, 92, 0.35);
+}
+
+/* Grid członków */
+.members-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 1.5rem;
+}
+
+.member-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 1.75rem;
+    display: flex;
+    gap: 18px;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 6px 16px rgba(0, 43, 92, 0.06);
+}
+
+.member-card:hover {
+    border-color: #94a3b8;
+    transform: translateY(-8px);
+    box-shadow: 0 16px 32px rgba(0, 43, 92, 0.14);
+}
+
+.member-card.selected {
+    border-color: #2563eb;
+    background: #f0f7ff;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+.member-avatar {
+    width: 78px;
+    height: 78px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.65rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.member-info h4 {
+    margin: 0 0 10px 0;
+    font-size: 1.25rem;
+    color: #1e2937;
+}
+
+.member-club {
+    font-weight: 700;
+    display: block;
+    margin-bottom: 12px;
+    font-size: 1.02rem;
+}
+
+.member-functions,
+.member-commissions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.function-badge,
+.commission-badge {
+    font-size: 0.82rem;
+    padding: 5px 14px;
+    background: #f1f5f9;
+    border-radius: 999px;
+    color: #475569;
+    font-weight: 600;
+}
+
+/* Admin actions */
+.admin-actions {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-actions button {
+    padding: 7px 14px;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.admin-actions button:first-child {
+    background: #3b82f6;
+    color: white;
+}
+
+.admin-actions button:last-child {
+    background: #ef4444;
+    color: white;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    padding: 1rem;
+}
+
+.modal-content {
+    background: white;
+    max-width: 580px;
+    width: 100%;
+    border-radius: 22px;
+    box-shadow: 0 25px 50px rgba(0, 43, 92, 0.3);
+    overflow: hidden;
+}
+
+.modal-content h2 {
+    margin: 0;
+    padding: 2rem 2rem 0;
+    color: #002b5c;
+}
+
+.modal-content form {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.modal-content input,
+.modal-content select {
+    padding: 14px 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1.05rem;
+}
+
+.modal-content input:focus,
+.modal-content select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding-top: 1rem;
+}
+
+.modal-actions button {
+    padding: 14px 32px;
+    border: none;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    cursor: pointer;
+}
+
+.modal-actions button:first-child {
+    background: #e2e8f0;
+    color: #1e2937;
+}
+
+.modal-actions button:last-child {
+    background: #002b5c;
+    color: white;
+}
+
+/* --- Modal --- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+    animation: modalFadeIn 0.25s ease;
+}
+
+@keyframes modalFadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.modal-content {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 2rem 1.75rem;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    position: relative;
+    animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalSlideIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.95) translateY(12px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+
+.modal-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+    padding: 0.25rem;
+}
+
+.modal-close:hover {
+    color: #0f172a;
+    transform: rotate(90deg);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-right: 2rem;
+}
+
+.modal-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    text-transform: uppercase;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.modal-header p {
+    margin: 0.2rem 0 0;
+    font-weight: 500;
+}
+
+.modal-body {
+    padding-top: 0.25rem;
+}
+
+.modal-body h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 1.2rem 0 0.4rem;
+}
+
+.modal-body h3:first-of-type {
+    margin-top: 0;
+}
+
+.modal-body ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.modal-body li {
+    padding: 0.2rem 0;
+    font-size: 0.95rem;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.modal-body li:last-child {
+    border-bottom: none;
+}
+
+.modal-body li::before {
+    content: "• ";
+    color: #2563eb;
+}
+
+/* Responsywność modala */
+@media (max-width: 600px) {
+    .modal-content {
+        padding: 1.5rem 1rem;
+        margin: 0.5rem;
+        max-height: 95vh;
+    }
+
+    .modal-header {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .modal-avatar {
+        width: 44px;
+        height: 44px;
+        font-size: 1rem;
+    }
+
+    .modal-header h2 {
+        font-size: 1.25rem;
+    }
+
+    .modal-close {
+        top: 0.5rem;
+        right: 0.75rem;
+        font-size: 1.3rem;
+    }
+}

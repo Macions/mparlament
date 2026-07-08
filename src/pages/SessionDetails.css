@@ -1,0 +1,1359 @@
+:root {
+    --bg-page: #f8fafc;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --border-light: #e2e8f0;
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --status-active: #22c55e;
+    --status-waiting: #94a3b8;
+    --status-done: #22c55e;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    --radius: 16px;
+}
+
+.session-page {
+    margin: 0 auto;
+    width: 100%;
+    border-radius: var(--radius);
+    padding: 2rem 1.5rem;
+    background: var(--bg-page);
+    min-height: 100vh;
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.session-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.session-header h1 {
+    margin: 0.25rem 0 0.5rem;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+}
+
+.session-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0.25rem 0.75rem;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-radius: 999px;
+}
+
+.session-date {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.session-live {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 3rem;
+    gap: 2rem;
+}
+
+.live-card {
+    background: #ffffff;
+    padding: 2.5rem 3rem;
+    border-radius: var(--radius);
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-light);
+    max-width: 700px;
+    width: 100%;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.live-card h2 {
+    margin: 0 0 1.5rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.speaker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.speaker-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 2.2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.speaker h3 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.speaker p {
+    margin: 0.2rem 0 0.3rem;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+.speaker span {
+    font-size: 1rem;
+    color: var(--text-muted);
+    display: block;
+}
+
+.speech-time {
+    margin-top: 1.2rem;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    background: var(--bg-page);
+    padding: 0.4rem 1.2rem;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.agenda-current span {
+    display: inline-block;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 0.3rem 1rem;
+    border-radius: 999px;
+}
+
+.agenda-current h3 {
+    margin: 0.5rem 0 0.3rem;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.agenda-current p {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+/* Animacja wejścia dla karty */
+.live-card {
+    animation: fadeSlide 0.4s ease-out;
+}
+
+@keyframes fadeSlide {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Harmonogram */
+.session-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+.session-panel h2 {
+    margin: 0 0 1.25rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-light);
+    transition: background 0.15s;
+    cursor: default;
+}
+
+.timeline-item:last-child {
+    border-bottom: none;
+}
+
+.timeline-time {
+    flex: 0 0 60px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding-top: 0.1rem;
+}
+
+.timeline-dot {
+    flex: 0 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.timeline-dot::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: background 0.2s;
+}
+
+.timeline-item.active .timeline-dot::before {
+    background: var(--status-active);
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+.timeline-item.done .timeline-dot::before {
+    background: var(--status-done);
+}
+
+.timeline-item.waiting .timeline-dot::before {
+    background: var(--status-waiting);
+}
+
+.timeline-content {
+    flex: 1;
+    padding-top: 0.05rem;
+}
+
+.timeline-content h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.timeline-item.active .timeline-content h3 {
+    font-weight: 600;
+    color: var(--accent);
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+    .session-page {
+        padding: 1.5rem 1rem;
+    }
+
+    .live-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .speaker-avatar {
+        width: 64px;
+        height: 64px;
+        font-size: 1.8rem;
+    }
+
+    .speaker h3 {
+        font-size: 1.4rem;
+    }
+
+    .agenda-current h3 {
+        font-size: 1.3rem;
+    }
+
+    .session-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .timeline-item {
+        padding: 0.6rem 0;
+    }
+
+    .timeline-time {
+        flex: 0 0 50px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Style dla panelu admina */
+.admin-speaker-edit,
+.admin-point-edit {
+    width: 100%;
+}
+
+.admin-input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: #f8fafc;
+    transition: border-color 0.2s;
+}
+
+.admin-input:focus {
+    outline: none;
+    border-color: #2563eb;
+    background: white;
+}
+
+.admin-input.small {
+    width: 80px;
+    flex-shrink: 0;
+}
+
+.admin-input.time-input {
+    width: 70px;
+    font-weight: 600;
+}
+
+.admin-input.title-input {
+    flex: 1;
+}
+
+.admin-point-fields {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 1.25rem;
+}
+
+.admin-nav {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.nav-btn {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 20px;
+    background: #2563eb;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.nav-btn:hover {
+    background: #1d4ed8;
+}
+
+.nav-btn:active {
+    transform: scale(0.96);
+}
+
+.nav-btn.break {
+    background: #8b5cf6;
+}
+
+.nav-btn.break:hover {
+    background: #7c3aed;
+}
+
+.admin-schedule-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.admin-item-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.action-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #64748b;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.action-btn.set-active:hover {
+    background: #22c55e;
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.action-btn.move:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+.admin-add-point {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.admin-add-point h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.add-point-form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.add-point-form .admin-input {
+    flex: 1;
+    min-width: 120px;
+}
+
+.add-btn {
+    padding: 6px 20px;
+    border: none;
+    border-radius: 20px;
+    background: #22c55e;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.add-btn:hover {
+    background: #16a34a;
+}
+
+/* Responsywność panelu admina */
+@media (max-width: 768px) {
+    .panel-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-nav {
+        justify-content: center;
+    }
+
+    .admin-schedule-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-item-actions {
+        justify-content: flex-end;
+    }
+
+    .add-point-form {
+        flex-direction: column;
+    }
+
+    .add-point-form .admin-input {
+        width: 100%;
+    }
+}
+
+.autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.suggestions-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    max-height: 150px;
+    overflow-y: auto;
+    list-style: none;
+    padding: 4px 0;
+    margin: 4px 0 0;
+    z-index: 10;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.suggestions-list li {
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.suggestions-list li:hover {
+    background: #eff6ff;
+}
+
+/* ---------- Animacje ---------- */
+@keyframes fadeSlide {
+    0% {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.speaker-wrapper.changing .speaker,
+.speaker-wrapper.changing .speech-time,
+.agenda-current.changing {
+    animation: fadeSlide 0.4s ease forwards;
+}
+
+/* ---------- Autocomplete ---------- */
+.autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.suggestions-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    max-height: 150px;
+    overflow-y: auto;
+    list-style: none;
+    padding: 4px 0;
+    margin: 4px 0 0;
+    z-index: 10;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.suggestions-list li {
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.suggestions-list li:hover {
+    background: #eff6ff;
+}
+
+/* ---------- Przyciski zatwierdzania ---------- */
+.confirm-btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 20px;
+    background: #2563eb;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.confirm-btn:hover {
+    background: #1d4ed8;
+}
+
+.confirm-btn:active {
+    transform: scale(0.96);
+}
+
+.admin-speaker-preview {
+    margin-top: 0.5rem;
+}
+
+.admin-point-actions {
+    margin: 0.5rem 0 1rem;
+}
+
+/* ---------- Pozostałe style (z poprzednich zadań) ---------- */
+.admin-speaker-edit,
+.admin-point-edit {
+    width: 100%;
+}
+
+.admin-input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: #f8fafc;
+    transition: border-color 0.2s;
+}
+
+.admin-input:focus {
+    outline: none;
+    border-color: #2563eb;
+    background: white;
+}
+
+.admin-input.small {
+    width: 80px;
+    flex-shrink: 0;
+}
+
+.admin-input.time-input {
+    width: 70px;
+    font-weight: 600;
+}
+
+.admin-input.title-input {
+    flex: 1;
+}
+
+.admin-point-fields {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 1.25rem;
+}
+
+.admin-nav {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.nav-btn {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 20px;
+    background: #2563eb;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.nav-btn:hover {
+    background: #1d4ed8;
+}
+
+.nav-btn:active {
+    transform: scale(0.96);
+}
+
+.nav-btn.break {
+    background: #8b5cf6;
+}
+
+.nav-btn.break:hover {
+    background: #7c3aed;
+}
+
+.admin-schedule-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.admin-item-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.action-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #64748b;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.action-btn.set-active:hover {
+    background: #22c55e;
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.action-btn.move:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+.admin-add-point {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.admin-add-point h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.add-point-form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.add-point-form .admin-input {
+    flex: 1;
+    min-width: 120px;
+}
+
+.add-btn {
+    padding: 6px 20px;
+    border: none;
+    border-radius: 20px;
+    background: #22c55e;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.add-btn:hover {
+    background: #16a34a;
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+    .panel-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-nav {
+        justify-content: center;
+    }
+
+    .admin-schedule-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-item-actions {
+        justify-content: flex-end;
+    }
+
+    .add-point-form {
+        flex-direction: column;
+    }
+
+    .add-point-form .admin-input {
+        width: 100%;
+    }
+
+    .admin-point-fields {
+        flex-direction: column;
+    }
+
+    .admin-input.small {
+        width: 100%;
+    }
+}
+
+/* Podświetlenie aktywnego punktu w harmonogramie */
+.timeline-item.active {
+    background: #f0f7ff;
+    border-radius: 8px;
+    padding: 0 12px;
+    margin: 0 -12px;
+}
+
+.timeline-item.active .timeline-time {
+    color: #2563eb;
+    font-weight: 700;
+}
+
+.timeline-item.active .timeline-content h3 {
+    color: #2563eb;
+    font-weight: 700;
+}
+
+.timeline-item.active .timeline-dot::before {
+    background: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+}
+
+/* Formularz dodawania nowego mówcy */
+.admin-add-speaker {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.admin-add-speaker h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.add-speaker-form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.add-speaker-form .admin-input {
+    flex: 1;
+    min-width: 120px;
+}
+
+.add-speaker-form .add-btn {
+    padding: 6px 20px;
+    border: none;
+    border-radius: 20px;
+    background: #8b5cf6;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.add-speaker-form .add-btn:hover {
+    background: #7c3aed;
+}
+
+@media (max-width: 768px) {
+    .add-speaker-form {
+        flex-direction: column;
+    }
+
+    .add-speaker-form .admin-input {
+        width: 100%;
+    }
+}
+
+/* Przyciski w karcie punktu */
+.admin-point-actions {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.break-btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 20px;
+    background: #f59e0b;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.break-btn:hover {
+    background: #d97706;
+}
+
+.zo-btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 20px;
+    background: #8b5cf6;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.zo-btn:hover {
+    background: #7c3aed;
+}
+
+.break-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.break-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #64748b;
+}
+
+.break-time-input {
+    width: 90px;
+    padding: 4px 6px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+.cancel-btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 20px;
+    background: #ef4444;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.cancel-btn:hover {
+    background: #dc2626;
+}
+
+/* Animacja dla przerwy */
+.speaker-wrapper.changing .speaker,
+.speaker-wrapper.changing .speech-time {
+    animation: fadeSlide 0.4s ease forwards;
+}
+
+@keyframes fadeSlide {
+    0% {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Style dla panelu admina i przycisków (z poprzednich wersji) – uzupełnij brakujące */
+.admin-input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: #f8fafc;
+    transition: border-color 0.2s;
+}
+
+.admin-input:focus {
+    outline: none;
+    border-color: #2563eb;
+    background: white;
+}
+
+.admin-input.small {
+    width: 80px;
+    flex-shrink: 0;
+}
+
+.admin-input.time-input {
+    width: 70px;
+    font-weight: 600;
+}
+
+.admin-input.title-input {
+    flex: 1;
+}
+
+.confirm-btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 20px;
+    background: #2563eb;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.confirm-btn:hover {
+    background: #1d4ed8;
+}
+
+.cancel-btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 20px;
+    background: #ef4444;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.cancel-btn:hover {
+    background: #dc2626;
+}
+
+.break-btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 20px;
+    background: #f59e0b;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.break-btn:hover {
+    background: #d97706;
+}
+
+.zo-btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 20px;
+    background: #8b5cf6;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.zo-btn:hover {
+    background: #7c3aed;
+}
+
+.break-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.break-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #64748b;
+}
+
+.break-time-input {
+    width: 90px;
+    padding: 4px 6px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+.admin-point-actions {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+/* pozostałe style (autocomplete, timeline itp.) – zachowaj z poprzednich wersji */
+.autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.suggestions-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    max-height: 150px;
+    overflow-y: auto;
+    list-style: none;
+    padding: 4px 0;
+    margin: 4px 0 0;
+    z-index: 10;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.suggestions-list li {
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.suggestions-list li:hover {
+    background: #eff6ff;
+}
+
+.admin-speaker-preview {
+    margin-top: 0.5rem;
+}
+
+.admin-add-speaker {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.admin-add-speaker h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.add-speaker-form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.add-speaker-form .admin-input {
+    flex: 1;
+    min-width: 120px;
+}
+
+.add-speaker-form .add-btn {
+    padding: 6px 20px;
+    border: none;
+    border-radius: 20px;
+    background: #8b5cf6;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.add-speaker-form .add-btn:hover {
+    background: #7c3aed;
+}
+
+/* Animacje */
+@keyframes fadeSlide {
+    0% {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.speaker-wrapper.changing .speaker,
+.speaker-wrapper.changing .speech-time,
+.agenda-current.changing {
+    animation: fadeSlide 0.4s ease forwards;
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+    .add-speaker-form {
+        flex-direction: column;
+    }
+
+    .add-speaker-form .admin-input {
+        width: 100%;
+    }
+
+    .admin-point-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .break-controls {
+        flex-direction: column;
+    }
+}
+
+.admin-point-actions {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.break-btn,
+.zo-btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.break-btn {
+    background: #f59e0b;
+    color: white;
+}
+
+.break-btn:hover {
+    background: #d97706;
+}
+
+.zo-btn {
+    background: #8b5cf6;
+    color: white;
+}
+
+.zo-btn:hover {
+    background: #7c3aed;
+}
+
+.break-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.break-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #64748b;
+}
+
+.break-time-input {
+    width: 90px;
+    padding: 4px 6px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+.confirm-btn,
+.cancel-btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.confirm-btn {
+    background: #2563eb;
+    color: white;
+}
+
+.confirm-btn:hover {
+    background: #1d4ed8;
+}
+
+.cancel-btn {
+    background: #ef4444;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background: #dc2626;
+}

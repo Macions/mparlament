@@ -4,7 +4,6 @@ import SocialFooter from "./components/SocialFooter";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Meetings from "./pages/Meetings";
-import Members from "./pages/Members";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Resolutions from "./pages/Resolutions";
@@ -20,6 +19,8 @@ import usePageAnim from "./useReveal";
 import VotingList from "./pages/VotingList";
 import VotingPage from "./pages/VotingPage";
 import CreateVoting from "./pages/CreateVoting";
+import SessionDetails from "./pages/SessionDetails";
+import Parliamentarians from "./pages/Parliamentarians";
 
 export default function App() {
 	const location = useLocation();
@@ -34,7 +35,6 @@ export default function App() {
 					<Route path="/" element={<Home />} />
 					<Route path="/o-parlamencie" element={<About />} />
 					<Route path="/posiedzenia" element={<Meetings />} />
-					<Route path="/parlamentarzysci" element={<Members />} />
 					<Route path="/zaloguj" element={<Login />} />
 					<Route path="/dashboard" element={<Dashboard />} />
 					<Route path="/uchwaly" element={<Resolutions />} />
@@ -49,6 +49,8 @@ export default function App() {
 					<Route path="/glosowania" element={<VotingList />} />
 					<Route path="/glosowanie/:id" element={<VotingPage />} />
 					<Route path="/glosowania/nowe" element={<CreateVoting />} />
+					<Route path="/posiedzenie" element={<SessionDetails />} />
+					<Route path="/parlamentarzysci" element={<Parliamentarians />} />
 				</Routes>
 			</main>
 
