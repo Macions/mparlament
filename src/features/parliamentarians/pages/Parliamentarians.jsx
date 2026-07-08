@@ -31,18 +31,17 @@ export default function Parliamentarians() {
 	const [selectedParliamentarian, setSelectedParliamentarian] = useState(null);
 	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 	const [editingParliamentarian, setEditingParliamentarian] = useState(null);
-	// Dodaj na początku komponentu, po istniejących stanach:
+
 	const [clubsList, setClubsList] = useState(clubs);
 	const [isClubModalOpen, setIsClubModalOpen] = useState(false);
 	const [editingClub, setEditingClub] = useState(null);
-	// Na początku komponentu, po istniejących stanach:
-	const [adminMode, setAdminMode] = useState(false); // false = tryb normalny, true = tryb admin
-	// Dodaj na początku komponentu, po istniejących stanach:
+
+	const [adminMode, setAdminMode] = useState(false);
+
 	const [isManageMembersModalOpen, setIsManageMembersModalOpen] =
 		useState(false);
 	const [selectedClubForMembers, setSelectedClubForMembers] = useState(null);
 
-	// Funkcje do zarządzania członkami klubów
 	const openManageMembersModal = (club) => {
 		setSelectedClubForMembers(club);
 		setIsManageMembersModalOpen(true);
@@ -57,7 +56,6 @@ export default function Parliamentarians() {
 		const member = parliamentarians.find((p) => p.id === memberId);
 		if (!member) return;
 
-		// Usuń z poprzedniego klubu
 		setParliamentarians((prev) =>
 			prev.map((p) => {
 				if (p.id === memberId) {
@@ -74,11 +72,9 @@ export default function Parliamentarians() {
 			}),
 		);
 
-		// Dodaj do klubu
 		setClubsList((prev) =>
 			prev.map((c) => {
 				if (c.id === clubId) {
-					// Sprawdź czy już nie ma
 					const exists = c.members.some((m) => m.id === memberId);
 					if (!exists) {
 						return {
@@ -100,12 +96,10 @@ export default function Parliamentarians() {
 			}),
 		);
 
-		// Usuń z niezrzeszonych jeśli tam był
 		setUnaffiliatedList((prev) => prev.filter((u) => u.id !== memberId));
 	};
 
 	const removeMemberFromClub = (clubId, memberId) => {
-		// Usuń z klubu
 		setClubsList((prev) =>
 			prev.map((c) => {
 				if (c.id === clubId) {
@@ -118,7 +112,6 @@ export default function Parliamentarians() {
 			}),
 		);
 
-		// Przenieś do niezrzeszonych
 		const member = parliamentarians.find((p) => p.id === memberId);
 		if (member) {
 			setParliamentarians((prev) =>
@@ -150,9 +143,8 @@ export default function Parliamentarians() {
 		}
 	};
 
-	// Komponent przełącznika
 	function AdminToggle({ isAdmin, adminMode, setAdminMode }) {
-		if (!isAdmin) return null; // Jeśli nie admin, nie pokazuj przełącznika
+		if (!isAdmin) return null;
 
 		return (
 			<div className="admin-toggle-container">
@@ -171,7 +163,6 @@ export default function Parliamentarians() {
 		);
 	}
 
-	// Funkcje do zarządzania klubami:
 	const openAddClubModal = () => {
 		setEditingClub(null);
 		setIsClubModalOpen(true);
@@ -184,7 +175,6 @@ export default function Parliamentarians() {
 
 	const saveClub = (clubData) => {
 		if (editingClub) {
-			// Edycja istniejącego klubu
 			setClubsList((prev) =>
 				prev.map((c) =>
 					c.id === editingClub.id
@@ -193,7 +183,6 @@ export default function Parliamentarians() {
 				),
 			);
 		} else {
-			// Dodawanie nowego klubu
 			const newClub = {
 				...clubData,
 				id: Math.max(...clubsList.map((c) => c.id), 0) + 1,
@@ -208,7 +197,7 @@ export default function Parliamentarians() {
 	const deleteClub = (clubId) => {
 		if (window.confirm(`Czy na pewno chcesz usunąć ten klub/koło?`)) {
 			setClubsList((prev) => prev.filter((c) => c.id !== clubId));
-			// Usuń też parlamentarzystów z tego klubu
+
 			setParliamentarians((prev) => prev.filter((p) => p.clubId !== clubId));
 			if (selectedClubId === clubId) {
 				setSelectedClubId("all");
@@ -455,7 +444,7 @@ export default function Parliamentarians() {
 							+ Dodaj parlamentarzystę
 						</button>
 					)}
-					{/* Modal dodawania/edycji klubu */}
+					{}
 					{isClubModalOpen && (
 						<ClubModal
 							club={editingClub}
@@ -643,10 +632,10 @@ export default function Parliamentarians() {
 						setIsAddModalOpen(false);
 						setEditingParliamentarian(null);
 					}}
-					clubs={clubsList} // ← ZMIEŃ z clubs na clubsList
+					clubs={clubsList}
 				/>
 			)}
-			{/* Modal zarządzania członkami */}
+			{}
 			{isManageMembersModalOpen && selectedClubForMembers && (
 				<ManageMembersModal
 					club={selectedClubForMembers}
@@ -661,9 +650,8 @@ export default function Parliamentarians() {
 	);
 }
 
-// Komponent przełącznika
 function AdminToggle({ isAdmin, adminMode, setAdminMode }) {
-	if (!isAdmin) return null; // Jeśli nie admin, nie pokazuj przełącznika
+	if (!isAdmin) return null;
 
 	return (
 		<div className="admin-toggle-container">
@@ -681,7 +669,7 @@ function AdminToggle({ isAdmin, adminMode, setAdminMode }) {
 		</div>
 	);
 }
-/* ===================== MODAL DODAWANIA / EDYCJI KLUBU ===================== */
+
 function ClubModal({ club, onSave, onClose }) {
 	const [form, setForm] = useState({
 		name: club?.name || "",
@@ -789,7 +777,7 @@ function ClubModal({ club, onSave, onClose }) {
 		</ModalPortal>
 	);
 }
-/* ===================== MODAL ZARZĄDZANIA CZŁONKAMI ===================== */
+
 function ManageMembersModal({
 	club,
 	members,
@@ -803,7 +791,6 @@ function ManageMembersModal({
 
 	const clubMemberIds = members.map((m) => m.id);
 
-	// Dostępni parlamentarzyści (nie należący do tego klubu)
 	const availableMembers = allParliamentarians.filter(
 		(p) => !clubMemberIds.includes(p.id) && p.id !== undefined,
 	);
@@ -846,7 +833,7 @@ function ManageMembersModal({
 			</h2>
 
 			<div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-				{/* Aktualni członkowie */}
+				{}
 				<div>
 					<h3
 						style={{
@@ -912,7 +899,7 @@ function ManageMembersModal({
 					</div>
 				</div>
 
-				{/* Dodawanie nowych członków */}
+				{}
 				<div>
 					<h3
 						style={{

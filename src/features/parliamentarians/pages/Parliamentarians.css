@@ -6,7 +6,7 @@
 	font-family: "Ubuntu", system-ui, sans-serif;
 }
 
-/* ===== STATYSTYKI ===== */
+
 .stats-section {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -46,7 +46,7 @@
 	text-transform: uppercase;
 }
 
-/* ===== GŁÓWNA SIATKA ===== */
+
 .parliamentarians-content {
 	display: grid;
 	grid-template-columns: minmax(160px, 520px) minmax(0, 1fr);
@@ -57,7 +57,7 @@
 	grid-template-columns: minmax(280px, 580px) minmax(0, 1fr);
 }
 
-/* ===== PANEL KLUBÓW ===== */
+
 .clubs-panel {
 	background: white;
 	border: 1px solid #e2e8f0;
@@ -78,7 +78,7 @@
 	font-weight: 700;
 }
 
-/* ===== PANEL HEADER ===== */
+
 .panel-header {
 	display: flex;
 	align-items: center;
@@ -102,7 +102,7 @@
 	flex-wrap: wrap;
 }
 
-/* ===== PRZYCISK WYCZYŚĆ FILTRY ===== */
+
 .panel-header .clear-filter {
 	padding: 10px 20px;
 	background: #ef4444;
@@ -123,7 +123,7 @@
 	box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
 }
 
-/* ===== PRZYCISK DODAJ KLUB ===== */
+
 .add-club-btn {
 	display: inline-flex;
 	align-items: center;
@@ -154,7 +154,7 @@
 	transform: translateY(0) scale(0.98);
 }
 
-/* ===== LISTA KLUBÓW ===== */
+
 .clubs-list {
 	list-style: none;
 	padding: 0;
@@ -164,7 +164,7 @@
 	gap: 10px;
 }
 
-/* ===== ELEMENT KLUBU ===== */
+
 .club-item {
 	display: flex;
 	align-items: center;
@@ -249,7 +249,7 @@
 	color: #1e40af;
 }
 
-/* ===== ADMIN ACTIONS W KLUBACH ===== */
+
 .club-admin-actions {
 	display: flex;
 	gap: 4px;
@@ -279,7 +279,7 @@
 	opacity: 1;
 }
 
-/* Przycisk zarządzania członkami */
+
 .club-members-btn {
 	color: #7c3aed;
 	background: rgba(139, 92, 246, 0.1);
@@ -299,7 +299,7 @@
 	transform: scale(0.9);
 }
 
-/* Przycisk edycji */
+
 .club-edit-btn {
 	color: #2563eb;
 	background: rgba(37, 99, 235, 0.05);
@@ -316,7 +316,7 @@
 	transform: scale(0.9);
 }
 
-/* Przycisk usuwania */
+
 .club-delete-btn {
 	color: #ef4444;
 	background: rgba(239, 68, 68, 0.05);
@@ -333,7 +333,7 @@
 	transform: scale(0.9);
 }
 
-/* ===== ADMIN TOGGLE ===== */
+
 .admin-toggle-container {
 	display: flex;
 	align-items: center;
@@ -418,14 +418,14 @@
 	transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ===== PANEL CZŁONKÓW ===== */
+
 .members-panel {
 	display: flex;
 	flex-direction: column;
 	gap: 1.75rem;
 }
 
-/* ===== SEARCH BAR ===== */
+
 .search-bar {
 	display: flex;
 	gap: 12px;
@@ -461,7 +461,7 @@
 	background: #dc2626;
 }
 
-/* ===== PRZYCISK DODAJ PARLAMENTARZYSTĘ ===== */
+
 .add-member-btn {
 	align-self: flex-start;
 	padding: 14px 28px;
@@ -481,7 +481,7 @@
 	box-shadow: 0 10px 24px rgba(0, 43, 92, 0.35);
 }
 
-/* ===== GRID CZŁONKÓW ===== */
+
 .members-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
@@ -582,7 +582,7 @@
 	color: white;
 }
 
-/* ===== MODAL SZCZEGÓŁÓW ===== */
+
 .modal-overlay {
 	position: fixed;
 	inset: 0;
@@ -885,9 +885,9 @@
 	margin-top: 0.75rem;
 }
 
-/* ===== MODAL DODAWANIA/EDYCJI PARLAMENTARZYSTY - WIĘKSZY ===== */
+
 .modal-content {
-	max-width: 780px !important; /* Większy modal */
+	max-width: 780px !important; 
 	padding: 0 !important;
 }
 
@@ -945,7 +945,7 @@
 	font-size: 1.05rem;
 }
 
-/* ===== PRZYCISKI W FORMULARZU ===== */
+
 .modal-content form button[type="button"] {
 	padding: 12px 24px;
 	background: #f1f5f9;
@@ -969,7 +969,7 @@
 	transform: scale(0.95);
 }
 
-/* ===== TAGI (FUNKCJE/KOMISJE) ===== */
+
 .modal-content form .tags-container {
 	display: flex;
 	flex-wrap: wrap;
@@ -1014,7 +1014,7 @@
 	transform: scale(1.3);
 }
 
-/* ===== MODAL ACTIONS ===== */
+
 .modal-actions {
 	display: flex;
 	gap: 16px;
@@ -1061,7 +1061,7 @@
 	transform: scale(0.97);
 }
 
-/* ===== SELECT ===== */
+
 .modal-content form select {
 	appearance: none;
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
@@ -1077,180 +1077,444 @@
 	font-size: 1rem;
 }
 
-/* ==================== RESPONSIVE - KOMPAKTOWA WERSJA ==================== */
+/* =========================================================
+   ===============  RESPONSYWNOŚĆ MOBILNA  ==================
+   ========================================================= */
+
 
 @media (max-width: 1024px) {
-	.parliamentarians-page {
-		padding: 1.25rem 1rem;
-	}
-
 	.parliamentarians-content,
 	.parliamentarians-content.admin {
 		grid-template-columns: 1fr;
-		gap: 1.5rem;
 	}
 
 	.clubs-panel {
 		position: static;
-		height: auto;
+		top: unset;
+	}
+
+	.members-grid {
+		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 	}
 }
 
+
 @media (max-width: 768px) {
+	.parliamentarians-page {
+		padding: 1.25rem 1rem;
+	}
+
+	
 	.stats-section {
-		grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
-		gap: 0.9rem;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 0.85rem;
 		margin-bottom: 1.75rem;
 	}
 
+	.stat-card {
+		padding: 1.25rem 1rem;
+		border-radius: 14px;
+	}
+
+	.stat-card:hover {
+		transform: none;
+	}
+
 	.stat-number {
-		font-size: 2.15rem;
-		margin-bottom: 0.4rem;
+		font-size: 1.9rem;
 	}
 
 	.stat-label {
-		font-size: 0.9rem;
+		font-size: 0.75rem;
+		letter-spacing: 0.03em;
+	}
+
+	.parliamentarians-content {
+		gap: 1rem;
 	}
 
 	.clubs-panel {
 		padding: 1.25rem;
+		border-radius: 14px;
 	}
 
+	.clubs-panel h2,
 	.panel-header h2 {
-		font-size: 1.35rem;
+		font-size: 1.15rem;
 	}
 
-	.club-item {
-		padding: 10px 12px;
-		min-height: 48px;
+	.panel-header {
 		gap: 10px;
+		margin-bottom: 1.25rem;
 	}
 
-	.club-name {
+	.panel-actions {
+		width: 100%;
+	}
+
+	.panel-header .clear-filter,
+	.add-club-btn,
+	.add-member-btn {
+		flex: 1;
+		padding: 10px 14px;
+		font-size: 0.9rem;
+		min-height: 42px;
+		text-align: center;
+		justify-content: center;
+	}
+
+	.add-member-btn {
+		align-self: stretch;
+		width: 100%;
+	}
+
+	
+	.club-item {
+		padding: 12px 14px;
+		gap: 10px;
+		min-height: 48px;
+		border-radius: 12px;
+	}
+
+	.club-item:hover {
+		transform: none;
+	}
+
+	.club-item .club-name {
+		font-size: 0.95rem;
+	}
+
+	.club-item .club-count {
+		font-size: 0.85rem;
+		padding: 3px 10px;
+	}
+
+	.club-item .club-type-badge {
+		font-size: 0.68rem;
+		padding: 3px 10px;
+	}
+
+	.club-admin-actions button {
+		width: 30px;
+		height: 30px;
+		font-size: 0.85rem;
+		opacity: 1; 
+	}
+
+	
+	.admin-toggle-container {
+		padding: 1rem 1.25rem;
+		border-radius: 14px;
+	}
+
+	.admin-toggle-container:hover {
+		transform: none;
+	}
+
+	.admin-toggle-label {
+		font-size: 0.9rem;
+	}
+
+	
+	.search-bar {
+		flex-wrap: wrap;
+		border-radius: 18px;
+		padding: 6px;
+	}
+
+	.search-bar input {
+		padding: 10px 14px;
 		font-size: 1rem;
+		min-width: 0;
 	}
 
+	.search-bar .clear-filter {
+		padding: 10px 16px;
+		font-size: 0.9rem;
+	}
+
+	
 	.members-grid {
-		grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+		grid-template-columns: 1fr;
 		gap: 1rem;
 	}
 
 	.member-card {
-		flex-direction: column;
-		gap: 14px;
-		padding: 1.25rem;
+		padding: 1.1rem;
+		gap: 12px;
+		border-radius: 14px;
+	}
+
+	.member-card:hover {
+		transform: none;
 	}
 
 	.member-avatar {
-		width: 62px;
-		height: 62px;
-		font-size: 1.35rem;
+		width: 56px;
+		height: 56px;
+		font-size: 1.2rem;
+		border-radius: 12px;
 	}
 
 	.member-info h4 {
-		font-size: 1.15rem;
+		font-size: 1.05rem;
+		margin-bottom: 6px;
 	}
 
-	.search-bar {
-		flex-direction: column;
-		padding: 6px;
+	.member-club {
+		font-size: 0.9rem;
+		margin-bottom: 8px;
+	}
+
+	.function-badge,
+	.commission-badge {
+		font-size: 0.72rem;
+		padding: 4px 10px;
+	}
+
+	.admin-actions {
 		gap: 6px;
 	}
 
-	.search-bar input {
-		padding: 12px 14px;
-		font-size: 1rem;
+	.admin-actions button {
+		padding: 6px 10px;
+		font-size: 0.75rem;
 	}
 
-	.add-member-btn,
-	.add-club-btn {
-		padding: 12px 20px;
-		font-size: 1.05rem;
-	}
-}
-
-@media (max-width: 480px) {
-	.parliamentarians-page {
-		padding: 0.9rem 0.7rem;
-	}
-
-	.stats-section {
-		gap: 0.8rem;
-	}
-
-	.stat-number {
-		font-size: 1.95rem;
-	}
-
-	.clubs-panel {
-		padding: 1.1rem;
-	}
-
-	.club-item {
-		padding: 9px 11px;
-	}
-
-	.member-card {
-		padding: 1.1rem;
-	}
-
-	.member-avatar {
-		width: 58px;
-		height: 58px;
-		font-size: 1.25rem;
+	
+	.modal-overlay {
+		padding: 0;
+		align-items: flex-end;
 	}
 
 	.modal-content {
-		margin: 0.6rem;
-		border-radius: 18px;
+		max-width: 100% !important;
+		width: 100%;
+		max-height: 94vh;
+		border-radius: 20px 20px 0 0;
+		animation: modalSlideUpMobile 0.35s ease;
+	}
+
+	@keyframes modalSlideUpMobile {
+		from {
+			opacity: 0;
+			transform: translateY(60px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 
 	.modal-header {
-		padding: 1.5rem 1.1rem 1.1rem;
-		gap: 0.9rem;
+		padding: 1.5rem 1.25rem 1.25rem;
+		gap: 1rem;
 	}
 
 	.modal-avatar {
-		width: 72px;
-		height: 72px;
-		font-size: 1.85rem;
-	}
-
-	.modal-body {
-		padding: 1.35rem 1.1rem 1.75rem;
-	}
-
-	.modal-body h3 {
-		font-size: 1.1rem;
-		margin: 2rem 0 1rem;
-		padding: 8px 14px;
-	}
-
-	/* Formularze modalne */
-	.modal-content form .form-row,
-	.AddEditModal form > div[style*="gridTemplateColumns"] {
-		grid-template-columns: 1fr !important;
-		gap: 0.9rem;
-	}
-
-	.modal-actions button {
-		padding: 13px 20px !important;
-		font-size: 1.05rem;
-	}
-}
-
-@media (max-width: 360px) {
-	.stat-number {
-		font-size: 1.85rem;
-	}
-
-	.member-avatar {
-		width: 54px;
-		height: 54px;
-		font-size: 1.2rem;
+		width: 64px;
+		height: 64px;
+		font-size: 1.6rem;
+		border-width: 3px;
 	}
 
 	.modal-header h2 {
-		font-size: 1.65rem;
+		font-size: 1.3rem;
+		letter-spacing: -0.2px;
+	}
+
+	.modal-header .club-info {
+		padding: 6px 14px 6px 10px;
+	}
+
+	.modal-header .club-dot {
+		width: 12px;
+		height: 12px;
+	}
+
+	.modal-header .club-name {
+		font-size: 0.95rem;
+	}
+
+	.modal-close {
+		top: 1rem;
+		right: 1rem;
+		width: 38px;
+		height: 38px;
+		font-size: 1.4rem;
+	}
+
+	.modal-body {
+		padding: 1.5rem 1.25rem 2rem;
+	}
+
+	.modal-body h3 {
+		font-size: 1rem;
+		margin: 1.75rem 0 1rem;
+		padding: 8px 14px;
+	}
+
+	.modal-body li {
+		padding: 12px 14px;
+		font-size: 0.95rem;
+		border-radius: 12px;
+		gap: 10px;
+	}
+
+	.modal-body li:hover {
+		transform: none;
+	}
+
+	.modal-body .member-stats {
+		grid-template-columns: 1fr;
+		gap: 10px;
+	}
+
+	.modal-body .stat-chip {
+		padding: 12px 14px;
+		border-radius: 12px;
+	}
+
+	.modal-body .stat-chip:hover {
+		transform: none;
+	}
+
+	.modal-body .stat-chip .stat-label {
+		font-size: 0.85rem;
+	}
+
+	.modal-body .stat-chip .stat-value {
+		font-size: 1.05rem;
+	}
+
+	.modal-body .no-info {
+		padding: 2.25rem 1.25rem;
+		font-size: 1rem;
+		border-radius: 16px;
+	}
+
+	
+	.modal-content > h2 {
+		padding: 1.5rem 1.25rem 1.1rem !important;
+		font-size: 1.3rem !important;
+	}
+
+	.modal-content form {
+		gap: 1.25rem;
+		padding: 1.5rem 1.25rem 1.75rem !important;
+	}
+
+	.modal-content form .form-row {
+		grid-template-columns: 1fr;
+		gap: 1rem;
+	}
+
+	.modal-content form input,
+	.modal-content form select {
+		padding: 12px 14px !important;
+		font-size: 1rem !important;
+		border-radius: 12px;
+	}
+
+	.modal-content form label {
+		font-size: 0.95rem;
+		margin-bottom: 6px;
+	}
+
+	.modal-content form .tag {
+		padding: 8px 14px;
+		font-size: 0.9rem;
+	}
+
+	
+	.modal-actions {
+		flex-direction: column-reverse;
+		gap: 10px;
+		padding-top: 1.25rem;
+	}
+
+	.modal-actions button {
+		padding: 14px 24px !important;
+		font-size: 1rem !important;
+		width: 100%;
+		min-width: 0;
+	}
+}
+
+
+@media (max-width: 480px) {
+	.stats-section {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 0.6rem;
+	}
+
+	.stat-card {
+		padding: 1rem 0.75rem;
+	}
+
+	.stat-number {
+		font-size: 1.6rem;
+	}
+
+	.stat-label {
+		font-size: 0.68rem;
+	}
+
+	.panel-actions {
+		flex-direction: column;
+		width: 100%;
+	}
+
+	.panel-header .clear-filter,
+	.add-club-btn {
+		width: 100%;
+	}
+
+	.member-card {
+		flex-direction: column;
+	}
+
+	.member-avatar {
+		width: 48px;
+		height: 48px;
+		font-size: 1.05rem;
+	}
+
+	.admin-actions {
+		margin-left: 0;
+		flex-direction: row;
+		width: 100%;
+	}
+
+	.admin-actions button {
+		flex: 1;
+	}
+
+	.modal-header {
+		flex-direction: column;
+		align-items: flex-start;
+		text-align: left;
+	}
+
+	.modal-header h2 {
+		font-size: 1.15rem;
+	}
+}
+
+
+@media (hover: none) and (pointer: coarse) {
+	.club-item,
+	.member-card,
+	.stat-card,
+	button,
+	.add-club-btn,
+	.add-member-btn,
+	.clear-filter {
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.club-admin-actions button,
+	.modal-close {
+		opacity: 1;
 	}
 }
