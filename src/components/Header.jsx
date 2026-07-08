@@ -10,45 +10,49 @@ export default function Header() {
 
 	return (
 		<header className="header">
-			{/* Lewa strona - pełne logo (małe) */}
-			<div className="header__left">
-				<a href="https://parlamentmlodych.eu/" className="parlament-logo-link">
-					<ParlamentLogo />
-				</a>
-			</div>
-
-			{/* Środek - duże logo z napisem mParlament */}
-			<div className="header__center">
-				<MParlamentLogo />
-			</div>
-
-			{/* Prawa strona - przycisk */}
-			<div className="header__right">
-				{isDashboard ? (
-					<button
-						className="logout-button"
-						onClick={() => {
-							localStorage.removeItem("admin");
-							window.location.href = "/";
-						}}
+			{/* Górny rząd - ParlamentLogo + przycisk */}
+			<div className="header__top">
+				<div className="header__left">
+					<a
+						href="https://parlamentmlodych.eu/"
+						className="parlament-logo-link"
 					>
-						<span className="logout-button__icon">
-							<LogoutIcon />
-						</span>
-						<span className="logout-button__label">Wyloguj się</span>
-					</button>
-				) : isResolutions ? (
-					<Link to="/zloz-uchwale" className="zlozUchwale-button">
-						<span className="zlozUchwale-button__label">Złóż uchwałę</span>
-					</Link>
-				) : (
-					<Link to="/zaloguj" className="login-button">
-						<span className="login-button__icon">
-							<LoginIcon />
-						</span>
-						<span className="login-button__label">Zaloguj się</span>
-					</Link>
-				)}
+						<ParlamentLogo />
+					</a>
+				</div>
+
+				<div className="header__right">
+					{isDashboard ? (
+						<button
+							className="logout-button"
+							onClick={() => {
+								localStorage.removeItem("admin");
+								window.location.href = "/";
+							}}
+						>
+							<span className="logout-button__icon">
+								<LogoutIcon />
+							</span>
+							<span className="logout-button__label">Wyloguj się</span>
+						</button>
+					) : isResolutions ? (
+						<Link to="/zloz-uchwale" className="zlozUchwale-button">
+							<span className="zlozUchwale-button__label">Złóż uchwałę</span>
+						</Link>
+					) : (
+						<Link to="/zaloguj" className="login-button">
+							<span className="login-button__icon">
+								<LoginIcon />
+							</span>
+							<span className="login-button__label">Zaloguj się</span>
+						</Link>
+					)}
+				</div>
+			</div>
+
+			{/* Dolny rząd - tylko MParlamentLogo (widoczny na małych ekranach) */}
+			<div className="header__bottom">
+				<MParlamentLogo />
 			</div>
 		</header>
 	);
