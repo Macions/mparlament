@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import "./AddAmendment.css";
 
-import { bills, resolutions } from "../data/legislation";
+import { bills, resolutions } from "../../../data/legislation";
 
 const CURRENT_USER = {
 	name: "Jan Wiśniewski",

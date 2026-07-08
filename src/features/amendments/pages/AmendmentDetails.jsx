@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import "./AmendmentDetails.css";
 
-import { bills, amendments, resolutions } from "../data/legislation";
+import { bills, amendments, resolutions } from "../../../data/legislation";
 
 function applyAllChanges(bill, changes) {
 	const updated = structuredClone(bill);

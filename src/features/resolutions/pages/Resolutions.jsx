@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import "./resolutions.css";
 
-import { resolutions } from "../data/legislation";
+import { resolutions } from "../../../data/legislation";
 
 export default function Resolutions() {
 	const location = useLocation();

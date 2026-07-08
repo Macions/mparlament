@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import "./ResolutionDetails.css";
 import { createPortal } from "react-dom";
-import { resolutions } from "../data/legislation";
+import { resolutions } from "../../../data/legislation";
 
 export default function ResolutionDetails() {
 	useEffect(() => {

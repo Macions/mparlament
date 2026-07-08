@@ -2,7 +2,7 @@ import React from "react";
 import { useParams, Link } from "react-router-dom";
 import "./AmendmentsPage.css";
 
-import { bills, amendments, resolutions } from "../data/legislation";
+import { bills, amendments, resolutions } from "../../../data/legislation";
 
 export default function AmendmentsPage() {
 	const { slug } = useParams();

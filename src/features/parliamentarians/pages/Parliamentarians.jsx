@@ -5,7 +5,7 @@ import {
     clubs,
     allParliamentarians as initialParliamentarians,
     unaffiliated as initialUnaffiliated,
-} from "../data/mockData";
+} from "../../../data/mockData";
 
 const isAdmin = false; // ← zmienna admina
 

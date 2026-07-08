@@ -1,7 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import ParlamentLogo from "./ParlamentLogo";
 import MParlamentLogo from "./MParlamentLogo";
-import "../App.css";
 
 export default function Header() {
 	const location = useLocation();

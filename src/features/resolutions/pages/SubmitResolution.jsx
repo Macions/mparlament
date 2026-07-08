@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { parseDocx } from "../utils/docxParser";
+import { parseDocx } from "../../../utils/docxParser";
 import "./submitResolution.css";
-import SuccessModal from "../components/SuccessModal";
+import SuccessModal from "../../../components/SuccessModal";
 
 export default function SubmitResolution() {
 	const [file, setFile] = useState(null);
