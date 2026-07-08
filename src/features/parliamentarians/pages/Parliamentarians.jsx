@@ -7,7 +7,7 @@ import {
 	unaffiliated as initialUnaffiliated,
 } from "../../../data/mockData";
 
-const isAdmin = true;
+const isAdmin = false;
 
 const ModalPortal = ({ children, onClose }) => {
 	return ReactDOM.createPortal(
