@@ -1,16 +1,25 @@
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import ParlamentLogo from "./ParlamentLogo";
 import MParlamentLogo from "./MParlamentLogo";
 
 export default function Header() {
 	const location = useLocation();
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-	const isDashboard = location.pathname === "/dashboard";
-	const isResolutions = location.pathname === "/uchwaly";
+	useEffect(() => {
+		setIsLoggedIn(!!localStorage.getItem("token"));
+	}, [location]);
+
+	const logout = () => {
+		localStorage.removeItem("token");
+		localStorage.removeItem("user");
+		setIsLoggedIn(false);
+		window.location.href = "/";
+	};
 
 	return (
 		<header className="header">
-			{}
 			<div className="header__top">
 				<div className="header__left">
 					<a
@@ -21,29 +30,18 @@ export default function Header() {
 					</a>
 				</div>
 
-				{}
 				<div className="header__center">
 					<MParlamentLogo />
 				</div>
 
 				<div className="header__right">
-					{isDashboard ? (
-						<button
-							className="logout-button"
-							onClick={() => {
-								localStorage.removeItem("admin");
-								window.location.href = "/";
-							}}
-						>
+					{isLoggedIn ? (
+						<button className="logout-button" onClick={logout}>
 							<span className="logout-button__icon">
 								<LogoutIcon />
 							</span>
 							<span className="logout-button__label">Wyloguj się</span>
 						</button>
-					) : isResolutions ? (
-						<Link to="/zloz-uchwale" className="zlozUchwale-button">
-							<span className="zlozUchwale-button__label">Złóż uchwałę</span>
-						</Link>
 					) : (
 						<Link to="/zaloguj" className="login-button">
 							<span className="login-button__icon">
@@ -55,7 +53,6 @@ export default function Header() {
 				</div>
 			</div>
 
-			{}
 			<div className="header__bottom">
 				<MParlamentLogo />
 			</div>

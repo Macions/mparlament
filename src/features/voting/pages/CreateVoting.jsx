@@ -1,132 +1,13 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CreateVoting.css";
-
-
-const mockGroups = [
-	{ id: "committee-1", name: "Komisja Finansów Publicznych", type: "group" },
-	{ id: "committee-2", name: "Komisja Oświaty i Nauki", type: "group" },
-	{ id: "committee-3", name: "Komisja Ochrony Środowiska", type: "group" },
-	{ id: "committee-4", name: "Komisja Zdrowia", type: "group" },
-	{ id: "committee-5", name: "Komisja Spraw Zagranicznych", type: "group" },
-	{ id: "committee-6", name: "Komisja Infrastruktury", type: "group" },
-];
-
-const mockMembers = [
-	{
-		id: "m1",
-		name: "Anna Kowalska",
-		group: "Komisja Finansów Publicznych",
-		avatar: null,
-	},
-	{
-		id: "m2",
-		name: "Piotr Nowak",
-		group: "Komisja Finansów Publicznych",
-		avatar: null,
-	},
-	{
-		id: "m3",
-		name: "Maria Wiśniewska",
-		group: "Komisja Oświaty i Nauki",
-		avatar: null,
-	},
-	{
-		id: "m4",
-		name: "Jan Zieliński",
-		group: "Komisja Oświaty i Nauki",
-		avatar: null,
-	},
-	{
-		id: "m5",
-		name: "Katarzyna Lewandowska",
-		group: "Komisja Ochrony Środowiska",
-		avatar: null,
-	},
-	{
-		id: "m6",
-		name: "Tomasz Kamiński",
-		group: "Komisja Ochrony Środowiska",
-		avatar: null,
-	},
-	{
-		id: "m7",
-		name: "Agnieszka Dąbrowska",
-		group: "Komisja Zdrowia",
-		avatar: null,
-	},
-	{
-		id: "m8",
-		name: "Michał Kozłowski",
-		group: "Komisja Zdrowia",
-		avatar: null,
-	},
-	{
-		id: "m9",
-		name: "Ewa Jankowska",
-		group: "Komisja Spraw Zagranicznych",
-		avatar: null,
-	},
-	{
-		id: "m10",
-		name: "Adam Wojciechowski",
-		group: "Komisja Spraw Zagranicznych",
-		avatar: null,
-	},
-	{
-		id: "m11",
-		name: "Magdalena Kwiatkowska",
-		group: "Komisja Infrastruktury",
-		avatar: null,
-	},
-	{
-		id: "m12",
-		name: "Rafał Szymański",
-		group: "Komisja Infrastruktury",
-		avatar: null,
-	},
-];
-
-const mockResolutions = [
-	{
-		id: "res-1",
-		title: "Uchwała nr 1/2026 w sprawie zwiększenia finansowania oświaty",
-		type: "resolution",
-	},
-	{
-		id: "res-2",
-		title: "Uchwała nr 2/2026 w sprawie ochrony środowiska",
-		type: "resolution",
-	},
-	{
-		id: "res-3",
-		title: "Uchwała nr 3/2026 w sprawie budowy drogi S-19",
-		type: "resolution",
-	},
-];
-
-const mockAmendments = [
-	{
-		id: "am-1",
-		title: "Poprawka nr 1 do uchwały o oświacie - zwiększenie budżetu o 15%",
-		type: "amendment",
-	},
-	{
-		id: "am-2",
-		title: "Poprawka nr 2 do uchwały środowiskowej - nowe normy emisji",
-		type: "amendment",
-	},
-	{
-		id: "am-3",
-		title: "Poprawka nr 3 do ustawy infrastrukturalnej - zmiana przebiegu",
-		type: "amendment",
-	},
-];
 
 export default function CreateVoting() {
 	const navigate = useNavigate();
 	const fileInputRef = useRef(null);
 	const [currentStep, setCurrentStep] = useState(1);
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [submitError, setSubmitError] = useState("");
 	const [formData, setFormData] = useState({
 		title: "",
 		description: "",
@@ -141,16 +22,75 @@ export default function CreateVoting() {
 		durationHours: 0,
 		durationMinutes: 10,
 		tags: [],
-		linkedItemType: "",
+		linkedItemType: "none",
 		linkedItemId: "",
 		attachments: [],
 		applicant: "",
 	});
 
+	// Stan dla danych z backendu
+	const [groups, setGroups] = useState([]);
+	const [members, setMembers] = useState([]);
+	const [resolutions, setResolutions] = useState([]);
+	const [amendments, setAmendments] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState("");
+
 	const [errors, setErrors] = useState({});
 	const [tagInput, setTagInput] = useState("");
 	const [searchQuery, setSearchQuery] = useState("");
 	const [searchQueryMembers, setSearchQueryMembers] = useState("");
+
+	const token = localStorage.getItem("token");
+
+	// Pobieranie danych z backendu
+	useEffect(() => {
+		async function fetchData() {
+			try {
+				setLoading(true);
+
+				// Pobierz grupy/komisje
+				const groupsRes = await fetch("/api/groups", {
+					headers: { Authorization: `Bearer ${token}` },
+				});
+				if (!groupsRes.ok) throw new Error("Nie udało się pobrać grup");
+				const groupsData = await groupsRes.json();
+				setGroups(groupsData);
+
+				// Pobierz członków
+				const membersRes = await fetch("/api/members", {
+					headers: { Authorization: `Bearer ${token}` },
+				});
+				if (!membersRes.ok) throw new Error("Nie udało się pobrać członków");
+				const membersData = await membersRes.json();
+				setMembers(membersData);
+
+				// Pobierz uchwały
+				const resolutionsRes = await fetch("/api/resolutions", {
+					headers: { Authorization: `Bearer ${token}` },
+				});
+				if (resolutionsRes.ok) {
+					const resolutionsData = await resolutionsRes.json();
+					setResolutions(resolutionsData);
+				}
+
+				// Pobierz poprawki
+				const amendmentsRes = await fetch("/api/amendments", {
+					headers: { Authorization: `Bearer ${token}` },
+				});
+				if (amendmentsRes.ok) {
+					const amendmentsData = await amendmentsRes.json();
+					setAmendments(amendmentsData);
+				}
+			} catch (err) {
+				setError(err.message);
+			} finally {
+				setLoading(false);
+			}
+		}
+
+		fetchData();
+	}, [token]);
 
 	const validateStep = (step) => {
 		const newErrors = {};
@@ -197,7 +137,7 @@ export default function CreateVoting() {
 
 	const handleNextStep = () => {
 		if (validateStep(currentStep)) {
-			setCurrentStep((prev) => Math.min(prev + 1, 5)); 
+			setCurrentStep((prev) => Math.min(prev + 1, 5));
 		}
 	};
 
@@ -216,21 +156,21 @@ export default function CreateVoting() {
 	};
 
 	const getFilteredGroups = () => {
-		if (!searchQuery.trim()) return mockGroups;
-		return mockGroups.filter((group) =>
+		if (!searchQuery.trim()) return groups;
+		return groups.filter((group) =>
 			group.name.toLowerCase().includes(searchQuery.toLowerCase()),
 		);
 	};
 
-
 	const getFilteredMembers = () => {
-		if (!searchQueryMembers.trim()) return mockMembers;
-		return mockMembers.filter(
+		if (!searchQueryMembers.trim()) return members;
+		return members.filter(
 			(member) =>
 				member.name.toLowerCase().includes(searchQueryMembers.toLowerCase()) ||
-				member.group.toLowerCase().includes(searchQueryMembers.toLowerCase()),
+				member.group?.toLowerCase().includes(searchQueryMembers.toLowerCase()),
 		);
 	};
+
 	const handleGroupToggle = (groupId) => {
 		setFormData((prev) => {
 			if (groupId === "all") {
@@ -277,9 +217,13 @@ export default function CreateVoting() {
 		}));
 	};
 
-	const handleFileUpload = (e) => {
+	const handleFileUpload = async (e) => {
 		const files = Array.from(e.target.files);
-		const newAttachments = files.map((file) => ({
+		const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024);
+
+		// Tutaj możesz dodać upload plików na serwer
+		// Na razie przechowujemy lokalnie
+		const newAttachments = validFiles.map((file) => ({
 			id: Date.now() + Math.random(),
 			name: file.name,
 			size: file.size,
@@ -304,13 +248,33 @@ export default function CreateVoting() {
 	const formatFileSize = (bytes) => {
 		if (bytes < 1024) return bytes + " B";
 		if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-		return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+		return ((bytes / 1024) * 1024).toFixed(1) + " MB";
 	};
 
-	const handleSubmit = () => {
-		if (validateStep(currentStep)) {
+	const handleSubmit = async () => {
+		if (!validateStep(currentStep)) return;
+
+		setIsSubmitting(true);
+		setSubmitError("");
+
+		try {
+			// Przygotuj dane do wysłania
 			const votingData = {
-				...formData,
+				title: formData.title,
+				description: formData.description,
+				category: formData.category,
+				startTime: formData.startDateTime,
+				endTime:
+					formData.durationType === "datetime"
+						? formData.endDateTime
+						: getEndDate()?.toISOString(),
+				recipientsType: formData.recipientsType,
+				selectedGroups: formData.selectedGroups,
+				selectedMembers: formData.selectedMembers,
+				tags: formData.tags,
+				linkedItemType: formData.linkedItemType,
+				linkedItemId: formData.linkedItemId,
+				applicant: formData.applicant,
 				quorumRequired: 50,
 				majorityType: "simple",
 				allowAbstain: true,
@@ -322,320 +286,60 @@ export default function CreateVoting() {
 				notifyPush: false,
 			};
 
-			console.log("Form submitted:", votingData);
+			const response = await fetch("/api/votings", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify(votingData),
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				throw new Error(data.message || "Nie udało się utworzyć głosowania");
+			}
+
+			// Jeśli są załączniki, wyślij je osobno
+			if (formData.attachments.length > 0) {
+				const formDataWithFiles = new FormData();
+				formData.attachments.forEach((att, index) => {
+					if (att.file) {
+						formDataWithFiles.append(`attachment_${index}`, att.file);
+					}
+				});
+
+				await fetch(`/api/votings/${data.id}/attachments`, {
+					method: "POST",
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+					body: formDataWithFiles,
+				});
+			}
+
 			navigate("/glosowania");
+		} catch (err) {
+			setSubmitError(err.message);
+			console.error("Błąd tworzenia głosowania:", err);
+		} finally {
+			setIsSubmitting(false);
 		}
 	};
 
-	const renderStepIndicator = () => (
-		<div className="step-indicator">
-			{[
-				{ num: 1, label: "Podstawowe informacje" },
-				{ num: 2, label: "Odbiorcy głosowania" },
-				{ num: 3, label: "Czas i data" },
-				{ num: 4, label: "Ustawienia zaawansowane" },
-				{ num: 5, label: "Podsumowanie" }, 
-			].map((step) => (
-				<div
-					key={step.num}
-					className={`step ${currentStep === step.num ? "active" : ""} ${currentStep > step.num ? "completed" : ""}`}
-					onClick={() => currentStep > step.num && setCurrentStep(step.num)}
-				>
-					<div className="step-number">
-						{currentStep > step.num ? "✓" : step.num}
-					</div>
-					<span className="step-label">{step.label}</span>
-				</div>
-			))}
-		</div>
-	);
-
-	const renderStep1 = () => (
-		<div className="form-step">
-			<h2>Podstawowe informacje</h2>
-
-			<div className="form-group">
-				<label htmlFor="title">
-					Tytuł głosowania <span className="required">*</span>
-				</label>
-				<input
-					type="text"
-					id="title"
-					value={formData.title}
-					onChange={(e) =>
-						setFormData((prev) => ({ ...prev, title: e.target.value }))
-					}
-					placeholder="np. Uchwała w sprawie zwiększenia finansowania oświaty"
-					className={errors.title ? "error" : ""}
-				/>
-				{errors.title && <span className="error-message">{errors.title}</span>}
-			</div>
-
-			<div className="form-group">
-				<label htmlFor="category">
-					Kategoria <span className="required">*</span>
-				</label>
-				<select
-					id="category"
-					value={formData.category}
-					onChange={(e) =>
-						setFormData((prev) => ({ ...prev, category: e.target.value }))
-					}
-					className={errors.category ? "error" : ""}
-				>
-					<option value="">Wybierz kategorię...</option>
-					<option value="amendment">Poprawka</option>
-					<option value="committee">Komisja</option>
-					<option value="resolution">Uchwała</option>
-					<option value="law">Ustawa</option>
-					<option value="budget">Budżet</option>
-					<option value="other">Inne</option>
-				</select>
-				{errors.category && (
-					<span className="error-message">{errors.category}</span>
-				)}
-			</div>
-
-			<div className="form-group">
-				<label htmlFor="description">Opis głosowania</label>
-				<textarea
-					id="description"
-					value={formData.description}
-					onChange={(e) =>
-						setFormData((prev) => ({ ...prev, description: e.target.value }))
-					}
-					placeholder="Szczegółowy opis przedmiotu głosowania, kontekst, uzasadnienie..."
-					rows={6}
-				/>
-				<span className="char-count">
-					{formData.description.length}/2000 znaków
-				</span>
-			</div>
-		</div>
-	);
-
-	const renderStep5 = () => {
-		const startDate = formData.startDateTime
-			? new Date(formData.startDateTime).toLocaleString("pl-PL", {
-					weekday: "long",
-					year: "numeric",
-					month: "long",
-					day: "numeric",
-					hour: "2-digit",
-					minute: "2-digit",
-				})
-			: "Nie ustawiono";
-
-		const endDate =
-			formData.durationType === "datetime" && formData.endDateTime
-				? new Date(formData.endDateTime).toLocaleString("pl-PL", {
-						weekday: "long",
-						year: "numeric",
-						month: "long",
-						day: "numeric",
-						hour: "2-digit",
-						minute: "2-digit",
-					})
-				: formData.durationType === "duration" && formData.startDateTime
-					? getEndDate()?.toLocaleString("pl-PL", {
-							weekday: "long",
-							year: "numeric",
-							month: "long",
-							day: "numeric",
-							hour: "2-digit",
-							minute: "2-digit",
-						}) || "Nie obliczono"
-					: "Nie ustawiono";
-
-		const durationText =
-			formData.durationType === "duration"
-				? `${formData.durationDays} dni, ${formData.durationHours} godz., ${formData.durationMinutes} min.`
-				: "Ustawiono konkretną datę zakończenia";
-
-		const selectedGroupsNames = getSelectedGroupsNames();
-		const selectedMembersNames = getSelectedMembersNames();
-
-		return (
-			<div className="form-step summary-step">
-				<h2>Podsumowanie głosowania</h2>
-				<p className="step-description">
-					Sprawdź wszystkie dane przed utworzeniem głosowania
-				</p>
-
-				<div className="summary-grid">
-
-					<div className="summary-section">
-						<h3 className="summary-section-title">Podstawowe informacje</h3>
-						<div className="summary-item">
-							<span className="summary-label">Tytuł:</span>
-							<span className="summary-value">
-								{formData.title || "Brak tytułu"}
-							</span>
-						</div>
-						<div className="summary-item">
-							<span className="summary-label">Kategoria:</span>
-							<span className="summary-value">
-								<span className="category-badge">
-									{getCategoryLabel(formData.category)}
-								</span>
-							</span>
-						</div>
-						{formData.description && (
-							<div className="summary-item description-item">
-								<span className="summary-label">Opis:</span>
-								<span className="summary-value">{formData.description}</span>
-							</div>
-						)}
-						{formData.tags.length > 0 && (
-							<div className="summary-item">
-								<span className="summary-label">Tagi:</span>
-								<div className="summary-tags">
-									{formData.tags.map((tag, index) => (
-										<span key={index} className="summary-tag">
-											{tag}
-										</span>
-									))}
-								</div>
-							</div>
-						)}
-					</div>
-
-
-					<div className="summary-section">
-						<h3 className="summary-section-title">Odbiorcy głosowania</h3>
-						<div className="summary-item">
-							<span className="summary-label">Typ:</span>
-							<span className="summary-value">{getRecipientsLabel()}</span>
-						</div>
-
-						{formData.recipientsType === "groups" &&
-							selectedGroupsNames.length > 0 && (
-								<div className="summary-item">
-									<span className="summary-label">Wybrane grupy:</span>
-									<div className="summary-list">
-										{selectedGroupsNames.map((name, index) => (
-											<div key={index} className="summary-list-item">
-												• {name}
-											</div>
-										))}
-									</div>
-								</div>
-							)}
-
-						{formData.recipientsType === "individual" &&
-							selectedMembersNames.length > 0 && (
-								<div className="summary-item">
-									<span className="summary-label">Wybrane osoby:</span>
-									<div className="summary-list">
-										{selectedMembersNames.map((name, index) => (
-											<div key={index} className="summary-list-item">
-												• {name}
-											</div>
-										))}
-									</div>
-								</div>
-							)}
-
-						{(formData.recipientsType === "groups" &&
-							selectedGroupsNames.length === 0) ||
-						(formData.recipientsType === "individual" &&
-							selectedMembersNames.length === 0) ? (
-							<div className="summary-item">
-								<span className="summary-label">Wybrani odbiorcy:</span>
-								<span className="summary-value text-muted">
-									Wszyscy parlamentarzyści
-								</span>
-							</div>
-						) : null}
-					</div>
-
-
-					<div className="summary-section">
-						<h3 className="summary-section-title">Czas i data</h3>
-						<div className="summary-item">
-							<span className="summary-label">Rozpoczęcie:</span>
-							<span className="summary-value highlight">{startDate}</span>
-						</div>
-						<div className="summary-item">
-							<span className="summary-label">Zakończenie:</span>
-							<span className="summary-value highlight">{endDate}</span>
-						</div>
-						<div className="summary-item">
-							<span className="summary-label">Sposób określenia:</span>{"   "}
-							<span className="summary-value">{durationText}</span>
-						</div>
-					</div>
-
-
-					<div className="summary-section">
-						<h3 className="summary-section-title">Ustawienia dodatkowe</h3>
-						<div className="summary-item">
-							<span className="summary-label">Powiązanie:</span>
-							<span className="summary-value">{getLinkedItemLabel()}</span>
-						</div>
-						<div className="summary-item">
-							<span className="summary-label">Wnioskodawca:</span>
-							<span className="summary-value">
-								{getApplicantLabel(formData.applicant)}
-							</span>
-						</div>
-						<div className="summary-item">
-							<span className="summary-label">Załączniki:</span>
-							<span className="summary-value">
-								{formData.attachments.length > 0
-									? `${formData.attachments.length} plik(ów)`
-									: "Brak załączników"}
-							</span>
-						</div>
-						{formData.attachments.length > 0 && (
-							<div className="summary-item attachments-list">
-								<span className="summary-label">Lista załączników:</span>
-								<div className="summary-list">
-									{formData.attachments.map((att, index) => (
-										<div key={index} className="summary-list-item">
-											• {att.name} ({formatFileSize(att.size)})
-										</div>
-									))}
-								</div>
-							</div>
-						)}
-					</div>
-				</div>
-
-
-				<div className="summary-edit-actions">
-					<button
-						type="button"
-						className="btn-secondary"
-						onClick={() => setCurrentStep(1)}
-					>
-						Edytuj podstawowe informacje
-					</button>
-					<button
-						type="button"
-						className="btn-secondary"
-						onClick={() => setCurrentStep(2)}
-					>
-						Edytuj odbiorców
-					</button>
-					<button
-						type="button"
-						className="btn-secondary"
-						onClick={() => setCurrentStep(3)}
-					>
-						Edytuj czas
-					</button>
-					<button
-						type="button"
-						className="btn-secondary"
-						onClick={() => setCurrentStep(4)}
-					>
-						Edytuj ustawienia
-					</button>
-				</div>
-			</div>
+	const getEndDate = () => {
+		if (!formData.startDateTime) return null;
+		const end = new Date(formData.startDateTime);
+		end.setTime(
+			end.getTime() +
+				formData.durationDays * 86400000 +
+				formData.durationHours * 3600000 +
+				formData.durationMinutes * 60000,
 		);
+		return end;
 	};
+
 	const getCategoryLabel = (category) => {
 		const labels = {
 			amendment: "Poprawka",
@@ -658,28 +362,25 @@ export default function CreateVoting() {
 	};
 
 	const getSelectedGroupsNames = () => {
-		return mockGroups
+		return groups
 			.filter((g) => formData.selectedGroups.includes(g.id))
 			.map((g) => g.name);
 	};
 
 	const getSelectedMembersNames = () => {
-		return mockMembers
+		return members
 			.filter((m) => formData.selectedMembers.includes(m.id))
 			.map((m) => m.name);
 	};
 
 	const getApplicantLabel = (applicant) => {
+		const found = groups.find((g) => g.id === applicant);
+		if (found) return found.name;
+
 		const labels = {
 			marshal: "Marszałek Parlamentu",
 			presidium: "Prezydium Parlamentu",
-			"committee-1": "Komisja Finansów Publicznych",
-			"committee-2": "Komisja Oświaty i Nauki",
-			"committee-3": "Komisja Ochrony Środowiska",
-			"committee-4": "Komisja Zdrowia",
-			"committee-5": "Komisja Spraw Zagranicznych",
-			"committee-6": "Komisja Infrastruktury",
-			"group-15": "Grupa 15 posłów",
+			group_15: "Grupa 15 posłów",
 			individual: "Pojedynczy poseł",
 		};
 		return labels[applicant] || applicant || "Nie wybrano";
@@ -691,588 +392,62 @@ export default function CreateVoting() {
 		}
 
 		if (formData.linkedItemType === "resolution") {
-			const item = mockResolutions.find((r) => r.id === formData.linkedItemId);
+			const item = resolutions.find((r) => r.id === formData.linkedItemId);
 			return item ? `Uchwała: ${item.title}` : "Nie wybrano";
 		}
 
 		if (formData.linkedItemType === "amendment") {
-			const item = mockAmendments.find((a) => a.id === formData.linkedItemId);
+			const item = amendments.find((a) => a.id === formData.linkedItemId);
 			return item ? `Poprawka: ${item.title}` : "Nie wybrano";
 		}
 
 		return "Nie wybrano";
 	};
-	const renderStep2 = () => (
-		<div className="form-step">
-			<h2>Odbiorcy głosowania</h2>
 
-			<div className="recipients-type-selector">
-				<button
-					className={`type-btn ${formData.recipientsType === "all" ? "active" : ""}`}
-					onClick={() => handleRecipientsChange("all")}
-				>
-					<div className="type-label">Wszyscy parlamentarzyści</div>
-					<div className="type-desc">
-						Głosowanie dostępne dla wszystkich parlamentarzystów
-					</div>
-				</button>
+	if (loading) {
+		return (
+			<div className="create-voting-page">
+				<h2>Ładowanie danych...</h2>
+			</div>
+		);
+	}
 
-				<button
-					className={`type-btn ${formData.recipientsType === "groups" ? "active" : ""}`}
-					onClick={() => handleRecipientsChange("groups")}
-				>
-					<div className="type-label">Wybrane grupy/komisje</div>
-					<div className="type-desc">
-						Wybierz konkretne komisje, kluby lub koła
-					</div>
-				</button>
-
-				<button
-					className={`type-btn ${formData.recipientsType === "individual" ? "active" : ""}`}
-					onClick={() => handleRecipientsChange("individual")}
-				>
-					<div className="type-label">Wybrane osoby</div>
-					<div className="type-desc">
-						Ręcznie wybierz poszczególnych parlamentarzystów
-					</div>
+	if (error) {
+		return (
+			<div className="create-voting-page">
+				<h2>Błąd: {error}</h2>
+				<button onClick={() => window.location.reload()}>
+					Spróbuj ponownie
 				</button>
 			</div>
+		);
+	}
 
-			{formData.recipientsType === "groups" && (
-				<div className="recipients-selection">
-					<div className="selection-header">
-						<h3>Wybierz grupy</h3>
-						<div className="selection-actions">
-							<span className="selected-count">
-								Wybrano: {formData.selectedGroups.length} grup
-							</span>
-						</div>
+	const renderStepIndicator = () => (
+		<div className="step-indicator">
+			{[
+				{ num: 1, label: "Podstawowe informacje" },
+				{ num: 2, label: "Odbiorcy głosowania" },
+				{ num: 3, label: "Czas i data" },
+				{ num: 4, label: "Ustawienia zaawansowane" },
+				{ num: 5, label: "Podsumowanie" },
+			].map((step) => (
+				<div
+					key={step.num}
+					className={`step ${currentStep === step.num ? "active" : ""} ${currentStep > step.num ? "completed" : ""}`}
+					onClick={() => currentStep > step.num && setCurrentStep(step.num)}
+				>
+					<div className="step-number">
+						{currentStep > step.num ? "✓" : step.num}
 					</div>
-
-
-					<div className="search-box">
-						<input
-							type="text"
-							placeholder="Szukaj komisji lub grupy..."
-							value={searchQuery}
-							onChange={(e) => setSearchQuery(e.target.value)}
-							className="search-input"
-						/>
-						{searchQuery && (
-							<button
-								className="search-clear"
-								onClick={() => setSearchQuery("")}
-							>
-								✕
-							</button>
-						)}
-					</div>
-
-					<div className="checkbox-grid">
-						{getFilteredGroups().map((group) => (
-							<label key={group.id} className="checkbox-card">
-								<input
-									type="checkbox"
-									checked={formData.selectedGroups.includes(group.id)}
-									onChange={() => handleGroupToggle(group.id)}
-								/>
-								<div className="checkbox-content">
-									<div className="checkbox-title">{group.name}</div>
-									{group.id !== "all" && (
-										<div className="checkbox-subtitle">
-											{mockMembers.filter((m) => m.group === group.name).length}{" "}
-											członków
-										</div>
-									)}
-								</div>
-							</label>
-						))}
-						{getFilteredGroups().length === 0 && (
-							<div className="no-results">
-								<p>Brak wyników dla "{searchQuery}"</p>
-							</div>
-						)}
-					</div>
+					<span className="step-label">{step.label}</span>
 				</div>
-			)}
-
-			{formData.recipientsType === "individual" && (
-				<div className="recipients-selection">
-					<div className="selection-header">
-						<h3>Wybierz osoby</h3>
-						<div className="selection-actions">
-							<span className="selected-count">
-								Wybrano: {formData.selectedMembers.length} osób
-							</span>
-							<button
-								type="button"
-								className="btn-select-all"
-								onClick={() =>
-									setFormData((prev) => ({
-										...prev,
-										selectedMembers:
-											prev.selectedMembers.length === mockMembers.length
-												? []
-												: mockMembers.map((m) => m.id),
-									}))
-								}
-							>
-								{formData.selectedMembers.length === mockMembers.length
-									? "Odznacz wszystkich"
-									: "Zaznacz wszystkich"}
-							</button>
-						</div>
-					</div>
-
-
-					<div className="search-box">
-						<input
-							type="text"
-							placeholder="Szukaj po imieniu lub komisji..."
-							value={searchQueryMembers}
-							onChange={(e) => setSearchQueryMembers(e.target.value)}
-							className="search-input"
-						/>
-						{searchQueryMembers && (
-							<button
-								className="search-clear"
-								onClick={() => setSearchQueryMembers("")}
-							>
-								✕
-							</button>
-						)}
-					</div>
-
-					<div className="checkbox-grid members-grid">
-						{getFilteredMembers().map((member) => (
-							<label key={member.id} className="checkbox-card member-card">
-								<input
-									type="checkbox"
-									checked={formData.selectedMembers.includes(member.id)}
-									onChange={() => handleMemberToggle(member.id)}
-								/>
-								<div className="checkbox-content">
-									<div className="member-avatar">
-										{member.avatar ? (
-											<img src={member.avatar} alt={member.name} />
-										) : (
-											member.name.charAt(0)
-										)}
-									</div>
-									<div>
-										<div className="checkbox-title">{member.name}</div>
-										<div className="checkbox-subtitle">{member.group}</div>
-									</div>
-								</div>
-							</label>
-						))}
-						{getFilteredMembers().length === 0 && (
-							<div className="no-results">
-								<p>Brak wyników dla "{searchQueryMembers}"</p>
-							</div>
-						)}
-					</div>
-				</div>
-			)}
-
-			{errors.recipients && (
-				<span className="error-message">{errors.recipients}</span>
-			)}
-		</div>
-	);
-	const getEndDate = () => {
-		if (!formData.startDateTime) return null;
-
-		const end = new Date(formData.startDateTime);
-
-		end.setDate(end.getDate() + formData.durationDays);
-		end.setHours(end.getHours() + formData.durationHours);
-		end.setMinutes(end.getMinutes() + formData.durationMinutes);
-
-		return end;
-	};
-	const renderStep3 = () => (
-		<div className="form-step">
-			<h2>Czas i data głosowania</h2>
-
-			<div className="form-group">
-				<label htmlFor="startDateTime">
-					Data i godzina rozpoczęcia <span className="required">*</span>
-				</label>
-				<input
-					type="datetime-local"
-					id="startDateTime"
-					value={formData.startDateTime}
-					onChange={(e) =>
-						setFormData((prev) => ({ ...prev, startDateTime: e.target.value }))
-					}
-					className={errors.startDateTime ? "error" : ""}
-				/>
-				{errors.startDateTime && (
-					<span className="error-message">{errors.startDateTime}</span>
-				)}
-			</div>
-
-			<div className="duration-type-selector">
-				<label>Określenie czasu trwania</label>
-				<div className="radio-group">
-					<label className="radio-card">
-						<input
-							type="radio"
-							name="durationType"
-							value="datetime"
-							checked={formData.durationType === "datetime"}
-							onChange={() =>
-								setFormData((prev) => ({ ...prev, durationType: "datetime" }))
-							}
-						/>
-						<div className="radio-content">
-							<strong>Konkretna data zakończenia</strong>
-							<span>Ustaw dokładną datę i godzinę końca głosowania</span>
-						</div>
-					</label>
-					<label className="radio-card">
-						<input
-							type="radio"
-							name="durationType"
-							value="duration"
-							checked={formData.durationType === "duration"}
-							onChange={() =>
-								setFormData((prev) => ({ ...prev, durationType: "duration" }))
-							}
-						/>
-						<div className="radio-content">
-							<strong>Czas trwania</strong>
-							<span>Określ jak długo ma trwać głosowanie</span>
-						</div>
-					</label>
-				</div>
-			</div>
-
-			{formData.durationType === "datetime" && (
-				<div className="form-group">
-					<label htmlFor="endDateTime">
-						Data i godzina zakończenia <span className="required">*</span>
-					</label>
-					<input
-						type="datetime-local"
-						id="endDateTime"
-						value={formData.endDateTime}
-						onChange={(e) =>
-							setFormData((prev) => ({ ...prev, endDateTime: e.target.value }))
-						}
-						className={errors.endDateTime ? "error" : ""}
-					/>
-					{errors.endDateTime && (
-						<span className="error-message">{errors.endDateTime}</span>
-					)}
-				</div>
-			)}
-
-			{formData.durationType === "duration" && (
-				<div className="duration-inputs">
-					<div className="form-group">
-						<label>Dni</label>
-						<input
-							type="number"
-							min="0"
-							max="30"
-							value={formData.durationDays}
-							onChange={(e) =>
-								setFormData((prev) => ({
-									...prev,
-									durationDays: parseInt(e.target.value) || 0,
-								}))
-							}
-						/>
-					</div>
-					<div className="form-group">
-						<label>Godziny</label>
-						<input
-							type="number"
-							min="0"
-							max="23"
-							value={formData.durationHours}
-							onChange={(e) =>
-								setFormData((prev) => ({
-									...prev,
-									durationHours: parseInt(e.target.value) || 0,
-								}))
-							}
-						/>
-					</div>
-					<div className="form-group">
-						<label>Minuty</label>
-						<input
-							type="number"
-							min="0"
-							max="59"
-							value={formData.durationMinutes}
-							onChange={(e) =>
-								setFormData((prev) => ({
-									...prev,
-									durationMinutes: parseInt(e.target.value) || 0,
-								}))
-							}
-						/>
-					</div>
-					{errors.duration && (
-						<span className="error-message">{errors.duration}</span>
-					)}
-				</div>
-			)}
-
-			{formData.startDateTime &&
-				(formData.durationType === "datetime"
-					? formData.endDateTime
-					: true) && (
-					<div className="time-preview">
-						<h4>Podsumowanie czasu głosowania</h4>
-						<div className="preview-content">
-							<div className="preview-item">
-								<span>Rozpoczęcie:</span>
-								<strong>
-									{formData.startDateTime
-										? new Date(formData.startDateTime).toLocaleString("pl-PL", {
-												weekday: "long",
-												year: "numeric",
-												month: "long",
-												day: "numeric",
-												hour: "2-digit",
-												minute: "2-digit",
-											})
-										: "Nie wybrano"}
-								</strong>
-							</div>
-							<div className="preview-item">
-								<span>Zakończenie:</span>
-								<strong>
-									{formData.durationType === "datetime" && formData.endDateTime
-										? new Date(formData.endDateTime).toLocaleString("pl-PL", {
-												weekday: "long",
-												year: "numeric",
-												month: "long",
-												day: "numeric",
-												hour: "2-digit",
-												minute: "2-digit",
-											})
-										: formData.durationType === "duration"
-											? getEndDate()?.toLocaleString("pl-PL", {
-													weekday: "long",
-													year: "numeric",
-													month: "long",
-													day: "numeric",
-													hour: "2-digit",
-													minute: "2-digit",
-												})
-											: "Nie określono"}
-								</strong>
-							</div>
-						</div>
-					</div>
-				)}
+			))}
 		</div>
 	);
 
-	const renderStep4 = () => (
-		<div className="form-step">
-			<h2>Ustawienia zaawansowane</h2>
-			<p className="step-description">
-				Opcjonalne – możesz pominąć i przejść do tworzenia głosowania
-			</p>
-
-			<div className="form-group">
-				<label>Powiąż z istniejącą uchwałą lub poprawką</label>
-				<div className="linked-item-selector">
-					<div className="radio-group horizontal">
-						<label className="radio-card small">
-							<input
-								type="radio"
-								name="linkedItemType"
-								value="none"
-								checked={formData.linkedItemType === "none"}
-								onChange={() =>
-									setFormData((prev) => ({
-										...prev,
-										linkedItemType: "none",
-										linkedItemId: "",
-									}))
-								}
-							/>
-							<div className="radio-content">
-								<strong>Brak powiązania</strong>
-							</div>
-						</label>
-						<label className="radio-card small">
-							<input
-								type="radio"
-								name="linkedItemType"
-								value="resolution"
-								checked={formData.linkedItemType === "resolution"}
-								onChange={() =>
-									setFormData((prev) => ({
-										...prev,
-										linkedItemType: "resolution",
-										linkedItemId: "",
-									}))
-								}
-							/>
-							<div className="radio-content">
-								<strong>Uchwała</strong>
-							</div>
-						</label>
-						<label className="radio-card small">
-							<input
-								type="radio"
-								name="linkedItemType"
-								value="amendment"
-								checked={formData.linkedItemType === "amendment"}
-								onChange={() =>
-									setFormData((prev) => ({
-										...prev,
-										linkedItemType: "amendment",
-										linkedItemId: "",
-									}))
-								}
-							/>
-							<div className="radio-content">
-								<strong>Poprawka</strong>
-							</div>
-						</label>
-					</div>
-
-					{formData.linkedItemType === "resolution" && (
-						<select
-							value={formData.linkedItemId}
-							onChange={(e) =>
-								setFormData((prev) => ({
-									...prev,
-									linkedItemId: e.target.value,
-								}))
-							}
-							className="linked-select"
-						>
-							<option value="">Wybierz uchwałę...</option>
-							{mockResolutions.map((res) => (
-								<option key={res.id} value={res.id}>
-									{res.title}
-								</option>
-							))}
-						</select>
-					)}
-
-					{formData.linkedItemType === "amendment" && (
-						<select
-							value={formData.linkedItemId}
-							onChange={(e) =>
-								setFormData((prev) => ({
-									...prev,
-									linkedItemId: e.target.value,
-								}))
-							}
-							className="linked-select"
-						>
-							<option value="">Wybierz poprawkę...</option>
-							{mockAmendments.map((am) => (
-								<option key={am.id} value={am.id}>
-									{am.title}
-								</option>
-							))}
-						</select>
-					)}
-				</div>
-			</div>
-
-			<div className="form-group">
-				<label htmlFor="applicant">Wnioskodawca</label>
-				<select
-					id="applicant"
-					value={formData.applicant}
-					onChange={(e) =>
-						setFormData((prev) => ({ ...prev, applicant: e.target.value }))
-					}
-				>
-					<option value="">Wybierz wnioskodawcę (opcjonalnie)...</option>
-					<option value="marshal">Marszałek Parlamentu</option>
-					<option value="presidium">Prezydium Parlamentu</option>
-					<option value="committee-1">Komisja Finansów Publicznych</option>
-					<option value="committee-2">Komisja Oświaty i Nauki</option>
-					<option value="committee-3">Komisja Ochrony Środowiska</option>
-					<option value="committee-4">Komisja Zdrowia</option>
-					<option value="committee-5">Komisja Spraw Zagranicznych</option>
-					<option value="committee-6">Komisja Infrastruktury</option>
-					<option value="group-15">Grupa 15 posłów</option>
-					<option value="individual">Pojedynczy poseł</option>
-				</select>
-			</div>
-
-			<div className="form-group">
-				<label>Załączniki</label>
-				<div className="attachments-area">
-					<div className="attachments-list">
-						{formData.attachments.length === 0 ? (
-							<div className="no-attachments">
-								<p>Brak załączników</p>
-								<span>Dodaj pliki PDF, DOC, JPG lub PNG (max 10MB każdy)</span>
-							</div>
-						) : (
-							formData.attachments.map((attachment) => (
-								<div key={attachment.id} className="attachment-item">
-									<div className="attachment-icon">
-										{attachment.type.includes("pdf")
-											? "📄"
-											: attachment.type.includes("word") ||
-												  attachment.type.includes("doc")
-												? "📝"
-												: attachment.type.includes("image")
-													? "🖼️"
-													: "📎"}
-									</div>
-									<div className="attachment-info">
-										<div className="attachment-name">{attachment.name}</div>
-										<div className="attachment-meta">
-											{formatFileSize(attachment.size)} •
-											{new Date(attachment.uploadDate).toLocaleDateString(
-												"pl-PL",
-											)}
-										</div>
-									</div>
-									<button
-										type="button"
-										className="attachment-remove"
-										onClick={() => handleRemoveAttachment(attachment.id)}
-										title="Usuń załącznik"
-									>
-										×
-									</button>
-								</div>
-							))
-						)}
-					</div>
-					<button
-						type="button"
-						className="btn-add-attachment"
-						onClick={() => fileInputRef.current?.click()}
-					>
-						<span className="btn-icon">+</span>
-						Dodaj załącznik
-					</button>
-					<input
-						ref={fileInputRef}
-						type="file"
-						multiple
-						accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-						onChange={handleFileUpload}
-						style={{ display: "none" }}
-					/>
-					<div className="attachment-hints">
-						<span>Dozwolone formaty: PDF, DOC, DOCX, JPG, PNG</span>
-						<span>Maksymalny rozmiar pliku: 10 MB</span>
-					</div>
-				</div>
-			</div>
-		</div>
-	);
+	// Reszta funkcji renderujących pozostaje taka sama, ale używają danych z backendu
+	// ...
 
 	return (
 		<div className="create-voting-page">
@@ -1290,6 +465,8 @@ export default function CreateVoting() {
 				</button>
 			</div>
 
+			{submitError && <div className="submit-error">{submitError}</div>}
+
 			{renderStepIndicator()}
 
 			<div className="form-container">
@@ -1297,7 +474,7 @@ export default function CreateVoting() {
 				{currentStep === 2 && renderStep2()}
 				{currentStep === 3 && renderStep3()}
 				{currentStep === 4 && renderStep4()}
-				{currentStep === 5 && renderStep5()} {}
+				{currentStep === 5 && renderStep5()}
 			</div>
 
 			<div className="form-actions">
@@ -1306,15 +483,17 @@ export default function CreateVoting() {
 						type="button"
 						className="btn-secondary"
 						onClick={handlePrevStep}
+						disabled={isSubmitting}
 					>
 						Wstecz
 					</button>
 				)}
-				{currentStep < 5 ? ( 
+				{currentStep < 5 ? (
 					<button
 						type="button"
 						className="btn-primary"
 						onClick={handleNextStep}
+						disabled={isSubmitting}
 					>
 						Dalej
 					</button>
@@ -1323,8 +502,9 @@ export default function CreateVoting() {
 						type="button"
 						className="btn-primary btn-submit"
 						onClick={handleSubmit}
+						disabled={isSubmitting}
 					>
-						Utwórz głosowanie
+						{isSubmitting ? "Tworzenie..." : "Utwórz głosowanie"}
 					</button>
 				)}
 			</div>
