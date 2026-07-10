@@ -2,9 +2,20 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import "./ResolutionDetails.css";
 import { createPortal } from "react-dom";
-import { resolutions } from "../../../data/legislation";
 
 export default function ResolutionDetails() {
+	const { slug } = useParams();
+
+	const [resolution, setResolution] = useState(null);
+	const [signedUsers, setSignedUsers] = useState([]);
+	const [session, setSession] = useState(null);
+	const [currentUser, setCurrentUser] = useState(null);
+	const [showConfirm, setShowConfirm] = useState(false);
+	const [actionType, setActionType] = useState(null);
+	const [showSignatures, setShowSignatures] = useState(false);
+	const [loading, setLoading] = useState(true);
+	const [errorMessage, setErrorMessage] = useState(null);
+
 	useEffect(() => {
 		window.scrollTo({
 			top: 0,
@@ -12,38 +23,84 @@ export default function ResolutionDetails() {
 		});
 	}, []);
 
-	const { slug } = useParams();
+	useEffect(() => {
+		fetch(`/api/resolutions/${slug}`)
+			.then((res) => {
+				if (!res.ok) {
+					throw new Error("Nie znaleziono uchwały");
+				}
 
-	const [showSignatures, setShowSignatures] = useState(false);
+				return res.json();
+			})
+			.then((data) => {
+				setResolution(data.resolution);
+				setSignedUsers(data.signedUsers);
+				setSession(data.session);
+				setCurrentUser(data.currentUser);
+			})
+			.catch((error) => {
+				setErrorMessage(error.message);
+			})
+			.finally(() => {
+				setLoading(false);
+			});
+	}, [slug]);
 
-	const resolution = resolutions.find((r) => r.slug === slug);
+	const handleSignatureAction = async () => {
+		const endpoint = actionType === "sign"
+			? `/api/resolutions/${resolution.id}/sign`
+			: `/api/resolutions/${resolution.id}/sign`;
 
-	const signedUsers = [
-		{
-			name: "Jan Kowalski",
-			club: "Klub Postępu",
-			date: "07.07.2026, 14:32",
-		},
-		{
-			name: "Anna Nowak",
-			club: "Grono Koordynatorskie",
-			date: "07.07.2026, 15:10",
-		},
-		{
-			name: "Piotr Wiśniewski",
-			club: "Koło Młodych",
-			date: "07.07.2026, 16:05",
-		},
-	];
+		const method = actionType === "sign" ? "POST" : "DELETE";
+
+		try {
+			const res = await fetch(endpoint, { method });
+
+			if (!res.ok) {
+				const data = await res.json();
+				throw new Error(data.message || "Wystąpił błąd");
+			}
+
+			// ✅ Nie próbuj parsować JSON jeśli response jest pusty
+			let data = null;
+			try {
+				data = await res.json();
+			} catch (e) {
+				// Ignoruj jeśli nie ma body
+			}
+
+			setShowConfirm(false);
+			setErrorMessage(null);
+
+			const refresh = await fetch(`/api/resolutions/${slug}`);
+			const updated = await refresh.json();
+
+			setResolution(updated.resolution);
+			setSignedUsers(updated.signedUsers);
+			setCurrentUser(updated.currentUser);
+
+		} catch (error) {
+			setErrorMessage(error.message);
+		}
+	};
+
+	if (loading) {
+		return <h2>Ładowanie uchwały...</h2>;
+	}
+
 
 	if (!resolution) {
 		return <h2>Nie znaleziono uchwały</h2>;
 	}
 
+
 	return (
 		<div className="mparlament-page">
+
 			<div className="uchwaly-bar">
+
 				<Link className="uchwaly-title" to="/uchwaly">
+
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						width="50"
@@ -57,22 +114,38 @@ export default function ResolutionDetails() {
 							d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"
 						/>
 					</svg>
+
 					WRÓĆ
+
 				</Link>
 
+
 				<div className="session-info">
-					Posiedzenie: Warszawa
+					Posiedzenie: {session?.city}
 					<br />
-					<span>20.05</span>
+					<span>{session?.date}</span>
 				</div>
+
 			</div>
 
+
+
 			<main className="resolution-card">
-				<h1 className="resolution-title">{resolution.title}</h1>
+
+				<h1 className="resolution-title">
+					{resolution.title}
+				</h1>
+
+
 
 				<div className="resolution-grid">
+
+
 					<div className="resolution-left">
+
+
 						<div className="file-box">
+
 							<a
 								href={`/${resolution.fileName}`}
 								className="file-link"
@@ -81,30 +154,81 @@ export default function ResolutionDetails() {
 							>
 								{resolution.fileName}
 							</a>
+
 						</div>
 
+
+
 						<div className="signatures-row">
+
 							<div className="signatures-count">
-								<div>Podpisy: {resolution.signatures}</div>
+
+								<div>
+									Podpisy: {resolution.signatures}
+								</div>
+
 
 								<button
 									className="btn btn-pill btn-cyan btn-small check-signatures-btn"
-									onClick={() => setShowSignatures(true)}
+									onClick={() =>
+										setShowSignatures(true)
+									}
 								>
 									Sprawdź kto podpisał
 								</button>
+
+
 							</div>
+
 						</div>
+
+
 					</div>
 
+
+
 					<div className="resolution-right">
+
+
 						<p className="resolution-author">
-							Autor: <strong>{resolution.author}</strong> ({resolution.party})
+
+							Autor:{" "}
+							<strong>
+								{resolution.author}
+							</strong>{" "}
+							({resolution.party})
+
 						</p>
 
-						<button className="btn btn-pill btn-cyan btn-wide sign-btn">
-							PODPISZ UCHWAŁĘ
-						</button>
+
+
+						{currentUser?.isAuthor ? (
+							<button
+								className="btn btn-pill btn-gray btn-wide"
+								disabled
+							>
+								AUTOR - PODPIS AUTOMATYCZNY
+							</button>
+						) : (
+							<button
+								className="btn btn-pill btn-cyan btn-wide sign-btn"
+								onClick={() => {
+									setActionType(
+										currentUser?.hasSigned
+											? "remove"
+											: "sign"
+									);
+
+									setShowConfirm(true);
+								}}
+							>
+								{currentUser?.hasSigned
+									? "USUŃ PODPIS"
+									: "PODPISZ UCHWAŁĘ"}
+							</button>
+						)}
+
+
 
 						<Link
 							to={`/${resolution.slug}/poprawki`}
@@ -112,51 +236,164 @@ export default function ResolutionDetails() {
 						>
 							WYŚWIETL POPRAWKI
 						</Link>
+
+
 					</div>
+
+
 				</div>
+
+
 			</main>
+
+
+
 			{showSignatures &&
 				createPortal(
+
 					<>
+
 						<div
 							className="signatures-overlay"
-							onClick={() => setShowSignatures(false)}
-						></div>
+							onClick={() =>
+								setShowSignatures(false)
+							}
+						/>
+
 
 						<div className="signatures-panel">
+
+
 							<div className="signatures-header">
-								<h2>Kto podpisał?</h2>
+
+								<h2>
+									Kto podpisał?
+								</h2>
+
 
 								<button
 									className="close-panel"
-									onClick={() => setShowSignatures(false)}
+									onClick={() =>
+										setShowSignatures(false)
+									}
 								>
 									✕
 								</button>
+
+
 							</div>
+
+
 
 							<div className="signatures-total">
-								Liczba podpisów: <strong>{signedUsers.length}</strong>
+
+								Liczba podpisów:{" "}
+								<strong>
+									{signedUsers.length}
+								</strong>
+
 							</div>
 
+
+
+
 							<div className="signatures-list">
+
 								{signedUsers.map((user, index) => (
-									<div className="signature-item" key={index}>
-										<div className="signature-avatar" style={{ background: `hsl(${index * 45 % 360}, 70%, 90%)` }}>
-											{user.name.charAt(0).toUpperCase()}
+
+									<div
+										className="signature-item"
+										key={index}
+									>
+
+
+										<div
+											className="signature-avatar"
+											style={{
+												background: `hsl(${index * 45 % 360}, 70%, 90%)`
+											}}
+										>
+											{user.name
+												.charAt(0)
+												.toUpperCase()}
 										</div>
+
+
+
 										<div className="signature-info">
-											<strong>{user.name}</strong>
-											<p>{user.club}</p>
-											<span>{user.date}</span>
+
+											<strong>
+												{user.name}
+											</strong>
+
+											<p>
+												{user.club}
+											</p>
+
+											<span>
+												{user.date}
+											</span>
+
 										</div>
+
+
 									</div>
+
 								))}
+
+
 							</div>
+
+
 						</div>
+
+
 					</>,
+
 					document.body
-				)}
+
+				)
+			}
+
+			{showConfirm && createPortal(
+				<div className="modal-overlay">
+
+					<div className="modal">
+
+						<h2>
+							{actionType === "sign"
+								? "Podpisać uchwałę?"
+								: "Usunąć podpis?"}
+						</h2>
+
+						{errorMessage && (
+							<p className="modal-error">{errorMessage}</p>
+						)}
+						<p>
+							{actionType === "sign"
+								? "Czy na pewno chcesz podpisać tę uchwałę?"
+								: "Czy na pewno chcesz usunąć swój podpis?"}
+						</p>
+
+
+						<button
+							onClick={handleSignatureAction}
+						>
+							Potwierdź
+						</button>
+
+
+						<button
+							onClick={() => setShowConfirm(false)}
+						>
+							Anuluj
+						</button>
+
+					</div>
+
+				</div>,
+				document.body
+			)}
 		</div>
 	);
 }

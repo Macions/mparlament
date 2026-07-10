@@ -41,7 +41,7 @@ export default function SubmitResolution() {
 		try {
 			const data = await parseDocx(file);
 			setParsed(data);
-			setEditedData(JSON.parse(JSON.stringify(data))); 
+			setEditedData(JSON.parse(JSON.stringify(data)));
 			setAnalyzed(true);
 		} catch (err) {
 			setError("Błąd parsowania: " + err.message);
@@ -105,13 +105,45 @@ export default function SubmitResolution() {
 	};
 
 
-	const handleSubmit = () => {
+	const handleSubmit = async () => {
 		if (!editedData || submitting) return;
 
 		setSubmitting(true);
-		const bill = { ...editedData };
-		localStorage.setItem("currentBill", JSON.stringify(bill));
-		setShowSuccess(true);
+		setError("");
+
+		try {
+			// Pobierz dane zalogowanego użytkownika
+			const userResponse = await fetch("/api/auth/me");
+			const userData = await userResponse.json();
+
+			const bill = {
+				...editedData,
+				fileName,
+				author: userData.name,        // ✅ Dodaj autora
+				authorId: userData.id,        // ✅ Dodaj ID autora
+				party: userData.club || userData.party || "Niezrzeszony", // ✅ Dodaj partię/klub
+			};
+
+			const response = await fetch("/api/resolutions", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(bill),
+			});
+
+			if (!response.ok) {
+				throw new Error("Nie udało się złożyć uchwały");
+			}
+
+			const data = await response.json();
+			console.log("Utworzona uchwała:", data);
+			setShowSuccess(true);
+
+		} catch (err) {
+			setError(err.message);
+			setSubmitting(false);
+		}
 	};
 
 	return (
@@ -127,7 +159,7 @@ export default function SubmitResolution() {
 
 			<div className="submit-container">
 				<div className="form-card">
-					
+
 					<div className="form-group">
 						<label className="label">Nazwa uchwały</label>
 						<input
@@ -139,7 +171,7 @@ export default function SubmitResolution() {
 						/>
 					</div>
 
-					
+
 					<div className="form-group">
 						<label className="label">Dodaj plik DOCX</label>
 						<div className="file-upload-area">
@@ -172,7 +204,7 @@ export default function SubmitResolution() {
 								: "Analizuj ustawę"}
 					</button>
 
-					
+
 					{editedData && (
 						<div className="editor-section">
 							<div className="editor-header">

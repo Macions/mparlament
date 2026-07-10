@@ -1,54 +1,53 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import "./AmendmentDetails.css";
-
-import { bills, amendments, resolutions } from "../../../data/legislation";
-
-function applyAllChanges(bill, changes) {
-	const updated = structuredClone(bill);
-
-	changes.forEach((change) => {
-		const article = updated.articles.find((a) => a.id === change.articleId);
-		if (article) {
-			article.before = article.content;
-			article.content = change.to || article.content;
-			article.changed = true;
-		}
-	});
-
-	return updated;
-}
 
 export default function AmendmentDetails() {
 	const { slug, amendmentId } = useParams();
 
-	const bill = bills.find((b) => b.slug === slug);
-	const resolution = resolutions.find((r) => r.slug === slug);
+	const [resolution, setResolution] = useState(null);
+	const [amendment, setAmendment] = useState(null);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
 
-	const relatedBill =
-		bill ||
-		(resolution?.billId ? bills.find((b) => b.id === resolution.billId) : null);
+	useEffect(() => {
+		fetch(`/api/resolutions/${slug}/amendments/${amendmentId}`)
+			.then((res) => {
+				if (!res.ok) {
+					throw new Error("Nie znaleziono poprawki");
+				}
+				return res.json();
+			})
+			.then((data) => {
+				setResolution(data.resolution);
+				setAmendment(data.amendment);
+				setError(null);
+			})
+			.catch((err) => {
+				setError(err.message);
+			})
+			.finally(() => {
+				setLoading(false);
+			});
+	}, [slug, amendmentId]);
 
-	const group = amendments.find((a) => a.id === amendmentId);
-
-
-	const changes =
-		group?.changes?.filter((c) =>
-			relatedBill?.articles.some((a) => a.id === c.articleId),
-		) || [];
-
-	const processedBill = useMemo(() => {
-		if (!relatedBill || changes.length === 0) return null;
-		return applyAllChanges(relatedBill, changes);
-	}, [relatedBill, changes]);
-
-	if (!relatedBill || !group) {
-		return <div>Nie znaleziono poprawki</div>;
+	if (loading) {
+		return <div className="loading">Ładowanie poprawki...</div>;
 	}
 
+	if (error || !amendment) {
+		return <div className="error">Nie znaleziono poprawki</div>;
+	}
 
-	const changedArticles =
-		processedBill?.articles.filter((a) => a.changed) || [];
+	const getStatusLabel = (status) => {
+		const statusMap = {
+			accepted: "Przyjęta",
+			pending: "Oczekuje",
+			rejected: "Odrzucona",
+			withdrawn: "Wycofana",
+		};
+		return statusMap[status] || status;
+	};
 
 	return (
 		<div className="amendments-details">
@@ -78,40 +77,55 @@ export default function AmendmentDetails() {
 			</div>
 
 			<div className="main-content">
-				<h1 className="page-title">Poprawki autorstwa {group.author}</h1>
+				<h1 className="page-title">
+					Poprawka do uchwały
+					<br />
+					<span className="resolution-title">„{resolution?.title}”</span>
+				</h1>
 
-				<div className={`status-badge ${group.status}`}>
-					{group.status === "accepted" && "Przyjęta"}
-					{group.status === "pending" && "Oczekuje"}
-					{group.status === "rejected" && "Odrzucona"}
+				<div className="amendment-meta">
+					<div className="amendment-author">
+						Autor: <strong>{amendment.author}</strong>
+					</div>
+
+					<div className={`status-badge ${amendment.status}`}>
+						{getStatusLabel(amendment.status)}
+					</div>
 				</div>
 
-				{changedArticles.length > 0 ? (
-					changedArticles.map((article, index) => (
-						<div key={article.id} className="changes-group">
-							<h3>Zmiana {index + 1}</h3>
-							<div className="diff-section">
-								<div className="old-section">
-									<h4>Przed poprawką</h4>
-									<p>{article.before || "(nowy artykuł)"}</p>
-								</div>
-
-								<div className="new-section">
-									<h4>Po poprawce</h4>
-									<p>{article.content || "(usunięcie artykułu)"}</p>
-								</div>
-							</div>
-						</div>
-					))
-				) : (
-					<p className="no-changes">Brak zmian do wyświetlenia.</p>
+				{amendment.withdrawnReason && (
+					<div className="withdrawn-reason">
+						Powód wycofania: {amendment.withdrawnReason}
+					</div>
 				)}
 
-				<div className="generate-section">
-					<button className="generate-btn">
-						Generuj uchwałę po poprawkach
-					</button>
+				<div className="amendment-content">
+					<h2>Treść poprawki</h2>
+					<div className="content-box">
+						{amendment.content}
+					</div>
 				</div>
+
+				{amendment.changes && amendment.changes.length > 0 && (
+					<div className="changes-section">
+						<h2>Zmiany w uchwale</h2>
+						{amendment.changes.map((change, index) => (
+							<div key={index} className="change-item">
+								<h3>Zmiana {index + 1}</h3>
+								<div className="diff-section">
+									<div className="old-section">
+										<h4>Przed poprawką</h4>
+										<p>{change.before || "(nowy artykuł)"}</p>
+									</div>
+									<div className="new-section">
+										<h4>Po poprawce</h4>
+										<p>{change.after || "(usunięcie artykułu)"}</p>
+									</div>
+								</div>
+							</div>
+						))}
+					</div>
+				)}
 			</div>
 		</div>
 	);

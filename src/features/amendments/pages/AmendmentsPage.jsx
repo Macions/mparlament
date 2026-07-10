@@ -1,33 +1,65 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import "./AmendmentsPage.css";
 
-import { bills, amendments, resolutions } from "../../../data/legislation";
 
 export default function AmendmentsPage() {
+
 	const { slug } = useParams();
 
-	const currentBill = bills.find((b) => b.slug === slug);
-	const currentResolution = resolutions.find((r) => r.slug === slug);
 
-	const relatedBillId = currentBill?.id || currentResolution?.billId;
+	const [resolution, setResolution] = useState(null);
+	const [amendments, setAmendments] = useState([]);
+	const [session, setSession] = useState(null);
 
-	const billAmendments = amendments.filter(
-		(amendment) => amendment.billId === relatedBillId,
-	);
+	const [loading, setLoading] = useState(true);
 
-	if (!currentBill && !currentResolution) {
-		return <div>Nie znaleziono uchwały #{slug}</div>;
-	}
 
-	const title = currentResolution?.title;
-	const submittedBy = currentResolution?.submittedBy;
-	const date = currentResolution?.date;
-	const meeting = currentResolution?.meeting;
 
-	const meetingParts = meeting
-		? meeting.split(": ")
-		: ["Posiedzenie: Warszawa", "20.05"];
+	useEffect(() => {
+
+		fetch(`/api/resolutions/${slug}/amendments`)
+
+			.then((res) => {
+
+				if (!res.ok) {
+					throw new Error(
+						"Nie znaleziono uchwały"
+					);
+				}
+
+				return res.json();
+
+			})
+
+			.then((data) => {
+
+				setResolution(data.resolution);
+
+				setAmendments(data.amendments);
+
+				setSession(data.session);
+
+			})
+
+			.catch((error) => {
+
+				console.error(
+					"Błąd pobierania poprawek:",
+					error
+				);
+
+			})
+
+			.finally(() => {
+
+				setLoading(false);
+
+			});
+
+	}, [slug]);
+
+
 
 
 	const isAmendmentWithdrawn = (amendment) => {
@@ -35,31 +67,81 @@ export default function AmendmentsPage() {
 	};
 
 
+
 	const getStatusLabel = (status) => {
+
 		const statusMap = {
+
 			accepted: "Przyjęta",
+
 			pending: "Oczekuje",
+
 			rejected: "Odrzucona",
+
 			withdrawn: "Wycofana",
+
 		};
+
+
 		return statusMap[status] || status;
+
 	};
+
 
 
 	const getStatusClass = (status) => {
+
 		const classMap = {
+
 			accepted: "status-accepted",
+
 			pending: "status-pending",
+
 			rejected: "status-rejected",
+
 			withdrawn: "status-withdrawn",
+
 		};
-		return classMap[status] || status;
+
+
+		return classMap[status] || "";
+
 	};
 
+
+
+
+	if (loading) {
+		return <div>Ładowanie poprawek...</div>;
+	}
+
+
+
+	if (!resolution) {
+		return (
+			<div>
+				Nie znaleziono uchwały #{slug}
+			</div>
+		);
+	}
+
+
+
+
 	return (
+
 		<div className="amendments-page">
+
+
 			<div className="uchwaly-bar">
-				<Link to={`/${slug}`} className="uchwaly-title">
+
+
+				<Link
+					to={`/${slug}`}
+					className="uchwaly-title"
+				>
+
+
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						width="50"
@@ -68,97 +150,233 @@ export default function AmendmentsPage() {
 						className="bi bi-arrow-left"
 						viewBox="0 0 16 16"
 					>
+
 						<path
 							fillRule="evenodd"
 							d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"
 						/>
+
 					</svg>
+
+
 					WRÓĆ
+
+
 				</Link>
 
+
+
 				<div className="session-info">
-					{meetingParts[0]}
+
+					Posiedzenie: {session?.city}
+
 					<br />
-					<span>{meetingParts[1] || ""}</span>
+
+					<span>
+						{session?.date}
+					</span>
+
 				</div>
+
+
 			</div>
 
+
+
+
 			<div className="amendments-container">
+
+
 				<h1 className="page-title">
+
 					Poprawki do uchwały
-					{title && (
-						<>
-							<br />
-							<blockquote>&bdquo;{title}&rdquo;</blockquote>
-						</>
-					)}
+
+					<br />
+
+					<blockquote>
+						„{resolution.title}”
+					</blockquote>
+
+
 				</h1>
 
+
+
+
 				<div className="addAmendment">
-					<Link to={`/${slug}/dodaj-poprawke`} className="AddBtn">
+
+					<Link
+						to={`/${slug}/dodaj-poprawke`}
+						className="AddBtn"
+					>
 						Dodaj poprawkę
 					</Link>
+
 				</div>
 
+
+
+
 				<div className="amendments-list">
-					{billAmendments.length > 0 ? (
-						billAmendments.map((amendment) => {
-							const isWithdrawn = isAmendmentWithdrawn(amendment);
+
+
+					{amendments.length > 0 ? (
+
+						amendments.map((amendment) => {
+
+
+							const isWithdrawn =
+								isAmendmentWithdrawn(amendment);
+
+
 
 							return (
+
 								<div
+
 									key={amendment.id}
-									className={`amendment-card ${isWithdrawn ? "withdrawn" : ""}`}
+
+									className={
+										`amendment-card ${isWithdrawn
+											? "withdrawn"
+											: ""
+										}`
+									}
+
 								>
+
+
+
 									<div className="amendment-main">
+
+
 										<div className="amendment-title">
+
+
 											Poprawka nr {amendment.id}
+
+
 											{isWithdrawn && (
-												<span className="withdrawn-badge">WYCOFANA</span>
+
+												<span className="withdrawn-badge">
+													WYCOFANA
+												</span>
+
 											)}
+
+
 										</div>
+
+
+
+
 										<div className="amendment-author">
+
 											Autor: {amendment.author}
+
 										</div>
-										{isWithdrawn && amendment.withdrawnReason && (
-											<div className="withdrawn-reason">
-												Powód wycofania: {amendment.withdrawnReason}
-											</div>
-										)}
+
+
+
+
+										{isWithdrawn &&
+											amendment.withdrawnReason && (
+
+												<div className="withdrawn-reason">
+
+													Powód wycofania:
+													{" "}
+													{amendment.withdrawnReason}
+
+												</div>
+
+											)}
+
+
 									</div>
 
+
+
+
+
 									<div className="amendment-status">
+
+
 										<div
-											className={`status-badge ${getStatusClass(amendment.status)}`}
+											className={
+												`status-badge ${getStatusClass(
+													amendment.status
+												)
+												}`
+											}
 										>
-											{getStatusLabel(amendment.status)}
+
+											{
+												getStatusLabel(
+													amendment.status
+												)
+											}
+
 										</div>
 
+
+
+
+
 										{!isWithdrawn ? (
+
 											<Link
 												to={`/${slug}/poprawka/${amendment.id}`}
 												className="read-more"
-												state={{ amendment }}
 											>
+
 												Wyświetl szczegóły
+
 											</Link>
+
+
 										) : (
+
 											<span
 												className="read-more-disabled"
 												title="Ta poprawka została wycofana"
 											>
+
 												Szczegóły niedostępne
+
 											</span>
+
 										)}
+
+
+
 									</div>
+
+
 								</div>
+
 							);
+
 						})
+
+
 					) : (
-						<p>Nie ma jeszcze żadnych poprawek do tej uchwały.</p>
+
+						<p>
+							Nie ma jeszcze żadnych poprawek do tej uchwały.
+						</p>
+
 					)}
+
+
 				</div>
+
+
 			</div>
+
+
 		</div>
+
 	);
+
 }

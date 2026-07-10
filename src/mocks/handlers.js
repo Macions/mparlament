@@ -1,34 +1,168 @@
 import { http, HttpResponse } from "msw";
 
-import { user } from "./data/users";
+import { user, users } from "./data/users";
 import { currentSession } from "./data/sessions";
 import { votings } from "./data/votings";
+import { resolutions } from "./data/resolutions";
+import { resolutionSignatures } from "./data/signatures";
+import { amendments } from "./data/amendments";
+
+const getResolutionBySlug = (slug) => {
+	return resolutions.find((r) => r.slug === slug);
+};
+
+const getResolutionById = (id) => {
+	return resolutions.find((r) => r.id === Number(id));
+};
+
+const getSignaturesForResolution = (resolutionId) => {
+	return resolutionSignatures.filter(
+		(signature) => signature.resolutionId === Number(resolutionId)
+	);
+};
+
+const getUserSignature = (resolutionId, userId) => {
+	return resolutionSignatures.find(
+		(signature) =>
+			signature.resolutionId === Number(resolutionId) &&
+			signature.userId === userId
+	);
+};
+
+const buildResolutionResponse = (resolution, signedUsers, currentUser = null) => {
+	const signatures = getSignaturesForResolution(resolution.id);
+	const signaturesCount = signatures.length;
+
+	const usersWithSignatures = signatures
+		.map((signature) => {
+			const signedUser = users.find((u) => u.id === signature.userId);
+			if (!signedUser) return null;
+			return {
+				name: signedUser.name,
+				club: signedUser.club,
+				date: signature.date,
+				type: signature.type,
+			};
+		})
+		.filter(Boolean);
+
+	return {
+		resolution: {
+			...resolution,
+			signatures: signaturesCount,
+		},
+		signedUsers: usersWithSignatures,
+		session: {
+			city: "Warszawa",
+			date: "20.05",
+		},
+		...(currentUser && {
+			currentUser: {
+				hasSigned: !!getUserSignature(resolution.id, user.id),
+				isAuthor: resolution.authorId === user.id,
+				signatureType: getUserSignature(resolution.id, user.id)?.type ?? null,
+			},
+		}),
+	};
+};
+
+const handleResolutionSign = (resolutionId, userId) => {
+	const alreadySigned = resolutionSignatures.some(
+		(signature) =>
+			signature.resolutionId === Number(resolutionId) &&
+			signature.userId === userId
+	);
+
+	if (alreadySigned) {
+		return {
+			error: true,
+			status: 400,
+			message: "Już podpisałeś tę uchwałę",
+		};
+	}
+
+	resolutionSignatures.push({
+		id: Date.now(),
+		resolutionId: Number(resolutionId),
+		userId: userId,
+		date: new Date().toISOString().split("T")[0],
+		type: "signature",
+	});
+
+	return {
+		success: true,
+	};
+};
+
+const handleResolutionUnsign = (resolutionId, userId) => {
+	const signatureIndex = resolutionSignatures.findIndex(
+		(signature) =>
+			signature.resolutionId === Number(resolutionId) &&
+			signature.userId === userId
+	);
+
+	if (signatureIndex === -1) {
+		return {
+			error: true,
+			status: 404,
+			message: "Nie masz podpisu",
+		};
+	}
+
+	const signature = resolutionSignatures[signatureIndex];
+
+	if (signature.type === "author") {
+		return {
+			error: true,
+			status: 403,
+			message: "Autor nie może usunąć podpisu",
+		};
+	}
+
+	resolutionSignatures.splice(signatureIndex, 1);
+
+	return {
+		success: true,
+	};
+};
+
+const findVotingIndex = (id) => {
+	return votings.findIndex((v) => v.id === Number(id));
+};
+
+const createVoting = (body) => {
+	return {
+		id: Date.now(),
+		...body,
+		votesFor: 0,
+		votesAgainst: 0,
+		abstained: 0,
+		hasVoted: false,
+		myVote: null,
+		createdBy: "TEST123",
+	};
+};
 
 export const handlers = [
 	http.post("/api/auth/login", async ({ request }) => {
 		const body = await request.json();
 
-		if (body.username === "TEST123" && body.password === "password123") {
+		if (body.username === user.username && body.password === user.password) {
 			return HttpResponse.json({
 				token: "mock_jwt_token_123",
-
 				user: {
-					id: 1,
-					username: "TEST123",
-					name: "Jan Kowalski",
-					role: "admin",
-					club: "KLUB PARLAMENTARNY CZAS MŁODYCH",
+					id: user.id,
+					username: user.username,
+					name: user.name,
+					role: user.role,
+					permissions: user.permissions,
 				},
 			});
 		}
 
 		return HttpResponse.json(
-			{
-				message: "Nieprawidłowy login lub hasło",
-			},
-			{
-				status: 401,
-			},
+			{ message: "Nieprawidłowy login lub hasło" },
+			{ status: 401 }
 		);
 	}),
 
@@ -40,186 +174,324 @@ export const handlers = [
 		return HttpResponse.json(currentSession);
 	}),
 
-	// pobieranie wszystkich głosowań
-
 	http.get("/api/votings", () => {
 		return HttpResponse.json(votings);
 	}),
-
-	// pobieranie jednego głosowania
 
 	http.get("/api/votings/:id", ({ params }) => {
 		const voting = votings.find((v) => v.id === Number(params.id));
 
 		if (!voting) {
 			return HttpResponse.json(
-				{
-					message: "Nie znaleziono głosowania",
-				},
-				{
-					status: 404,
-				},
+				{ message: "Nie znaleziono głosowania" },
+				{ status: 404 }
 			);
 		}
 
 		return HttpResponse.json(voting);
 	}),
 
-	// tworzenie głosowania
-
 	http.post("/api/votings", async ({ request }) => {
 		const body = await request.json();
-
-		const newVoting = {
-			id: Date.now(),
-
-			...body,
-
-			votesFor: 0,
-			votesAgainst: 0,
-			abstained: 0,
-
-			hasVoted: false,
-			myVote: null,
-
-			createdBy: "TEST123",
-		};
-
+		const newVoting = createVoting(body);
 		votings.push(newVoting);
-
-		return HttpResponse.json(newVoting, {
-			status: 201,
-		});
+		return HttpResponse.json(newVoting, { status: 201 });
 	}),
 
-	// edycja głosowania
-
 	http.put("/api/votings/:id", async ({ params, request }) => {
-		const body = await request.json();
-
-		const index = votings.findIndex((v) => v.id === Number(params.id));
+		const index = findVotingIndex(params.id);
 
 		if (index === -1) {
 			return HttpResponse.json(
-				{
-					message: "Nie znaleziono głosowania",
-				},
-				{
-					status: 404,
-				},
+				{ message: "Nie znaleziono głosowania" },
+				{ status: 404 }
 			);
 		}
 
-		votings[index] = {
-			...votings[index],
-
-			...body,
-		};
-
+		const body = await request.json();
+		votings[index] = { ...votings[index], ...body };
 		return HttpResponse.json(votings[index]);
 	}),
 
-	http.post("/api/votings", async ({ request }) => {
-		const body = await request.json();
-
-		const newVoting = {
-			id: Date.now(),
-
-			...body,
-
-			votesFor: 0,
-			votesAgainst: 0,
-			abstained: 0,
-
-			hasVoted: false,
-			myVote: null,
-		};
-
-		votings.push(newVoting);
-
-		return HttpResponse.json(newVoting);
-	}),
-	http.put("/api/votings/:id", async ({ params, request }) => {
-		const id = Number(params.id);
-
-		const body = await request.json();
-
-		const index = votings.findIndex((v) => v.id === id);
-
-		if (index === -1) {
-			return HttpResponse.json(
-				{
-					message: "Nie znaleziono głosowania",
-				},
-				{
-					status: 404,
-				},
-			);
-		}
-
-		votings[index] = {
-			...votings[index],
-			...body,
-		};
-
-		return HttpResponse.json(votings[index]);
-	}),
-	http.delete("/api/votings/:id", ({ params }) => {
-		const id = Number(params.id);
-
-		votings = votings.filter((v) => v.id !== id);
-
-		return HttpResponse.json({
-			success: true,
-		});
-	}),
 	http.patch("/api/votings/:id", async ({ params, request }) => {
-		const body = await request.json();
-
-		const index = votings.findIndex((v) => v.id === Number(params.id));
+		const index = findVotingIndex(params.id);
 
 		if (index === -1) {
 			return HttpResponse.json(
-				{
-					message: "Nie znaleziono głosowania",
-				},
-				{
-					status: 404,
-				},
+				{ message: "Nie znaleziono głosowania" },
+				{ status: 404 }
 			);
 		}
 
-		votings[index] = {
-			...votings[index],
-			...body,
-		};
-
+		const body = await request.json();
+		votings[index] = { ...votings[index], ...body };
 		return HttpResponse.json(votings[index]);
 	}),
 
-	// usuwanie
-
 	http.delete("/api/votings/:id", ({ params }) => {
-		const index = votings.findIndex((v) => v.id === Number(params.id));
+		const index = findVotingIndex(params.id);
 
-		if (index !== -1) {
-			votings.splice(index, 1);
+		if (index === -1) {
+			return HttpResponse.json(
+				{ message: "Nie znaleziono głosowania" },
+				{ status: 404 }
+			);
 		}
 
-		return HttpResponse.json({
-			success: true,
-		});
+		votings.splice(index, 1);
+		return HttpResponse.json({ success: true });
 	}),
-
-	// oddanie głosu
 
 	http.post("/api/votings/:id/vote", async ({ request }) => {
 		const body = await request.json();
-
 		return HttpResponse.json({
 			success: true,
-
 			vote: body.vote,
 		});
+	}),
+
+	http.get("/api/resolutions", () => {
+		return HttpResponse.json({
+			session: {
+				city: "Warszawa",
+				date: "20.05",
+			},
+			resolutions,
+		});
+	}),
+
+	http.get("/api/resolutions/:slug", ({ params }) => {
+		const resolution = getResolutionBySlug(params.slug);
+
+		if (!resolution) {
+			return HttpResponse.json(
+				{ message: "Nie znaleziono uchwały" },
+				{ status: 404 }
+			);
+		}
+
+		return HttpResponse.json(buildResolutionResponse(resolution, null, true));
+	}),
+
+	http.post("/api/resolutions/:id/sign", ({ params }) => {
+		const resolution = getResolutionById(params.id);
+
+		if (!resolution) {
+			return HttpResponse.json(
+				{ message: "Nie znaleziono uchwały" },
+				{ status: 404 }
+			);
+		}
+
+		const result = handleResolutionSign(params.id, user.id);
+
+		if (result.error) {
+			return HttpResponse.json(
+				{ message: result.message },
+				{ status: result.status }
+			);
+		}
+
+		return HttpResponse.json({ success: true });
+	}),
+
+	http.delete("/api/resolutions/:id/sign", ({ params }) => {
+		const resolution = getResolutionById(params.id);
+
+		if (!resolution) {
+			return HttpResponse.json(
+				{ message: "Nie znaleziono uchwały" },
+				{ status: 404 }
+			);
+		}
+
+		const result = handleResolutionUnsign(params.id, user.id);
+
+		if (result.error) {
+			return HttpResponse.json(
+				{ message: result.message },
+				{ status: result.status }
+			);
+		}
+
+		return HttpResponse.json(
+			{ success: true, message: "Podpis został usunięty" },
+			{ status: 200 }
+		);
+	}),
+	http.get("/api/resolutions/:slug/amendments", ({ params }) => {
+		const resolution = resolutions.find(
+			(r) => r.slug === params.slug
+		);
+
+
+		if (!resolution) {
+			return HttpResponse.json(
+				{
+					message: "Nie znaleziono uchwały",
+				},
+				{
+					status: 404,
+				}
+			);
+		}
+
+
+		const billAmendments = amendments.filter(
+			(amendment) =>
+				amendment.resolutionId === resolution.id
+		);
+
+
+		return HttpResponse.json({
+
+			resolution: {
+				title: resolution.title,
+				slug: resolution.slug,
+			},
+
+
+			session: {
+				city: "Warszawa",
+				date: "20.05",
+			},
+
+
+			amendments: billAmendments,
+
+		});
+	}),
+	// tworzenie uchwały
+	http.post("/api/resolutions", async ({ request }) => {
+		const body = await request.json();
+
+		const newResolution = {
+			id: Date.now(),
+			title: body.title,
+			slug: body.title
+				.toLowerCase()
+				.replaceAll(" ", "-")
+				.replaceAll(/[^\w-]/g, ""),
+			fileName: body.fileName,
+			authorId: body.authorId,
+			author: body.author,
+			party: body.party,
+			preamble: body.preamble,
+			chapters: body.chapters,
+			signatures: 1,
+			status: "pending",
+			createdAt: new Date().toISOString()
+		};
+
+		resolutions.push(newResolution);
+
+		resolutionSignatures.push({
+			id: Date.now(),
+			resolutionId: newResolution.id,
+			userId: body.authorId,
+			date: new Date().toISOString().split("T")[0],
+			type: "author"
+		});
+
+		return HttpResponse.json(
+			newResolution,
+			{ status: 201 }
+		);
+	}),
+	http.get("/api/resolutions/:slug/amendments", ({ params }) => {
+		const resolution = resolutions.find(
+			(r) => r.slug === params.slug
+		);
+
+		if (!resolution) {
+			return HttpResponse.json(
+				{ message: "Nie znaleziono uchwały" },
+				{ status: 404 }
+			);
+		}
+
+		const billAmendments = amendments.filter(
+			(amendment) => amendment.resolutionId === resolution.id
+		);
+
+		return HttpResponse.json({
+			resolution: {
+				title: resolution.title,
+				slug: resolution.slug,
+			},
+			session: {
+				city: "Warszawa",
+				date: "20.05",
+			},
+			amendments: billAmendments,
+		});
+	}),
+	http.get("/api/resolutions/:slug/amendments/:amendmentId", ({ params }) => {
+		const resolution = resolutions.find(
+			(r) => r.slug === params.slug
+		);
+
+		if (!resolution) {
+			return HttpResponse.json(
+				{ message: "Nie znaleziono uchwały" },
+				{ status: 404 }
+			);
+		}
+
+		const amendment = amendments.find(
+			(a) => a.id === Number(params.amendmentId) &&
+				a.resolutionId === resolution.id
+		);
+
+		if (!amendment) {
+			return HttpResponse.json(
+				{ message: "Nie znaleziono poprawki" },
+				{ status: 404 }
+			);
+		}
+
+		return HttpResponse.json({
+			resolution: {
+				title: resolution.title,
+				slug: resolution.slug,
+			},
+			amendment: amendment,
+			session: {
+				city: "Warszawa",
+				date: "20.05",
+			},
+		});
+	}),
+	http.post("/api/resolutions/:slug/amendments", async ({ params, request }) => {
+		const resolution = resolutions.find((r) => r.slug === params.slug);
+
+		if (!resolution) {
+			return HttpResponse.json(
+				{ message: "Nie znaleziono uchwały" },
+				{ status: 404 }
+			);
+		}
+
+		const body = await request.json();
+
+		const newAmendment = {
+			id: Date.now(),
+			resolutionId: resolution.id,
+			author: body.author,
+			authorId: body.authorId,
+			club: body.club,
+			content: body.content,
+			status: "pending",
+			createdAt: new Date().toISOString().split("T")[0],
+			withdrawnReason: null,
+			changes: body.changes || [],
+		};
+
+		amendments.push(newAmendment);
+
+		return HttpResponse.json(
+			{ success: true, amendment: newAmendment },
+			{ status: 201 }
+		);
 	}),
 ];

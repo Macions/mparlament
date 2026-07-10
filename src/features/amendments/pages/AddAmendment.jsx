@@ -1,145 +1,92 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import "./AddAmendment.css";
-
-import { bills, resolutions } from "../../../data/legislation";
-
-const CURRENT_USER = {
-	name: "Jan Wiśniewski",
-	club: "Klub Postępu",
-};
-
-const CHANGE_TYPES = [
-	{ value: "modify", label: "Zmiana treści" },
-	{ value: "add", label: "Dodanie nowego artykułu" },
-	{ value: "delete", label: "Usunięcie artykułu" },
-];
-
-
-function getAllArticles(bill) {
-	if (!bill) return [];
-	if (bill.articles) return bill.articles;
-	if (bill.chapters) {
-		return bill.chapters.flatMap((ch) => ch.articles || []);
-	}
-	return [];
-}
-
-
-function saveArticles(bill, articles) {
-	if (!bill) return bill;
-	if (bill.articles) {
-		return { ...bill, articles };
-	}
-	if (bill.chapters) {
-
-		const updatedChapters = bill.chapters.map((ch) => ({
-			...ch,
-			articles: articles.filter(
-				(a) =>
-					a.id.startsWith(ch.id) || ch.articles.some((ca) => ca.id === a.id),
-			),
-		}));
-		return { ...bill, chapters: updatedChapters };
-	}
-	return bill;
-}
-
-function applyChanges(bill, changes) {
-	if (!bill) return null;
-
-
-	const allArticles = getAllArticles(bill);
-	const articles = [...allArticles];
-
-	changes.forEach((change) => {
-		if (change.type === "add") {
-			articles.push({
-				id: `new_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-				content: change.to,
-				changed: true,
-				before: "",
-			});
-		} else if (change.type === "delete") {
-			const idx = articles.findIndex((a) => a.id === change.articleId);
-			if (idx !== -1) {
-				articles[idx] = {
-					...articles[idx],
-					changed: true,
-					before: articles[idx].content,
-					content: "",
-				};
-			}
-		} else if (change.type === "modify") {
-			const article = articles.find((a) => a.id === change.articleId);
-			if (article) {
-				article.before = article.content;
-				article.content = change.to;
-				article.changed = true;
-			}
-		}
-	});
-
-	return saveArticles(bill, articles);
-}
 
 export default function AddAmendment() {
 	const { slug } = useParams();
 	const navigate = useNavigate();
 
-	const resolution = resolutions.find((r) => r.slug === slug);
-	let relatedBill = null;
-
-	try {
-		const stored = localStorage.getItem("currentBill");
-		relatedBill = stored ? JSON.parse(stored) : null;
-	} catch (e) {
-		console.error("Invalid bill in localStorage", e);
-	}
+	const [resolution, setResolution] = useState(null);
+	const [resolutionData, setResolutionData] = useState(null);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
+	const [submitting, setSubmitting] = useState(false);
 
 	const [changes, setChanges] = useState([
-		{ id: Date.now(), articleId: "", type: "", to: "" },
+		{ id: Date.now(), articleId: "", type: "", to: "" }
 	]);
 
-	const previewBill = useMemo(() => {
-		if (!relatedBill) return null;
-		const validChanges = changes.filter(
-			(c) => c.type && (c.type === "add" || c.articleId),
-		);
-		if (validChanges.length === 0) return relatedBill;
-		return applyChanges(relatedBill, validChanges);
-	}, [relatedBill, changes]);
+	const [currentUser, setCurrentUser] = useState(null);
 
+	const CHANGE_TYPES = [
+		{ value: "modify", label: "Zmiana treści" },
+		{ value: "add", label: "Dodanie nowego artykułu" },
+		{ value: "delete", label: "Usunięcie artykułu" },
+	];
 
-	const allArticles = useMemo(() => {
-		return getAllArticles(relatedBill);
-	}, [relatedBill]);
+	useEffect(() => {
+		Promise.all([
+			fetch(`/api/resolutions/${slug}`),
+			fetch("/api/auth/me")
+		])
+			.then(([resRes, userRes]) => {
+				if (!resRes.ok) throw new Error("Nie znaleziono uchwały");
+				if (!userRes.ok) throw new Error("Nie znaleziono użytkownika");
+				return Promise.all([resRes.json(), userRes.json()]);
+			})
+			.then(([resolutionData, userData]) => {
+				setResolution(resolutionData.resolution);
+				setResolutionData(resolutionData);
+				setCurrentUser(userData);
+				setError(null);
+			})
+			.catch((err) => {
+				setError(err.message);
+			})
+			.finally(() => {
+				setLoading(false);
+			});
+	}, [slug]);
 
+	// Pobierz wszystkie artykuły z uchwały
+	const getAllArticles = () => {
+		if (!resolution) return [];
+		if (resolution.articles) return resolution.articles;
+		if (resolution.chapters) {
+			return resolution.chapters.flatMap(ch => ch.articles || []);
+		}
+		return [];
+	};
 
-	const changedArticles = useMemo(() => {
-		if (!previewBill) return [];
-		const articles = getAllArticles(previewBill);
-		return articles.filter((a) => a.changed) || [];
-	}, [previewBill]);
+	const allArticles = getAllArticles();
 
-	if (!relatedBill) {
-		return <div className="not-found">Nie znaleziono ustawy dla: {slug}</div>;
+	if (loading) {
+		return <div className="loading">Ładowanie...</div>;
+	}
+
+	if (error || !resolution) {
+		return <div className="not-found">Nie znaleziono uchwały: {slug}</div>;
 	}
 
 	const handleChangeUpdate = (changeId, field, value) => {
 		setChanges((prev) =>
-			prev.map((c) => (c.id === changeId ? { ...c, [field]: value } : c)),
+			prev.map((c) => (c.id === changeId ? { ...c, [field]: value } : c))
 		);
 	};
 
 	const handleArticleSelect = (changeId, articleId) => {
-		const article = allArticles.find((a) => a.id === articleId);
+		const article = allArticles.find((a) => a.id === Number(articleId) || a.id === articleId);
 		setChanges((prev) =>
 			prev.map((c) =>
 				c.id === changeId
-					? { ...c, articleId, from: article ? article.content : "", to: "" }
-					: c,
-			),
+					? {
+						...c,
+						articleId,
+						from: article ? article.content : "",
+						to: c.type === "modify" ? article?.content || "" : c.to
+					}
+					: c
+			)
 		);
 	};
 
@@ -148,24 +95,21 @@ export default function AddAmendment() {
 			prev.map((c) =>
 				c.id === changeId
 					? {
-							...c,
-							type,
-							to: "",
-							...(type === "add"
-								? { articleId: "new", from: "" }
-								: type === "delete"
-									? { to: "" }
-									: {}),
-						}
-					: c,
-			),
+						...c,
+						type,
+						to: "",
+						articleId: type === "add" ? "new" : "",
+						from: "",
+					}
+					: c
+			)
 		);
 	};
 
 	const addNewChange = () => {
 		setChanges((prev) => [
 			...prev,
-			{ id: Date.now() + Math.random(), articleId: "", type: "", to: "" },
+			{ id: Date.now() + Math.random(), articleId: "", type: "", to: "", from: "" },
 		]);
 	};
 
@@ -174,14 +118,14 @@ export default function AddAmendment() {
 		setChanges((prev) => prev.filter((c) => c.id !== changeId));
 	};
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
 
 		const validChanges = changes.filter((c) => {
 			if (!c.type) return false;
 			if (c.type === "add") return c.to.trim();
-			if (c.type === "delete") return c.articleId;
-			if (c.type === "modify") return c.articleId && c.to.trim();
+			if (c.type === "delete") return c.articleId && c.articleId !== "new";
+			if (c.type === "modify") return c.articleId && c.articleId !== "new" && c.to.trim();
 			return false;
 		});
 
@@ -190,22 +134,47 @@ export default function AddAmendment() {
 			return;
 		}
 
-		const newAmendment = {
-			id: `am_${Date.now()}`,
-			billId: relatedBill.id,
-			author: CURRENT_USER.club,
-			status: "pending",
-			changes: validChanges.map((c, i) => ({
-				id: `am_${Date.now()}_${i + 1}`,
-				articleId: c.type === "add" ? `new_${i}` : c.articleId,
-				from: c.type === "add" ? "" : c.from || "",
-				to: c.type === "delete" ? "" : c.to.trim(),
-			})),
-		};
+		setSubmitting(true);
 
-		console.log("Nowa poprawka:", JSON.stringify(newAmendment, null, 2));
-		alert("Poprawka została dodana! (dane w konsoli)");
-		navigate(`/${slug}/poprawki`);
+		try {
+			const amendmentData = {
+				resolutionId: resolution.id,
+				author: currentUser.name,
+				authorId: currentUser.id,
+				club: currentUser.club || "Niezrzeszony",
+				content: validChanges.map(c => {
+					if (c.type === "add") return `Dodanie nowego artykułu: ${c.to}`;
+					if (c.type === "delete") return `Usunięcie artykułu`;
+					return `Zmiana treści artykułu: ${c.to}`;
+				}).join("; "),
+				status: "pending",
+				changes: validChanges.map((c) => ({
+					articleId: c.type === "add" ? `new_${Date.now()}` : c.articleId,
+					type: c.type,
+					before: c.from || "",
+					after: c.type === "delete" ? "" : c.to,
+				})),
+				withdrawnReason: null,
+			};
+
+			const response = await fetch(`/api/resolutions/${slug}/amendments`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(amendmentData),
+			});
+
+			if (!response.ok) {
+				const data = await response.json();
+				throw new Error(data.message || "Nie udało się dodać poprawki");
+			}
+
+			navigate(`/${slug}/poprawki`);
+		} catch (err) {
+			setError(err.message);
+			setSubmitting(false);
+		}
 	};
 
 	return (
@@ -228,7 +197,7 @@ export default function AddAmendment() {
 					WRÓĆ
 				</Link>
 				<div className="session-info">
-					{resolution?.meeting || "Posiedzenie: Warszawa"}
+					Posiedzenie: Warszawa
 					<br />
 					<span>20.05</span>
 				</div>
@@ -236,13 +205,15 @@ export default function AddAmendment() {
 
 			<div className="main-content">
 				<h1 className="page-title">Dodaj poprawkę</h1>
-				<p className="page-subtitle">
-					{resolution?.title || relatedBill.title}
-				</p>
+				<p className="page-subtitle">{resolution.title}</p>
 
-				<div className="author-badge">
-					{CURRENT_USER.name} – {CURRENT_USER.club}
-				</div>
+				{currentUser && (
+					<div className="author-badge">
+						{currentUser.name} – {currentUser.club || "Niezrzeszony"}
+					</div>
+				)}
+
+				{error && <div className="error-message">{error}</div>}
 
 				<form onSubmit={handleSubmit}>
 					<div className="changes-section">
@@ -272,26 +243,6 @@ export default function AddAmendment() {
 									)}
 								</div>
 
-								{change.type !== "add" && (
-									<div className="form-group">
-										<label>Wybierz artykuł</label>
-										<select
-											value={change.articleId}
-											onChange={(e) =>
-												handleArticleSelect(change.id, e.target.value)
-											}
-											className="form-select"
-										>
-											<option value="">-- wybierz artykuł --</option>
-											{allArticles.map((art) => (
-												<option key={art.id} value={art.id}>
-													{art.content}
-												</option>
-											))}
-										</select>
-									</div>
-								)}
-
 								<div className="form-group">
 									<label>Rodzaj zmiany</label>
 									<div className="change-types">
@@ -307,6 +258,26 @@ export default function AddAmendment() {
 										))}
 									</div>
 								</div>
+
+								{(change.type === "modify" || change.type === "delete") && (
+									<div className="form-group">
+										<label>Wybierz artykuł</label>
+										<select
+											value={change.articleId}
+											onChange={(e) =>
+												handleArticleSelect(change.id, e.target.value)
+											}
+											className="form-select"
+										>
+											<option value="">-- wybierz artykuł --</option>
+											{allArticles.map((art, idx) => (
+												<option key={art.id || idx} value={art.id}>
+													{art.number || `Art. ${idx + 1}`}: {art.content?.substring(0, 50)}...
+												</option>
+											))}
+										</select>
+									</div>
+								)}
 
 								{(change.type === "modify" || change.type === "add") && (
 									<div className="form-group">
@@ -327,57 +298,26 @@ export default function AddAmendment() {
 											}
 											className="form-textarea"
 											rows={4}
-											disabled={change.type === "modify" && !change.articleId}
 										/>
 									</div>
 								)}
 
 								{change.type === "delete" && change.articleId && (
 									<div className="delete-info">
-										⚠️ Ten artykuł zostanie <strong>usunięty</strong> z ustawy.
+										⚠️ Ten artykuł zostanie <strong>usunięty</strong> z uchwały.
 									</div>
 								)}
 							</div>
 						))}
 					</div>
 
-					{changedArticles.length > 0 && (
-						<div className="preview-section">
-							<h2 className="preview-title">Podgląd zmian</h2>
-							{changedArticles.map((article, i) => (
-								<div key={article.id} className="preview-diff">
-									<span className="preview-label">Zmiana {i + 1}</span>
-									<div className="diff-box">
-										<div className="diff-old">
-											<span>Przed</span>
-											<p>{article.before || "(nowy artykuł)"}</p>
-										</div>
-										<div className="diff-arrow">→</div>
-										<div className="diff-new">
-											<span>Po</span>
-											<p>{article.content || "(usunięty)"}</p>
-										</div>
-									</div>
-								</div>
-							))}
-						</div>
-					)}
-
 					<div className="form-actions">
 						<button
-							type="button"
-							className="generate-btn"
-							onClick={() =>
-								console.log(
-									"Uchwała po poprawkach:",
-									JSON.stringify(previewBill, null, 2),
-								)
-							}
+							type="submit"
+							className="submit-btn"
+							disabled={submitting}
 						>
-							Generuj uchwałę po poprawkach
-						</button>
-						<button type="submit" className="submit-btn">
-							Dodaj poprawkę
+							{submitting ? "Dodawanie..." : "Dodaj poprawkę"}
 						</button>
 						<Link to={`/${slug}/poprawki`} className="cancel-btn">
 							Anuluj

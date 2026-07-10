@@ -11,7 +11,7 @@
 	--bg-grey: #e9e9ef;
 	--text-light: #f4f6fb;
 
-	
+
 	--de-color-primary: #102360;
 	--de-color-primary-hover: #1e3a8a;
 	--de-color-primary-light: #eff6ff;
@@ -22,33 +22,33 @@
 	--de-color-danger: #dc2626;
 	--de-color-danger-light: #fef2f2;
 
-	
+
 	--color-ink-900: #0f172a;
 	--color-ink-700: #334155;
 	--color-ink-500: #64748b;
 	--color-ink-400: #94a3b8;
 
-	
+
 	--color-border: #e2e8f0;
 	--color-border-strong: #cbd5e1;
 	--color-surface: #ffffff;
 	--color-surface-muted: #f8fafc;
 	--color-surface-subtle: #f1f5f9;
 
-	
+
 	--shadow-button: 0 6px 14px rgba(30, 64, 175, 0.35);
 	--shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
 	--shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
 	--shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.1);
 	--shadow-focus: 0 0 0 4px rgba(30, 64, 175, 0.12);
 
-	
+
 	--radius-sm: 8px;
 	--radius-md: 12px;
 	--radius-lg: 22px;
 	--radius-full: 9999px;
 
-	
+
 	--transition-fast: 0.15s ease;
 	--transition-base: 0.2s ease;
 }
@@ -74,6 +74,17 @@
 
 .btn-pill {
 	border-radius: var(--radius-full);
+}
+
+.btn.btn-pill.btn-gray.btn-wide {
+	background-color: rgba(0, 0, 255, 0.147);
+	cursor: not-allowed;
+	/* pointer-events: none;  <-- usuń to */
+}
+
+/* Hover nadal działa */
+.btn.btn-pill.btn-gray.btn-wide:hover {
+	transform: translateY(0px);
 }
 
 .btn-primary {
@@ -182,7 +193,7 @@
 
 .btn-wide {
 	font-size: 21px;
-	padding: 22px 0;
+	padding: 22px 6px;
 	width: 100%;
 }
 
@@ -332,6 +343,132 @@
 	scroll-behavior: smooth;
 	scrollbar-width: thin;
 	scrollbar-color: var(--border-light) transparent;
+}
+
+.modal-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.45);
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	z-index: 9999;
+
+	backdrop-filter: blur(4px);
+}
+
+
+.modal {
+	width: 90%;
+	max-width: 420px;
+
+	background: white;
+
+	border-radius: 24px;
+
+	padding: 2rem;
+
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+
+	text-align: center;
+
+	animation: modalShow 0.2s ease-out;
+}
+
+
+.modal h2 {
+	margin: 0 0 1rem;
+
+	font-size: 1.5rem;
+
+	color: #111827;
+}
+
+
+.modal p {
+	color: #6b7280;
+
+	line-height: 1.5;
+
+	margin-bottom: 2rem;
+}
+
+
+.modal-buttons {
+	display: flex;
+
+	gap: 1rem;
+
+	justify-content: center;
+}
+
+
+.modal button {
+	border: none;
+
+	cursor: pointer;
+
+	padding: 0.75rem 1.5rem;
+
+	border-radius: 999px;
+
+	font-size: 1rem;
+
+	font-weight: 600;
+
+	transition: 0.2s ease;
+}
+
+
+/* potwierdzenie */
+
+.modal-confirm {
+	background: #06b6d4;
+
+	color: white;
+}
+
+
+.modal-confirm:hover {
+	background: #0891b2;
+
+	transform: translateY(-2px);
+}
+
+
+/* anulowanie */
+
+.modal-cancel {
+	background: #e5e7eb;
+
+	color: #374151;
+}
+
+
+.modal-cancel:hover {
+	background: #d1d5db;
+
+	transform: translateY(-2px);
+}
+
+
+@keyframes modalShow {
+
+	from {
+		opacity: 0;
+
+		transform: scale(0.9) translateY(20px);
+	}
+
+
+	to {
+		opacity: 1;
+
+		transform: scale(1) translateY(0);
+	}
+
 }
 
 .signatures-panel::-webkit-scrollbar {
