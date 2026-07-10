@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { parseDocx } from "../../../utils/docxParser";
 import "./submitResolution.css";
 import SuccessModal from "../../../components/SuccessModal";
@@ -16,7 +16,6 @@ export default function SubmitResolution() {
 	const [submitting, setSubmitting] = useState(false);
 
 	const navigate = useNavigate();
-
 
 	const handleFileChange = (e) => {
 		const f = e.target.files[0];
@@ -49,7 +48,6 @@ export default function SubmitResolution() {
 			setLoading(false);
 		}
 	};
-
 
 	const updateField = (path, value) => {
 		setEditedData((prev) => {
@@ -104,7 +102,6 @@ export default function SubmitResolution() {
 		});
 	};
 
-
 	const handleSubmit = async () => {
 		if (!editedData || submitting) return;
 
@@ -119,8 +116,8 @@ export default function SubmitResolution() {
 			const bill = {
 				...editedData,
 				fileName,
-				author: userData.name,        // ✅ Dodaj autora
-				authorId: userData.id,        // ✅ Dodaj ID autora
+				author: userData.name, // ✅ Dodaj autora
+				authorId: userData.id, // ✅ Dodaj ID autora
 				party: userData.club || userData.party || "Niezrzeszony", // ✅ Dodaj partię/klub
 			};
 
@@ -139,7 +136,6 @@ export default function SubmitResolution() {
 			const data = await response.json();
 			console.log("Utworzona uchwała:", data);
 			setShowSuccess(true);
-
 		} catch (err) {
 			setError(err.message);
 			setSubmitting(false);
@@ -149,7 +145,12 @@ export default function SubmitResolution() {
 	return (
 		<div className="submit-page">
 			<div className="uchwaly-bar">
-				<h1 className="uchwaly-title">ZŁÓŻ UCHWAŁĘ</h1>
+				<h1 className="uchwaly-title">
+					<Link to="/dashboard" className="home-link">
+						<i className="fas fa-house"></i>
+					</Link>
+						ZŁÓŻ UCHWAŁĘ
+				</h1>
 				<div className="session-info">
 					Posiedzenie: Warszawa
 					<br />
@@ -159,7 +160,6 @@ export default function SubmitResolution() {
 
 			<div className="submit-container">
 				<div className="form-card">
-
 					<div className="form-group">
 						<label className="label">Nazwa uchwały</label>
 						<input
@@ -170,7 +170,6 @@ export default function SubmitResolution() {
 							placeholder="Wpisz nazwę uchwały..."
 						/>
 					</div>
-
 
 					<div className="form-group">
 						<label className="label">Dodaj plik DOCX</label>
@@ -203,7 +202,6 @@ export default function SubmitResolution() {
 								? "Przeanalizowano ✓"
 								: "Analizuj ustawę"}
 					</button>
-
 
 					{editedData && (
 						<div className="editor-section">

@@ -9,6 +9,8 @@ import "./App.css";
 
 import useReveal from "../hooks/useReveal";
 
+
+
 export default function App() {
 	const location = useLocation();
 

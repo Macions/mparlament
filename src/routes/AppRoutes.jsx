@@ -21,7 +21,7 @@ import VotingPage from "../features/voting/pages/VotingPage";
 import CreateVoting from "../features/voting/pages/CreateVoting";
 
 import Parliamentarians from "../features/parliamentarians/pages/Parliamentarians";
-
+import VotingDetailsPage from "../features/voting/pages/VotingDetailsPage";
 
 export default function AppRoutes() {
 	return (
@@ -50,6 +50,7 @@ export default function AppRoutes() {
 			<Route path="/glosowania/nowe" element={<CreateVoting />} />
 
 			<Route path="/parlamentarzysci" element={<Parliamentarians />} />
+			<Route path="/glosowanie/:id/szczegoly" element={<VotingDetailsPage />} />
 		</Routes>
 	);
 }

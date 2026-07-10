@@ -90,7 +90,13 @@
 	display: flex;
 	align-items: center;
 	text-decoration: none;
-	gap: 10px;
+	gap: 18px;
+	color: inherit;
+	transition: all .2s;
+}
+
+.home-link:hover{
+	transform: scale(1.1);
 }
 
 .home-link:hover .home-icon {

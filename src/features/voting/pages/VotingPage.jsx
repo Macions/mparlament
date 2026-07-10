@@ -225,7 +225,7 @@ export default function VotingPage() {
 						<div className="voting-finished">
 							<h3>Głosowanie zakończone</h3>
 
-							<p>Wyniki zostaną przedstawione w panelu wyników.</p>
+							<p>Wyniki zostaną przedstawione na stronie głosowań.</p>
 						</div>
 					)}
 				</div>

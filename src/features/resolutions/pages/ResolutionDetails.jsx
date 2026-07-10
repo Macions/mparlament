@@ -15,7 +15,6 @@ export default function ResolutionDetails() {
 	const [showSignatures, setShowSignatures] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [errorMessage, setErrorMessage] = useState(null);
-
 	useEffect(() => {
 		window.scrollTo({
 			top: 0,
@@ -47,9 +46,10 @@ export default function ResolutionDetails() {
 	}, [slug]);
 
 	const handleSignatureAction = async () => {
-		const endpoint = actionType === "sign"
-			? `/api/resolutions/${resolution.id}/sign`
-			: `/api/resolutions/${resolution.id}/sign`;
+		const endpoint =
+			actionType === "sign"
+				? `/api/resolutions/${resolution.id}/sign`
+				: `/api/resolutions/${resolution.id}/sign`;
 
 		const method = actionType === "sign" ? "POST" : "DELETE";
 
@@ -78,7 +78,6 @@ export default function ResolutionDetails() {
 			setResolution(updated.resolution);
 			setSignedUsers(updated.signedUsers);
 			setCurrentUser(updated.currentUser);
-
 		} catch (error) {
 			setErrorMessage(error.message);
 		}
@@ -88,19 +87,14 @@ export default function ResolutionDetails() {
 		return <h2>Ładowanie uchwały...</h2>;
 	}
 
-
 	if (!resolution) {
 		return <h2>Nie znaleziono uchwały</h2>;
 	}
 
-
 	return (
 		<div className="mparlament-page">
-
 			<div className="uchwaly-bar">
-
 				<Link className="uchwaly-title" to="/uchwaly">
-
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						width="50"
@@ -114,38 +108,22 @@ export default function ResolutionDetails() {
 							d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"
 						/>
 					</svg>
-
 					WRÓĆ
-
 				</Link>
-
 
 				<div className="session-info">
 					Posiedzenie: {session?.city}
 					<br />
 					<span>{session?.date}</span>
 				</div>
-
 			</div>
 
-
-
 			<main className="resolution-card">
-
-				<h1 className="resolution-title">
-					{resolution.title}
-				</h1>
-
-
+				<h1 className="resolution-title">{resolution.title}</h1>
 
 				<div className="resolution-grid">
-
-
 					<div className="resolution-left">
-
-
 						<div className="file-box">
-
 							<a
 								href={`/${resolution.fileName}`}
 								className="file-link"
@@ -154,81 +132,43 @@ export default function ResolutionDetails() {
 							>
 								{resolution.fileName}
 							</a>
-
 						</div>
 
-
-
 						<div className="signatures-row">
-
 							<div className="signatures-count">
-
-								<div>
-									Podpisy: {resolution.signatures}
-								</div>
-
+								<div>Podpisy: {resolution.signatures}</div>
 
 								<button
 									className="btn btn-pill btn-cyan btn-small check-signatures-btn"
-									onClick={() =>
-										setShowSignatures(true)
-									}
+									onClick={() => setShowSignatures(true)}
 								>
 									Sprawdź kto podpisał
 								</button>
-
-
 							</div>
-
 						</div>
-
-
 					</div>
 
-
-
 					<div className="resolution-right">
-
-
 						<p className="resolution-author">
-
-							Autor:{" "}
-							<strong>
-								{resolution.author}
-							</strong>{" "}
-							({resolution.party})
-
+							Autor: <strong>{resolution.author}</strong> ({resolution.party})
 						</p>
 
-
-
 						{currentUser?.isAuthor ? (
-							<button
-								className="btn btn-pill btn-gray btn-wide"
-								disabled
-							>
+							<button className="btn btn-pill btn-gray btn-wide" disabled>
 								AUTOR - PODPIS AUTOMATYCZNY
 							</button>
 						) : (
 							<button
 								className="btn btn-pill btn-cyan btn-wide sign-btn"
 								onClick={() => {
-									setActionType(
-										currentUser?.hasSigned
-											? "remove"
-											: "sign"
-									);
+									setActionType(currentUser?.hasSigned ? "remove" : "sign");
 
 									setShowConfirm(true);
 								}}
 							>
-								{currentUser?.hasSigned
-									? "USUŃ PODPIS"
-									: "PODPISZ UCHWAŁĘ"}
+								{currentUser?.hasSigned ? "USUŃ PODPIS" : "PODPISZ UCHWAŁĘ"}
 							</button>
 						)}
-
-
 
 						<Link
 							to={`/${resolution.slug}/poprawki`}
@@ -236,164 +176,90 @@ export default function ResolutionDetails() {
 						>
 							WYŚWIETL POPRAWKI
 						</Link>
-
-
 					</div>
-
-
 				</div>
-
-
 			</main>
-
-
 
 			{showSignatures &&
 				createPortal(
-
 					<>
-
 						<div
 							className="signatures-overlay"
-							onClick={() =>
-								setShowSignatures(false)
-							}
+							onClick={() => setShowSignatures(false)}
 						/>
 
-
 						<div className="signatures-panel">
-
-
 							<div className="signatures-header">
-
-								<h2>
-									Kto podpisał?
-								</h2>
-
+								<h2>Kto podpisał?</h2>
 
 								<button
 									className="close-panel"
-									onClick={() =>
-										setShowSignatures(false)
-									}
+									onClick={() => setShowSignatures(false)}
 								>
 									✕
 								</button>
-
-
 							</div>
-
-
 
 							<div className="signatures-total">
-
-								Liczba podpisów:{" "}
-								<strong>
-									{signedUsers.length}
-								</strong>
-
+								Liczba podpisów: <strong>{signedUsers.length}</strong>
 							</div>
-
-
-
 
 							<div className="signatures-list">
+								{signedUsers.map((user, index) => {
+									console.log(user.timestamp);
 
-								{signedUsers.map((user, index) => (
+									return (
+										<div className="signature-item" key={index}>
+											<div
+												className="signature-avatar"
+												style={{
+													background: `hsl(${(index * 45) % 360}, 70%, 90%)`,
+												}}
+											>
+												{user.name.charAt(0).toUpperCase()}
+											</div>
 
-									<div
-										className="signature-item"
-										key={index}
-									>
+											<div className="signature-info">
+												<strong>{user.name}</strong>
 
+												<p>{user.club}</p>
 
-										<div
-											className="signature-avatar"
-											style={{
-												background: `hsl(${index * 45 % 360}, 70%, 90%)`
-											}}
-										>
-											{user.name
-												.charAt(0)
-												.toUpperCase()}
+												<span>
+													{new Date(user.timestamp).toLocaleString("pl-PL")}
+												</span>
+											</div>
 										</div>
-
-
-
-										<div className="signature-info">
-
-											<strong>
-												{user.name}
-											</strong>
-
-											<p>
-												{user.club}
-											</p>
-
-											<span>
-												{user.date}
-											</span>
-
-										</div>
-
-
-									</div>
-
-								))}
-
-
+									);
+								})}
 							</div>
-
-
 						</div>
-
-
 					</>,
 
-					document.body
+					document.body,
+				)}
 
-				)
-			}
+			{showConfirm &&
+				createPortal(
+					<div className="modal-overlay">
+						<div className="modal">
+							<h2>
+								{actionType === "sign" ? "Podpisać uchwałę?" : "Usunąć podpis?"}
+							</h2>
 
-			{showConfirm && createPortal(
-				<div className="modal-overlay">
+							{errorMessage && <p className="modal-error">{errorMessage}</p>}
+							<p>
+								{actionType === "sign"
+									? "Czy na pewno chcesz podpisać tę uchwałę?"
+									: "Czy na pewno chcesz usunąć swój podpis?"}
+							</p>
 
-					<div className="modal">
+							<button onClick={handleSignatureAction}>Potwierdź</button>
 
-						<h2>
-							{actionType === "sign"
-								? "Podpisać uchwałę?"
-								: "Usunąć podpis?"}
-						</h2>
-
-						{errorMessage && (
-							<p className="modal-error">{errorMessage}</p>
-						)}
-						<p>
-							{actionType === "sign"
-								? "Czy na pewno chcesz podpisać tę uchwałę?"
-								: "Czy na pewno chcesz usunąć swój podpis?"}
-						</p>
-
-
-						<button
-							onClick={handleSignatureAction}
-						>
-							Potwierdź
-						</button>
-
-
-						<button
-							onClick={() => setShowConfirm(false)}
-						>
-							Anuluj
-						</button>
-
-					</div>
-
-				</div>,
-				document.body
-			)}
+							<button onClick={() => setShowConfirm(false)}>Anuluj</button>
+						</div>
+					</div>,
+					document.body,
+				)}
 		</div>
 	);
 }

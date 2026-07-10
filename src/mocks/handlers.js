@@ -17,7 +17,7 @@ const getResolutionById = (id) => {
 
 const getSignaturesForResolution = (resolutionId) => {
 	return resolutionSignatures.filter(
-		(signature) => signature.resolutionId === Number(resolutionId)
+		(signature) => signature.resolutionId === Number(resolutionId),
 	);
 };
 
@@ -25,11 +25,15 @@ const getUserSignature = (resolutionId, userId) => {
 	return resolutionSignatures.find(
 		(signature) =>
 			signature.resolutionId === Number(resolutionId) &&
-			signature.userId === userId
+			signature.userId === userId,
 	);
 };
 
-const buildResolutionResponse = (resolution, signedUsers, currentUser = null) => {
+const buildResolutionResponse = (
+	resolution,
+	signedUsers,
+	currentUser = null,
+) => {
 	const signatures = getSignaturesForResolution(resolution.id);
 	const signaturesCount = signatures.length;
 
@@ -40,7 +44,7 @@ const buildResolutionResponse = (resolution, signedUsers, currentUser = null) =>
 			return {
 				name: signedUser.name,
 				club: signedUser.club,
-				date: signature.date,
+				timestamp: signature.timestamp,
 				type: signature.type,
 			};
 		})
@@ -70,7 +74,7 @@ const handleResolutionSign = (resolutionId, userId) => {
 	const alreadySigned = resolutionSignatures.some(
 		(signature) =>
 			signature.resolutionId === Number(resolutionId) &&
-			signature.userId === userId
+			signature.userId === userId,
 	);
 
 	if (alreadySigned) {
@@ -85,7 +89,7 @@ const handleResolutionSign = (resolutionId, userId) => {
 		id: Date.now(),
 		resolutionId: Number(resolutionId),
 		userId: userId,
-		date: new Date().toISOString().split("T")[0],
+		timestamp: new Date().toISOString(),
 		type: "signature",
 	});
 
@@ -98,7 +102,7 @@ const handleResolutionUnsign = (resolutionId, userId) => {
 	const signatureIndex = resolutionSignatures.findIndex(
 		(signature) =>
 			signature.resolutionId === Number(resolutionId) &&
-			signature.userId === userId
+			signature.userId === userId,
 	);
 
 	if (signatureIndex === -1) {
@@ -162,7 +166,7 @@ export const handlers = [
 
 		return HttpResponse.json(
 			{ message: "Nieprawidłowy login lub hasło" },
-			{ status: 401 }
+			{ status: 401 },
 		);
 	}),
 
@@ -184,7 +188,7 @@ export const handlers = [
 		if (!voting) {
 			return HttpResponse.json(
 				{ message: "Nie znaleziono głosowania" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -204,7 +208,7 @@ export const handlers = [
 		if (index === -1) {
 			return HttpResponse.json(
 				{ message: "Nie znaleziono głosowania" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -219,7 +223,7 @@ export const handlers = [
 		if (index === -1) {
 			return HttpResponse.json(
 				{ message: "Nie znaleziono głosowania" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -234,7 +238,7 @@ export const handlers = [
 		if (index === -1) {
 			return HttpResponse.json(
 				{ message: "Nie znaleziono głosowania" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -266,7 +270,7 @@ export const handlers = [
 		if (!resolution) {
 			return HttpResponse.json(
 				{ message: "Nie znaleziono uchwały" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -279,7 +283,7 @@ export const handlers = [
 		if (!resolution) {
 			return HttpResponse.json(
 				{ message: "Nie znaleziono uchwały" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -288,7 +292,7 @@ export const handlers = [
 		if (result.error) {
 			return HttpResponse.json(
 				{ message: result.message },
-				{ status: result.status }
+				{ status: result.status },
 			);
 		}
 
@@ -301,7 +305,7 @@ export const handlers = [
 		if (!resolution) {
 			return HttpResponse.json(
 				{ message: "Nie znaleziono uchwały" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -310,20 +314,17 @@ export const handlers = [
 		if (result.error) {
 			return HttpResponse.json(
 				{ message: result.message },
-				{ status: result.status }
+				{ status: result.status },
 			);
 		}
 
 		return HttpResponse.json(
 			{ success: true, message: "Podpis został usunięty" },
-			{ status: 200 }
+			{ status: 200 },
 		);
 	}),
 	http.get("/api/resolutions/:slug/amendments", ({ params }) => {
-		const resolution = resolutions.find(
-			(r) => r.slug === params.slug
-		);
-
+		const resolution = resolutions.find((r) => r.slug === params.slug);
 
 		if (!resolution) {
 			return HttpResponse.json(
@@ -332,33 +333,26 @@ export const handlers = [
 				},
 				{
 					status: 404,
-				}
+				},
 			);
 		}
 
-
 		const billAmendments = amendments.filter(
-			(amendment) =>
-				amendment.resolutionId === resolution.id
+			(amendment) => amendment.resolutionId === resolution.id,
 		);
 
-
 		return HttpResponse.json({
-
 			resolution: {
 				title: resolution.title,
 				slug: resolution.slug,
 			},
-
 
 			session: {
 				city: "Warszawa",
 				date: "20.05",
 			},
 
-
 			amendments: billAmendments,
-
 		});
 	}),
 	// tworzenie uchwały
@@ -380,7 +374,7 @@ export const handlers = [
 			chapters: body.chapters,
 			signatures: 1,
 			status: "pending",
-			createdAt: new Date().toISOString()
+			createdAt: new Date().toISOString(),
 		};
 
 		resolutions.push(newResolution);
@@ -390,28 +384,23 @@ export const handlers = [
 			resolutionId: newResolution.id,
 			userId: body.authorId,
 			date: new Date().toISOString().split("T")[0],
-			type: "author"
+			type: "author",
 		});
 
-		return HttpResponse.json(
-			newResolution,
-			{ status: 201 }
-		);
+		return HttpResponse.json(newResolution, { status: 201 });
 	}),
 	http.get("/api/resolutions/:slug/amendments", ({ params }) => {
-		const resolution = resolutions.find(
-			(r) => r.slug === params.slug
-		);
+		const resolution = resolutions.find((r) => r.slug === params.slug);
 
 		if (!resolution) {
 			return HttpResponse.json(
 				{ message: "Nie znaleziono uchwały" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
 		const billAmendments = amendments.filter(
-			(amendment) => amendment.resolutionId === resolution.id
+			(amendment) => amendment.resolutionId === resolution.id,
 		);
 
 		return HttpResponse.json({
@@ -427,26 +416,24 @@ export const handlers = [
 		});
 	}),
 	http.get("/api/resolutions/:slug/amendments/:amendmentId", ({ params }) => {
-		const resolution = resolutions.find(
-			(r) => r.slug === params.slug
-		);
+		const resolution = resolutions.find((r) => r.slug === params.slug);
 
 		if (!resolution) {
 			return HttpResponse.json(
 				{ message: "Nie znaleziono uchwały" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
 		const amendment = amendments.find(
-			(a) => a.id === Number(params.amendmentId) &&
-				a.resolutionId === resolution.id
+			(a) =>
+				a.id === Number(params.amendmentId) && a.resolutionId === resolution.id,
 		);
 
 		if (!amendment) {
 			return HttpResponse.json(
 				{ message: "Nie znaleziono poprawki" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -462,36 +449,111 @@ export const handlers = [
 			},
 		});
 	}),
-	http.post("/api/resolutions/:slug/amendments", async ({ params, request }) => {
-		const resolution = resolutions.find((r) => r.slug === params.slug);
+	http.post(
+		"/api/resolutions/:slug/amendments",
+		async ({ params, request }) => {
+			const resolution = resolutions.find((r) => r.slug === params.slug);
 
-		if (!resolution) {
+			if (!resolution) {
+				return HttpResponse.json(
+					{ message: "Nie znaleziono uchwały" },
+					{ status: 404 },
+				);
+			}
+
+			const body = await request.json();
+
+			const newAmendment = {
+				id: Date.now(),
+				resolutionId: resolution.id,
+				author: body.author,
+				authorId: body.authorId,
+				club: body.club,
+				content: body.content,
+				status: "pending",
+				createdAt: new Date().toISOString().split("T")[0],
+				withdrawnReason: null,
+				changes: body.changes || [],
+			};
+
+			amendments.push(newAmendment);
+
 			return HttpResponse.json(
-				{ message: "Nie znaleziono uchwały" },
-				{ status: 404 }
+				{ success: true, amendment: newAmendment },
+				{ status: 201 },
+			);
+		},
+	),
+	// Pobieranie aktualnego użytkownika
+	http.get("/api/current-user", () => {
+		return HttpResponse.json({
+			user: {
+				id: user.id,
+				username: user.username,
+				name: user.name,
+				role: user.role,
+				permissions: user.permissions,
+			},
+		});
+	}),
+
+	// Wycofywanie poprawki
+	http.post("/api/amendments/:id/withdraw", async ({ params, request }) => {
+		const amendmentId = Number(params.id);
+		const amendment = amendments.find((a) => a.id === amendmentId);
+
+		if (!amendment) {
+			return HttpResponse.json(
+				{ message: "Nie znaleziono poprawki" },
+				{ status: 404 },
+			);
+		}
+
+		// Sprawdź czy zalogowany użytkownik jest autorem
+		if (amendment.authorId !== user.id) {
+			return HttpResponse.json(
+				{ message: "Nie masz uprawnień do wycofania tej poprawki" },
+				{ status: 403 },
+			);
+		}
+
+		// Sprawdź czy poprawka nie jest już wycofana
+		if (amendment.status === "withdrawn") {
+			return HttpResponse.json(
+				{ message: "Ta poprawka została już wycofana" },
+				{ status: 400 },
 			);
 		}
 
 		const body = await request.json();
 
-		const newAmendment = {
-			id: Date.now(),
-			resolutionId: resolution.id,
-			author: body.author,
-			authorId: body.authorId,
-			club: body.club,
-			content: body.content,
-			status: "pending",
-			createdAt: new Date().toISOString().split("T")[0],
-			withdrawnReason: null,
-			changes: body.changes || [],
-		};
+		// Aktualizuj status poprawki
+		amendment.status = "withdrawn";
+		amendment.withdrawnReason = body.reason || "Wycofane przez autora";
 
-		amendments.push(newAmendment);
+		return HttpResponse.json({
+			success: true,
+			amendment: amendment,
+		});
+	}),
+	// Archiwizacja głosowania
+	http.post("/api/votings/:id/archive", ({ params }) => {
+		const votingId = Number(params.id);
+		const voting = votings.find((v) => v.id === votingId);
 
-		return HttpResponse.json(
-			{ success: true, amendment: newAmendment },
-			{ status: 201 }
-		);
+		if (!voting) {
+			return HttpResponse.json(
+				{ message: "Nie znaleziono głosowania" },
+				{ status: 404 },
+			);
+		}
+
+		// Zmień status na archived
+		voting.status = "archived";
+
+		return HttpResponse.json({
+			success: true,
+			message: "Głosowanie zostało zarchiwizowane",
+		});
 	}),
 ];
