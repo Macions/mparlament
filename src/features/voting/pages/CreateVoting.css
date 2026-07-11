@@ -224,6 +224,7 @@
 	transition: all var(--transition-fast);
 	box-sizing: border-box;
 }
+
 .form-group textarea {
 	resize: vertical;
 	max-height: 200px;
@@ -529,7 +530,7 @@
 	border-color: var(--color-primary-border);
 }
 
-.radio-card input[type="radio"]:checked + .radio-content {
+.radio-card input[type="radio"]:checked+.radio-content {
 	color: var(--color-primary);
 }
 
@@ -734,11 +735,11 @@
 	border-radius: 50%;
 }
 
-.toggle-switch input:checked + .toggle-slider {
+.toggle-switch input:checked+.toggle-slider {
 	background-color: var(--color-primary);
 }
 
-.toggle-switch input:checked + .toggle-slider:before {
+.toggle-switch input:checked+.toggle-slider:before {
 	transform: translateX(20px);
 }
 
@@ -770,6 +771,7 @@
 	box-shadow: var(--shadow-lg);
 	transform: translateX(5px);
 }
+
 .btn-secondary:hover {
 	box-shadow: var(--shadow-lg);
 	transform: translateX(-5px);
@@ -1444,4 +1446,1125 @@
 	.attachment-hints span:not(:last-child)::after {
 		display: none;
 	}
+}
+
+/* Style dla pola zarządzających */
+.field-hint {
+	font-size: 0.9rem;
+	color: #6c757d;
+	margin: 4px 0 12px 0;
+	line-height: 1.5;
+}
+
+.admin-info {
+	background-color: #e7f3ff;
+	border-left: 4px solid #007bff;
+	padding: 12px 16px;
+	margin-bottom: 16px;
+	border-radius: 6px;
+}
+
+.admin-info p {
+	margin: 0;
+	font-size: 0.9rem;
+	color: #004085;
+}
+
+.selected-info {
+	margin-top: 12px;
+	padding: 12px;
+	background-color: #f8f9fa;
+	border-radius: 6px;
+}
+
+.selected-info p {
+	margin: 0 0 8px 0;
+	font-size: 0.9rem;
+	color: #495057;
+}
+
+.selected-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.manager-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background-color: #28a745;
+	color: white;
+	padding: 4px 10px;
+	border-radius: 20px;
+	font-size: 0.85rem;
+}
+
+.manager-tag .tag-remove {
+	background: none;
+	border: none;
+	color: white;
+	cursor: pointer;
+	font-size: 1.1rem;
+	padding: 0 2px;
+	opacity: 0.7;
+	transition: opacity 0.2s;
+}
+
+.manager-tag .tag-remove:hover {
+	opacity: 1;
+}
+
+/* ============================================
+   POPRAWKI DLA EDITVOTING
+   ============================================ */
+
+/* 1. Poprawki dla checkboxów w krokach 2 i 4 */
+.checkbox-item {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.625rem 1rem;
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	cursor: pointer;
+	transition: all var(--transition-fast);
+	margin: 0;
+}
+
+.checkbox-item:hover {
+	background: var(--color-primary-light);
+	border-color: var(--color-primary-border);
+}
+
+.checkbox-item input[type="checkbox"] {
+	width: 18px;
+	height: 18px;
+	accent-color: var(--color-primary);
+	cursor: pointer;
+	flex-shrink: 0;
+	margin: 0;
+}
+
+.checkbox-item:has(input:checked) {
+	border-color: var(--color-primary);
+	background: var(--color-primary-light);
+}
+
+/* 2. Info box - używany w kilku miejscach */
+.info-box {
+	padding: 0.875rem 1.125rem;
+	background: var(--color-primary-light);
+	border: 1px solid var(--color-primary-border);
+	border-radius: var(--radius-md);
+	color: var(--color-ink-700);
+	font-size: 0.9375rem;
+}
+
+.info-box p {
+	margin: 0;
+}
+
+/* 3. Poprawki dla przycisków w formularzu */
+.form-actions {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+	margin-top: 1.5rem;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-submit {
+	min-width: 160px;
+	padding: 0.85rem 2.5rem;
+	background: white;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	color: var(--color-ink-900);
+	font-weight: 600;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all var(--transition-base);
+	box-shadow: var(--shadow-sm);
+	text-align: center;
+}
+
+.btn-primary {
+	background: var(--color-primary);
+	border-color: var(--color-primary);
+	color: white;
+}
+
+.btn-primary:hover {
+	background: var(--color-primary-hover);
+	border-color: var(--color-primary-hover);
+	transform: translateY(-2px);
+	box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+	background: white;
+	border-color: var(--color-border);
+	color: var(--color-ink-700);
+}
+
+.btn-secondary:hover {
+	background: var(--color-surface-subtle);
+	border-color: var(--color-border-strong);
+	transform: translateY(-2px);
+	box-shadow: var(--shadow-md);
+}
+
+.btn-submit {
+	background: var(--color-success);
+	border-color: var(--color-success);
+	color: white;
+}
+
+.btn-submit:hover:not(:disabled) {
+	background: var(--color-success-hover);
+	border-color: var(--color-success-hover);
+	transform: translateY(-2px);
+	box-shadow: var(--shadow-md);
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-submit:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none !important;
+}
+
+/* 4. Step indicator - poprawki */
+.step-indicator {
+	display: flex;
+	justify-content: space-between;
+	gap: 0.5rem;
+	margin-bottom: 2rem;
+	padding: 1.5rem 1.5rem;
+	background: var(--color-surface);
+	border-radius: var(--radius-lg);
+	border: 1px solid var(--color-border);
+	box-shadow: var(--shadow-sm);
+	overflow-x: auto;
+}
+
+.step {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.5rem;
+	flex: 1;
+	position: relative;
+	cursor: pointer;
+	min-width: 60px;
+}
+
+.step:not(:last-child)::after {
+	content: "";
+	position: absolute;
+	top: 20px;
+	left: calc(50% + 25px);
+	width: calc(100% - 50px);
+	height: 2px;
+	background: var(--color-border);
+	z-index: 0;
+	transition: background var(--transition-base);
+}
+
+.step.completed:not(:last-child)::after {
+	background: var(--color-primary);
+}
+
+.step-number {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: var(--color-surface-subtle);
+	border: 2px solid var(--color-border);
+	color: var(--color-ink-500);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 0.875rem;
+	position: relative;
+	z-index: 1;
+	transition: all var(--transition-base);
+	flex-shrink: 0;
+}
+
+.step.active .step-number {
+	background: var(--color-primary);
+	border-color: var(--color-primary);
+	color: white;
+	box-shadow: var(--shadow-focus);
+	transform: scale(1.05);
+}
+
+.step.completed .step-number {
+	background: var(--color-success);
+	border-color: var(--color-success);
+	color: white;
+}
+
+.step-label {
+	font-size: 0.7rem;
+	color: var(--color-ink-500);
+	font-weight: 500;
+	text-align: center;
+	transition: color var(--transition-base);
+	line-height: 1.2;
+	max-width: 80px;
+}
+
+.step.active .step-label {
+	color: var(--color-primary);
+	font-weight: 600;
+}
+
+.step.completed .step-label {
+	color: var(--color-ink-700);
+}
+
+/* 5. Poprawki dla form-group - tło białe */
+.form-group {
+	background: transparent;
+	margin-bottom: 1.5rem;
+	padding: 0;
+}
+
+.form-group label {
+	display: block;
+	font-weight: 600;
+	font-size: 0.9375rem;
+	color: var(--color-ink-700);
+	margin-bottom: 0.5rem;
+}
+
+.form-group input[type="text"],
+.form-group input[type="datetime-local"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+	width: 100%;
+	padding: 0.75rem 1rem;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	font-size: 0.9375rem;
+	font-family: inherit;
+	color: var(--color-ink-900);
+	background: var(--color-surface-muted);
+	transition: all var(--transition-fast);
+	box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+	outline: none;
+	border-color: var(--color-primary);
+	box-shadow: var(--shadow-focus);
+	background: var(--color-surface);
+}
+
+/* 6. Poprawki dla checkbox-grid w kroku 2 i 4 */
+.checkbox-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0.5rem;
+	max-height: 300px;
+	overflow-y: auto;
+	padding: 0.5rem;
+	background: transparent;
+	border: none;
+	border-radius: 0;
+}
+
+/* 7. Poprawki dla wyszukiwania */
+.search-input {
+	width: 100%;
+	padding: 0.75rem 1rem;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	font-size: 0.9375rem;
+	background: var(--color-surface-muted);
+	transition: all var(--transition-fast);
+	font-family: inherit;
+	margin-bottom: 0.75rem;
+	box-sizing: border-box;
+}
+
+.search-input:focus {
+	outline: none;
+	border-color: var(--color-primary);
+	box-shadow: var(--shadow-focus);
+	background: var(--color-surface);
+}
+
+.search-input::placeholder {
+	color: var(--color-ink-400);
+}
+
+/* 8. Recipients options - poprawki */
+.recipients-options {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 0.75rem;
+	margin-bottom: 1.5rem;
+}
+
+.recipient-btn {
+	padding: 0.875rem 1rem;
+	border: 2px solid var(--color-border);
+	border-radius: var(--radius-md);
+	background: var(--color-surface);
+	cursor: pointer;
+	font-weight: 600;
+	font-size: 0.875rem;
+	color: var(--color-ink-700);
+	transition: all var(--transition-base);
+	text-align: center;
+}
+
+.recipient-btn:hover {
+	border-color: var(--color-primary-border);
+	background: var(--color-primary-light);
+}
+
+.recipient-btn.active {
+	border-color: var(--color-primary);
+	background: var(--color-primary-light);
+	color: var(--color-primary);
+	box-shadow: var(--shadow-focus);
+}
+
+/* 9. Duration options */
+.duration-options {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 0.75rem;
+	margin-bottom: 1rem;
+}
+
+.duration-btn {
+	padding: 0.75rem 1rem;
+	border: 2px solid var(--color-border);
+	border-radius: var(--radius-md);
+	background: var(--color-surface);
+	cursor: pointer;
+	font-weight: 600;
+	font-size: 0.875rem;
+	color: var(--color-ink-700);
+	transition: all var(--transition-base);
+	text-align: center;
+}
+
+.duration-btn:hover {
+	border-color: var(--color-primary-border);
+	background: var(--color-primary-light);
+}
+
+.duration-btn.active {
+	border-color: var(--color-primary);
+	background: var(--color-primary-light);
+	color: var(--color-primary);
+	box-shadow: var(--shadow-focus);
+}
+
+/* 10. Duration inputs */
+.duration-inputs {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 1rem;
+}
+
+.duration-inputs>div label {
+	display: block;
+	font-size: 0.75rem;
+	color: var(--color-ink-500);
+	font-weight: 600;
+	margin-bottom: 0.25rem;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.duration-inputs>div input {
+	width: 100%;
+	padding: 0.625rem 0.75rem;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	font-size: 0.9375rem;
+	font-family: inherit;
+	color: var(--color-ink-900);
+	background: var(--color-surface-muted);
+	transition: all var(--transition-fast);
+	box-sizing: border-box;
+}
+
+.duration-inputs>div input:focus {
+	outline: none;
+	border-color: var(--color-primary);
+	box-shadow: var(--shadow-focus);
+	background: var(--color-surface);
+}
+
+/* 11. Submit error */
+.submit-error {
+	padding: 1rem 1.25rem;
+	background: var(--color-danger-light);
+	border: 1px solid var(--color-danger);
+	border-radius: var(--radius-md);
+	color: var(--color-danger);
+	font-weight: 500;
+	margin-bottom: 1.5rem;
+}
+
+/* 12. Tags input (poprawki) */
+.tags-input {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	padding: 0.625rem;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	background: var(--color-surface-muted);
+	transition: all var(--transition-fast);
+}
+
+.tags-input:focus-within {
+	border-color: var(--color-primary);
+	box-shadow: var(--shadow-focus);
+	background: var(--color-surface);
+}
+
+.tags-input .tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.25rem 0.375rem 0.25rem 0.75rem;
+	background: var(--color-primary);
+	color: white;
+	border-radius: var(--radius-full);
+	font-size: 0.8125rem;
+	font-weight: 500;
+}
+
+.tags-input .tag .tag-remove {
+	background: rgba(255, 255, 255, 0.2);
+	border: none;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	color: white;
+	font-size: 1rem;
+	cursor: pointer;
+	padding: 0;
+	line-height: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background var(--transition-fast);
+}
+
+.tags-input .tag .tag-remove:hover {
+	background: rgba(255, 255, 255, 0.35);
+}
+
+.tags-input input {
+	border: none;
+	outline: none;
+	padding: 0.375rem 0.25rem;
+	font-size: 0.9375rem;
+	flex: 1;
+	min-width: 120px;
+	background: transparent;
+}
+
+/* 13. File upload area */
+.file-upload-area {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	padding: 1.5rem;
+	border: 2px dashed var(--color-border);
+	border-radius: var(--radius-md);
+	text-align: center;
+	transition: all var(--transition-fast);
+	background: var(--color-surface-muted);
+}
+
+.file-upload-area:hover {
+	border-color: var(--color-primary-border);
+	background: var(--color-primary-light);
+}
+
+.file-upload-hint {
+	font-size: 0.8125rem;
+	color: var(--color-ink-400);
+	margin: 0;
+}
+
+/* 14. Poprawki dla attachmets list */
+.attachments-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin-top: 0.75rem;
+}
+
+.attachment-item {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.75rem 1rem;
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	transition: all var(--transition-fast);
+}
+
+.attachment-item:hover {
+	border-color: var(--color-border-strong);
+	box-shadow: var(--shadow-sm);
+}
+
+.attachment-name {
+	flex: 1;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: var(--color-ink-900);
+}
+
+.attachment-size {
+	font-size: 0.75rem;
+	color: var(--color-ink-400);
+	margin-left: 0.5rem;
+}
+
+.attachment-remove {
+	background: none;
+	border: none;
+	color: var(--color-ink-400);
+	font-size: 1.25rem;
+	cursor: pointer;
+	padding: 0.25rem 0.5rem;
+	border-radius: var(--radius-sm);
+	transition: all var(--transition-fast);
+	line-height: 1;
+}
+
+.attachment-remove:hover {
+	background: var(--color-danger-light);
+	color: var(--color-danger);
+}
+
+/* 15. Responsywność - poprawki dla kroków */
+@media (max-width: 768px) {
+	.step-indicator {
+		flex-direction: row;
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		padding: 1rem;
+		gap: 0.25rem;
+	}
+
+	.step {
+		min-width: 50px;
+		flex: 0 0 auto;
+	}
+
+	.step:not(:last-child)::after {
+		display: none;
+	}
+
+	.step-label {
+		font-size: 0.6rem;
+		max-width: 60px;
+	}
+
+	.step-number {
+		width: 32px;
+		height: 32px;
+		font-size: 0.75rem;
+	}
+
+	.recipients-options {
+		grid-template-columns: 1fr;
+	}
+
+	.duration-options {
+		grid-template-columns: 1fr;
+	}
+
+	.duration-inputs {
+		grid-template-columns: 1fr;
+	}
+
+	.form-actions {
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.btn-primary,
+	.btn-secondary,
+	.btn-submit {
+		width: 100%;
+		min-width: unset;
+		padding: 0.75rem 1.5rem;
+	}
+
+	.form-container {
+		padding: 1.25rem;
+	}
+
+	.create-voting-page {
+		padding: 1rem;
+	}
+
+	.create-voting-header {
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.create-voting-header h1 {
+		font-size: 1.5rem;
+	}
+
+	.btn-cancel {
+		align-self: flex-start;
+	}
+}
+
+@media (max-width: 480px) {
+	.checkbox-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.summary-item {
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.summary-label {
+		min-width: auto;
+	}
+}
+
+/* Poprawka dla checkboxów w sekcji "Kto może zarządzać" - wyrównanie */
+.checkbox-item {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.625rem 1rem;
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	cursor: pointer;
+	transition: all var(--transition-fast);
+	margin: 0;
+	min-height: 44px;
+}
+
+.checkbox-item input[type="checkbox"] {
+	width: 18px;
+	height: 18px;
+	accent-color: var(--color-primary);
+	cursor: pointer;
+	flex-shrink: 0;
+	margin: 0;
+	align-self: center;
+}
+
+.checkbox-item:has(input:checked) {
+	border-color: var(--color-primary);
+	background: var(--color-primary-light);
+}
+
+/* Specjalne wyrównanie dla sekcji zarządzających - checkbox i tekst w jednej linii */
+.checkbox-grid .checkbox-item {
+	display: flex;
+	align-items: center !important;
+	justify-content: flex-start !important;
+	gap: 0.75rem !important;
+	padding: 0.625rem 1rem !important;
+}
+
+.checkbox-grid .checkbox-item input[type="checkbox"] {
+	margin: 0 !important;
+	flex-shrink: 0 !important;
+	align-self: center !important;
+}
+
+.checkbox-grid .checkbox-item .checkbox-text {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex: 1;
+	margin: 0;
+	line-height: 1.4;
+}
+
+/* Dla bardzo małych ekranów */
+@media (max-width: 480px) {
+	.checkbox-item {
+		padding: 0.5rem 0.75rem;
+		min-height: 38px;
+	}
+
+	.checkbox-item input[type="checkbox"] {
+		width: 16px;
+		height: 16px;
+	}
+}
+
+/* ============================================
+   STYLE DLA PODSUMOWANIA - LEPSZE ODDYCHANIE
+   ============================================ */
+
+.summary-step {
+	padding: 0.5rem 0;
+}
+
+.summary-step h2 {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: var(--color-ink-900);
+	margin: 0 0 0.5rem 0;
+	padding-bottom: 0;
+	border-bottom: none;
+}
+
+.summary-step .step-description {
+	color: var(--color-ink-500);
+	font-size: 0.9375rem;
+	margin-bottom: 2rem;
+}
+
+/* Główny kontener podsumowania */
+.summary-section {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	background: var(--color-surface-muted);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	padding: 1.5rem 1.75rem;
+	transition: all var(--transition-fast);
+}
+
+.summary-section:hover {
+	border-color: var(--color-border-strong);
+	box-shadow: var(--shadow-sm);
+}
+
+/* Pojedynczy wiersz */
+.summary-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 1.5rem;
+	padding: 0.625rem 0;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.summary-item:last-child {
+	border-bottom: none;
+}
+
+/* Etykieta */
+.summary-label {
+	min-width: 160px;
+	font-weight: 600;
+	font-size: 0.875rem;
+	color: var(--color-ink-500);
+	flex-shrink: 0;
+	padding-top: 0.0625rem;
+}
+
+/* Wartość */
+.summary-value {
+	flex: 1;
+	font-size: 0.9375rem;
+	color: var(--color-ink-900);
+	font-weight: 500;
+	line-height: 1.5;
+	word-break: break-word;
+}
+
+/* Wyróżnione wartości */
+.summary-value.highlight {
+	color: var(--color-primary);
+	font-weight: 600;
+}
+
+.summary-value.text-muted {
+	color: var(--color-ink-400);
+	font-style: italic;
+	font-weight: 400;
+}
+
+/* Badge kategorii */
+.category-badge {
+	display: inline-block;
+	padding: 0.1875rem 0.875rem;
+	background: var(--color-primary-light);
+	color: var(--color-primary);
+	border-radius: var(--radius-full);
+	font-size: 0.8125rem;
+	font-weight: 600;
+	border: 1px solid var(--color-primary-border);
+}
+
+/* Lista tagów w podsumowaniu (jeśli zostawisz) */
+.summary-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.375rem;
+}
+
+.summary-tag {
+	display: inline-block;
+	padding: 0.125rem 0.75rem;
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-full);
+	font-size: 0.75rem;
+	color: var(--color-ink-700);
+}
+
+/* Lista wybranych osób/grup */
+.summary-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.375rem;
+}
+
+.summary-list-item {
+	display: inline-block;
+	padding: 0.125rem 0.625rem;
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	font-size: 0.8125rem;
+	color: var(--color-ink-900);
+}
+
+/* Załączniki */
+.attachment-item-summary {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.25rem 0;
+	font-size: 0.875rem;
+	color: var(--color-ink-700);
+}
+
+.attachment-item-summary .attachment-icon {
+	font-size: 1.125rem;
+}
+
+.attachment-item-summary .attachment-name {
+	font-weight: 500;
+}
+
+.attachment-item-summary .attachment-size {
+	font-size: 0.75rem;
+	color: var(--color-ink-400);
+}
+
+/* ============================================
+   RESPONSYWNOŚĆ DLA PODSUMOWANIA
+   ============================================ */
+
+@media (max-width: 768px) {
+	.summary-section {
+		padding: 1.25rem 1rem;
+	}
+
+	.summary-item {
+		flex-direction: column;
+		gap: 0.25rem;
+		padding: 0.75rem 0;
+	}
+
+	.summary-label {
+		min-width: auto;
+		font-size: 0.8125rem;
+		color: var(--color-ink-400);
+		font-weight: 500;
+	}
+
+	.summary-value {
+		font-size: 0.9375rem;
+		font-weight: 500;
+	}
+
+	.summary-step h2 {
+		font-size: 1.25rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.summary-section {
+		padding: 1rem 0.75rem;
+	}
+
+	.summary-item {
+		padding: 0.625rem 0;
+	}
+
+	.summary-value {
+		font-size: 0.875rem;
+	}
+
+	.summary-list-item {
+		font-size: 0.75rem;
+		padding: 0.0625rem 0.5rem;
+	}
+}
+/* ============================================
+   POPRAWKI DLA LISTY ODBIORCÓW - PEŁNA SZEROKOŚĆ
+   ============================================ */
+
+/* Kontener dla checkboxów - pełna szerokość */
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 0.5rem;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Pojedynczy checkbox - pełna szerokość */
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    margin: 0;
+    min-height: 44px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.checkbox-item:hover {
+    background: var(--color-primary-light);
+    border-color: var(--color-primary-border);
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+    flex-shrink: 0;
+    margin: 0;
+    align-self: center;
+}
+
+.checkbox-item:has(input:checked) {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+/* Form-group z listą - pełna szerokość */
+.form-group .checkbox-grid {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Wyszukiwarka - pełna szerokość */
+.search-input {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.9375rem;
+    background: var(--color-surface-muted);
+    transition: all var(--transition-fast);
+    font-family: inherit;
+    margin-bottom: 0.75rem;
+    box-sizing: border-box;
+}
+
+/* Dla kontenera form-step */
+.form-step {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Form-group - pełna szerokość */
+.form-group {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Przyciski opcji - równe szerokości */
+.recipients-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.recipient-btn {
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--color-ink-700);
+    transition: all var(--transition-base);
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+    .recipients-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .checkbox-item {
+        padding: 0.5rem 0.75rem;
+        min-height: 38px;
+    }
+    
+    .checkbox-item input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .checkbox-grid {
+        padding: 0.25rem;
+    }
+    
+    .checkbox-item {
+        padding: 0.5rem 0.625rem;
+        font-size: 0.875rem;
+    }
 }

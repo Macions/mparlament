@@ -304,7 +304,7 @@ export default function AddAmendment() {
 
 								{change.type === "delete" && change.articleId && (
 									<div className="delete-info">
-										⚠️ Ten artykuł zostanie <strong>usunięty</strong> z uchwały.
+										️ Ten artykuł zostanie <strong>usunięty</strong> z uchwały.
 									</div>
 								)}
 							</div>

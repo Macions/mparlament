@@ -116,9 +116,9 @@ export default function SubmitResolution() {
 			const bill = {
 				...editedData,
 				fileName,
-				author: userData.name, // ✅ Dodaj autora
-				authorId: userData.id, // ✅ Dodaj ID autora
-				party: userData.club || userData.party || "Niezrzeszony", // ✅ Dodaj partię/klub
+				author: userData.name, // Dodaj autora
+				authorId: userData.id, // Dodaj ID autora
+				party: userData.club || userData.party || "Niezrzeszony", // Dodaj partię/klub
 			};
 
 			const response = await fetch("/api/resolutions", {

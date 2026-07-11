@@ -1,76 +1,172 @@
+// W pliku data/votings.js
 export let votings = [
 	{
 		id: 1,
 		title: "Uchwała w sprawie zwiększenia finansowania oświaty",
-		description:
-			"Projekt uchwały dotyczący zwiększenia środków przeznaczonych na edukację.",
-		category: "Uchwała",
-
+		description: "Projekt uchwały dotyczący zwiększenia środków przeznaczonych na edukację.",
+		category: "resolution",
 		startTime: "2026-07-10T16:19:00",
 		endTime: "2026-07-10T22:00:00",
-
-		status: "active", // ✅ Dodane pole status
-
+		status: "active",
 		recipientsType: "all",
 		selectedGroups: [],
 		selectedMembers: [],
-
+		linkedItemType: "none",
+		linkedItemId: "",
+		applicant: "marshal",
+		attachments: [],
 		votesFor: 142,
 		votesAgainst: 87,
 		abstained: 12,
-
 		hasVoted: true,
 		myVote: "for",
-
 		createdBy: "Jan Kowalski",
+		managers: [3], 
 	},
-
 	{
 		id: 2,
 		title: "Zmiana w ustawie o ochronie środowiska",
 		description: "Zmiana przepisów dotyczących emisji.",
-		category: "Komisja",
-
+		category: "law",
 		startTime: "2026-07-06T16:00:00",
 		endTime: "2026-07-06T18:00:00",
-
-		status: "finished", // ✅ Dodane pole status - zakończone
-
+		status: "finished",
 		recipientsType: "groups",
-
+		selectedGroups: [2, 4],
+		selectedMembers: [],
+		linkedItemType: "resolution",
+		linkedItemId: 2,
+		applicant: "presidium",
+		attachments: [
+			{
+				id: 1,
+				name: "projekt_zmian.pdf",
+				size: 1024 * 1024 * 2.5,
+				type: "application/pdf",
+				uploadDate: "2026-07-05T10:00:00"
+			}
+		],
 		votesFor: 100,
 		votesAgainst: 80,
 		abstained: 10,
-
 		hasVoted: true,
 		myVote: "for",
-
 		createdBy: "Marszałek Parlamentu",
+		managers: [3], 
 	},
-
-	// ✅ Dodaj przykład zarchiwizowanego głosowania
 	{
 		id: 3,
 		title: "Uchwała w sprawie budżetu na 2026 rok",
 		description: "Głosowanie nad budżetem na rok 2026.",
-		category: "Uchwała",
-
+		category: "budget",
 		startTime: "2026-06-20T10:00:00",
 		endTime: "2026-06-20T14:00:00",
-
-		status: "archived", // ✅ Zarchiwizowane
-
-		recipientsType: "all",
-		selectedGroups: [],
+		status: "archived",
+		recipientsType: "groups",
+		selectedGroups: [1, 3, 5],
 		selectedMembers: [],
-
+		linkedItemType: "none",
+		linkedItemId: "",
+		applicant: "group_15",
+		attachments: [],
 		votesFor: 200,
 		votesAgainst: 45,
 		abstained: 15,
-
 		hasVoted: true,
 		myVote: "for",
-
 		createdBy: "Anna Nowak",
+		managers: [3], 
+	},
+	{
+		id: 4,
+		title: "Zmiana regulaminu Parlamentu Młodych RP",
+		description: "Proponowane zmiany w regulaminie dotyczące procedury głosowania.",
+		category: "amendment",
+		startTime: "2026-07-12T09:00:00",
+		endTime: "2026-07-12T12:00:00",
+		status: "upcoming",
+		recipientsType: "members",
+		selectedGroups: [],
+		selectedMembers: [1, 3, 5, 7, 9],
+		linkedItemType: "amendment",
+		linkedItemId: 1,
+		applicant: "",
+		attachments: [
+			{
+				id: 2,
+				name: "regulamin_nowy.docx",
+				size: 1024 * 1024 * 1.2,
+				type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+				uploadDate: "2026-07-11T08:00:00"
+			}
+		],
+		votesFor: 0,
+		votesAgainst: 0,
+		abstained: 0,
+		hasVoted: false,
+		myVote: null,
+		createdBy: "Przewodniczący Komisji",
+		managers: [3], 
+	},
+	{
+		id: 5,
+		title: "Uchwała dotycząca modernizacji infrastruktury",
+		description: "Projekt uchwały w sprawie modernizacji infrastruktury technicznej.",
+		category: "other",
+		startTime: "2026-07-08T14:00:00",
+		endTime: "2026-07-08T16:30:00",
+		status: "finished",
+		recipientsType: "all",
+		selectedGroups: [],
+		selectedMembers: [],
+		linkedItemType: "none",
+		linkedItemId: "",
+		applicant: "marshal",
+		attachments: [],
+		votesFor: 180,
+		votesAgainst: 30,
+		abstained: 20,
+		hasVoted: true,
+		myVote: "for",
+		createdBy: "Minister Infrastruktury",
+		managers: [3], 
+	},
+	{
+		id: 6,
+		title: "Program wsparcia dla młodych przedsiębiorców",
+		description: "Głosowanie nad programem wsparcia finansowego dla młodych przedsiębiorców.",
+		category: "other",
+		startTime: "2026-07-05T10:00:00",
+		endTime: "2026-07-05T14:00:00",
+		status: "archived",
+		recipientsType: "members",
+		selectedGroups: [],
+		selectedMembers: [2, 4, 6, 8, 10, 12],
+		linkedItemType: "resolution",
+		linkedItemId: 3,
+		applicant: "presidium",
+		attachments: [
+			{
+				id: 3,
+				name: "program_wsparcia.pdf",
+				size: 1024 * 1024 * 3.0,
+				type: "application/pdf",
+				uploadDate: "2026-07-04T09:00:00"
+			},
+			{
+				id: 4,
+				name: "załącznik_1.xlsx",
+				size: 1024 * 1024 * 0.8,
+				type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+				uploadDate: "2026-07-04T09:30:00"
+			}
+		],
+		votesFor: 75,
+		votesAgainst: 25,
+		abstained: 8,
+		hasVoted: true,
+		myVote: "against",
+		createdBy: "Marszałek Parlamentu",
+		managers: [3], 
 	},
 ];

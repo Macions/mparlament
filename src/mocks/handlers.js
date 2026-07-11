@@ -182,19 +182,6 @@ export const handlers = [
 		return HttpResponse.json(votings);
 	}),
 
-	http.get("/api/votings/:id", ({ params }) => {
-		const voting = votings.find((v) => v.id === Number(params.id));
-
-		if (!voting) {
-			return HttpResponse.json(
-				{ message: "Nie znaleziono głosowania" },
-				{ status: 404 },
-			);
-		}
-
-		return HttpResponse.json(voting);
-	}),
-
 	http.post("/api/votings", async ({ request }) => {
 		const body = await request.json();
 		const newVoting = createVoting(body);
@@ -555,5 +542,126 @@ export const handlers = [
 			success: true,
 			message: "Głosowanie zostało zarchiwizowane",
 		});
+	}),
+	// Aktywacja głosowania
+	http.post("/api/votings/:id/activate", async ({ params, request }) => {
+		const votingId = Number(params.id);
+		const voting = votings.find(v => v.id === votingId);
+
+		if (!voting) {
+			return HttpResponse.json(
+				{ message: "Nie znaleziono głosowania" },
+				{ status: 404 }
+			);
+		}
+
+		const body = await request.json();
+
+		// Aktualizuj daty
+		voting.startTime = body.startTime;
+		voting.endTime = body.endTime;
+		voting.status = "active";
+
+		return HttpResponse.json({
+			success: true,
+			message: "Głosowanie zostało aktywowane",
+			voting: voting
+		});
+	}),
+	// Pobieranie grup
+	http.get("/api/groups", () => {
+		return HttpResponse.json([
+			{ id: 1, name: "Komisja Oświaty" },
+			{ id: 2, name: "Komisja Środowiska" },
+			{ id: 3, name: "Komisja Budżetu" },
+			{ id: 4, name: "Komisja Regulaminowa" },
+			{ id: 5, name: "Komisja Infrastruktury" },
+		]);
+	}),
+
+	// Pobieranie członków
+	http.get("/api/members", () => {
+		return HttpResponse.json([
+			{ id: 1, name: "Jan Kowalski", group: "Platforma Obywatelska" },
+			{ id: 2, name: "Anna Nowak", group: "Prawo i Sprawiedliwość" },
+			{ id: 3, name: "Piotr Wiśniewski", group: "Polska 2050" },
+			{ id: 4, name: "Maria Kowalska", group: "Lewica" },
+			{ id: 5, name: "Tomasz Zieliński", group: "Konfederacja" },
+			{ id: 6, name: "Katarzyna Woźniak", group: "PSL" },
+			{ id: 7, name: "Michał Kamiński", group: "Platforma Obywatelska" },
+			{ id: 8, name: "Agnieszka Lewandowska", group: "Prawo i Sprawiedliwość" },
+		]);
+	}),
+
+	// Pobieranie uchwał
+	http.get("/api/resolutions", () => {
+		return HttpResponse.json([
+			{ id: 1, title: "Uchwała w sprawie finansowania oświaty" },
+			{ id: 2, title: "Uchwała w sprawie ochrony środowiska" },
+			{ id: 3, title: "Uchwała w sprawie budżetu na 2026 rok" },
+		]);
+	}),
+
+	// Pobieranie poprawek
+	http.get("/api/amendments", () => {
+		return HttpResponse.json([
+			{ id: 1, title: "Poprawka do uchwały oświatowej" },
+			{ id: 2, title: "Poprawka do ustawy środowiskowej" },
+		]);
+	}),
+
+	// Pobieranie użytkowników
+	http.get("/api/users", () => {
+		return HttpResponse.json(users);
+	}),
+
+	// UPDATE - edycja głosowania
+	http.put("/api/votings/:id", async ({ params, request }) => {
+		const votingId = Number(params.id);
+		const voting = votings.find(v => v.id === votingId);
+
+		if (!voting) {
+			return HttpResponse.json(
+				{ message: "Nie znaleziono głosowania" },
+				{ status: 404 }
+			);
+		}
+
+		const body = await request.json();
+
+		// Aktualizuj dane głosowania
+		voting.title = body.title;
+		voting.description = body.description;
+		voting.category = body.category;
+		voting.startTime = body.startTime;
+		voting.endTime = body.endTime;
+		voting.recipientsType = body.recipientsType;
+		voting.selectedGroups = body.selectedGroups || [];
+		voting.selectedMembers = body.selectedMembers || [];
+		voting.tags = body.tags || [];
+		voting.linkedItemType = body.linkedItemType;
+		voting.linkedItemId = body.linkedItemId;
+		voting.applicant = body.applicant;
+		managers: body.managers || [];
+		return HttpResponse.json({
+			success: true,
+			message: "Głosowanie zostało zaktualizowane",
+			voting: voting
+		});
+	}),
+	// Dodaj w handlerach MSW:
+
+	// Pobieranie pojedynczego głosowania
+	http.get("/api/votings/:id", ({ params }) => {
+		const voting = votings.find((v) => v.id === Number(params.id));
+
+		if (!voting) {
+			return HttpResponse.json(
+				{ message: "Nie znaleziono głosowania" },
+				{ status: 404 }
+			);
+		}
+
+		return HttpResponse.json(voting);
 	}),
 ];

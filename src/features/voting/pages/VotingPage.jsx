@@ -154,15 +154,6 @@ export default function VotingPage() {
 						</span>
 					</div>
 
-					{canEdit && (
-						<button
-							className="edit-voting-btn"
-							onClick={() => navigate(`/glosowania/${id}/edytuj`)}
-						>
-							✏️ Edytuj głosowanie
-						</button>
-					)}
-
 					<h1 className="voting-title">{vote.title}</h1>
 
 					<p className="voting-description">{vote.description}</p>

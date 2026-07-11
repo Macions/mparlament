@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import "./VotingPage.css";
+import "./VotingDetailsPage.css";
 
 function formatVote(v) {
 	switch (v) {
@@ -43,6 +43,19 @@ function getStatusClass(vote) {
 	return "finished";
 }
 
+function getRecipientsLabel(vote) {
+	switch (vote.recipientsType) {
+		case "all":
+			return "Wszyscy członkowie";
+		case "groups":
+			return "Wybrane grupy";
+		case "members":
+			return "Wybrani członkowie";
+		default:
+			return "Nieokreślone";
+	}
+}
+
 export default function VotingDetailsPage() {
 	const { id } = useParams();
 	const navigate = useNavigate();
@@ -51,6 +64,7 @@ export default function VotingDetailsPage() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
 	const [isAdmin, setIsAdmin] = useState(false);
+	const [recipientsDetails, setRecipientsDetails] = useState(null);
 
 	const token = localStorage.getItem("token");
 
@@ -94,6 +108,58 @@ export default function VotingDetailsPage() {
 				}
 
 				setVote(data);
+
+				// Jeśli są wybrane grupy lub członkowie, pobierz ich szczegóły
+				if (data.recipientsType === "groups" && data.selectedGroups) {
+					try {
+						const groupsResponse = await fetch("/api/groups", {
+							headers: {
+								Authorization: `Bearer ${token}`,
+							},
+						});
+						const groupsData = await groupsResponse.json();
+
+						const selectedGroupsDetails = groupsData.filter(g =>
+							data.selectedGroups.includes(g.id)
+						);
+						setRecipientsDetails({
+							type: "groups",
+							data: selectedGroupsDetails
+						});
+					} catch {
+						setRecipientsDetails({
+							type: "groups",
+							data: data.selectedGroups.map(id => ({ id, name: `Grupa ${id}` }))
+						});
+					}
+				} else if (data.recipientsType === "members" && data.selectedMembers) {
+					try {
+						const membersResponse = await fetch("/api/users", {
+							headers: {
+								Authorization: `Bearer ${token}`,
+							},
+						});
+						const membersData = await membersResponse.json();
+
+						const selectedMembersDetails = membersData.filter(m =>
+							data.selectedMembers.includes(m.id)
+						);
+						setRecipientsDetails({
+							type: "members",
+							data: selectedMembersDetails
+						});
+					} catch {
+						setRecipientsDetails({
+							type: "members",
+							data: data.selectedMembers.map(id => ({ id, name: `Członek ${id}` }))
+						});
+					}
+				} else {
+					setRecipientsDetails({
+						type: "all",
+						data: null
+					});
+				}
 			} catch (error) {
 				setError(error.message);
 			} finally {
@@ -149,6 +215,8 @@ export default function VotingDetailsPage() {
 	const abstainPercentage =
 		totalVotes > 0 ? Math.round((vote.abstained / totalVotes) * 100) : 0;
 
+	const recipientsLabel = getRecipientsLabel(vote);
+
 	return (
 		<div className="voting-details-page">
 			<div className="voting-details-header">
@@ -156,14 +224,6 @@ export default function VotingDetailsPage() {
 					← Powrót
 				</button>
 
-				{isAdmin && (
-					<Link
-						to={`/glosowania/${vote.id}/edytuj`}
-						className="edit-voting-btn"
-					>
-						✏️ Edytuj głosowanie
-					</Link>
-				)}
 			</div>
 
 			<div className="voting-details-container">
@@ -217,15 +277,56 @@ export default function VotingDetailsPage() {
 					</div>
 				</div>
 
+				{/* SEKCJA: UPRAWNIENI DO GŁOSOWANIA */}
+				<div className="voting-details-recipients">
+					<h3 className="recipients-title">Uprawnieni do głosowania</h3>
+
+					<div className="recipients-info">
+						<span className="recipients-type">{recipientsLabel}</span>
+
+						{recipientsDetails?.type === "all" && (
+							<p className="recipients-description">
+								Wszyscy członkowie Parlamentu Młodych RP są uprawnieni do głosowania.
+							</p>
+						)}
+
+						{recipientsDetails?.type === "groups" && recipientsDetails.data && (
+							<div className="recipients-list">
+								<p className="recipients-subtitle">Wybrane grupy:</p>
+								<div className="recipients-tags">
+									{recipientsDetails.data.map((group, index) => (
+										<span key={index} className="recipient-tag group">
+											{group.name || `Grupa ${group.id}`}
+										</span>
+									))}
+								</div>
+							</div>
+						)}
+
+						{recipientsDetails?.type === "members" && recipientsDetails.data && (
+							<div className="recipients-list">
+								<p className="recipients-subtitle">Wybrani członkowie:</p>
+								<div className="recipients-tags">
+									{recipientsDetails.data.map((member, index) => (
+										<span key={index} className="recipient-tag member">
+											{member.name || `Członek ${member.id}`}
+										</span>
+									))}
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+
 				{(statusClass === "finished" || statusClass === "archived") && (
 					<div className="voting-details-results">
 						<h2>Wyniki głosowania</h2>
 
 						<div className="results-summary">
 							<div className={`result-badge ${result}`}>
-								{result === "passed" && "✅ Uchwała przyjęta"}
-								{result === "rejected" && "❌ Uchwała odrzucona"}
-								{result === "tie" && "⚖️ Remis"}
+								{result === "passed" && "Uchwała przyjęta"}
+								{result === "rejected" && "Uchwała odrzucona"}
+								{result === "tie" && "Remis"}
 							</div>
 						</div>
 
@@ -294,24 +395,9 @@ export default function VotingDetailsPage() {
 					</div>
 				)}
 
-				{statusClass === "active" && (
-					<div className="voting-details-active">
-						<h2>Głosowanie trwa!</h2>
-						{vote.hasVoted ? (
-							<p className="my-vote-info">
-								Już zagłosowałeś: <strong>{formatVote(vote.myVote)}</strong>
-							</p>
-						) : (
-							<Link to={`/glosowanie/${vote.id}`} className="vote-now-btn">
-								🗳️ Weź udział w głosowaniu
-							</Link>
-						)}
-					</div>
-				)}
-
 				{statusClass === "upcoming" && (
 					<div className="voting-details-upcoming">
-						<p>⏳ Głosowanie jeszcze się nie rozpoczęło</p>
+						<p>Głosowanie jeszcze się nie rozpoczęło</p>
 						<p className="upcoming-info">
 							Rozpocznie się: {new Date(vote.startTime).toLocaleString("pl-PL")}
 						</p>
@@ -320,7 +406,7 @@ export default function VotingDetailsPage() {
 
 				{statusClass === "archived" && (
 					<div className="voting-details-archived">
-						<p>📦 To głosowanie zostało zarchiwizowane</p>
+						<p>To głosowanie zostało zarchiwizowane</p>
 					</div>
 				)}
 			</div>

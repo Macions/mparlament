@@ -273,7 +273,7 @@ export default function AmendmentsPage() {
 						<h2 className="amendment-modal-title">Wycofanie poprawki</h2>
 
 						<div className="amendment-modal-warning">
-							<strong>⚠️ UWAGA!</strong>
+							<strong>️ UWAGA!</strong>
 							<p>
 								Poprawka nie zniknie z listy poprawek. Wycofanie jej spowoduje,
 								że nie będzie można wejść w jej szczegóły, natomiast informacja

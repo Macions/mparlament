@@ -61,7 +61,7 @@ export default function ResolutionDetails() {
 				throw new Error(data.message || "Wystąpił błąd");
 			}
 
-			// ✅ Nie próbuj parsować JSON jeśli response jest pusty
+			// Nie próbuj parsować JSON jeśli response jest pusty
 			let data = null;
 			try {
 				data = await res.json();

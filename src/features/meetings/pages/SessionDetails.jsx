@@ -539,7 +539,7 @@ export default function SessionDetails() {
                             ) : (
                                 <>
                                     <button className="break-btn" onClick={startBreak}>
-                                        ⏸️ PRZERWA
+                                        ️ PRZERWA
                                     </button>
                                     <button className="zo-btn" onClick={setOrganizationalTeam}>
                                         ZO
@@ -558,8 +558,8 @@ export default function SessionDetails() {
                         <h2>HARMONOGRAM POSIEDZENIA</h2>
                         {isAdmin && (
                             <div className="admin-nav">
-                                <button onClick={prevItem} className="nav-btn">◀ Poprzedni</button>
-                                <button onClick={nextItem} className="nav-btn">Dalej ▶</button>
+                                <button onClick={prevItem} className="nav-btn">Poprzedni</button>
+                                <button onClick={nextItem} className="nav-btn">Dalej </button>
                             </div>
                         )}
                     </div>
@@ -598,7 +598,7 @@ export default function SessionDetails() {
                                                 className="admin-input title-input"
                                             />
                                             <div className="admin-item-actions">
-                                                <button onClick={() => setActiveItem(index)} className="action-btn set-active" title="Ustaw jako aktywny">⏺</button>
+                                                <button onClick={() => setActiveItem(index)} className="action-btn set-active" title="Ustaw jako aktywny"></button>
                                                 <button onClick={() => moveScheduleItem(index, -1)} className="action-btn move" title="Przenieś w górę">↑</button>
                                                 <button onClick={() => moveScheduleItem(index, 1)} className="action-btn move" title="Przenieś w dół">↓</button>
                                                 <button onClick={() => removeScheduleItem(index)} className="action-btn delete" title="Usuń punkt">✕</button>

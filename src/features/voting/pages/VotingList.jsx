@@ -31,6 +31,18 @@ function getResult(vote) {
 	if (vote.votesFor < vote.votesAgainst) return "rejected";
 	return "tie";
 }
+// Dodaj tę funkcję w VotingList.jsx (obok getVoteStatus, formatTime itp.)
+function getCategoryLabel(category) {
+	const labels = {
+		amendment: "Poprawka",
+		committee: "Komisja",
+		resolution: "Uchwała",
+		law: "Ustawa",
+		budget: "Budżet",
+		other: "Inne",
+	};
+	return labels[category] || category || "Inne";
+}
 
 export default function Votings() {
 	const [votes, setVotes] = useState([]);
@@ -41,6 +53,12 @@ export default function Votings() {
 	const [now, setNow] = useState(Date.now());
 	const [archivingId, setArchivingId] = useState(null);
 	const [showArchiveModal, setShowArchiveModal] = useState(false);
+
+	// Stany dla modala aktywacji
+	const [showActivateModal, setShowActivateModal] = useState(false);
+	const [activatingId, setActivatingId] = useState(null);
+	const [activationDuration, setActivationDuration] = useState(1); // w godzinach
+	const [activationStartDelay, setActivationStartDelay] = useState(0); // w minutach
 
 	const token = localStorage.getItem("token");
 
@@ -112,7 +130,6 @@ export default function Votings() {
 				throw new Error("Nie udało się zarchiwizować głosowania");
 			}
 
-			// Odśwież listę
 			const updatedResponse = await fetch("/api/votings", {
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -132,6 +149,56 @@ export default function Votings() {
 		setShowArchiveModal(true);
 	};
 
+	// Funkcja do aktywacji głosowania
+	const handleActivate = async (voteId) => {
+		try {
+			// Oblicz daty
+			const now = new Date();
+			const startTime = new Date(now.getTime() + activationStartDelay * 60000);
+			const endTime = new Date(startTime.getTime() + activationDuration * 3600000);
+
+			const response = await fetch(`/api/votings/${voteId}/activate`, {
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${token}`,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					startTime: startTime.toISOString(),
+					endTime: endTime.toISOString(),
+					duration: activationDuration,
+					delay: activationStartDelay,
+				}),
+			});
+
+			if (!response.ok) {
+				throw new Error("Nie udało się aktywować głosowania");
+			}
+
+			// Odśwież listę
+			const updatedResponse = await fetch("/api/votings", {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			const data = await updatedResponse.json();
+			setVotes(data);
+			setShowActivateModal(false);
+			setActivatingId(null);
+			setActivationDuration(1);
+			setActivationStartDelay(0);
+		} catch (err) {
+			setError(err.message);
+		}
+	};
+
+	const openActivateModal = (voteId) => {
+		setActivatingId(voteId);
+		setActivationDuration(1);
+		setActivationStartDelay(0);
+		setShowActivateModal(true);
+	};
+
 	if (loading) {
 		return <h2>Ładowanie głosowań...</h2>;
 	}
@@ -143,13 +210,8 @@ export default function Votings() {
 	const filteredVotes = votes.filter((vote) => {
 		const status = getVoteStatus(vote);
 
-		// Jeśli filtr to "archived" - pokaż tylko zarchiwizowane
 		if (filter === "archived") return status === "archived";
-
-		// Jeśli filtr to "all" - pokaż WSZYSTKIE OPRÓCZ zarchiwizowanych
 		if (filter === "all") return status !== "archived";
-
-		// Dla pozostałych filtrów (active, finished, upcoming)
 		if (filter === "active") return status === "active";
 		if (filter === "finished") return status === "finished";
 		if (filter === "upcoming") return status === "upcoming";
@@ -184,7 +246,7 @@ export default function Votings() {
 				</div>
 
 				<div className="votings-grid">
-					{isAdmin && (
+					{isAdmin && filter !== "archived" && (
 						<Link
 							to="/glosowania/nowe"
 							className="voting-card create-vote-card"
@@ -203,10 +265,14 @@ export default function Votings() {
 						const result = status === "finished" ? getResult(vote) : null;
 						const isArchived = status === "archived";
 
+						const canEdit = isAdmin && (status === "active" || status === "upcoming");
+						const canArchive = isAdmin && status === "finished";
+						const canActivate = isAdmin && status === "upcoming";
+
 						return (
 							<div key={vote.id} className={`voting-card ${status}`}>
 								<div className="voting-card-header">
-									<span className="voting-type">{vote.category}</span>
+									<span className="voting-type">{getCategoryLabel(vote.category)}</span>
 									<span className={`voting-status ${status}`}>
 										{isArchived
 											? "ZARCHIWIZOWANE"
@@ -301,72 +367,85 @@ export default function Votings() {
 								{isArchived && (
 									<div className="voting-archived">
 										<p className="archived-info">
-											📦 To głosowanie zostało zarchiwizowane
+											To głosowanie zostało zarchiwizowane
 										</p>
 										<Link
 											to={`/glosowanie/${vote.id}/szczegoly`}
-											className="vote-now-btn"
+											className="see-details-btn"
 										>
 											Zobacz szczegóły
 										</Link>
 									</div>
 								)}
 
-								{!isArchived &&
-									status !== "active" &&
-									status !== "finished" && (
-										<div className="voting-actions">
+								{/* Przyciski dla oczekujących */}
+								{!isArchived && status === "upcoming" && (
+									<div className="voting-actions">
+										<Link
+											to={`/glosowanie/${vote.id}/szczegoly`}
+											className="see-details-btn"
+										>
+											Szczegóły
+										</Link>
+
+										{canEdit && (
 											<Link
-												to={`/glosowanie/${vote.id}`}
-												className="vote-now-btn"
+												to={`/glosowanie/${vote.id}/edytuj`}
+												className="edit-vote-btn"
 											>
-												Szczegóły
+												Edytuj
 											</Link>
+										)}
 
-											{isAdmin && (
-												<>
-													<Link
-														to={`/glosowania/${vote.id}/edytuj`}
-														className="edit-vote-btn"
-													>
-														Edytuj
-													</Link>
-													<button
-														onClick={() => openArchiveModal(vote.id)}
-														className="archive-vote-btn"
-													>
-														Archiwizuj
-													</button>
-												</>
-											)}
-										</div>
-									)}
-
-								{!isArchived && status === "finished" && isAdmin && (
-									<div className="voting-actions">
-										<Link
-											to={`/glosowanie/${vote.id}`}
-											className="vote-now-btn"
-										>
-											Zobacz wyniki
-										</Link>
-										<button
-											onClick={() => openArchiveModal(vote.id)}
-											className="archive-vote-btn"
-										>
-											Archiwizuj
-										</button>
+										{canActivate && (
+											<button
+												onClick={() => openActivateModal(vote.id)}
+												className="activate-vote-btn"
+											>
+												Aktywuj
+											</button>
+										)}
 									</div>
 								)}
 
-								{!isArchived && status === "active" && isAdmin && (
+								{/* Przyciski dla aktywnych */}
+								{!isArchived && status === "active" && (
 									<div className="voting-actions">
 										<Link
-											to={`/glosowanie/${vote.id}`}
-											className="vote-now-btn"
+											to={`/glosowanie/${vote.id}/szczegoly`}
+											className="see-details-btn"
 										>
 											Zobacz szczegóły
 										</Link>
+
+										{canEdit && (
+											<Link
+												to={`/glosowanie/${vote.id}/edytuj`}
+												className="edit-vote-btn"
+											>
+												Edytuj
+											</Link>
+										)}
+									</div>
+								)}
+
+								{!isArchived && status === "finished" && (
+									<div className="voting-actions">
+										<Link
+											to={`/glosowanie/${vote.id}/szczegoly`}
+											className="see-results-btn"
+										>
+											Zobacz szczegóły
+										</Link>
+
+										{canArchive && (
+											<button
+												onClick={() => openArchiveModal(vote.id)}
+												className="archive-vote-btn"
+											>
+												Archiwizuj
+											</button>
+										)}
 									</div>
 								)}
 							</div>
@@ -392,7 +471,7 @@ export default function Votings() {
 						<h2>Archiwizacja głosowania</h2>
 
 						<div className="archive-modal-warning">
-							<strong>⚠️ UWAGA!</strong>
+							<strong>UWAGA!</strong>
 							<p>
 								Czy na pewno chcesz zarchiwizować to głosowanie? Po archiwizacji
 								będzie ono widoczne tylko w zakładce "Zarchiwizowane".
@@ -411,6 +490,109 @@ export default function Votings() {
 								onClick={() => handleArchive(archivingId)}
 							>
 								Potwierdź archiwizację
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Modal aktywacji głosowania */}
+			{showActivateModal && (
+				<div
+					className="activate-modal-overlay"
+					onClick={() => setShowActivateModal(false)}
+				>
+					<div
+						className="activate-modal-content"
+						onClick={(e) => e.stopPropagation()}
+					>
+						<h2>Aktywacja głosowania</h2>
+
+						<div className="activate-modal-info">
+							<p>
+								<strong>{votes.find(v => v.id === activatingId)?.title}</strong>
+							</p>
+							<p className="activate-modal-subtitle">
+								Ustaw czas trwania i opóźnienie startu głosowania.
+							</p>
+						</div>
+
+						<div className="activate-modal-fields">
+							<div className="activate-field">
+								<label htmlFor="duration">
+									Czas trwania głosowania
+								</label>
+								<div className="activate-field-input">
+									<input
+										id="duration"
+										type="number"
+										min="0.5"
+										max="72"
+										step="0.5"
+										value={activationDuration}
+										onChange={(e) => setActivationDuration(parseFloat(e.target.value) || 1)}
+									/>
+									<span className="activate-field-unit">godzin</span>
+								</div>
+								<small className="activate-field-hint">
+									(min. 0.5h, max. 72h)
+								</small>
+							</div>
+
+							<div className="activate-field">
+								<label htmlFor="delay">
+									Opóźnienie startu
+								</label>
+								<div className="activate-field-input">
+									<input
+										id="delay"
+										type="number"
+										min="0"
+										max="60"
+										step="1"
+										value={activationStartDelay}
+										onChange={(e) => setActivationStartDelay(parseInt(e.target.value) || 0)}
+									/>
+									<span className="activate-field-unit">minut</span>
+								</div>
+								<small className="activate-field-hint">
+									(maks. 60 minut)
+								</small>
+							</div>
+						</div>
+
+						<div className="activate-modal-preview">
+							<p>
+								<strong>Podgląd:</strong>
+							</p>
+							<p>
+								Start: <span className="preview-time">
+									{new Date(Date.now() + activationStartDelay * 60000).toLocaleString("pl-PL")}
+								</span>
+							</p>
+							<p>
+								Koniec: <span className="preview-time">
+									{new Date(Date.now() + activationStartDelay * 60000 + activationDuration * 3600000).toLocaleString("pl-PL")}
+								</span>
+							</p>
+							<p className="preview-duration">
+								Czas trwania: <strong>{activationDuration} godzin</strong>
+								{activationStartDelay > 0 && ` (start za ${activationStartDelay} minut)`}
+							</p>
+						</div>
+
+						<div className="activate-modal-actions">
+							<button
+								className="activate-modal-btn-cancel"
+								onClick={() => setShowActivateModal(false)}
+							>
+								Anuluj
+							</button>
+							<button
+								className="activate-modal-btn-confirm"
+								onClick={() => handleActivate(activatingId)}
+							>
+								Aktywuj głosowanie
 							</button>
 						</div>
 					</div>

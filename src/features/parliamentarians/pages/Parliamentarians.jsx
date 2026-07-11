@@ -387,14 +387,14 @@ export default function Parliamentarians() {
 											onClick={() => openManageMembersModal(club)}
 											title="Zarządzaj członkami"
 										>
-											👥
+											
 										</button>
 										<button
 											className="club-edit-btn"
 											onClick={() => openEditClubModal(club)}
 											title="Edytuj"
 										>
-											✎
+											
 										</button>
 										<button
 											className="club-delete-btn"
