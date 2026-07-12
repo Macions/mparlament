@@ -4,7 +4,8 @@ import { HashRouter } from "react-router-dom";
 import App from "./app/App";
 
 async function enableMocking() {
-	if (import.meta.env.DEV) {
+	// if (import.meta.env.DEV) {
+	if (false) {
 		const { worker } = await import("./mocks/browser");
 
 		return worker.start();
