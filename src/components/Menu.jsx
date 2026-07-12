@@ -1,9 +1,12 @@
 import { NavLink } from "react-router-dom";
 
+const isLoggedIn = localStorage.getItem('msw_current_user') !== null;
+
 const menuItems = [
   { id: 1, label: "O parlamencie", to: "/o-parlamencie", href: "https://parlamentmlodych.eu/" },
   { id: 2, label: "Posiedzenia", to: "/posiedzenia" },
   { id: 3, label: "Parlamentarzyści", to: "/parlamentarzysci" },
+  ...(isLoggedIn ? [{ id: 4, label: "Dashboard", to: "/dashboard" }] : []),
 ];
 
 export default function Menu() {

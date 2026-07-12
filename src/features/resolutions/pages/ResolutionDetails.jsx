@@ -124,14 +124,27 @@ export default function ResolutionDetails() {
 				<div className="resolution-grid">
 					<div className="resolution-left">
 						<div className="file-box">
-							<a
-								href={`/${resolution.fileName}`}
-								className="file-link"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								{resolution.fileName}
-							</a>
+							{resolution.filePath ? (
+								<a
+									href={resolution.filePath}
+									className="file-link"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									{resolution.fileName || 'Pobierz plik'}
+								</a>
+							) : resolution.fileName ? (
+								<a
+									href={`/uploads/resolutions/${resolution.fileName}`}
+									className="file-link"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									{resolution.fileName}
+								</a>
+							) : (
+								<span className="file-link disabled">Brak załącznika</span>
+							)}
 						</div>
 
 						<div className="signatures-row">

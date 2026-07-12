@@ -79,16 +79,40 @@ export default function Dashboard() {
 
 	return (
 		<div className="dashboard">
-			<button
-				className="back-to-home-btn"
-				onClick={() => navigate("/")}
-			>
-				← Powrót do strony głównej
-			</button>
 			<section className="dashboard__user">
-				<p className="dashboard__user-name">Zalogowano jako {user?.name}</p>
 
-				<p className="dashboard__user-club">{user?.club}</p>
+				<button
+					className="back-to-home-btn"
+					onClick={() => navigate("/")}
+				>
+					<svg
+						width="18"
+						height="18"
+						viewBox="0 0 24 24"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path
+							d="M15 18L9 12L15 6"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						/>
+					</svg>
+
+					Strona główna
+				</button>
+				<div className="dashboard__user-info">
+					<p className="dashboard__user-name">
+						Zalogowano jako {user?.name}
+					</p>
+
+					<p className="dashboard__user-club">
+						{user?.club}
+					</p>
+				</div>
+
 			</section>
 
 			<div className="dashboard__grid">
@@ -98,19 +122,17 @@ export default function Dashboard() {
 					{currentSession ? (
 						<>
 							<div className="dashboard__session-info">
-								<span className="dashboard__session-badge">Trwa teraz</span>
+								<span className="dashboard__session-badge">
+									Trwa teraz
+								</span>
 
 								<h3>{currentSession.title}</h3>
 
 								<p className="dashboard__session-time">
 									<span className="date">{currentSession.start}</span>
-
 									<span className="time">{currentSession.startTime}</span>
-
 									<span className="separator">–</span>
-
 									<span className="date">{currentSession.end}</span>
-
 									<span className="time">{currentSession.endTime}</span>
 								</p>
 							</div>

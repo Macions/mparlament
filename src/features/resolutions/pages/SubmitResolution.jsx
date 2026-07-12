@@ -14,7 +14,7 @@ export default function SubmitResolution() {
 	const [error, setError] = useState("");
 	const [showSuccess, setShowSuccess] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
-
+	const [uploadProgress, setUploadProgress] = useState(0);
 	const navigate = useNavigate();
 
 	const handleFileChange = (e) => {
@@ -26,6 +26,7 @@ export default function SubmitResolution() {
 			setParsed(null);
 			setEditedData(null);
 			setAnalyzed(false);
+			setUploadProgress(0);
 		} else {
 			setError("Proszę wybrać plik .docx");
 		}
@@ -105,40 +106,90 @@ export default function SubmitResolution() {
 	const handleSubmit = async () => {
 		if (!editedData || submitting) return;
 
+		// Sprawdź czy plik istnieje
+		if (!file) {
+			setError("Nie wybrano pliku");
+			return;
+		}
+
 		setSubmitting(true);
 		setError("");
+		setUploadProgress(0); // 👈 DODAJ
 
 		try {
-
 			const userResponse = await fetch("/api/auth/me");
+			if (!userResponse.ok) {
+				throw new Error("Nie można pobrać danych użytkownika");
+			}
 			const userData = await userResponse.json();
 
+			// Tworzymy FormData
+			const formData = new FormData();
+
+			// Dodajemy plik
+			formData.append("file", file);
+
+			// Przygotowujemy dane
 			const bill = {
 				...editedData,
 				fileName,
-				author: userData.name, // Dodaj autora
-				authorId: userData.id, // Dodaj ID autora
-				party: userData.club || userData.party || "Niezrzeszony", // Dodaj partię/klub
+				author: userData.name,
+				authorId: userData.id,
+				party: userData.club || userData.party || "Niezrzeszony",
 			};
 
-			const response = await fetch("/api/resolutions", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(bill),
+			// Dodajemy dane jako JSON string
+			formData.append("data", JSON.stringify(bill));
+
+			// 👇 ZMIEŃ fetch na XMLHttpRequest z progress
+			const response = await new Promise((resolve, reject) => {
+				const xhr = new XMLHttpRequest();
+
+				// Nasłuchuj postęp wysyłania
+				xhr.upload.addEventListener('progress', (event) => {
+					if (event.lengthComputable) {
+						const percent = (event.loaded / event.total) * 100;
+						setUploadProgress(percent);
+					}
+				});
+
+				xhr.open('POST', '/api/resolutions');
+
+				xhr.onload = () => {
+					if (xhr.status >= 200 && xhr.status < 300) {
+						try {
+							const data = JSON.parse(xhr.responseText);
+							resolve({ ok: true, status: xhr.status, data });
+						} catch (e) {
+							resolve({ ok: true, status: xhr.status, data: {} });
+						}
+					} else {
+						try {
+							const error = JSON.parse(xhr.responseText);
+							reject(new Error(error.message || `Błąd ${xhr.status}`));
+						} catch (e) {
+							reject(new Error(`Błąd ${xhr.status}`));
+						}
+					}
+				};
+
+				xhr.onerror = () => {
+					reject(new Error("Błąd połączenia z serwerem"));
+				};
+
+				xhr.send(formData);
 			});
 
 			if (!response.ok) {
-				throw new Error("Nie udało się złożyć uchwały");
+				throw new Error(response.message || "Nie udało się złożyć uchwały");
 			}
 
-			const data = await response.json();
-			console.log("Utworzona uchwała:", data);
+			setUploadProgress(100);
 			setShowSuccess(true);
 		} catch (err) {
 			setError(err.message);
 			setSubmitting(false);
+			setUploadProgress(0);
 		}
 	};
 
@@ -149,7 +200,7 @@ export default function SubmitResolution() {
 					<Link to="/dashboard" className="home-link">
 						<i className="fas fa-house"></i>
 					</Link>
-						ZŁÓŻ UCHWAŁĘ
+					ZŁÓŻ UCHWAŁĘ
 				</h1>
 				<div className="session-info">
 					Posiedzenie: Warszawa
@@ -187,6 +238,11 @@ export default function SubmitResolution() {
 								{fileName || "Nie wybrano pliku"}
 							</div>
 						</div>
+						{file && (
+							<div className="file-info">
+								{file.name} ({(file.size / 1024).toFixed(1)} KB)
+							</div>
+						)}
 					</div>
 
 					{error && <p className="error">{error}</p>}
@@ -199,9 +255,23 @@ export default function SubmitResolution() {
 						{loading
 							? "Analizowanie..."
 							: analyzed
-								? "Przeanalizowano ✓"
+								? "Przeanalizowano"
 								: "Analizuj ustawę"}
 					</button>
+					{/* 👇 DODAJ TEN KOD */}
+					{submitting && uploadProgress > 0 && uploadProgress < 100 && (
+						<div className="progress-container">
+							<div className="progress-bar">
+								<div
+									className="progress-fill"
+									style={{ width: `${Math.round(uploadProgress)}%` }}
+								/>
+							</div>
+							<span className="progress-text">
+								Wysyłanie pliku: {Math.round(uploadProgress)}%
+							</span>
+						</div>
+					)}
 
 					{editedData && (
 						<div className="editor-section">
@@ -302,7 +372,7 @@ export default function SubmitResolution() {
 						onClick={handleSubmit}
 						disabled={!analyzed || submitting}
 					>
-						Złóż uchwałę
+						{submitting ? "Wysyłanie..." : "Złóż uchwałę"}
 					</button>
 				</div>
 			</div>

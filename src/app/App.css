@@ -484,42 +484,6 @@ body {
 	}
 }
 
-@media (min-width: 1400px) {
-	.header {
-		padding: 1rem 5rem;
-		min-height: 85px;
-	}
-
-	.parlament-logo__img {
-		width: 14em;
-	}
-
-	.header__center .mparlament-logo__img {
-		height: 75px;
-	}
-
-	.header__center .mparlament-logo__text {
-		font-size: 1.6rem;
-		transform: translateY(-3px);
-	}
-
-	.login-button__icon,
-	.logout-button__icon {
-		width: 48px;
-		height: 48px;
-		font-size: 1.2rem;
-	}
-
-	.login-button__label,
-	.logout-button__label {
-		font-size: 1.1rem;
-	}
-}
-
-/* ============================================================
-   HEADER - WYSOKOŚĆ EKRANU
-   ============================================================ */
-
 @media (max-height: 700px) and (min-width: 768px) {
 	.header {
 		min-height: 55px;
@@ -549,6 +513,190 @@ body {
 	.login-button__label,
 	.logout-button__label {
 		font-size: 0.7rem;
+	}
+}
+/* ====================== BASE STYLES ====================== */
+
+.header {
+	display: flex;
+	flex-direction: column;
+	background: #141644;
+	border-radius: 0 0 1.75rem 1.75rem;
+	color: #fff;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.41), 0 8px 16px -6px rgba(0, 0, 0, 0.404);
+	padding: 0.75rem 1.5rem;
+	min-height: 88px;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.login-button__icon,
+.logout-button__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	color: #fff;
+}
+
+.login-button__icon {
+	border: 2.5px solid #fff;
+	width: 54px;
+	height: 54px;
+	font-size: 1.45rem;
+}
+
+.logout-button__icon {
+	width: 54px;
+	height: 54px;
+	font-size: 1.45rem;
+}
+
+.parlament-logo__img {
+	width: 13.5em;
+	height: auto;
+	max-width: 100%;
+}
+
+/* ====================== MEDIA QUERIES ====================== */
+
+@media (max-width: 479px) {
+	.header {
+		padding: 0.65rem 0.9rem;
+		min-height: auto;
+	}
+
+	.parlament-logo__img {
+		width: 9.8em;           /* mocno większe */
+	}
+
+	.login-button__icon,
+	.logout-button__icon {
+		width: 54px;            /* DUŻE */
+		height: 54px;
+		font-size: 1.35rem;
+	}
+
+	.login-button__icon {
+		border-width: 2.5px;
+	}
+
+	.zlozUchwale-button__label {
+		font-size: 0.95rem;
+		padding: 0.65rem 1.4rem;
+		border-radius: 22px;
+	}
+
+	.header__bottom .mparlament-logo__img {
+		height: 62px;           /* większe */
+	}
+
+	.header__bottom .mparlament-logo__text {
+		font-size: 0.9rem;
+	}
+}
+
+@media (min-width: 480px) and (max-width: 767px) {
+	.header {
+		padding: 0.6rem 1.1rem;
+	}
+
+	.parlament-logo__img {
+		width: 8.8em;
+	}
+
+	.login-button__icon,
+	.logout-button__icon {
+		width: 58px;            /* DUŻE */
+		height: 58px;
+		font-size: 1.4rem;
+	}
+
+	.zlozUchwale-button__label {
+		font-size: 1.05rem;
+		padding: 0.7rem 1.8rem;
+	}
+
+	.header__bottom .mparlament-logo__img {
+		height: 58px;
+	}
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+	.header {
+		padding: 0.75rem 2rem;
+		min-height: 78px;
+	}
+
+	.parlament-logo__img {
+		width: 10.5em;
+	}
+
+	.login-button__icon,
+	.logout-button__icon {
+		width: 52px;
+		height: 52px;
+		font-size: 1.25rem;
+	}
+
+	.header__center .mparlament-logo__img {
+		height: 54px;
+	}
+
+	.zlozUchwale-button__label {
+		font-size: 1.35rem;
+		padding: 0.85rem 2.6rem;
+	}
+}
+
+@media (min-width: 1024px) {
+	.header {
+		padding: 1rem 3.5rem;
+		min-height: 92px;
+	}
+
+	.parlament-logo__img {
+		width: 14em;
+	}
+
+	.login-button__icon,
+	.logout-button__icon {
+		width: 58px;
+		height: 58px;
+		font-size: 1.5rem;
+	}
+
+	.header__center .mparlament-logo__img {
+		height: 72px;
+	}
+
+	.zlozUchwale-button__label {
+		font-size: 1.45rem;
+		padding: 1rem 3.2rem;
+	}
+}
+
+/* Niska wysokość ekranu */
+@media (max-height: 700px) and (min-width: 768px) {
+	.header {
+		min-height: 68px;
+		padding-top: 0.5rem;
+		padding-bottom: 0.5rem;
+	}
+
+	.login-button__icon,
+	.logout-button__icon {
+		width: 48px;
+		height: 48px;
+		font-size: 1.2rem;
+	}
+
+	.header__center .mparlament-logo__img {
+		height: 46px;
+	}
+
+	.parlament-logo__img {
+		width: 9.5em;
 	}
 }
 /* ============================================================

@@ -589,37 +589,59 @@ export const handlers = [
 	}),
 
 	http.post("/api/resolutions", async ({ request }) => {
-		const body = await request.json();
+		try {
+			const formData = await request.formData();
+			const file = formData.get('file');
+			const data = JSON.parse(formData.get('data'));
 
-		const newResolution = {
-			id: Date.now(),
-			title: body.title,
-			slug: body.title
-				.toLowerCase()
-				.replaceAll(" ", "-")
-				.replaceAll(/[^\w-]/g, ""),
-			fileName: body.fileName,
-			authorId: body.authorId,
-			author: body.author,
-			party: body.party,
-			preamble: body.preamble,
-			chapters: body.chapters,
-			signatures: 1,
-			status: "pending",
-			createdAt: new Date().toISOString(),
-		};
+			console.log('📁 Otrzymany plik:', file?.name, file?.size);
+			console.log('📄 Otrzymane dane:', data);
 
-		resolutions.push(newResolution);
+			const newResolution = {
+				id: Date.now(),
+				title: data.title,
+				slug: data.title
+					.toLowerCase()
+					.replaceAll(" ", "-")
+					.replaceAll(/[^\w-]/g, ""),
+				fileName: file ? file.name : data.fileName,
+				authorId: data.authorId,
+				author: data.author,
+				party: data.party,
+				preamble: data.preamble || "",
+				chapters: data.chapters || [],
+				signatures: 1,
+				status: "pending",
+				createdAt: new Date().toISOString(),
+				fileInfo: file ? {
+					name: file.name,
+					size: file.size,
+					type: file.type,
+				} : null,
+			};
 
-		resolutionSignatures.push({
-			id: Date.now(),
-			resolutionId: newResolution.id,
-			userId: body.authorId,
-			date: new Date().toISOString().split("T")[0],
-			type: "author",
-		});
+			resolutions.push(newResolution);
 
-		return HttpResponse.json(newResolution, { status: 201 });
+			resolutionSignatures.push({
+				id: Date.now(),
+				resolutionId: newResolution.id,
+				userId: data.authorId,
+				date: new Date().toISOString().split("T")[0],
+				type: "author",
+			});
+
+			return HttpResponse.json(newResolution, { status: 201 });
+		} catch (error) {
+			console.error('❌ Błąd w handlerze MSW:', error);
+			return HttpResponse.json(
+				{
+					message: 'Błąd przetwarzania uchwały',
+					error: error.message,
+					stack: error.stack
+				},
+				{ status: 500 }
+			);
+		}
 	}),
 	http.get("/api/resolutions/:slug/amendments", ({ params }) => {
 		const resolution = resolutions.find((r) => r.slug === params.slug);
