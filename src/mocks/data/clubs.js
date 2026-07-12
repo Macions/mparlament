@@ -1,30 +1,44 @@
 export let clubs = [
     {
         id: 1,
-        name: "Platforma Obywatelska",
+        name: "Czas Młodych",
         type: "klub",
-        color: "#1a73e8",
-        members: [
-            { id: 1, firstName: "Jan", lastName: "Kowalski", functions: ["Przewodniczący"], commissions: ["Komisja Finansów"] },
-            { id: 2, firstName: "Anna", lastName: "Nowak", functions: [], commissions: [] }
-        ]
+        color: "#1a73e8"
     },
     {
         id: 2,
-        name: "Prawo i Sprawiedliwość",
-        type: "klub",
-        color: "#dc143c",
-        members: [
-            { id: 3, firstName: "Piotr", lastName: "Wiśniewski", functions: [], commissions: ["Komisja Sprawiedliwości"] }
-        ]
+        name: "Komitet Narodowy Polski",
+        type: "komitet",
+        color: "#dc143c"
     },
     {
         id: 3,
-        name: "Polska 2050",
-        type: "koło",
-        color: "#f59e0b",
-        members: [
-            { id: 5, firstName: "Tomasz", lastName: "Zieliński", functions: ["Wiceprzewodniczący"], commissions: ["Komisja Ochrony Środowiska"] }
-        ]
+        name: "Unia Liberalna",
+        type: "klub",
+        color: "#f59e0b"
     },
+    {
+        id: 4,
+        name: "Solidarni",
+        type: "koło",
+        color: "#8b0000"
+    },
+    {
+        id: 5,
+        name: "Konserwatyści i Liberałowie",
+        type: "koło",
+        color: "#2e7d32"
+    },
+    {
+        id: 6,
+        name: "Alternatywa Centrum",
+        type: "koło",
+        color: "#6a1b9a"
+    },
+    {
+        id: 7,
+        name: "Kooperatywa Społeczna",
+        type: "koło",
+        color: "#e65100"
+    }
 ];

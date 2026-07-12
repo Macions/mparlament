@@ -11,7 +11,7 @@ export default function Login() {
 		const token = localStorage.getItem("token");
 
 		if (token) {
-			navigate("/dashboard", { replace: true });
+			navigate("/panel", { replace: true });
 		}
 	}, [navigate]);
 	const handleSubmit = async (e) => {
@@ -39,7 +39,7 @@ export default function Login() {
 			localStorage.setItem("token", data.token);
 			localStorage.setItem("user", JSON.stringify(data.user));
 
-			navigate("/dashboard");
+			navigate("/panel");
 		} catch (error) {
 			setError(error.message);
 			console.error(error.message);

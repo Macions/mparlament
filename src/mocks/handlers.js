@@ -1,13 +1,14 @@
 import { http, HttpResponse } from "msw";
 
 import { users } from "./data/users";
-import { currentSession } from "./data/sessions";
 import { votings } from "./data/votings";
 import { resolutions } from "./data/resolutions";
 import { resolutionSignatures } from "./data/signatures";
 import { amendments } from "./data/amendments";
 import { parliamentarians } from "./data/parliamentarians";
 import { clubs } from "./data/clubs";
+import { sessions, currentSession } from "./data/sessions";
+
 
 let currentUser = null;
 
@@ -488,14 +489,12 @@ export const handlers = [
 
 	http.get("/api/resolutions", () => {
 		return HttpResponse.json({
-			session: {
-				city: "Warszawa",
-				date: "20.05",
-			},
-			resolutions,
+			resolutions: resolutions
 		});
 	}),
-
+	http.get("/api/sessions", () => {
+		return HttpResponse.json(sessions);
+	}),
 	http.get("/api/resolutions/:slug", ({ params }) => {
 		const resolution = getResolutionBySlug(params.slug);
 

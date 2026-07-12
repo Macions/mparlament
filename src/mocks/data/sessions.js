@@ -1,3 +1,29 @@
+export const sessions = [
+	{
+		id: 1,
+		name: "III POSIEDZENIE PARLAMENTU MŁODYCH RP",
+		date: "19.09.2026",
+		city: "Warszawa"
+	},
+	{
+		id: 2,
+		name: "Posiedzenie Komisji Stałej",
+		date: "20.09.2026",
+		city: "Warszawa"
+	},
+	{
+		id: 3,
+		name: "Posiedzenie Komisji Etyki Parlamentarnej",
+		date: "25.09.2026",
+		city: "Warszawa"
+	},
+	{
+		id: 4,
+		name: "IV POSIEDZENIE PARLAMENTU MŁODYCH RP",
+		date: "15.10.2026",
+		city: "Warszawa"
+	}
+];
 
 export const currentSession = {
 	id: 1,

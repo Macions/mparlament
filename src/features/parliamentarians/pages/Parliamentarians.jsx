@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import ReactDOM from "react-dom";
 import "./Parliamentarians.css";
 
@@ -15,6 +16,8 @@ const ModalPortal = ({ children, onClose }) => {
 
 
 export default function Parliamentarians() {
+	const location = useLocation();
+	const navigate = useNavigate()
 	const [parliamentarians, setParliamentarians] = useState([]);
 	const [unaffiliatedList, setUnaffiliatedList] = useState([]);
 	const [clubsList, setClubsList] = useState([]);
@@ -32,9 +35,6 @@ export default function Parliamentarians() {
 
 	const [adminMode, setAdminMode] = useState(false);
 
-	const [isManageMembersModalOpen, setIsManageMembersModalOpen] =
-		useState(false);
-	const [selectedClubForMembers, setSelectedClubForMembers] = useState(null);
 	const token = localStorage.getItem("token");
 
 	useEffect(() => {
@@ -83,6 +83,9 @@ export default function Parliamentarians() {
 		fetchData();
 		fetchUser();
 	}, [token]);
+	const getClubMemberCount = (clubId) => {
+		return parliamentarians.filter(p => p.clubId === clubId).length;
+	};
 	const saveParliamentarian = async (newData) => {
 		try {
 			const response = await fetch("/api/parliamentarians", {
@@ -117,53 +120,6 @@ export default function Parliamentarians() {
 			if (!response.ok) throw new Error("Nie udało się usunąć parlamentarzysty");
 			setParliamentarians(prev => prev.filter(p => p.id !== id));
 			setSelectedParliamentarian(null);
-		} catch (err) {
-			setError(err.message);
-		}
-	};
-	const openManageMembersModal = (club) => {
-		setSelectedClubForMembers(club);
-		setIsManageMembersModalOpen(true);
-	};
-
-	const closeManageMembersModal = () => {
-		setIsManageMembersModalOpen(false);
-		setSelectedClubForMembers(null);
-	};
-
-	const addMemberToClub = async (clubId, memberId) => {
-		try {
-			const response = await fetch(`/api/clubs/${clubId}/members`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-				body: JSON.stringify({ memberId }),
-			});
-			if (!response.ok) throw new Error("Nie udało się dodać członka");
-			const data = await response.json();
-
-			setParliamentarians(data.parliamentarians);
-			setUnaffiliatedList(data.unaffiliated);
-			setClubsList(prev => prev.map(c => c.id === clubId ? data.club : c));
-		} catch (err) {
-			setError(err.message);
-		}
-	};
-
-	const removeMemberFromClub = async (clubId, memberId) => {
-		try {
-			const response = await fetch(`/api/clubs/${clubId}/members/${memberId}`, {
-				method: "DELETE",
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (!response.ok) throw new Error("Nie udało się usunąć członka");
-			const data = await response.json();
-
-			setParliamentarians(data.parliamentarians);
-			setUnaffiliatedList(data.unaffiliated);
-			setClubsList(prev => prev.map(c => c.id === clubId ? data.club : c));
 		} catch (err) {
 			setError(err.message);
 		}
@@ -230,14 +186,23 @@ export default function Parliamentarians() {
 			setError(err.message);
 		}
 	};
-	const deleteClub = (clubId) => {
-		if (window.confirm(`Czy na pewno chcesz usunąć ten klub/koło?`)) {
-			setClubsList((prev) => prev.filter((c) => c.id !== clubId));
-
-			setParliamentarians((prev) => prev.filter((p) => p.clubId !== clubId));
+	const deleteClub = async (clubId) => {
+		if (!window.confirm("Czy na pewno chcesz usunąć ten klub/koło?")) return;
+		try {
+			const response = await fetch(`/api/clubs/${clubId}`, {
+				method: "DELETE",
+				headers: { Authorization: `Bearer ${token}` },
+			});
+			if (!response.ok) throw new Error("Nie udało się usunąć klubu");
+			setClubsList(prev => prev.filter(c => c.id !== clubId));
+			setParliamentarians(prev => prev.map(p =>
+				p.clubId === clubId ? { ...p, clubId: null, clubName: null, clubColor: null } : p
+			));
 			if (selectedClubId === clubId) {
 				setSelectedClubId("all");
 			}
+		} catch (err) {
+			setError(err.message);
 		}
 	};
 
@@ -313,7 +278,30 @@ export default function Parliamentarians() {
 	};
 	return (
 		<div className="parliamentarians-page">
+			<button
+				className="back-to-home-btn"
+				onClick={() => navigate("/")}
+			>
+				<svg
+					width="18"
+					height="18"
+					viewBox="0 0 24 24"
+					fill="none"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<path
+						d="M15 18L9 12L15 6"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					/>
+				</svg>
+
+				Strona główna
+			</button>
 			<section className="stats-section">
+
 				<div className="stat-card">
 					<span className="stat-number">{totalSeats}</span>
 					<span className="stat-label">
@@ -391,20 +379,13 @@ export default function Parliamentarians() {
 									style={{ backgroundColor: club.color }}
 								></span>
 								<span className="club-name">{club.name}</span>
-								<span className="club-count">{club.members.length}</span>
+								<span className="club-count">{getClubMemberCount(club.id)}</span>
 								<span className="club-type-badge">{club.type}</span>
 								{isAdmin && adminMode && (
 									<div
 										className="club-admin-actions"
 										onClick={(e) => e.stopPropagation()}
 									>
-										<button
-											className="club-members-btn"
-											onClick={() => openManageMembersModal(club)}
-											title="Zarządzaj członkami"
-										>
-											👥
-										</button>
 										<button
 											className="club-edit-btn"
 											onClick={() => openEditClubModal(club)}
@@ -643,17 +624,7 @@ export default function Parliamentarians() {
 					clubs={clubsList}
 				/>
 			)}
-			{ }
-			{isManageMembersModalOpen && selectedClubForMembers && (
-				<ManageMembersModal
-					club={selectedClubForMembers}
-					members={selectedClubForMembers.members || []}
-					allParliamentarians={parliamentarians}
-					onAdd={addMemberToClub}
-					onRemove={removeMemberFromClub}
-					onClose={closeManageMembersModal}
-				/>
-			)}
+
 		</div>
 	);
 }
@@ -786,250 +757,6 @@ function ClubModal({ club, onSave, onClose }) {
 	);
 }
 
-function ManageMembersModal({
-	club,
-	members,
-	allParliamentarians,
-	onAdd,
-	onRemove,
-	onClose,
-}) {
-	const [searchTerm, setSearchTerm] = useState("");
-	const [selectedMembers, setSelectedMembers] = useState([]);
-
-	const clubMemberIds = members.map((m) => m.id);
-
-	const availableMembers = allParliamentarians.filter(
-		(p) => !clubMemberIds.includes(p.id) && p.id !== undefined,
-	);
-
-	const filteredAvailable = availableMembers.filter((p) => {
-		const search = searchTerm.toLowerCase().trim();
-		if (!search) return true;
-		const fullName = `${p.firstName} ${p.lastName}`.toLowerCase();
-		return fullName.includes(search);
-	});
-
-	const handleAddMembers = () => {
-		if (selectedMembers.length === 0) {
-			alert("Wybierz przynajmniej jednego parlamentarzystę!");
-			return;
-		}
-		selectedMembers.forEach((id) => {
-			onAdd(club.id, id);
-		});
-		setSelectedMembers([]);
-		setSearchTerm("");
-	};
-
-	const handleRemoveMember = (memberId) => {
-		if (window.confirm("Czy na pewno chcesz usunąć tego członka z klubu?")) {
-			onRemove(club.id, memberId);
-		}
-	};
-
-	const toggleMemberSelection = (id) => {
-		setSelectedMembers((prev) =>
-			prev.includes(id) ? prev.filter((mid) => mid !== id) : [...prev, id],
-		);
-	};
-
-	return (
-		<ModalPortal onClose={onClose}>
-			<h2 style={{ margin: "0 0 1.5rem 0", color: "#002b5c" }}>
-				Zarządzaj członkami: {club.name}
-			</h2>
-
-			<div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-				{ }
-				<div>
-					<h3
-						style={{
-							margin: "0 0 0.75rem 0",
-							fontSize: "1.1rem",
-							color: "#1e2937",
-						}}
-					>
-						Aktualni członkowie ({members.length})
-					</h3>
-					<div
-						style={{
-							maxHeight: "200px",
-							overflowY: "auto",
-							border: "2px solid #e2e8f0",
-							borderRadius: "12px",
-							padding: "8px",
-						}}
-					>
-						{members.length === 0 ? (
-							<p
-								style={{
-									padding: "1rem",
-									textAlign: "center",
-									color: "#94a3b8",
-								}}
-							>
-								Brak członków w tym klubie
-							</p>
-						) : (
-							members.map((m) => (
-								<div
-									key={m.id}
-									style={{
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "space-between",
-										padding: "10px 14px",
-										borderBottom: "1px solid #f1f5f9",
-										gap: "12px",
-									}}
-								>
-									<span style={{ fontWeight: "500" }}>
-										{m.firstName} {m.lastName}
-									</span>
-									<button
-										onClick={() => handleRemoveMember(m.id)}
-										style={{
-											padding: "4px 14px",
-											background: "#fee2e2",
-											color: "#ef4444",
-											border: "none",
-											borderRadius: "8px",
-											cursor: "pointer",
-											fontWeight: "600",
-										}}
-									>
-										Usuń
-									</button>
-								</div>
-							))
-						)}
-					</div>
-				</div>
-
-				{ }
-				<div>
-					<h3
-						style={{
-							margin: "0 0 0.75rem 0",
-							fontSize: "1.1rem",
-							color: "#1e2937",
-						}}
-					>
-						Dodaj parlamentarzystów
-					</h3>
-
-					<div style={{ marginBottom: "12px" }}>
-						<input
-							type="text"
-							placeholder="Szukaj parlamentarzysty..."
-							value={searchTerm}
-							onChange={(e) => setSearchTerm(e.target.value)}
-							style={{
-								width: "100%",
-								padding: "12px 16px",
-								border: "2px solid #e2e8f0",
-								borderRadius: "12px",
-								fontSize: "1rem",
-							}}
-						/>
-					</div>
-
-					<div
-						style={{
-							maxHeight: "200px",
-							overflowY: "auto",
-							border: "2px solid #e2e8f0",
-							borderRadius: "12px",
-							padding: "8px",
-						}}
-					>
-						{filteredAvailable.length === 0 ? (
-							<p
-								style={{
-									padding: "1rem",
-									textAlign: "center",
-									color: "#94a3b8",
-								}}
-							>
-								{searchTerm
-									? "Nie znaleziono parlamentarzystów"
-									: "Brak dostępnych parlamentarzystów"}
-							</p>
-						) : (
-							filteredAvailable.map((p) => (
-								<div
-									key={p.id}
-									style={{
-										display: "flex",
-										alignItems: "center",
-										gap: "12px",
-										padding: "10px 14px",
-										borderBottom: "1px solid #f1f5f9",
-										cursor: "pointer",
-										background: selectedMembers.includes(p.id)
-											? "#eff6ff"
-											: "transparent",
-										transition: "background 0.2s",
-									}}
-									onClick={() => toggleMemberSelection(p.id)}
-								>
-									<input
-										type="checkbox"
-										checked={selectedMembers.includes(p.id)}
-										onChange={() => toggleMemberSelection(p.id)}
-										style={{ width: "18px", height: "18px", cursor: "pointer" }}
-									/>
-									<span style={{ fontWeight: "500" }}>
-										{p.firstName} {p.lastName}
-									</span>
-									{p.clubName && (
-										<span
-											style={{
-												fontSize: "0.8rem",
-												color: "#64748b",
-												marginLeft: "auto",
-											}}
-										>
-											{p.clubName}
-										</span>
-									)}
-								</div>
-							))
-						)}
-					</div>
-
-					<button
-						onClick={handleAddMembers}
-						style={{
-							marginTop: "1rem",
-							padding: "12px 24px",
-							background: "#002b5c",
-							color: "white",
-							border: "none",
-							borderRadius: "12px",
-							fontWeight: "600",
-							fontSize: "1rem",
-							cursor: "pointer",
-							width: "100%",
-							transition: "all 0.3s",
-						}}
-						onMouseEnter={(e) => (e.target.style.background = "#003d80")}
-						onMouseLeave={(e) => (e.target.style.background = "#002b5c")}
-					>
-						Dodaj wybranych ({selectedMembers.length})
-					</button>
-				</div>
-			</div>
-
-			<div className="modal-actions" style={{ marginTop: "1.5rem" }}>
-				<button type="button" onClick={onClose}>
-					Zamknij
-				</button>
-			</div>
-		</ModalPortal>
-	);
-}
 function AddEditModal({ parliamentarian, onSave, onClose, clubs }) {
 	const [form, setForm] = useState({
 		firstName: parliamentarian?.firstName || "",

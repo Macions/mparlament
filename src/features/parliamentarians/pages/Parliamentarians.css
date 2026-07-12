@@ -385,15 +385,15 @@
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.admin-toggle input:checked + .admin-toggle-slider {
+.admin-toggle input:checked+.admin-toggle-slider {
 	background: linear-gradient(135deg, #002b5c, #003d80);
 }
 
-.admin-toggle input:checked + .admin-toggle-slider:before {
+.admin-toggle input:checked+.admin-toggle-slider:before {
 	transform: translateX(26px);
 }
 
-.admin-toggle input:focus + .admin-toggle-slider {
+.admin-toggle input:focus+.admin-toggle-slider {
 	box-shadow: 0 0 0 3px rgba(0, 43, 92, 0.3);
 }
 
@@ -467,8 +467,8 @@
 
 .members-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-	gap: 1.5rem;
+	grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+	gap: 1.2rem;
 }
 
 .member-card {
@@ -583,6 +583,7 @@
 	from {
 		opacity: 0;
 	}
+
 	to {
 		opacity: 1;
 	}
@@ -605,6 +606,7 @@
 		opacity: 0;
 		transform: scale(0.9) translateY(40px);
 	}
+
 	to {
 		opacity: 1;
 		transform: scale(1) translateY(0);
@@ -872,7 +874,7 @@
 	padding: 0 !important;
 }
 
-.modal-content > h2 {
+.modal-content>h2 {
 	margin: 0 !important;
 	padding: 2rem 2.5rem 1.5rem !important;
 	font-size: 1.8rem !important;
@@ -1071,6 +1073,7 @@
 }
 
 @media (max-width: 1024px) {
+
 	.parliamentarians-content,
 	.parliamentarians-content.admin {
 		grid-template-columns: minmax(0, 1fr);
@@ -1315,6 +1318,7 @@
 			opacity: 0;
 			transform: translateY(60px);
 		}
+
 		to {
 			opacity: 1;
 			transform: translateY(0);
@@ -1426,7 +1430,7 @@
 		border-radius: 16px;
 	}
 
-	.modal-content > h2 {
+	.modal-content>h2 {
 		padding: 1.5rem 1.25rem 1.1rem !important;
 		font-size: 1.3rem !important;
 		overflow-wrap: break-word;
@@ -1505,7 +1509,7 @@
 	}
 
 	.club-item .club-type-badge {
-		display: none; 
+		display: none;
 	}
 
 	.member-card {
@@ -1546,6 +1550,7 @@
 }
 
 @media (hover: none) and (pointer: coarse) {
+
 	.club-item,
 	.member-card,
 	.stat-card,

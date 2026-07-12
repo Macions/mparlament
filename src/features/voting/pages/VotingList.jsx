@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate  } from "react-router-dom";
 import "./VotingList.css";
 
 function getVoteStatus(vote) {
@@ -56,6 +56,8 @@ function getCategoryLabel(category) {
 }
 
 export default function Votings() {
+		const location = useLocation();
+	const navigate = useNavigate()
 	const [votes, setVotes] = useState([]);
 	const [filter, setFilter] = useState("all");
 	const [loading, setLoading] = useState(true);
@@ -244,6 +246,28 @@ export default function Votings() {
 	return (
 		<>
 			<div className="votings-page">
+				<button
+					className="back-to-home-btn"
+					onClick={() => navigate("/panel")}
+				>
+					<svg
+						width="18"
+						height="18"
+						viewBox="0 0 24 24"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path
+							d="M15 18L9 12L15 6"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						/>
+					</svg>
+
+					Panel
+				</button>
 				<div className="votings-header">
 					<h1>Głosowania</h1>
 					<p>Aktualne i zakończone głosowania Parlamentu Młodych RP</p>
@@ -377,7 +401,7 @@ export default function Votings() {
 												<strong>{vote.votesAgainst}</strong>
 											</div>
 
-											
+
 											<div className="result-abstained">
 												<span>WSTRZYMAŁO SIĘ</span>
 												<div
@@ -415,7 +439,7 @@ export default function Votings() {
 									</div>
 								)}
 
-								
+
 								{!isArchived && status === "upcoming" && (
 									<div className="voting-actions">
 										<Link
@@ -445,7 +469,7 @@ export default function Votings() {
 									</div>
 								)}
 
-								
+
 								{!isArchived && status === "active" && (
 									<div className="voting-actions">
 										<Link
@@ -495,7 +519,7 @@ export default function Votings() {
 				)}
 			</div>
 
-			
+
 			{showArchiveModal && (
 				<div
 					className="archive-modal-overlay"
@@ -533,7 +557,7 @@ export default function Votings() {
 				</div>
 			)}
 
-			
+
 			{showActivateModal && (
 				<div
 					className="activate-modal-overlay"

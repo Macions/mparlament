@@ -38,19 +38,15 @@ body {
 	min-height: 100svh;
 	display: flex;
 	flex-direction: column;
-	background: linear-gradient(
-		180deg,
-		var(--color-bg-start) 0%,
-		var(--color-bg-end) 100%
-	);
+	background: linear-gradient(180deg,
+			var(--color-bg-start) 0%,
+			var(--color-bg-end) 100%);
 }
 
 .app.no-bg {
-	background: linear-gradient(
-		180deg,
-		var(--color-bg-start) 78%,
-		var(--color-bg-end) 100%
-	);
+	background: linear-gradient(180deg,
+			var(--color-bg-start) 78%,
+			var(--color-bg-end) 100%);
 }
 
 /* ============================================================
@@ -175,8 +171,8 @@ body {
 
 .login-button__icon {
 	border: 2px solid #fff;
-	width: 48px;
-	height: 48px;
+	width: 42px;
+	height: 42px;
 	font-size: 1.3rem;
 }
 
@@ -515,6 +511,7 @@ body {
 		font-size: 0.7rem;
 	}
 }
+
 /* ====================== BASE STYLES ====================== */
 
 .header {
@@ -567,12 +564,14 @@ body {
 	}
 
 	.parlament-logo__img {
-		width: 9.8em;           /* mocno większe */
+		width: 9.8em;
+		/* mocno większe */
 	}
 
 	.login-button__icon,
 	.logout-button__icon {
-		width: 54px;            /* DUŻE */
+		width: 54px;
+		/* DUŻE */
 		height: 54px;
 		font-size: 1.35rem;
 	}
@@ -588,7 +587,8 @@ body {
 	}
 
 	.header__bottom .mparlament-logo__img {
-		height: 62px;           /* większe */
+		height: 62px;
+		/* większe */
 	}
 
 	.header__bottom .mparlament-logo__text {
@@ -607,7 +607,8 @@ body {
 
 	.login-button__icon,
 	.logout-button__icon {
-		width: 58px;            /* DUŻE */
+		width: 58px;
+		/* DUŻE */
 		height: 58px;
 		font-size: 1.4rem;
 	}
@@ -686,8 +687,8 @@ body {
 
 	.login-button__icon,
 	.logout-button__icon {
-		width: 48px;
-		height: 48px;
+		width: 33px;
+		height: 33px;
 		font-size: 1.2rem;
 	}
 
@@ -699,6 +700,7 @@ body {
 		width: 9.5em;
 	}
 }
+
 /* ============================================================
    MAIN / MENU / SOCIAL - STYLE PODSTAWOWE
    ============================================================ */
@@ -970,7 +972,7 @@ body {
    ANIMACJE
    ============================================================ */
 
-.main > * {
+.main>* {
 	will-change: opacity, transform;
 }
 
@@ -984,6 +986,7 @@ body {
 	opacity: 1;
 	transform: translateY(0);
 }
+
 /* :root {
 	--color-bg-start: #ffffff;
 	--color-bg-end: #59567f;

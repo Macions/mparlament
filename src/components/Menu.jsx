@@ -6,7 +6,7 @@ const menuItems = [
   { id: 1, label: "O parlamencie", to: "/o-parlamencie", href: "https://parlamentmlodych.eu/" },
   { id: 2, label: "Posiedzenia", to: "/posiedzenia" },
   { id: 3, label: "Parlamentarzyści", to: "/parlamentarzysci" },
-  ...(isLoggedIn ? [{ id: 4, label: "Dashboard", to: "/dashboard" }] : []),
+  ...(isLoggedIn ? [{ id: 4, label: "Panel użytkownika", to: "/panel" }] : []),
 ];
 
 export default function Menu() {
