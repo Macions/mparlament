@@ -1,13 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import ReactDOM from "react-dom";
 import "./Parliamentarians.css";
-import {
-	clubs,
-	allParliamentarians as initialParliamentarians,
-	unaffiliated as initialUnaffiliated,
-} from "../../../data/mockData";
-
-const isAdmin = false;
 
 const ModalPortal = ({ children, onClose }) => {
 	return ReactDOM.createPortal(
@@ -20,19 +13,20 @@ const ModalPortal = ({ children, onClose }) => {
 	);
 };
 
-export default function Parliamentarians() {
-	const [parliamentarians, setParliamentarians] = useState(
-		initialParliamentarians,
-	);
-	const [unaffiliatedList, setUnaffiliatedList] = useState(initialUnaffiliated);
 
+export default function Parliamentarians() {
+	const [parliamentarians, setParliamentarians] = useState([]);
+	const [unaffiliatedList, setUnaffiliatedList] = useState([]);
+	const [clubsList, setClubsList] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
+	const [isAdmin, setIsAdmin] = useState(false);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [selectedClubId, setSelectedClubId] = useState("all");
 	const [selectedParliamentarian, setSelectedParliamentarian] = useState(null);
 	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 	const [editingParliamentarian, setEditingParliamentarian] = useState(null);
 
-	const [clubsList, setClubsList] = useState(clubs);
 	const [isClubModalOpen, setIsClubModalOpen] = useState(false);
 	const [editingClub, setEditingClub] = useState(null);
 
@@ -41,7 +35,92 @@ export default function Parliamentarians() {
 	const [isManageMembersModalOpen, setIsManageMembersModalOpen] =
 		useState(false);
 	const [selectedClubForMembers, setSelectedClubForMembers] = useState(null);
+	const token = localStorage.getItem("token");
 
+	useEffect(() => {
+		async function fetchData() {
+			try {
+				setLoading(true);
+
+
+				const membersRes = await fetch("/api/parliamentarians", {
+					headers: { Authorization: `Bearer ${token}` },
+				});
+				if (!membersRes.ok) throw new Error("Nie udało się pobrać parlamentarzystów");
+				const membersData = await membersRes.json();
+
+
+				const clubsRes = await fetch("/api/clubs", {
+					headers: { Authorization: `Bearer ${token}` },
+				});
+				if (!clubsRes.ok) throw new Error("Nie udało się pobrać klubów");
+				const clubsData = await clubsRes.json();
+
+				setParliamentarians(membersData.parliamentarians || []);
+				setUnaffiliatedList(membersData.unaffiliated || []);
+				setClubsList(clubsData || []);
+			} catch (err) {
+				setError(err.message);
+			} finally {
+				setLoading(false);
+			}
+		}
+
+		async function fetchUser() {
+			try {
+				const response = await fetch("/api/auth/me", {
+					headers: { Authorization: `Bearer ${token}` },
+				});
+				if (response.ok) {
+					const user = await response.json();
+					setIsAdmin(user.role === "admin" || user.permissions?.includes("MANAGE_PARLIAMENTARIANS"));
+				}
+			} catch {
+				setIsAdmin(false);
+			}
+		}
+
+		fetchData();
+		fetchUser();
+	}, [token]);
+	const saveParliamentarian = async (newData) => {
+		try {
+			const response = await fetch("/api/parliamentarians", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify(newData),
+			});
+			if (!response.ok) throw new Error("Nie udało się dodać parlamentarzysty");
+			const saved = await response.json();
+
+			if (editingParliamentarian) {
+				setParliamentarians(prev => prev.map(p => p.id === saved.id ? saved : p));
+			} else {
+				setParliamentarians(prev => [...prev, saved]);
+			}
+			setIsAddModalOpen(false);
+			setEditingParliamentarian(null);
+		} catch (err) {
+			setError(err.message);
+		}
+	};
+	const deleteParliamentarian = async (id) => {
+		if (!window.confirm("Czy na pewno chcesz usunąć tego parlamentarzystę?")) return;
+		try {
+			const response = await fetch(`/api/parliamentarians/${id}`, {
+				method: "DELETE",
+				headers: { Authorization: `Bearer ${token}` },
+			});
+			if (!response.ok) throw new Error("Nie udało się usunąć parlamentarzysty");
+			setParliamentarians(prev => prev.filter(p => p.id !== id));
+			setSelectedParliamentarian(null);
+		} catch (err) {
+			setError(err.message);
+		}
+	};
 	const openManageMembersModal = (club) => {
 		setSelectedClubForMembers(club);
 		setIsManageMembersModalOpen(true);
@@ -52,100 +131,46 @@ export default function Parliamentarians() {
 		setSelectedClubForMembers(null);
 	};
 
-	const addMemberToClub = (clubId, memberId) => {
-		const member = parliamentarians.find((p) => p.id === memberId);
-		if (!member) return;
+	const addMemberToClub = async (clubId, memberId) => {
+		try {
+			const response = await fetch(`/api/clubs/${clubId}/members`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({ memberId }),
+			});
+			if (!response.ok) throw new Error("Nie udało się dodać członka");
+			const data = await response.json();
 
-		setParliamentarians((prev) =>
-			prev.map((p) => {
-				if (p.id === memberId) {
-					const club = clubsList.find((c) => c.id === clubId);
-					return {
-						...p,
-						clubId: clubId,
-						clubName: club.name,
-						clubType: club.type,
-						clubColor: club.color,
-					};
-				}
-				return p;
-			}),
-		);
-
-		setClubsList((prev) =>
-			prev.map((c) => {
-				if (c.id === clubId) {
-					const exists = c.members.some((m) => m.id === memberId);
-					if (!exists) {
-						return {
-							...c,
-							members: [
-								...c.members,
-								{
-									id: memberId,
-									firstName: member.firstName,
-									lastName: member.lastName,
-									functions: member.functions || [],
-									commissions: member.commissions || [],
-								},
-							],
-						};
-					}
-				}
-				return c;
-			}),
-		);
-
-		setUnaffiliatedList((prev) => prev.filter((u) => u.id !== memberId));
+			setParliamentarians(data.parliamentarians);
+			setUnaffiliatedList(data.unaffiliated);
+			setClubsList(prev => prev.map(c => c.id === clubId ? data.club : c));
+		} catch (err) {
+			setError(err.message);
+		}
 	};
 
-	const removeMemberFromClub = (clubId, memberId) => {
-		setClubsList((prev) =>
-			prev.map((c) => {
-				if (c.id === clubId) {
-					return {
-						...c,
-						members: c.members.filter((m) => m.id !== memberId),
-					};
-				}
-				return c;
-			}),
-		);
+	const removeMemberFromClub = async (clubId, memberId) => {
+		try {
+			const response = await fetch(`/api/clubs/${clubId}/members/${memberId}`, {
+				method: "DELETE",
+				headers: { Authorization: `Bearer ${token}` },
+			});
+			if (!response.ok) throw new Error("Nie udało się usunąć członka");
+			const data = await response.json();
 
-		const member = parliamentarians.find((p) => p.id === memberId);
-		if (member) {
-			setParliamentarians((prev) =>
-				prev.map((p) => {
-					if (p.id === memberId) {
-						return {
-							...p,
-							clubId: null,
-							clubName: null,
-							clubType: null,
-							clubColor: null,
-						};
-					}
-					return p;
-				}),
-			);
-
-			setUnaffiliatedList((prev) => [
-				...prev,
-				{
-					id: member.id,
-					firstName: member.firstName,
-					lastName: member.lastName,
-					functions: member.functions || [],
-					commissions: member.commissions || [],
-					clubId: null,
-				},
-			]);
+			setParliamentarians(data.parliamentarians);
+			setUnaffiliatedList(data.unaffiliated);
+			setClubsList(prev => prev.map(c => c.id === clubId ? data.club : c));
+		} catch (err) {
+			setError(err.message);
 		}
 	};
 
 	function AdminToggle({ isAdmin, adminMode, setAdminMode }) {
 		if (!isAdmin) return null;
-
 		return (
 			<div className="admin-toggle-container">
 				<span className="admin-toggle-label">
@@ -173,27 +198,38 @@ export default function Parliamentarians() {
 		setIsClubModalOpen(true);
 	};
 
-	const saveClub = (clubData) => {
-		if (editingClub) {
-			setClubsList((prev) =>
-				prev.map((c) =>
-					c.id === editingClub.id
-						? { ...clubData, id: c.id, members: c.members || [] }
-						: c,
-				),
-			);
-		} else {
-			const newClub = {
-				...clubData,
-				id: Math.max(...clubsList.map((c) => c.id), 0) + 1,
-				members: [],
-			};
-			setClubsList((prev) => [...prev, newClub]);
-		}
-		setIsClubModalOpen(false);
-		setEditingClub(null);
-	};
+	const saveClub = async (clubData) => {
+		try {
+			let url = "/api/clubs";
+			let method = "POST";
 
+			if (editingClub) {
+				url = `/api/clubs/${editingClub.id}`;
+				method = "PUT";
+			}
+
+			const response = await fetch(url, {
+				method: method,
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify(clubData),
+			});
+			if (!response.ok) throw new Error("Nie udało się zapisać klubu");
+			const saved = await response.json();
+
+			if (editingClub) {
+				setClubsList(prev => prev.map(c => c.id === saved.id ? saved : c));
+			} else {
+				setClubsList(prev => [...prev, saved]);
+			}
+			setIsClubModalOpen(false);
+			setEditingClub(null);
+		} catch (err) {
+			setError(err.message);
+		}
+	};
 	const deleteClub = (clubId) => {
 		if (window.confirm(`Czy na pewno chcesz usunąć ten klub/koło?`)) {
 			setClubsList((prev) => prev.filter((c) => c.id !== clubId));
@@ -206,23 +242,27 @@ export default function Parliamentarians() {
 	};
 
 	const filteredParliamentarians = useMemo(() => {
-		let result = [...parliamentarians];
+		let result = [];
+
 
 		if (selectedClubId === "unaffiliated") {
-			result = result.filter(
-				(p) => p.clubId === null || p.clubId === undefined,
-			);
-		} else if (selectedClubId !== "all") {
-			result = result.filter((p) => p.clubId === selectedClubId);
+			result = [...unaffiliatedList];
+		} else if (selectedClubId === "all") {
+
+			result = [...parliamentarians, ...unaffiliatedList];
+		} else {
+
+			result = parliamentarians.filter((p) => p.clubId === selectedClubId);
 		}
+
 
 		if (searchTerm.trim()) {
 			const search = searchTerm.toLowerCase().trim();
 			result = result.filter((p) => {
 				const fullName = `${p.firstName} ${p.lastName}`.toLowerCase();
 				const clubName = p.clubName ? p.clubName.toLowerCase() : "";
-				const functions = p.functions.join(" ").toLowerCase();
-				const commissions = p.commissions.join(" ").toLowerCase();
+				const functions = (p.functions || []).join(" ").toLowerCase();
+				const commissions = (p.commissions || []).join(" ").toLowerCase();
 				return (
 					fullName.includes(search) ||
 					clubName.includes(search) ||
@@ -233,7 +273,7 @@ export default function Parliamentarians() {
 		}
 
 		return result;
-	}, [parliamentarians, searchTerm, selectedClubId, clubsList]);
+	}, [parliamentarians, unaffiliatedList, searchTerm, selectedClubId]);
 
 	const totalClubs = clubsList.filter((c) => c.type === "klub").length;
 	const totalCircles = clubsList.filter((c) => c.type === "koło").length;
@@ -260,30 +300,6 @@ export default function Parliamentarians() {
 		setIsAddModalOpen(true);
 	};
 
-	const saveParliamentarian = (newData) => {
-		if (editingParliamentarian) {
-			setParliamentarians((prev) =>
-				prev.map((p) =>
-					p.id === editingParliamentarian.id ? { ...newData, id: p.id } : p,
-				),
-			);
-		} else {
-			const newMember = {
-				...newData,
-				id: Date.now(),
-			};
-			setParliamentarians((prev) => [...prev, newMember]);
-		}
-		setIsAddModalOpen(false);
-		setEditingParliamentarian(null);
-	};
-
-	const deleteParliamentarian = (id) => {
-		if (window.confirm("Czy na pewno chcesz usunąć tego parlamentarzystę?")) {
-			setParliamentarians((prev) => prev.filter((p) => p.id !== id));
-			setSelectedParliamentarian(null);
-		}
-	};
 	const polishPlural = (count, one, few, many) => {
 		if (count === 1) return one;
 		if (
@@ -387,21 +403,21 @@ export default function Parliamentarians() {
 											onClick={() => openManageMembersModal(club)}
 											title="Zarządzaj członkami"
 										>
-											
+											👥
 										</button>
 										<button
 											className="club-edit-btn"
 											onClick={() => openEditClubModal(club)}
 											title="Edytuj"
 										>
-											
+											✏️
 										</button>
 										<button
 											className="club-delete-btn"
 											onClick={() => deleteClub(club.id)}
 											title="Usuń"
 										>
-											×
+											❌
 										</button>
 									</div>
 								)}
@@ -444,7 +460,7 @@ export default function Parliamentarians() {
 							+ Dodaj parlamentarzystę
 						</button>
 					)}
-					{}
+					{ }
 					{isClubModalOpen && (
 						<ClubModal
 							club={editingClub}
@@ -578,15 +594,11 @@ export default function Parliamentarians() {
 							<div>
 								<h3>
 									Funkcje / Role
-									<span className="badge-count">
-										{selectedParliamentarian.functions.length}
-									</span>
 								</h3>
 								<ul>
 									{selectedParliamentarian.functions.map((f, i) => (
 										<li key={i}>
 											<span className="item-content">{f}</span>
-											<span className="item-badge">Funkcja</span>
 										</li>
 									))}
 								</ul>
@@ -597,15 +609,11 @@ export default function Parliamentarians() {
 							<div>
 								<h3>
 									Komisje
-									<span className="badge-count purple">
-										{selectedParliamentarian.commissions.length}
-									</span>
 								</h3>
 								<ul>
 									{selectedParliamentarian.commissions.map((c, i) => (
 										<li key={i}>
 											<span className="item-content">{c}</span>
-											<span className="item-badge commission">Komisja</span>
 										</li>
 									))}
 								</ul>
@@ -635,7 +643,7 @@ export default function Parliamentarians() {
 					clubs={clubsList}
 				/>
 			)}
-			{}
+			{ }
 			{isManageMembersModalOpen && selectedClubForMembers && (
 				<ManageMembersModal
 					club={selectedClubForMembers}
@@ -833,7 +841,7 @@ function ManageMembersModal({
 			</h2>
 
 			<div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-				{}
+				{ }
 				<div>
 					<h3
 						style={{
@@ -899,7 +907,7 @@ function ManageMembersModal({
 					</div>
 				</div>
 
-				{}
+				{ }
 				<div>
 					<h3
 						style={{
@@ -1188,7 +1196,7 @@ function AddEditModal({ parliamentarian, onSave, onClose, clubs }) {
 
 				<div>
 					<label
-						style={{ display: "block", marginBottom: "8px", fontWeight: "600" }}
+						style={{ display: "block", marginTop: "9px", marginBottom: "8px", fontWeight: "600" }}
 					>
 						Komisje
 					</label>

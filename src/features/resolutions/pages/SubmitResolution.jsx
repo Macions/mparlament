@@ -109,7 +109,7 @@ export default function SubmitResolution() {
 		setError("");
 
 		try {
-			// Pobierz dane zalogowanego użytkownika
+
 			const userResponse = await fetch("/api/auth/me");
 			const userData = await userResponse.json();
 

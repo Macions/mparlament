@@ -11,7 +11,7 @@ export default function AmendmentsPage() {
 	const [currentUser, setCurrentUser] = useState(null);
 	const [loading, setLoading] = useState(true);
 
-	// Stan dla modala
+
 	const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 	const [selectedAmendmentId, setSelectedAmendmentId] = useState(null);
 	const [withdrawReason, setWithdrawReason] = useState("");
@@ -20,7 +20,7 @@ export default function AmendmentsPage() {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				// Pobierz aktualnego użytkownika
+
 				try {
 					const userResponse = await fetch("/api/current-user");
 					if (userResponse.ok) {
@@ -31,7 +31,7 @@ export default function AmendmentsPage() {
 					console.error("Błąd pobierania użytkownika:", error);
 				}
 
-				// Pobierz poprawki
+
 				const response = await fetch(`/api/resolutions/${slug}/amendments`);
 
 				if (!response.ok) {
@@ -64,14 +64,14 @@ export default function AmendmentsPage() {
 		return amendment.author === currentUser.name;
 	};
 
-	// Otwórz modal z konkretną poprawką
+
 	const openWithdrawModal = (amendmentId) => {
 		setSelectedAmendmentId(amendmentId);
 		setWithdrawReason("");
 		setShowWithdrawModal(true);
 	};
 
-	// Zamknij modal
+
 	const closeWithdrawModal = () => {
 		setShowWithdrawModal(false);
 		setSelectedAmendmentId(null);
@@ -79,7 +79,7 @@ export default function AmendmentsPage() {
 		setIsSubmitting(false);
 	};
 
-	// Wycofaj poprawkę
+
 	const handleWithdrawConfirm = async () => {
 		if (!selectedAmendmentId) return;
 
@@ -103,14 +103,14 @@ export default function AmendmentsPage() {
 				throw new Error("Błąd podczas wycofywania poprawki");
 			}
 
-			// Po udanym wycofaniu, odśwież listę poprawek
+
 			const updatedResponse = await fetch(
 				`/api/resolutions/${slug}/amendments`,
 			);
 			const data = await updatedResponse.json();
 			setAmendments(data.amendments);
 
-			// Zamknij modal
+
 			closeWithdrawModal();
 		} catch (error) {
 			console.error("Błąd wycofywania poprawki:", error);
@@ -263,7 +263,7 @@ export default function AmendmentsPage() {
 				</div>
 			</div>
 
-			{/* Modal wycofania poprawki */}
+			
 			{showWithdrawModal && (
 				<div className="amendment-modal-overlay" onClick={closeWithdrawModal}>
 					<div

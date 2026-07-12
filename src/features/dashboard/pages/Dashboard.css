@@ -84,6 +84,7 @@
 	cursor: pointer;
 	transition: background 0.15s ease;
 }
+
 .dashboard__card-button--session {
 	text-decoration: none;
 	text-align: center;
@@ -298,4 +299,25 @@
 	.dashboard__session-info h3 {
 		font-size: 1.2rem;
 	}
+}
+
+.back-to-home-btn {
+	background: #f1f5f9;
+	border: none;
+	color: #1e293b;
+	font-size: 1rem;
+	font-weight: 500;
+	cursor: pointer;
+	padding: 10px 20px;
+	margin-bottom: 20px;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	border-radius: 10px;
+	transition: all 0.2s ease;
+}
+
+.back-to-home-btn:hover {
+	background: #e2e8f0;
+	transform: translateX(-3px);
 }

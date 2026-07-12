@@ -109,7 +109,7 @@ export default function VotingDetailsPage() {
 
 				setVote(data);
 
-				// Jeśli są wybrane grupy lub członkowie, pobierz ich szczegóły
+
 				if (data.recipientsType === "groups" && data.selectedGroups) {
 					try {
 						const groupsResponse = await fetch("/api/groups", {
@@ -277,7 +277,7 @@ export default function VotingDetailsPage() {
 					</div>
 				</div>
 
-				{/* SEKCJA: UPRAWNIENI DO GŁOSOWANIA */}
+				
 				<div className="voting-details-recipients">
 					<h3 className="recipients-title">Uprawnieni do głosowania</h3>
 

@@ -32,11 +32,8 @@ export const users = [
 
 		name: "Piotr Wiśniewski",
 		club: "MŁODZI DLA POLSKI",
-		role: "member",
+		role: "marshal",
 
 		permissions: []
 	}
 ];
-
-
-export const user = users[0];

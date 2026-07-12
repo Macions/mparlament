@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import "./VotingList.css";
 
 function getVoteStatus(vote) {
-	// Jeśli zarchiwizowane - zawsze zwracamy "archived"
+
 	if (vote.status === "archived") return "archived";
 
 	const now = Date.now();
@@ -18,12 +18,23 @@ function getVoteStatus(vote) {
 function formatTime(seconds) {
 	if (seconds <= 0) return "0s";
 
+	const days = Math.floor(seconds / 86400);
+	seconds %= 86400;
+
+	const hours = Math.floor(seconds / 3600);
+	seconds %= 3600;
+
 	const minutes = Math.floor(seconds / 60);
 	const remainingSeconds = seconds % 60;
 
-	if (minutes === 0) return `${remainingSeconds}s`;
-	if (remainingSeconds === 0) return `${minutes} min`;
-	return `${minutes} min ${remainingSeconds}s`;
+	const parts = [];
+
+	if (days > 0) parts.push(`${days} ${days === 1 ? "dzień" : "dni"}`);
+	if (hours > 0) parts.push(`${hours} godz.`);
+	if (minutes > 0) parts.push(`${minutes} min`);
+	if (remainingSeconds > 0) parts.push(`${remainingSeconds}s`);
+
+	return parts.join(" ");
 }
 
 function getResult(vote) {
@@ -31,7 +42,7 @@ function getResult(vote) {
 	if (vote.votesFor < vote.votesAgainst) return "rejected";
 	return "tie";
 }
-// Dodaj tę funkcję w VotingList.jsx (obok getVoteStatus, formatTime itp.)
+
 function getCategoryLabel(category) {
 	const labels = {
 		amendment: "Poprawka",
@@ -53,15 +64,24 @@ export default function Votings() {
 	const [now, setNow] = useState(Date.now());
 	const [archivingId, setArchivingId] = useState(null);
 	const [showArchiveModal, setShowArchiveModal] = useState(false);
+	const [userId, setUserId] = useState(null);
 
-	// Stany dla modala aktywacji
+
+
 	const [showActivateModal, setShowActivateModal] = useState(false);
 	const [activatingId, setActivatingId] = useState(null);
 	const [activationDuration, setActivationDuration] = useState(1); // w godzinach
 	const [activationStartDelay, setActivationStartDelay] = useState(0); // w minutach
 
 	const token = localStorage.getItem("token");
-
+	const canManageVote = (vote) => {
+		if (isAdmin) return true;
+		if (!userId) return false;
+		if (vote.managers && Array.isArray(vote.managers)) {
+			return vote.managers.includes(userId);
+		}
+		return false;
+	};
 	useEffect(() => {
 		const interval = setInterval(() => setNow(Date.now()), 1000);
 		return () => clearInterval(interval);
@@ -79,9 +99,10 @@ export default function Votings() {
 				if (!response.ok) throw new Error();
 
 				const user = await response.json();
-
+				console.log("👤 Zalogowany użytkownik:", user);
+				setUserId(user.id);
 				setIsAdmin(
-					user.role === "admin" || user.permissions?.includes("MANAGE_VOTINGS"),
+					user.role === "admin" || user.permissions?.includes("MANAGE_VOTINGS")
 				);
 			} catch {
 				setIsAdmin(false);
@@ -94,18 +115,18 @@ export default function Votings() {
 	useEffect(() => {
 		async function fetchVotings() {
 			try {
+
 				const response = await fetch("/api/votings", {
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},
 				});
-
 				const data = await response.json();
+				setVotes(data);
 
 				if (!response.ok)
 					throw new Error(data.message || "Nie udało się pobrać głosowań");
 
-				setVotes(data);
 			} catch (err) {
 				setError(err.message);
 			} finally {
@@ -115,6 +136,7 @@ export default function Votings() {
 
 		fetchVotings();
 	}, [token]);
+
 
 	const handleArchive = async (voteId) => {
 		try {
@@ -149,10 +171,10 @@ export default function Votings() {
 		setShowArchiveModal(true);
 	};
 
-	// Funkcja do aktywacji głosowania
+
 	const handleActivate = async (voteId) => {
 		try {
-			// Oblicz daty
+
 			const now = new Date();
 			const startTime = new Date(now.getTime() + activationStartDelay * 60000);
 			const endTime = new Date(startTime.getTime() + activationDuration * 3600000);
@@ -175,7 +197,7 @@ export default function Votings() {
 				throw new Error("Nie udało się aktywować głosowania");
 			}
 
-			// Odśwież listę
+
 			const updatedResponse = await fetch("/api/votings", {
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -233,7 +255,7 @@ export default function Votings() {
 						["upcoming", "Oczekujące"],
 						["active", "Aktywne"],
 						["finished", "Zakończone"],
-						["archived", "Zarchiwizowane"],
+						...(isAdmin ? [["archived", "Zarchiwizowane"]] : [])
 					].map(([key, label]) => (
 						<button
 							key={key}
@@ -265,9 +287,9 @@ export default function Votings() {
 						const result = status === "finished" ? getResult(vote) : null;
 						const isArchived = status === "archived";
 
-						const canEdit = isAdmin && (status === "active" || status === "upcoming");
-						const canArchive = isAdmin && status === "finished";
-						const canActivate = isAdmin && status === "upcoming";
+						const canEdit = canManageVote(vote) && (status === "active" || status === "upcoming");
+						const canArchive = canManageVote(vote) && status === "finished";
+						const canActivate = canManageVote(vote) && status === "upcoming";
 
 						return (
 							<div key={vote.id} className={`voting-card ${status}`}>
@@ -337,6 +359,7 @@ export default function Votings() {
 													className="bar"
 													style={{
 														width: `${(vote.votesFor / (vote.votesFor + vote.votesAgainst + vote.abstained)) * 100 || 0}%`,
+														background: '#166534'
 													}}
 												/>
 												<strong>{vote.votesFor}</strong>
@@ -348,9 +371,23 @@ export default function Votings() {
 													className="bar"
 													style={{
 														width: `${(vote.votesAgainst / (vote.votesFor + vote.votesAgainst + vote.abstained)) * 100 || 0}%`,
+														background: '#991b1b'
 													}}
 												/>
 												<strong>{vote.votesAgainst}</strong>
+											</div>
+
+											
+											<div className="result-abstained">
+												<span>WSTRZYMAŁO SIĘ</span>
+												<div
+													className="bar"
+													style={{
+														width: `${(vote.abstained / (vote.votesFor + vote.votesAgainst + vote.abstained)) * 100 || 0}%`,
+														background: '#6c757d'
+													}}
+												/>
+												<strong>{vote.abstained}</strong>
 											</div>
 										</div>
 
@@ -378,7 +415,7 @@ export default function Votings() {
 									</div>
 								)}
 
-								{/* Przyciski dla oczekujących */}
+								
 								{!isArchived && status === "upcoming" && (
 									<div className="voting-actions">
 										<Link
@@ -408,7 +445,7 @@ export default function Votings() {
 									</div>
 								)}
 
-								{/* Przyciski dla aktywnych */}
+								
 								{!isArchived && status === "active" && (
 									<div className="voting-actions">
 										<Link
@@ -458,7 +495,7 @@ export default function Votings() {
 				)}
 			</div>
 
-			{/* Modal archiwizacji */}
+			
 			{showArchiveModal && (
 				<div
 					className="archive-modal-overlay"
@@ -496,7 +533,7 @@ export default function Votings() {
 				</div>
 			)}
 
-			{/* Modal aktywacji głosowania */}
+			
 			{showActivateModal && (
 				<div
 					className="activate-modal-overlay"

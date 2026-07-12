@@ -1,48 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import "./SessionDetails.css";
+import { useNavigate } from "react-router-dom";
 
 
-const defaultSpeakers = {
-    "Jan Kowalski": { club: "Klub Parlamentarny Czas Młodych", role: "Parlamentarzysta" },
-    "Anna Nowak": { club: "Klub Obywatelski", role: "Parlamentarzystka" },
-    "Piotr Wiśniewski": { club: "Klub Niezależnych", role: "Parlamentarzysta" },
-    "Maria Lewandowska": { club: "Klub Lewicy", role: "Parlamentarzystka" },
-    "Tomasz Zieliński": { club: "Klub Centrum", role: "Parlamentarzysta" },
-};
 
-const getSpeakerData = (name, customSpeakers) => {
-    if (customSpeakers && customSpeakers[name]) {
-        return customSpeakers[name];
-    }
-    return defaultSpeakers[name] || { club: "", role: "Parlamentarzysta" };
-};
 
 const getCurrentTime = () => {
     const now = new Date();
     return now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-};
-
-const initialSession = {
-    title: "III POSIEDZENIE PARLAMENTU",
-    date: "08.07.2026",
-    status: "TRWA",
-    currentSpeaker: {
-        name: "Jan Kowalski",
-        club: "Klub Parlamentarny Czas Młodych",
-        role: "Parlamentarzysta",
-        time: "12:45",
-    },
-    currentPoint: {
-        number: "2",
-        title: "Debata nad ustawą o cyfryzacji administracji",
-        type: "Dyskusja",
-    },
-    schedule: [
-        { time: "10:00", title: "Otwarcie posiedzenia", status: "done" },
-        { time: "10:30", title: "Sprawozdanie komisji", status: "done" },
-        { time: "12:00", title: "Debata nad ustawą o cyfryzacji administracji", status: "active" },
-        { time: "14:00", title: "Głosowania", status: "waiting" },
-    ],
 };
 
 const parseTimeToMinutes = (timeStr) => {
@@ -56,19 +21,19 @@ const parseTimeToMinutes = (timeStr) => {
 };
 
 export default function SessionDetails() {
-    const isAdmin = true;
+        const navigate = useNavigate(); // ✅ DODAJ
 
-    const [customSpeakers, setCustomSpeakers] = useState({});
-    const allSpeakers = { ...defaultSpeakers, ...customSpeakers };
+    const [session, setSession] = useState(null);
 
-
-    const [displaySpeaker, setDisplaySpeaker] = useState(initialSession.currentSpeaker);
-    const [displayPoint, setDisplayPoint] = useState(initialSession.currentPoint);
-    const [schedule, setSchedule] = useState(initialSession.schedule);
-    const [status, setStatus] = useState(initialSession.status);
-    const [title, setTitle] = useState(initialSession.title);
-    const [date, setDate] = useState(initialSession.date);
-
+    const [status, setStatus] = useState("");
+    const [displayPoint, setDisplayPoint] = useState(null);
+    const [schedule, setSchedule] = useState([]);
+    const [title, setTitle] = useState("");
+    const [date, setDate] = useState("");
+    const [speakers, setSpeakers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [displaySpeaker, setDisplaySpeaker] = useState(null);
 
     const [sessionMode, setSessionMode] = useState('normal');
 
@@ -84,15 +49,100 @@ export default function SessionDetails() {
     const [newSpeakerClub, setNewSpeakerClub] = useState("");
     const [newSpeakerRole, setNewSpeakerRole] = useState("Parlamentarzysta");
 
-
     const [breakEndTime, setBreakEndTime] = useState("");
     const [breakStartTime, setBreakStartTime] = useState("");
-
+    const [userRole, setUserRole] = useState(null);
+    const [isAuthorized, setIsAuthorized] = useState(false);
 
     const [speakerChanging, setSpeakerChanging] = useState(false);
     const [pointChanging, setPointChanging] = useState(false);
+    const [isPointDisabled, setIsPointDisabled] = useState(false);
+    const [customSpeakers, setCustomSpeakers] = useState({});
+    const token = localStorage.getItem("token");
+    const disableCurrentPoint = () => {
+        if (sessionMode === 'break' || sessionMode === 'zo') return;
 
 
+        if (!scheduleBackup) {
+            setScheduleBackup([...schedule]);
+            setActiveIndexBackup(schedule.findIndex(item => item.status === "active"));
+        }
+
+
+        const newSchedule = schedule.map(item => ({
+            ...item,
+            status: item.status === "done" ? "done" : "waiting"
+        }));
+        setSchedule(newSchedule);
+
+
+        setDisplayPoint(null);
+        setIsPointDisabled(true);
+        setPointChanging(true);
+        setTimeout(() => setPointChanging(false), 400);
+    };
+    const getSpeakerData = (name, customSpeakers) => {
+        if (customSpeakers && customSpeakers[name]) {
+            return customSpeakers[name];
+        }
+        const found = speakers.find(s => s.name === name);
+        if (found) {
+            return { club: found.club || "", role: found.role || "Parlamentarzysta" };
+        }
+        return { club: "", role: "Parlamentarzysta" };
+    };
+    const restoreCurrentPoint = () => {
+        if (!scheduleBackup) return;
+
+        setSchedule(scheduleBackup);
+        setScheduleBackup(null);
+        setActiveIndexBackup(null);
+        setIsPointDisabled(false);
+
+
+        if (session) {
+            setDisplayPoint(session.currentPoint);
+        }
+        setPointChanging(true);
+        setTimeout(() => setPointChanging(false), 400);
+    };
+    const allSpeakers = useMemo(() => {
+        const speakersMap = speakers.reduce((acc, s) => ({
+            ...acc,
+            [s.name]: { club: s.club, role: s.role }
+        }), {});
+        return { ...speakersMap, ...customSpeakers };
+    }, [speakers, customSpeakers]);
+    useEffect(() => {
+        async function fetchUser() {
+            try {
+                const response = await fetch("/api/auth/me", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (response.ok) {
+                    const user = await response.json();
+                    setUserRole(user.role);
+
+                    setIsAuthorized(
+                        user.role === "admin" || user.role === "marshal"
+                    );
+                }
+            } catch (err) {
+                console.error("Błąd pobierania użytkownika:", err);
+            }
+        }
+        fetchUser();
+    }, [token]);
+    useEffect(() => {
+        if (session) {
+            setDisplaySpeaker(session.currentSpeaker);
+            setDisplayPoint(session.currentPoint);
+            setSchedule(session.schedule);
+            setStatus(session.status);
+            setTitle(session.title);
+            setDate(session.date);
+        }
+    }, [session]);
     useEffect(() => {
         if (sessionMode !== 'normal') return;
         const activeIndex = schedule.findIndex((item) => item.status === "active");
@@ -119,7 +169,71 @@ export default function SessionDetails() {
         window.scrollTo({ top: 0, behavior: "instant" });
     }, []);
 
+    useEffect(() => {
+        async function fetchSessionData() {
+            try {
+                setLoading(true);
 
+
+                const sessionRes = await fetch("/api/session/current", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (!sessionRes.ok) throw new Error("Nie udało się pobrać sesji");
+                const sessionData = await sessionRes.json();
+                setSession(sessionData);
+
+
+                const speakersRes = await fetch("/api/speakers", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (!speakersRes.ok) throw new Error("Nie udało się pobrać mówców");
+                const speakersData = await speakersRes.json();
+                setSpeakers(speakersData);
+
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchSessionData();
+    }, [token]);
+    const updateSession = async (updatedData) => {
+        try {
+            const response = await fetch("/api/session/current", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(updatedData),
+            });
+            if (!response.ok) throw new Error("Nie udało się zaktualizować sesji");
+            const data = await response.json();
+            setSession(data);
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
+    const addSpeaker = async (speakerData) => {
+        try {
+            const response = await fetch("/api/speakers", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(speakerData),
+            });
+            if (!response.ok) throw new Error("Nie udało się dodać mówcy");
+            const data = await response.json();
+            setSpeakers(prev => [...prev, data]);
+        } catch (err) {
+            setError(err.message);
+        }
+    };
     const selectSpeaker = (name) => {
         if (!name.trim()) return;
 
@@ -141,7 +255,7 @@ export default function SessionDetails() {
     };
 
 
-    const addCustomSpeaker = (e) => {
+    const addCustomSpeaker = async (e) => {
         e.preventDefault();
         const name = newSpeakerName.trim();
         if (!name) return;
@@ -149,12 +263,15 @@ export default function SessionDetails() {
             alert("Taki mówca już istnieje!");
             return;
         }
-        const club = newSpeakerClub.trim() || "";
-        const role = newSpeakerRole.trim() || "Parlamentarzysta";
-        setCustomSpeakers((prev) => ({
-            ...prev,
-            [name]: { club, role },
-        }));
+
+        const speakerData = {
+            name: name,
+            club: newSpeakerClub.trim() || "",
+            role: newSpeakerRole.trim() || "Parlamentarzysta",
+        };
+
+        await addSpeaker(speakerData);
+
         setNewSpeakerName("");
         setNewSpeakerClub("");
         setNewSpeakerRole("Parlamentarzysta");
@@ -243,10 +360,10 @@ export default function SessionDetails() {
         setBreakEndTime("");
         setBreakStartTime("");
         setSessionMode('normal');
+        setIsPointDisabled(false); // ✅ PRZYWRÓĆ PUNKT
 
-
-        setDisplaySpeaker(initialSession.currentSpeaker);
-        setDisplayPoint(initialSession.currentPoint);
+        setDisplaySpeaker(session?.currentSpeaker);
+        setDisplayPoint(session?.currentPoint);
         setSpeakerChanging(true);
         setTimeout(() => setSpeakerChanging(false), 400);
         setPointChanging(true);
@@ -300,8 +417,8 @@ export default function SessionDetails() {
         setActiveIndexBackup(null);
         setSessionMode('normal');
 
-        setDisplaySpeaker(initialSession.currentSpeaker);
-        setDisplayPoint(initialSession.currentPoint);
+        setDisplaySpeaker(session?.currentSpeaker);
+        setDisplayPoint(session?.currentPoint);
         setSpeakerChanging(true);
         setTimeout(() => setSpeakerChanging(false), 400);
         setPointChanging(true);
@@ -385,6 +502,12 @@ export default function SessionDetails() {
 
     return (
         <div className="session-page">
+                        <button 
+                className="back-to-dashboard-btn" 
+                onClick={() => navigate("/dashboard")}
+            >
+                ← Powrót do dashboardu
+            </button>
             <header className="session-header">
                 <div>
                     <p className="session-status">● {status}</p>
@@ -398,7 +521,7 @@ export default function SessionDetails() {
                 {showSpeaker && (
                     <div className="live-card">
                         <h2>AKTUALNIE MÓWI</h2>
-                        {isAdmin ? (
+                        {isAuthorized ? (
                             <div className="admin-speaker-edit">
                                 <div className="autocomplete-wrapper">
                                     <input
@@ -503,12 +626,20 @@ export default function SessionDetails() {
 
                 <div className="live-card">
                     <h2>AKTUALNY PUNKT</h2>
-                    <div className={`agenda-current ${pointChanging ? "changing" : ""}`}>
-                        <span>PUNKT {displayPoint.number}</span>
-                        <h3>{displayPoint.title}</h3>
-                        <p>{displayPoint.type}</p>
-                    </div>
-                    {isAdmin && (
+                    {displayPoint && !isPointDisabled ? (
+                        <div className={`agenda-current ${pointChanging ? "changing" : ""}`}>
+                            <span>PUNKT {displayPoint.number}</span>
+                            <h3>{displayPoint.title}</h3>
+                            <p>{displayPoint.type}</p>
+                        </div>
+                    ) : (
+                        <div className="agenda-current point-disabled">
+                            <span>—</span>
+                            <h3>Brak aktywnego punktu</h3>
+                            <p>Przemówienie poza harmonogramem</p>
+                        </div>
+                    )}
+                    {isAuthorized && (
                         <div className="admin-point-actions">
                             {sessionMode === 'break' ? (
                                 <div className="break-controls">
@@ -544,7 +675,25 @@ export default function SessionDetails() {
                                     <button className="zo-btn" onClick={setOrganizationalTeam}>
                                         ZO
                                     </button>
+                                    {isPointDisabled ? (
+                                        <button
+                                            className="restore-point-btn"
+                                            onClick={restoreCurrentPoint}
+                                            title="Przywróć aktualny punkt"
+                                        >
+                                            📍 Przywróć punkt
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className="disable-point-btn"
+                                            onClick={disableCurrentPoint}
+                                            title="Wyłącz wyświetlanie aktualnego punktu"
+                                        >
+                                            🚫 Wyłącz punkt
+                                        </button>
+                                    )}
                                 </>
+
                             )}
                         </div>
                     )}
@@ -556,7 +705,7 @@ export default function SessionDetails() {
                 <div className="session-panel">
                     <div className="panel-header">
                         <h2>HARMONOGRAM POSIEDZENIA</h2>
-                        {isAdmin && (
+                        {isAuthorized && (
                             <div className="admin-nav">
                                 <button onClick={prevItem} className="nav-btn">Poprzedni</button>
                                 <button onClick={nextItem} className="nav-btn">Dalej </button>
@@ -568,7 +717,7 @@ export default function SessionDetails() {
                         {schedule.map((item, index) => (
                             <div className={`timeline-item ${item.status}`} key={index}>
                                 <div className="timeline-time">
-                                    {isAdmin ? (
+                                    {isAuthorized ? (
                                         <input
                                             type="text"
                                             value={item.time}
@@ -585,7 +734,7 @@ export default function SessionDetails() {
                                 </div>
                                 <div className="timeline-dot"></div>
                                 <div className="timeline-content">
-                                    {isAdmin ? (
+                                    {isAuthorized ? (
                                         <div className="admin-schedule-item">
                                             <input
                                                 type="text"
@@ -612,7 +761,7 @@ export default function SessionDetails() {
                         ))}
                     </div>
 
-                    {isAdmin && (
+                    {isAuthorized && (
                         <div className="admin-add-point">
                             <h4>Dodaj nowy punkt</h4>
                             <form

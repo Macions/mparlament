@@ -1,12 +1,12 @@
-// W pliku data/votings.js
+
 export let votings = [
 	{
 		id: 1,
 		title: "Uchwała w sprawie zwiększenia finansowania oświaty",
 		description: "Projekt uchwały dotyczący zwiększenia środków przeznaczonych na edukację.",
 		category: "resolution",
-		startTime: "2026-07-10T16:19:00",
-		endTime: "2026-07-10T22:00:00",
+		startTime: "2026-07-11T16:19:00",
+		endTime: "2026-07-11T22:00:00",
 		status: "active",
 		recipientsType: "all",
 		selectedGroups: [],
@@ -21,7 +21,7 @@ export let votings = [
 		hasVoted: true,
 		myVote: "for",
 		createdBy: "Jan Kowalski",
-		managers: [3], 
+		managers: [3],
 	},
 	{
 		id: 2,
@@ -52,7 +52,7 @@ export let votings = [
 		hasVoted: true,
 		myVote: "for",
 		createdBy: "Marszałek Parlamentu",
-		managers: [3], 
+		managers: [],
 	},
 	{
 		id: 3,
@@ -75,7 +75,7 @@ export let votings = [
 		hasVoted: true,
 		myVote: "for",
 		createdBy: "Anna Nowak",
-		managers: [3], 
+		managers: [],
 	},
 	{
 		id: 4,
@@ -106,7 +106,7 @@ export let votings = [
 		hasVoted: false,
 		myVote: null,
 		createdBy: "Przewodniczący Komisji",
-		managers: [3], 
+		managers: [],
 	},
 	{
 		id: 5,
@@ -129,7 +129,7 @@ export let votings = [
 		hasVoted: true,
 		myVote: "for",
 		createdBy: "Minister Infrastruktury",
-		managers: [3], 
+		managers: [],
 	},
 	{
 		id: 6,
@@ -167,6 +167,38 @@ export let votings = [
 		hasVoted: true,
 		myVote: "against",
 		createdBy: "Marszałek Parlamentu",
-		managers: [3], 
+		managers: [],
+	},
+
+	{
+		id: 7,
+		title: "Głosowanie nad poprawką do uchwały o finansowaniu oświaty",
+		description: "Głosowanie nad poprawką nr 1 do uchwały w sprawie zwiększenia finansowania oświaty, dotyczącą zwiększenia budżetu na szkolenia z kompetencji cyfrowych.",
+		category: "amendment",
+		startTime: "2026-07-15T10:00:00",
+		endTime: "2026-07-15T14:00:00",
+		status: "active",
+		recipientsType: "all",
+		selectedGroups: [],
+		selectedMembers: [],
+		linkedItemType: "amendment",
+		linkedItemId: 1,
+		applicant: "marshal",
+		attachments: [
+			{
+				id: 5,
+				name: "poprawka_nr1.pdf",
+				size: 1024 * 1024 * 0.5,
+				type: "application/pdf",
+				uploadDate: "2026-07-14T10:00:00"
+			}
+		],
+		votesFor: 0,
+		votesAgainst: 0,
+		abstained: 0,
+		hasVoted: false,
+		myVote: null,
+		createdBy: "Anna Nowak",
+		managers: [],
 	},
 ];

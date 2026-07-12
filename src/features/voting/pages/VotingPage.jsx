@@ -36,6 +36,40 @@ function formatVote(v) {
 	}
 }
 
+
+const getCategoryLabel = (category) => {
+	const labels = {
+		resolution: "Uchwała",
+		amendment: "Poprawka",
+		law: "Ustawa",
+		budget: "Budżet",
+		committee: "Komisja",
+		other: "Inne"
+	};
+	return labels[category] || category || "Nieznana";
+};
+const getApplicantLabel = (applicant) => {
+	const labels = {
+		marshal: "Marszałek Parlamentu",
+		presidium: "Prezydium Parlamentu",
+		group_15: "Grupa 15 posłów",
+		individual: "Pojedynczy poseł"
+	};
+	return labels[applicant] || applicant || "Nieznany";
+};
+const getStatusLabel = (status) => {
+	const statusMap = {
+		pending: 'Oczekująca',
+		accepted: 'Przyjęta',
+		rejected: 'Odrzucona',
+		withdrawn: 'Wycofana',
+		active: 'Aktywna',
+		inactive: 'Nieaktywna',
+		archived: 'Zarchiwizowana'
+	};
+	return statusMap[status] || status || 'Nieznany';
+};
+
 export default function VotingPage() {
 	const { id } = useParams();
 	const navigate = useNavigate();
@@ -44,10 +78,12 @@ export default function VotingPage() {
 	const [pendingVote, setPendingVote] = useState(null);
 	const [now, setNow] = useState(Date.now());
 	const [error, setError] = useState("");
+	const [linkedItem, setLinkedItem] = useState(null);
+	const [linkedItemType, setLinkedItemType] = useState(null);
 
 	const token = localStorage.getItem("token");
 
-	// Pobranie głosowania
+
 	useEffect(() => {
 		async function fetchVote() {
 			try {
@@ -64,6 +100,38 @@ export default function VotingPage() {
 				}
 
 				setVote(data);
+
+
+				if (data.linkedItemType && data.linkedItemType !== "none" && data.linkedItemId) {
+					setLinkedItemType(data.linkedItemType);
+					console.log("Dane głosowania:", data);
+					console.log("linkedItemType:", data.linkedItemType);
+					console.log("linkedItemId:", data.linkedItemId);
+
+					let endpoint = "";
+					if (data.linkedItemType === "resolution") {
+						endpoint = `/api/resolutions/${data.linkedItemId}`;
+					} else if (data.linkedItemType === "amendment") {
+						endpoint = `/api/amendments/${data.linkedItemId}`;
+					}
+
+					if (endpoint) {
+						try {
+							const linkedRes = await fetch(endpoint, {
+								headers: {
+									Authorization: `Bearer ${token}`,
+								},
+							});
+							if (linkedRes.ok) {
+								const linkedData = await linkedRes.json();
+								console.log("Pobrany linkedItem:", linkedData);
+								setLinkedItem(linkedData.data || linkedData);
+							}
+						} catch (err) {
+							console.error("Nie udało się pobrać powiązanego obiektu:", err);
+						}
+					}
+				}
 			} catch (error) {
 				setError(error.message);
 			}
@@ -72,7 +140,7 @@ export default function VotingPage() {
 		fetchVote();
 	}, [id, token]);
 
-	// Aktualizacja zegara
+
 	useEffect(() => {
 		const interval = setInterval(() => {
 			setNow(Date.now());
@@ -134,6 +202,10 @@ export default function VotingPage() {
 
 	const canEdit = vote.userRole === "admin" || vote.userRole === "marshal";
 
+
+	const categoryLabel = getCategoryLabel(vote.category);
+	const statusLabel = getStatusLabel(vote.status);
+
 	return (
 		<>
 			<div className="voting-page">
@@ -143,12 +215,11 @@ export default function VotingPage() {
 
 				<div className="voting-container">
 					<div className="voting-header">
-						<span className="voting-type">{vote.category}</span>
+						<span className="voting-type">{categoryLabel}</span>
 
 						<span
-							className={`voting-status ${
-								isActive ? "active" : isFinished ? "finished" : "upcoming"
-							}`}
+							className={`voting-status ${isActive ? "active" : isFinished ? "finished" : "upcoming"
+								}`}
 						>
 							{isActive ? "TRWA" : isFinished ? "ZAKOŃCZONE" : "OCZEKUJE"}
 						</span>
@@ -156,7 +227,102 @@ export default function VotingPage() {
 
 					<h1 className="voting-title">{vote.title}</h1>
 
-					<p className="voting-description">{vote.description}</p>
+					
+					<div className="voting-details">
+						{vote.description && (
+							<div className="voting-description">
+								<h3>Opis:</h3>
+								<p>{vote.description}</p>
+							</div>
+						)}
+
+						
+						<div className="voting-meta">
+							<div className="meta-item">
+								<span className="meta-label">Kategoria:</span>
+								<span className="meta-value">{categoryLabel}</span>
+							</div>
+							{vote.status && (
+								<div className="meta-item">
+									<span className="meta-label">Status:</span>
+									<span className="meta-value">{statusLabel}</span>
+								</div>
+							)}
+							{vote.applicant && (
+								<div className="meta-item">
+									<span className="meta-label">Wnioskodawca:</span>
+									<span className="meta-value">{getApplicantLabel(vote.applicant)}</span>
+								</div>
+							)}
+							<div className="meta-item">
+								<span className="meta-label">Data rozpoczęcia:</span>
+								<span className="meta-value">{new Date(startTime).toLocaleString()}</span>
+							</div>
+							<div className="meta-item">
+								<span className="meta-label">Data zakończenia:</span>
+								<span className="meta-value">{new Date(endTime).toLocaleString()}</span>
+							</div>
+						</div>
+
+						
+						{linkedItem && (
+							<div className="voting-linked-item">
+								<h3>Powiązane:</h3>
+								<div className="linked-item-card">
+									<div className="linked-item-header">
+										<span className="linked-item-type">
+											{linkedItemType === "resolution" ? "Uchwała" : "Poprawka"}
+										</span>
+										{linkedItem.status && (
+											<span className="linked-item-status">
+												{getStatusLabel(linkedItem.status)}
+											</span>
+										)}
+									</div>
+									<h4 className="linked-item-title">{linkedItem.title}</h4>
+									{linkedItem.content && (
+										<p className="linked-item-content">{linkedItem.content}</p>
+									)}
+									{linkedItem.description && (
+										<p className="linked-item-content">{linkedItem.description}</p>
+									)}
+									{linkedItem.preamble && (
+										<p className="linked-item-content">{linkedItem.preamble}</p>
+									)}
+									<div className="linked-item-meta">
+										{linkedItem.author && (
+											<span>Autor: {linkedItem.author}</span>
+										)}
+										{linkedItem.createdAt && (
+											<span>Data: {new Date(linkedItem.createdAt).toLocaleDateString()}</span>
+										)}
+									</div>
+									<button
+										className="btn-goto-linked"
+										onClick={() => {
+
+											if (linkedItemType === "resolution") {
+												navigate(`/${linkedItem.slug}`);
+											} else if (linkedItemType === "amendment") {
+
+												const resolutionSlug = linkedItem.resolution?.slug || linkedItem.resolutionId;
+												navigate(`/${resolutionSlug}/poprawka/${linkedItem.id}`);
+											}
+										}}
+									>
+										Zobacz szczegóły →
+									</button>
+								</div>
+							</div>
+						)}
+
+						
+						{(!vote.linkedItemType || vote.linkedItemType === "none") && (
+							<div className="voting-linked-item no-link">
+								<p className="no-link-text">Brak powiązania z uchwałą lub poprawką</p>
+							</div>
+						)}
+					</div>
 
 					{isActive && (
 						<p
@@ -215,7 +381,6 @@ export default function VotingPage() {
 					{isFinished && (
 						<div className="voting-finished">
 							<h3>Głosowanie zakończone</h3>
-
 							<p>Wyniki zostaną przedstawione na stronie głosowań.</p>
 						</div>
 					)}

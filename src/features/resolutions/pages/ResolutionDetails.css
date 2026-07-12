@@ -79,10 +79,10 @@
 .btn.btn-pill.btn-gray.btn-wide {
 	background-color: rgba(0, 0, 255, 0.147);
 	cursor: not-allowed;
-	/* pointer-events: none;  <-- usuń to */
+	
 }
 
-/* Hover nadal działa */
+
 .btn.btn-pill.btn-gray.btn-wide:hover {
 	transform: translateY(0px);
 }
@@ -422,7 +422,7 @@
 }
 
 
-/* potwierdzenie */
+
 
 .modal-confirm {
 	background: #06b6d4;
@@ -438,7 +438,7 @@
 }
 
 
-/* anulowanie */
+
 
 .modal-cancel {
 	background: #e5e7eb;

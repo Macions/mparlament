@@ -48,7 +48,7 @@ export default function AddAmendment() {
 			});
 	}, [slug]);
 
-	// Pobierz wszystkie artykuły z uchwały
+
 	const getAllArticles = () => {
 		if (!resolution) return [];
 		if (resolution.articles) return resolution.articles;

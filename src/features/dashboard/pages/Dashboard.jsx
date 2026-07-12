@@ -79,6 +79,12 @@ export default function Dashboard() {
 
 	return (
 		<div className="dashboard">
+			<button
+				className="back-to-home-btn"
+				onClick={() => navigate("/")}
+			>
+				← Powrót do strony głównej
+			</button>
 			<section className="dashboard__user">
 				<p className="dashboard__user-name">Zalogowano jako {user?.name}</p>
 

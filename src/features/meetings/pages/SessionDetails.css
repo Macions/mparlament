@@ -1357,3 +1357,73 @@
 .cancel-btn:hover {
     background: #dc2626;
 }
+
+
+.disable-point-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.disable-point-btn:hover {
+    background: #c82333;
+}
+
+.restore-point-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.restore-point-btn:hover {
+    background: #218838;
+}
+
+.point-disabled {
+    opacity: 0.6;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.point-disabled h3 {
+    color: #6c757d;
+    font-weight: 400;
+}
+.back-to-dashboard-btn {
+    background: white;
+    border: 2px solid #e2e8f0;
+    color: #0f172a;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 12px 28px;
+    margin-bottom: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 12px;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.back-to-dashboard-btn:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    transform: translateX(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.back-to-dashboard-btn:active {
+    transform: scale(0.96);
+}

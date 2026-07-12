@@ -344,7 +344,7 @@
 	}
 }
 
-/* === Modern Amendment Modal === */
+
 
 .amendment-modal-overlay {
 	position: fixed;
@@ -403,7 +403,7 @@
 	line-height: 1.65;
 }
 
-/* Form fields */
+
 .amendment-modal-field {
 	margin-bottom: 28px;
 }
@@ -423,7 +423,7 @@
 	margin-left: 6px;
 }
 
-/* Textarea */
+
 .amendment-modal-textarea {
 	width: 100%;
 	padding: 14px 18px;
@@ -450,7 +450,7 @@
 	cursor: not-allowed;
 }
 
-/* Buttons */
+
 .amendment-modal-actions {
 	display: flex;
 	gap: 14px;
@@ -498,7 +498,7 @@
 	transform: none;
 }
 
-/* Animations */
+
 @keyframes amendmentFadeIn {
 	from {
 		opacity: 0;
@@ -519,7 +519,7 @@
 	}
 }
 
-/* Responsive */
+
 @media (max-width: 640px) {
 	.amendment-modal-content {
 		padding: 32px 24px 28px;

@@ -569,8 +569,8 @@
 	position: fixed;
 	inset: 0;
 	background: rgba(15, 23, 42, 0.85);
-	backdrop-filter: blur(16px);
 	-webkit-backdrop-filter: blur(16px);
+	backdrop-filter: blur(16px);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -749,7 +749,7 @@
 }
 
 .modal-body h3:first-of-type {
-	margin-top: 0;
+	margin-top: 9px;
 }
 
 .modal-body h3 .badge-count {
@@ -1505,7 +1505,7 @@
 	}
 
 	.club-item .club-type-badge {
-		display: none; /* za mało miejsca na bardzo małych ekranach */
+		display: none; 
 	}
 
 	.member-card {
