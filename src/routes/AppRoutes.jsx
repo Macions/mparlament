@@ -6,7 +6,7 @@ import SessionDetails from "../features/meetings/pages/SessionDetails";
 
 import Login from "../features/authentication/pages/Login";
 
-import Dashboard from "../features/Dashboard/pages/Dashboard";
+import Dashboard from "../features/dashboard/pages/Dashboard";
 
 import Resolutions from "../features/resolutions/pages/Resolutions";
 import ResolutionDetails from "../features/resolutions/pages/ResolutionDetails";
