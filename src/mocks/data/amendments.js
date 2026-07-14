@@ -82,7 +82,7 @@ export const amendments = [
 			},
 		],
 	},
-	// 👇 NOWE POPRAWKI - USUNIĘCIE I DODANIE
+	//  NOWE POPRAWKI - USUNIĘCIE I DODANIE
 	{
 		id: 6,
 		resolutionId: 1,

@@ -128,7 +128,7 @@ export default function SubmitResolution() {
 			return;
 		}
 
-		// 👇 DODAJ TĘ WALIDACJĘ:
+		//  DODAJ TĘ WALIDACJĘ:
 		if (!selectedSessionId || selectedSessionId === "all") {
 			setError("Wybierz posiedzenie");
 			return;
@@ -136,7 +136,7 @@ export default function SubmitResolution() {
 
 		setSubmitting(true);
 		setError("");
-		setUploadProgress(0); // 👈 DODAJ
+		setUploadProgress(0); //  DODAJ
 
 		try {
 			const userResponse = await fetch("/api/auth/me");
@@ -158,13 +158,13 @@ export default function SubmitResolution() {
 				author: userData.name,
 				authorId: userData.id,
 				party: userData.club || userData.party || "Niezrzeszony",
-				sessionId: selectedSessionId !== "all" ? Number(selectedSessionId) : null, // 👈 DODAJ
+				sessionId: selectedSessionId !== "all" ? Number(selectedSessionId) : null, //  DODAJ
 			};
 
 			// Dodajemy dane jako JSON string
 			formData.append("data", JSON.stringify(bill));
 
-			// 👇 ZMIEŃ fetch na XMLHttpRequest z progress
+			//  ZMIEŃ fetch na XMLHttpRequest z progress
 			const response = await new Promise((resolve, reject) => {
 				const xhr = new XMLHttpRequest();
 

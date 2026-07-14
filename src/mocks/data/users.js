@@ -32,7 +32,7 @@ export const users = [
 
 		name: "Piotr Wiśniewski",
 		club: "MŁODZI DLA POLSKI",
-		role: "marshal",
+		role: "member",
 
 		permissions: []
 	}

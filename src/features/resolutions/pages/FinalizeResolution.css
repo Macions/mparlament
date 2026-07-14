@@ -7,6 +7,7 @@
 	color: #1e2937;
 }
 
+/* Nagłówek */
 .finalize-header {
 	background: white;
 	border-radius: 18px;
@@ -28,7 +29,6 @@
 
 .finalize-header button:hover {
 	background: #e2e8f0;
-	transform: translateY(-2px);
 }
 
 .finalize-header h1 {
@@ -52,7 +52,7 @@
 	margin-bottom: 1.5rem;
 	display: flex;
 	align-items: center;
-	gap: 12px;
+	justify-content: space-between;
 	font-weight: 500;
 }
 
@@ -66,6 +66,14 @@
 	background: #ecfdf5;
 	color: #0f766e;
 	border: 1px solid #34d399;
+}
+
+.alert-close {
+	background: none;
+	border: none;
+	font-size: 1.2rem;
+	cursor: pointer;
+	color: inherit;
 }
 
 /* Krok 1 - Upload */
@@ -88,6 +96,12 @@
 	margin-bottom: 0.75rem;
 }
 
+.file-input {
+	margin: 20px 0;
+	padding: 10px;
+	font-size: 1rem;
+}
+
 .file-info {
 	margin-top: 1.5rem;
 	padding: 1rem 1.5rem;
@@ -99,7 +113,24 @@
 	font-weight: 600;
 }
 
-/* Karty wyboru (posiedzenia / uchwały) */
+.articles-preview {
+	margin-top: 20px;
+	text-align: left;
+	background: #f5f5f5;
+	padding: 15px;
+	border-radius: 4px;
+}
+
+.article-item {
+	margin: 5px 0;
+	font-size: 14px;
+}
+
+/* Karty wyboru */
+.selection-step {
+	padding: 20px;
+}
+
 .selection-grid {
 	display: flex;
 	flex-direction: column;
@@ -115,11 +146,11 @@
 	cursor: pointer;
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	box-shadow: 0 4px 12px rgba(0, 43, 92, 0.05);
+	text-align: left;
 }
 
 .selection-card:hover {
 	border-color: #94a3b8;
-	transform: translateY(-4px);
 	box-shadow: 0 12px 24px rgba(0, 43, 92, 0.1);
 }
 
@@ -132,6 +163,29 @@
 .selection-card strong {
 	font-size: 1.15rem;
 	color: #1e2937;
+}
+
+.loading-text,
+.empty-text {
+	color: #64748b;
+	text-align: center;
+	padding: 20px;
+}
+
+.back-btn-finalize {
+	margin-top: 20px;
+	padding: 12px 16px;
+	background: #f1f5f9;
+	border: 2px solid #e2e8f0;
+	border-radius: 9999px;
+	font-weight: 600;
+	cursor: pointer;
+	display: flex;
+	gap: 10px;
+	transition: gap .2s;
+}
+.back-btn-finalize:hover {
+	gap:5px;
 }
 
 /* Krok 4 - Podgląd */
@@ -158,6 +212,16 @@
 	font-size: 1.35rem;
 }
 
+.summary-panel hr {
+	margin: 1.25rem 0;
+	border: none;
+	border-top: 1px solid #e2e8f0;
+}
+
+.summary-panel p {
+	margin: 0.5rem 0;
+}
+
 .summary-stats {
 	display: flex;
 	flex-wrap: wrap;
@@ -170,6 +234,26 @@
 	border-radius: 9999px;
 	font-weight: 700;
 	font-size: 0.95rem;
+}
+
+.stat-badge.accepted {
+	background: #e8f5e9;
+	color: #2e7d32;
+}
+
+.stat-badge.rejected {
+	background: #ffebee;
+	color: #c62828;
+}
+
+.stat-badge.pending {
+	background: #fff3e0;
+	color: #ed6c02;
+}
+
+.stat-badge.withdrawn {
+	background: #f5f5f5;
+	color: #666;
 }
 
 .generate-btn {
@@ -188,7 +272,6 @@
 }
 
 .generate-btn:hover:not(:disabled) {
-	transform: translateY(-3px);
 	box-shadow: 0 12px 28px rgba(0, 43, 92, 0.4);
 }
 
@@ -198,6 +281,24 @@
 	transform: none;
 }
 
+.warning-text {
+	color: #ed6c02;
+	font-size: 14px;
+	margin-top: 10px;
+	text-align: center;
+}
+
+.reset-btn {
+	width: 100%;
+	padding: 10px;
+	margin-top: 10px;
+	background: transparent;
+	border: 1px solid #ccc;
+	border-radius: 9999px;
+	cursor: pointer;
+	font-weight: 600;
+}
+
 /* Lista poprawek */
 .amendments-panel {
 	background: white;
@@ -205,6 +306,16 @@
 	border-radius: 20px;
 	padding: 2rem;
 	box-shadow: 0 8px 20px rgba(0, 43, 92, 0.08);
+}
+
+.amendments-panel h3 {
+	color: #002b5c;
+	margin-bottom: 1.25rem;
+}
+
+.amendments-list {
+	max-height: 600px;
+	overflow-y: auto;
 }
 
 .amendment-card {
@@ -219,14 +330,17 @@
 	background: #ecfdf5;
 	border-color: #34d399;
 }
+
 .amendment-card.rejected {
 	background: #fef2f2;
 	border-color: #f87171;
 }
+
 .amendment-card.pending {
 	background: #fffbeb;
 	border-color: #fbbf24;
 }
+
 .amendment-card.withdrawn {
 	background: #f8fafc;
 	border-color: #94a3b8;
@@ -247,12 +361,66 @@
 	color: white;
 }
 
+.amendment-status.accepted {
+	background: #4caf50;
+}
+
+.amendment-status.rejected {
+	background: #f44336;
+}
+
+.amendment-status.pending {
+	background: #ff9800;
+}
+
+.amendment-status.withdrawn {
+	background: #999;
+}
+
+.amendment-content {
+	margin: 8px 0;
+	font-size: 14px;
+}
+
 .changes-list {
 	background: #f8fafc;
 	border-radius: 12px;
 	padding: 12px;
 	font-size: 0.95rem;
 	margin-top: 12px;
+}
+
+.change-item {
+	margin: 5px 0;
+	padding-left: 10px;
+	border-left: 2px solid #ddd;
+}
+
+.change-before {
+	color: #c62828;
+	font-size: 12px;
+}
+
+.change-after {
+	color: #2e7d32;
+	font-size: 12px;
+}
+
+.change-new {
+	color: #2e7d32;
+	font-size: 12px;
+}
+
+.change-deleted {
+	color: #c62828;
+	font-size: 12px;
+}
+
+.withdrawn-reason {
+	font-size: 12px;
+	color: #666;
+	font-style: italic;
+	margin-top: 8px;
 }
 
 /* Responsywność */
@@ -278,4 +446,299 @@
 	.upload-area {
 		padding: 3rem 1.5rem;
 	}
+}
+
+/* Przycisk wyboru pliku - stylizowany */
+.file-input-wrapper {
+	position: relative;
+	display: inline-block;
+	margin: 20px 0;
+}
+
+.file-input-wrapper input[type="file"] {
+	position: absolute;
+	opacity: 0;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+	z-index: 2;
+}
+
+.file-input-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 12px;
+	padding: 14px 32px;
+	background: linear-gradient(135deg, #002b5c, #003d80);
+	color: white;
+	border-radius: 9999px;
+	font-weight: 700;
+	font-size: 1.05rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	box-shadow: 0 6px 20px rgba(0, 43, 92, 0.3);
+	user-select: none;
+	border: none;
+}
+
+.file-input-label:hover {
+	box-shadow: 0 12px 28px rgba(0, 43, 92, 0.4);
+}
+
+.file-input-label:active {
+	transform: translateY(0px);
+	box-shadow: 0 4px 12px rgba(0, 43, 92, 0.2);
+}
+
+.file-input-label svg {
+	width: 22px;
+	height: 22px;
+	fill: currentColor;
+}
+
+/* Alternatywnie - prostsza wersja */
+.upload-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	padding: 14px 28px;
+	background: #002b5c;
+	color: white;
+	border: none;
+	border-radius: 9999px;
+	font-weight: 700;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	box-shadow: 0 4px 14px rgba(0, 43, 92, 0.25);
+}
+
+.upload-btn:hover {
+	background: #003d80;
+	box-shadow: 0 8px 20px rgba(0, 43, 92, 0.35);
+}
+
+.upload-btn:active {
+	transform: translateY(0);
+}
+
+/* Styl dla inputa file w upload-area */
+.upload-area .file-input-custom {
+	position: relative;
+	display: inline-block;
+	margin: 20px 0;
+}
+
+.upload-area .file-input-custom input[type="file"] {
+	position: absolute;
+	opacity: 0;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+	z-index: 2;
+}
+
+.upload-area .file-input-custom .file-input-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	padding: 14px 32px;
+	background: #002b5c;
+	color: white;
+	border-radius: 9999px;
+	font-weight: 700;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	box-shadow: 0 4px 14px rgba(0, 43, 92, 0.25);
+	border: none;
+}
+
+.upload-area .file-input-custom .file-input-btn:hover {
+	background: #003d80;
+	box-shadow: 0 8px 20px rgba(0, 43, 92, 0.35);
+}
+
+/* ============================================
+   FILE INPUT - SAM INPUT TYPE FILE
+   ============================================ */
+
+.file-input-finalize {
+	display: inline-block;
+	padding: 16px 36px;
+	background: linear-gradient(135deg, #002b5c, #003d80);
+	color: white;
+	border-radius: 9999px;
+	font-weight: 700;
+	font-size: 1.05rem;
+	cursor: pointer;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow: 0 6px 20px rgba(0, 43, 92, 0.3);
+	border: none;
+	letter-spacing: 0.3px;
+	font-family: inherit;
+	position: relative;
+	overflow: hidden;
+}
+
+.file-input-finalize:hover {
+	box-shadow: 0 12px 28px rgba(0, 43, 92, 0.45);
+	background: linear-gradient(135deg, #003d80, #0052a0);
+}
+
+.file-input-finalize:active {
+	transform: translateY(0px) scale(0.98);
+}
+
+/* Ukrycie domyślnego inputa */
+.file-input-finalize input[type="file"] {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0;
+	cursor: pointer;
+	z-index: 2;
+}
+
+/* Stan gdy plik jest wybrany */
+.file-input-finalize.file-selected {
+	background: #0f766e;
+	box-shadow: 0 6px 20px rgba(15, 118, 110, 0.3);
+}
+
+.file-input-finalize.file-selected:hover {
+	background: #0d9488;
+	box-shadow: 0 12px 28px rgba(15, 118, 110, 0.4);
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+	.file-input-finalize {
+		padding: 14px 24px;
+		font-size: 0.95rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.file-input-finalize {
+		padding: 12px 18px;
+		font-size: 0.85rem;
+	}
+}
+
+/* ============================================
+   FILE INPUT FINALIZE
+   ============================================ */
+
+.file-input-wrapper {
+	position: relative;
+	display: inline-block;
+}
+
+.file-input-wrapper input[type="file"] {
+	position: absolute;
+	opacity: 0;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+	z-index: 2;
+}
+
+.file-input-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 12px;
+	padding: 16px 36px;
+	background: linear-gradient(135deg, #002b5c, #003d80);
+	color: white;
+	border-radius: 9999px;
+	font-weight: 700;
+	font-size: 1.05rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	box-shadow: 0 6px 20px rgba(0, 43, 92, 0.3);
+	border: none;
+	user-select: none;
+}
+
+.file-input-label:hover {
+	box-shadow: 0 12px 28px rgba(0, 43, 92, 0.45);
+	background: linear-gradient(135deg, #003d80, #0052a0);
+}
+
+.file-input-label:active {
+	transform: translateY(0px) scale(0.98);
+}
+
+.file-input-label.file-selected {
+	background: #0f766e;
+	box-shadow: 0 6px 20px rgba(15, 118, 110, 0.3);
+}
+
+.file-input-label.file-selected:hover {
+	background: #0d9488;
+}
+
+.file-input-finalize {
+	display: inline-block;
+	width: 100%;
+	max-width: 420px;
+	padding: 14px;
+	background: #f8fafc;
+	border: 2px dashed #cbd5e1;
+	border-radius: 18px;
+	font-family: "Ubuntu", system-ui, sans-serif;
+	font-size: 1rem;
+	color: #64748b;
+	cursor: pointer;
+	transition: all 0.3s ease;
+}
+
+.file-input-finalize:hover {
+	border-color: #2563eb;
+	background: #f0f7ff;
+}
+
+
+/* Przycisk "Wybierz plik" */
+.file-input-finalize::file-selector-button {
+	padding: 12px 24px;
+	margin-right: 16px;
+
+	background: linear-gradient(135deg, #002b5c, #003d80);
+	color: white;
+
+	border: none;
+	border-radius: 9999px;
+
+	font-family: inherit;
+	font-size: 0.95rem;
+	font-weight: 700;
+
+	cursor: pointer;
+
+	transition: all 0.3s ease;
+
+	box-shadow: 0 6px 16px rgba(0, 43, 92, 0.25);
+}
+
+
+.file-input-finalize::file-selector-button:hover {
+	background: linear-gradient(135deg, #003d80, #0052a0);
+	box-shadow: 0 10px 24px rgba(0, 43, 92, 0.35);
+}
+
+
+.file-input-finalize::file-selector-button:active {
+	transform: translateY(0);
+}
+
+
+/* Gdy input jest focusowany */
+.file-input-finalize:focus {
+	outline: none;
+	border-color: #2563eb;
+	box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
 }

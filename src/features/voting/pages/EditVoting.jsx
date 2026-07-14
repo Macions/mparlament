@@ -194,7 +194,7 @@ export default function EditVoting() {
                 let resolutionsData = [];
                 if (resolutionsRes.ok) {
                     const rawData = await resolutionsRes.json();
-                    console.log("📄 Surowe dane uchwał:", rawData);
+                    console.log(" Surowe dane uchwał:", rawData);
 
 
                     if (rawData && typeof rawData === 'object') {
@@ -215,7 +215,7 @@ export default function EditVoting() {
                         }
                     }
 
-                    console.log("📄 Przeparsowane uchwały:", resolutionsData);
+                    console.log(" Przeparsowane uchwały:", resolutionsData);
                     setResolutions(resolutionsData);
                 }
 
@@ -226,7 +226,7 @@ export default function EditVoting() {
                 let amendmentsData = [];
                 if (amendmentsRes.ok) {
                     amendmentsData = await amendmentsRes.json();
-                    console.log("✏️ Pobrane poprawki:", amendmentsData);
+                    console.log("️ Pobrane poprawki:", amendmentsData);
                     setAmendments(amendmentsData);
                 }
 
@@ -865,10 +865,10 @@ export default function EditVoting() {
     );
 
     const renderStep4 = () => {
-        console.log("🔍 renderStep4 - resolutions:", resolutions);
-        console.log("🔍 renderStep4 - amendments:", amendments);
-        console.log("🔍 renderStep4 - resolutionsArray:", Array.isArray(resolutions) ? resolutions : []);
-        console.log("🔍 renderStep4 - amendmentsArray:", Array.isArray(amendments) ? amendments : []);
+        console.log(" renderStep4 - resolutions:", resolutions);
+        console.log(" renderStep4 - amendments:", amendments);
+        console.log(" renderStep4 - resolutionsArray:", Array.isArray(resolutions) ? resolutions : []);
+        console.log(" renderStep4 - amendmentsArray:", Array.isArray(amendments) ? amendments : []);
 
 
         const resolutionsArray = Array.isArray(resolutions) ? resolutions : [];
@@ -938,7 +938,7 @@ export default function EditVoting() {
                                         <p className="no-items">Brak dostępnych uchwał</p>
                                     ) : (
                                         resolutionsArray.map(res => {
-                                            console.log("📌 Uchwała:", res);
+                                            console.log(" Uchwała:", res);
 
                                             const statusColors = getStatusColor(res.status);
                                             const isSelected = String(selectedResolution) === String(res.id);

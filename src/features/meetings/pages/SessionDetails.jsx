@@ -22,7 +22,7 @@ const parseTimeToMinutes = (timeStr) => {
 };
 
 export default function SessionDetails() {
-    const navigate = useNavigate(); // ✅ DODAJ
+    const navigate = useNavigate(); //  DODAJ
 
     const [session, setSession] = useState(null);
 
@@ -361,7 +361,7 @@ export default function SessionDetails() {
         setBreakEndTime("");
         setBreakStartTime("");
         setSessionMode('normal');
-        setIsPointDisabled(false); // ✅ PRZYWRÓĆ PUNKT
+        setIsPointDisabled(false); //  PRZYWRÓĆ PUNKT
 
         setDisplaySpeaker(session?.currentSpeaker);
         setDisplayPoint(session?.currentPoint);
@@ -679,7 +679,7 @@ export default function SessionDetails() {
                                             onClick={restoreCurrentPoint}
                                             title="Przywróć aktualny punkt"
                                         >
-                                            📍 Przywróć punkt
+                                             Przywróć punkt
                                         </button>
                                     ) : (
                                         <button
@@ -687,7 +687,7 @@ export default function SessionDetails() {
                                             onClick={disableCurrentPoint}
                                             title="Wyłącz wyświetlanie aktualnego punktu"
                                         >
-                                            🚫 Wyłącz punkt
+                                             Wyłącz punkt
                                         </button>
                                     )}
                                 </>

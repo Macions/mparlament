@@ -35,8 +35,8 @@ export default function AppRoutes() {
 			<Route path="/zaloguj" element={<Login />} />
 			<Route path="/parlamentarzysci" element={<Parliamentarians />} />
 
+			<Route path="/posiedzenie" element={<SessionDetails />} />
 			<Route element={<ProtectedRoute />}>
-				<Route path="/posiedzenie" element={<SessionDetails />} />
 				<Route path="/panel" element={<Dashboard />} />
 
 				<Route path="/uchwaly" element={<Resolutions />} />
@@ -55,7 +55,7 @@ export default function AppRoutes() {
 				<Route path="/glosowania/nowe" element={<CreateVoting />} />
 
 				<Route path="/glosowanie/:id/szczegoly" element={<VotingDetailsPage />} />
-				<Route path="/finalizuj-uchwale/:sessionId" element={<FinalizeResolution />} />
+				<Route path="/finalizuj-uchwale" element={<FinalizeResolution />} />
 
 				<Route path="/glosowanie/:id/edytuj" element={<EditVoting />} />
 			</Route>

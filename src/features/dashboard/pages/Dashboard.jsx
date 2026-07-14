@@ -27,6 +27,8 @@ export default function Dashboard() {
 	const [user, setUser] = useState(null);
 	const [currentSession, setCurrentSession] = useState(null);
 	const [loading, setLoading] = useState(true);
+	const [isAdmin, setIsAdmin] = useState(false);
+	const token = localStorage.getItem("token");
 
 	useEffect(() => {
 		const fetchDashboard = async () => {
@@ -49,7 +51,17 @@ export default function Dashboard() {
 				}
 
 				const userData = await userResponse.json();
+
 				setUser(userData);
+
+				setIsAdmin(
+					userData.role === "admin" ||
+					userData.permissions?.includes("MANAGE_RESOLUTIONS")
+				);
+				setIsAdmin(
+					userData.role === "admin" ||
+					userData.permissions?.includes("MANAGE_RESOLUTIONS")
+				);
 
 				const sessionResponse = await fetch("/api/sessions/current", {
 					headers: {
@@ -172,6 +184,14 @@ export default function Dashboard() {
 					>
 						GŁOSOWANIA
 					</Link>
+					{isAdmin && (
+					<Link
+						to="/finalizuj-uchwale"
+						className="dashboard__action dashboard__action--finalize"
+					>
+						FINALIZUJ UCHWAŁĘ
+					</Link>
+					)}
 				</div>
 
 				<article className="dashboard__card dashboard__card--calendar" title="W budowie...">

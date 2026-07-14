@@ -141,6 +141,9 @@
 .dashboard__action--voting {
 	background: #ef233c;
 }
+.dashboard__action--finalize {
+	background: #40ca40;
+}
 
 .dashboard__action:hover {
 	filter: brightness(1.1);

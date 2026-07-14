@@ -101,7 +101,7 @@ export default function Votings() {
 				if (!response.ok) throw new Error();
 
 				const user = await response.json();
-				console.log("👤 Zalogowany użytkownik:", user);
+				console.log(" Zalogowany użytkownik:", user);
 				setUserId(user.id);
 				setIsAdmin(
 					user.role === "admin" || user.permissions?.includes("MANAGE_VOTINGS")
