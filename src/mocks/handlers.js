@@ -9,11 +9,10 @@ import { parliamentarians } from "./data/parliamentarians";
 import { clubs } from "./data/clubs";
 import { sessions, currentSession } from "./data/sessions";
 
-
 let currentUser = null;
 
-if (typeof localStorage !== 'undefined') {
-	const savedUser = localStorage.getItem('msw_current_user');
+if (typeof localStorage !== "undefined") {
+	const savedUser = localStorage.getItem("msw_current_user");
 	if (savedUser) {
 		try {
 			currentUser = JSON.parse(savedUser);
@@ -64,7 +63,8 @@ const buildResolutionResponse = (resolution, currentUser = null) => {
 	const isAuthor = currentUser && resolution.authorId === currentUser.id;
 
 	// 👇 Autor jest zawsze podpisany (automatycznie)
-	const hasSigned = isAuthor || !!getUserSignature(resolution.id, currentUser?.id);
+	const hasSigned =
+		isAuthor || !!getUserSignature(resolution.id, currentUser?.id);
 
 	return {
 		resolution: {
@@ -80,7 +80,9 @@ const buildResolutionResponse = (resolution, currentUser = null) => {
 			currentUser: {
 				hasSigned: hasSigned, // 👈 ZMIENIONE
 				isAuthor: isAuthor,
-				signatureType: isAuthor ? "author" : getUserSignature(resolution.id, currentUser.id)?.type ?? null,
+				signatureType: isAuthor
+					? "author"
+					: (getUserSignature(resolution.id, currentUser.id)?.type ?? null),
 				isAutoSigned: isAuthor, // 👈 DODAJ info o automatycznym podpisie
 			},
 		}),
@@ -88,8 +90,8 @@ const buildResolutionResponse = (resolution, currentUser = null) => {
 };
 const getCurrentUser = () => {
 	if (currentUser) return currentUser;
-	if (typeof localStorage !== 'undefined') {
-		const savedUser = localStorage.getItem('msw_current_user');
+	if (typeof localStorage !== "undefined") {
+		const savedUser = localStorage.getItem("msw_current_user");
 		if (savedUser) {
 			try {
 				return JSON.parse(savedUser);
@@ -179,18 +181,61 @@ const createVoting = (body) => {
 };
 
 export const handlers = [
+	http.get("/api/resolutions/:id/amendments", ({ params }) => {
+		console.log("🔍 Handler /api/resolutions/:id/amendments wywołany!");
+		console.log("🔍 Parametry:", params);
+		const { id } = params;
+		console.log("🔍 ID:", id);
+
+		const resolutionAmendments = amendments.filter(
+			(a) => a.resolutionId === Number(id),
+		);
+		console.log("🔍 Znalezione poprawki:", resolutionAmendments.length);
+
+		// Przygotuj czytelną listę zmian
+		const formattedAmendments = resolutionAmendments.map((a) => ({
+			id: a.id,
+			author: a.author,
+			content: a.content,
+			status: a.status,
+			createdAt: a.createdAt,
+			withdrawnReason: a.withdrawnReason || null,
+			changes: a.changes.map((c) => ({
+				articleId: c.articleId,
+				before: c.before || "(nowy artykuł)",
+				after: c.after || "(usunięty)",
+			})),
+		}));
+		console.log("🔍 Sformatowane poprawki:", formattedAmendments);
+
+		return HttpResponse.json({
+			resolutionId: Number(id),
+			amendments: formattedAmendments,
+			stats: {
+				total: resolutionAmendments.length,
+				accepted: resolutionAmendments.filter((a) => a.status === "accepted")
+					.length,
+				rejected: resolutionAmendments.filter((a) => a.status === "rejected")
+					.length,
+				pending: resolutionAmendments.filter((a) => a.status === "pending")
+					.length,
+				withdrawn: resolutionAmendments.filter((a) => a.status === "withdrawn")
+					.length,
+			},
+		});
+	}),
 	http.post("/api/auth/login", async ({ request }) => {
 		const body = await request.json();
 
-		const foundUser = users.find(u =>
-			u.username === body.username && u.password === body.password
+		const foundUser = users.find(
+			(u) => u.username === body.username && u.password === body.password,
 		);
 
 		if (foundUser) {
 			currentUser = foundUser;
 
-			if (typeof localStorage !== 'undefined') {
-				localStorage.setItem('msw_current_user', JSON.stringify(foundUser));
+			if (typeof localStorage !== "undefined") {
+				localStorage.setItem("msw_current_user", JSON.stringify(foundUser));
 			}
 
 			return HttpResponse.json({
@@ -211,39 +256,31 @@ export const handlers = [
 		);
 	}),
 
-
-
 	http.get("/api/auth/me", () => {
-
 		if (currentUser) {
 			return HttpResponse.json(currentUser);
 		}
 
-
-		if (typeof localStorage !== 'undefined') {
-			const savedUser = localStorage.getItem('msw_current_user');
+		if (typeof localStorage !== "undefined") {
+			const savedUser = localStorage.getItem("msw_current_user");
 			if (savedUser) {
 				try {
 					const user = JSON.parse(savedUser);
 					currentUser = user;
 					return HttpResponse.json(user);
-				} catch (e) {
-
-				}
+				} catch (e) {}
 			}
 		}
-
 
 		return HttpResponse.json(users[0]);
 	}),
 
 	http.get("/api/parliamentarians", () => {
 		return HttpResponse.json({
-			parliamentarians: parliamentarians.filter(p => p.clubId !== null),
-			unaffiliated: parliamentarians.filter(p => p.clubId === null),
+			parliamentarians: parliamentarians.filter((p) => p.clubId !== null),
+			unaffiliated: parliamentarians.filter((p) => p.clubId === null),
 		});
 	}),
-
 
 	http.get("/api/session/current", () => {
 		return HttpResponse.json(currentSession);
@@ -255,12 +292,23 @@ export const handlers = [
 		return HttpResponse.json(body);
 	}),
 
-
 	http.get("/api/speakers", () => {
 		return HttpResponse.json([
-			{ name: "Jan Kowalski", club: "Klub Parlamentarny Czas Młodych", role: "Parlamentarzysta" },
-			{ name: "Anna Nowak", club: "Klub Obywatelski", role: "Parlamentarzystka" },
-			{ name: "Piotr Wiśniewski", club: "Klub Niezależnych", role: "Parlamentarzysta" },
+			{
+				name: "Jan Kowalski",
+				club: "Klub Parlamentarny Czas Młodych",
+				role: "Parlamentarzysta",
+			},
+			{
+				name: "Anna Nowak",
+				club: "Klub Obywatelski",
+				role: "Parlamentarzystka",
+			},
+			{
+				name: "Piotr Wiśniewski",
+				club: "Klub Niezależnych",
+				role: "Parlamentarzysta",
+			},
 		]);
 	}),
 
@@ -279,13 +327,17 @@ export const handlers = [
 			id: Date.now(),
 			...body,
 			clubId: body.clubId || null,
-			clubName: body.clubId ? clubs.find(c => c.id === body.clubId)?.name : null,
-			clubColor: body.clubId ? clubs.find(c => c.id === body.clubId)?.color : null,
+			clubName: body.clubId
+				? clubs.find((c) => c.id === body.clubId)?.name
+				: null,
+			clubColor: body.clubId
+				? clubs.find((c) => c.id === body.clubId)?.color
+				: null,
 		};
 		parliamentarians.push(newMember);
 
 		if (body.clubId) {
-			const club = clubs.find(c => c.id === body.clubId);
+			const club = clubs.find((c) => c.id === body.clubId);
 			if (club) {
 				club.members.push({
 					id: newMember.id,
@@ -302,20 +354,19 @@ export const handlers = [
 	http.put("/api/parliamentarians/:id", async ({ params, request }) => {
 		const id = Number(params.id);
 		const body = await request.json();
-		const index = parliamentarians.findIndex(p => p.id === id);
-		if (index === -1) return HttpResponse.json({ message: "Nie znaleziono" }, { status: 404 });
+		const index = parliamentarians.findIndex((p) => p.id === id);
+		if (index === -1)
+			return HttpResponse.json({ message: "Nie znaleziono" }, { status: 404 });
 
 		const old = parliamentarians[index];
 		const updated = { ...old, ...body };
 
-
-		const oldClub = clubs.find(c => c.id === old.clubId);
+		const oldClub = clubs.find((c) => c.id === old.clubId);
 		if (oldClub) {
-			oldClub.members = oldClub.members.filter(m => m.id !== id);
+			oldClub.members = oldClub.members.filter((m) => m.id !== id);
 		}
 
-
-		const newClub = clubs.find(c => c.id === body.clubId);
+		const newClub = clubs.find((c) => c.id === body.clubId);
 		if (newClub) {
 			newClub.members.push({
 				id: updated.id,
@@ -334,17 +385,16 @@ export const handlers = [
 
 	http.delete("/api/parliamentarians/:id", ({ params }) => {
 		const id = Number(params.id);
-		const member = parliamentarians.find(p => p.id === id);
+		const member = parliamentarians.find((p) => p.id === id);
 		if (member?.clubId) {
-			const club = clubs.find(c => c.id === member.clubId);
+			const club = clubs.find((c) => c.id === member.clubId);
 			if (club) {
-				club.members = club.members.filter(m => m.id !== id);
+				club.members = club.members.filter((m) => m.id !== id);
 			}
 		}
-		parliamentarians = parliamentarians.filter(p => p.id !== id);
+		parliamentarians = parliamentarians.filter((p) => p.id !== id);
 		return HttpResponse.json({ success: true });
 	}),
-
 
 	http.get("/api/clubs", () => {
 		return HttpResponse.json(clubs);
@@ -360,37 +410,46 @@ export const handlers = [
 	http.put("/api/clubs/:id", async ({ params, request }) => {
 		const id = Number(params.id);
 		const body = await request.json();
-		const index = clubs.findIndex(c => c.id === id);
-		if (index === -1) return HttpResponse.json({ message: "Nie znaleziono" }, { status: 404 });
+		const index = clubs.findIndex((c) => c.id === id);
+		if (index === -1)
+			return HttpResponse.json({ message: "Nie znaleziono" }, { status: 404 });
 		clubs[index] = { ...clubs[index], ...body };
 		return HttpResponse.json(clubs[index]);
 	}),
 
 	http.delete("/api/clubs/:id", ({ params }) => {
 		const id = Number(params.id);
-		clubs = clubs.filter(c => c.id !== id);
-		parliamentarians = parliamentarians.map(p =>
-			p.clubId === id ? { ...p, clubId: null, clubName: null, clubColor: null } : p
+		clubs = clubs.filter((c) => c.id !== id);
+		parliamentarians = parliamentarians.map((p) =>
+			p.clubId === id
+				? { ...p, clubId: null, clubName: null, clubColor: null }
+				: p,
 		);
 		return HttpResponse.json({ success: true });
 	}),
-
 
 	http.post("/api/clubs/:id/members", async ({ params, request }) => {
 		const clubId = Number(params.id);
 		const { memberId } = await request.json();
 
-		const club = clubs.find(c => c.id === clubId);
-		if (!club) return HttpResponse.json({ message: "Nie znaleziono klubu" }, { status: 404 });
+		const club = clubs.find((c) => c.id === clubId);
+		if (!club)
+			return HttpResponse.json(
+				{ message: "Nie znaleziono klubu" },
+				{ status: 404 },
+			);
 
-		const member = parliamentarians.find(p => p.id === memberId);
-		if (!member) return HttpResponse.json({ message: "Nie znaleziono członka" }, { status: 404 });
-
+		const member = parliamentarians.find((p) => p.id === memberId);
+		if (!member)
+			return HttpResponse.json(
+				{ message: "Nie znaleziono członka" },
+				{ status: 404 },
+			);
 
 		if (member.clubId) {
-			const oldClub = clubs.find(c => c.id === member.clubId);
+			const oldClub = clubs.find((c) => c.id === member.clubId);
 			if (oldClub) {
-				oldClub.members = oldClub.members.filter(m => m.id !== memberId);
+				oldClub.members = oldClub.members.filter((m) => m.id !== memberId);
 			}
 		}
 
@@ -408,8 +467,8 @@ export const handlers = [
 
 		return HttpResponse.json({
 			club: club,
-			parliamentarians: parliamentarians.filter(p => p.clubId !== null),
-			unaffiliated: parliamentarians.filter(p => p.clubId === null),
+			parliamentarians: parliamentarians.filter((p) => p.clubId !== null),
+			unaffiliated: parliamentarians.filter((p) => p.clubId === null),
 		});
 	}),
 
@@ -417,12 +476,12 @@ export const handlers = [
 		const clubId = Number(params.id);
 		const memberId = Number(params.memberId);
 
-		const club = clubs.find(c => c.id === clubId);
+		const club = clubs.find((c) => c.id === clubId);
 		if (club) {
-			club.members = club.members.filter(m => m.id !== memberId);
+			club.members = club.members.filter((m) => m.id !== memberId);
 		}
 
-		const member = parliamentarians.find(p => p.id === memberId);
+		const member = parliamentarians.find((p) => p.id === memberId);
 		if (member) {
 			member.clubId = null;
 			member.clubName = null;
@@ -431,8 +490,8 @@ export const handlers = [
 
 		return HttpResponse.json({
 			club: club,
-			parliamentarians: parliamentarians.filter(p => p.clubId !== null),
-			unaffiliated: parliamentarians.filter(p => p.clubId === null),
+			parliamentarians: parliamentarians.filter((p) => p.clubId !== null),
+			unaffiliated: parliamentarians.filter((p) => p.clubId === null),
 		});
 	}),
 
@@ -505,7 +564,7 @@ export const handlers = [
 
 	http.get("/api/resolutions", () => {
 		return HttpResponse.json({
-			resolutions: resolutions
+			resolutions: resolutions,
 		});
 	}),
 	http.get("/api/sessions", () => {
@@ -608,11 +667,11 @@ export const handlers = [
 	http.post("/api/resolutions", async ({ request }) => {
 		try {
 			const formData = await request.formData();
-			const file = formData.get('file');
-			const data = JSON.parse(formData.get('data'));
+			const file = formData.get("file");
+			const data = JSON.parse(formData.get("data"));
 
-			console.log('📁 Otrzymany plik:', file?.name, file?.size);
-			console.log('📄 Otrzymane dane:', data);
+			console.log("📁 Otrzymany plik:", file?.name, file?.size);
+			console.log("📄 Otrzymane dane:", data);
 
 			const newResolution = {
 				id: Date.now(),
@@ -631,11 +690,13 @@ export const handlers = [
 				signatures: 1,
 				status: "pending",
 				createdAt: new Date().toISOString().split("T")[0], // format YYYY-MM-DD
-				fileInfo: file ? {
-					name: file.name,
-					size: file.size,
-					type: file.type,
-				} : null,
+				fileInfo: file
+					? {
+							name: file.name,
+							size: file.size,
+							type: file.type,
+						}
+					: null,
 			};
 
 			// Dodaj do tablicy resolutions
@@ -652,14 +713,14 @@ export const handlers = [
 
 			return HttpResponse.json(newResolution, { status: 201 });
 		} catch (error) {
-			console.error('❌ Błąd w handlerze MSW:', error);
+			console.error("❌ Błąd w handlerze MSW:", error);
 			return HttpResponse.json(
 				{
-					message: 'Błąd przetwarzania uchwały',
+					message: "Błąd przetwarzania uchwały",
 					error: error.message,
-					stack: error.stack
+					stack: error.stack,
 				},
-				{ status: 500 }
+				{ status: 500 },
 			);
 		}
 	}),
@@ -771,7 +832,6 @@ export const handlers = [
 		});
 	}),
 
-
 	http.post("/api/amendments/:id/withdraw", async ({ params, request }) => {
 		const amendmentId = Number(params.id);
 		const amendment = amendments.find((a) => a.id === amendmentId);
@@ -783,14 +843,12 @@ export const handlers = [
 			);
 		}
 
-
 		if (amendment.authorId !== 1) {
 			return HttpResponse.json(
 				{ message: "Nie masz uprawnień do wycofania tej poprawki" },
 				{ status: 403 },
 			);
 		}
-
 
 		if (amendment.status === "withdrawn") {
 			return HttpResponse.json(
@@ -800,7 +858,6 @@ export const handlers = [
 		}
 
 		const body = await request.json();
-
 
 		amendment.status = "withdrawn";
 		amendment.withdrawnReason = body.reason || "Wycofane przez autora";
@@ -822,7 +879,6 @@ export const handlers = [
 			);
 		}
 
-
 		voting.status = "archived";
 
 		return HttpResponse.json({
@@ -833,17 +889,16 @@ export const handlers = [
 
 	http.post("/api/votings/:id/activate", async ({ params, request }) => {
 		const votingId = Number(params.id);
-		const voting = votings.find(v => v.id === votingId);
+		const voting = votings.find((v) => v.id === votingId);
 
 		if (!voting) {
 			return HttpResponse.json(
 				{ message: "Nie znaleziono głosowania" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
 		const body = await request.json();
-
 
 		voting.startTime = body.startTime;
 		voting.endTime = body.endTime;
@@ -852,7 +907,7 @@ export const handlers = [
 		return HttpResponse.json({
 			success: true,
 			message: "Głosowanie zostało aktywowane",
-			voting: voting
+			voting: voting,
 		});
 	}),
 
@@ -865,7 +920,6 @@ export const handlers = [
 			{ id: 5, name: "Komisja Infrastruktury" },
 		]);
 	}),
-
 
 	http.get("/api/members", () => {
 		return HttpResponse.json([
@@ -880,7 +934,6 @@ export const handlers = [
 		]);
 	}),
 
-
 	http.get("/api/resolutions", () => {
 		return HttpResponse.json([
 			{ id: 1, title: "Uchwała w sprawie finansowania oświaty" },
@@ -890,7 +943,6 @@ export const handlers = [
 	}),
 
 	http.get("/api/amendments", () => {
-
 		return HttpResponse.json(amendments);
 	}),
 
@@ -905,38 +957,38 @@ export const handlers = [
 		if (!amendment) {
 			return HttpResponse.json(
 				{ message: "Nie znaleziono poprawki" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
-
-		const resolution = resolutions.find(r => r.id === amendment.resolutionId);
+		const resolution = resolutions.find((r) => r.id === amendment.resolutionId);
 
 		return HttpResponse.json({
 			data: {
 				...amendment,
-				resolution: resolution ? {
-					id: resolution.id,
-					title: resolution.title,
-					slug: resolution.slug
-				} : null
-			}
+				resolution: resolution
+					? {
+							id: resolution.id,
+							title: resolution.title,
+							slug: resolution.slug,
+						}
+					: null,
+			},
 		});
 	}),
 
 	http.put("/api/votings/:id", async ({ params, request }) => {
 		const votingId = Number(params.id);
-		const voting = votings.find(v => v.id === votingId);
+		const voting = votings.find((v) => v.id === votingId);
 
 		if (!voting) {
 			return HttpResponse.json(
 				{ message: "Nie znaleziono głosowania" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
 		const body = await request.json();
-
 
 		voting.title = body.title;
 		voting.description = body.description;
@@ -954,11 +1006,9 @@ export const handlers = [
 		return HttpResponse.json({
 			success: true,
 			message: "Głosowanie zostało zaktualizowane",
-			voting: voting
+			voting: voting,
 		});
 	}),
-
-
 
 	http.get("/api/votings/:id", ({ params }) => {
 		const voting = votings.find((v) => v.id === Number(params.id));
@@ -966,7 +1016,7 @@ export const handlers = [
 		if (!voting) {
 			return HttpResponse.json(
 				{ message: "Nie znaleziono głosowania" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -1035,36 +1085,36 @@ export const handlers = [
 	// 	}
 	// }),
 	// Pobierz poprawki do uchwały
-	http.get("/api/resolutions/:id/amendments", ({ params }) => {
-		const { id } = params;
 
-		const resolutionAmendments = amendments.filter(a => a.resolutionId === Number(id));
+	// ZMIEŃ ISTNIEJĄCY handler /api/sessions lub DODAJ TEN:
+	http.get("/api/sessions", () => {
+		// Importuj sessions z pliku data/sessions.js
+		// Jeśli już masz import na górze: import { sessions, currentSession } from "./data/sessions";
 
-		// Przygotuj czytelną listę zmian
-		const formattedAmendments = resolutionAmendments.map(a => ({
-			id: a.id,
-			author: a.author,
-			content: a.content,
-			status: a.status,
-			createdAt: a.createdAt,
-			withdrawnReason: a.withdrawnReason || null,
-			changes: a.changes.map(c => ({
-				articleId: c.articleId,
-				before: c.before || '(nowy artykuł)',
-				after: c.after || '(usunięty)'
-			}))
-		}));
+		return HttpResponse.json(sessions);
+	}),
+	// Pobieranie sesji
+	// Pobieranie sesji
+	http.get("/api/sessions", () => {
+		return HttpResponse.json(sessions);
+	}),
+
+	// Pobieranie uchwał dla sesji
+	http.get("/api/resolutions/session/:sessionId", ({ params }) => {
+		const sessionId = Number(params.sessionId);
+		const sessionResolutions = resolutions.filter(
+			(r) => r.sessionId === sessionId,
+		);
 
 		return HttpResponse.json({
-			resolutionId: Number(id),
-			amendments: formattedAmendments,
-			stats: {
-				total: resolutionAmendments.length,
-				accepted: resolutionAmendments.filter(a => a.status === 'accepted').length,
-				rejected: resolutionAmendments.filter(a => a.status === 'rejected').length,
-				pending: resolutionAmendments.filter(a => a.status === 'pending').length,
-				withdrawn: resolutionAmendments.filter(a => a.status === 'withdrawn').length
-			}
+			resolutions: sessionResolutions,
+			sessionId: sessionId,
+			count: sessionResolutions.length,
 		});
+	}),
+	// W handlers.js dodaj:
+	http.get("/finalizuj-uchwale/:sessionId", () => {
+		// To tylko dla MSW - zwracamy cokolwiek, bo i tak React Router obsłuży tę ścieżkę
+		return HttpResponse.json({ message: "Strona finalizacji" });
 	}),
 ];
