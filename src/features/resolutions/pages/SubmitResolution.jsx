@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { parseDocx } from "../../../../server/services/docxParser";
+import { parseDocx } from "../../../utils/docxParser";
 import "./submitResolution.css";
 import SuccessModal from "../../../components/SuccessModal";
 

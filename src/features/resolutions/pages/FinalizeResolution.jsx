@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { parseDocx } from "../../../utils/docxParser.js";
-import { generateDocxWithTags, downloadDocx } from "../../../utils/docxGenerator.js";
+// import { generateDocxWithTags, downloadDocx } from "../../../utils/docxGenerator.js";
 
 export default function FinalizeResolution() {
     const navigate = useNavigate();

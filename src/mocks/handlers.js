@@ -973,67 +973,67 @@ export const handlers = [
 		return HttpResponse.json(voting);
 	}),
 	// Generuj końcową uchwałę
-	router.post('/api/resolutions/:id/generate-final', async (req, res) => {
-		try {
-			const { id } = req.params;
+	// router.post('/api/resolutions/:id/generate-final', async (req, res) => {
+	// 	try {
+	// 		const { id } = req.params;
 
-			// 1. Znajdź uchwałę
-			const resolution = resolutions.find(r => r.id === Number(id));
-			if (!resolution) {
-				return res.status(404).json({
-					success: false,
-					message: 'Nie znaleziono uchwały'
-				});
-			}
+	// 		// 1. Znajdź uchwałę
+	// 		const resolution = resolutions.find(r => r.id === Number(id));
+	// 		if (!resolution) {
+	// 			return res.status(404).json({
+	// 				success: false,
+	// 				message: 'Nie znaleziono uchwały'
+	// 			});
+	// 		}
 
-			// 2. Znajdź poprawki do uchwały
-			const resolutionAmendments = amendments.filter(a => a.resolutionId === Number(id));
+	// 		// 2. Znajdź poprawki do uchwały
+	// 		const resolutionAmendments = amendments.filter(a => a.resolutionId === Number(id));
 
-			if (resolutionAmendments.length === 0) {
-				return res.status(400).json({
-					success: false,
-					message: 'Brak poprawek do tej uchwały'
-				});
-			}
+	// 		if (resolutionAmendments.length === 0) {
+	// 			return res.status(400).json({
+	// 				success: false,
+	// 				message: 'Brak poprawek do tej uchwały'
+	// 			});
+	// 		}
 
-			// 3. Sprawdź czy są przyjęte poprawki
-			const accepted = resolutionAmendments.filter(a => a.status === 'accepted');
-			if (accepted.length === 0) {
-				return res.status(400).json({
-					success: false,
-					message: 'Brak przyjętych poprawek do zastosowania'
-				});
-			}
+	// 		// 3. Sprawdź czy są przyjęte poprawki
+	// 		const accepted = resolutionAmendments.filter(a => a.status === 'accepted');
+	// 		if (accepted.length === 0) {
+	// 			return res.status(400).json({
+	// 				success: false,
+	// 				message: 'Brak przyjętych poprawek do zastosowania'
+	// 			});
+	// 		}
 
-			// 4. Generuj końcową wersję
-			const result = await generateFinalResolution(
-				Number(id),
-				resolution,
-				resolutionAmendments
-			);
+	// 		// 4. Generuj końcową wersję
+	// 		const result = await generateFinalResolution(
+	// 			Number(id),
+	// 			resolution,
+	// 			resolutionAmendments
+	// 		);
 
-			if (!result.success) {
-				return res.status(400).json(result);
-			}
+	// 		if (!result.success) {
+	// 			return res.status(400).json(result);
+	// 		}
 
-			res.json({
-				success: true,
-				message: 'Uchwała została wygenerowana',
-				fileUrl: result.url,
-				fileName: result.fileName,
-				appliedAmendments: result.appliedAmendments,
-				totalAmendments: result.totalAmendments,
-				appliedChanges: result.appliedChanges
-			});
+	// 		res.json({
+	// 			success: true,
+	// 			message: 'Uchwała została wygenerowana',
+	// 			fileUrl: result.url,
+	// 			fileName: result.fileName,
+	// 			appliedAmendments: result.appliedAmendments,
+	// 			totalAmendments: result.totalAmendments,
+	// 			appliedChanges: result.appliedChanges
+	// 		});
 
-		} catch (error) {
-			console.error('Błąd generowania:', error);
-			res.status(500).json({
-				success: false,
-				message: 'Wystąpił błąd podczas generowania uchwały'
-			});
-		}
-	}),
+	// 	} catch (error) {
+	// 		console.error('Błąd generowania:', error);
+	// 		res.status(500).json({
+	// 			success: false,
+	// 			message: 'Wystąpił błąd podczas generowania uchwały'
+	// 		});
+	// 	}
+	// }),
 	// Pobierz poprawki do uchwały
 	http.get("/api/resolutions/:id/amendments", ({ params }) => {
 		const { id } = params;
