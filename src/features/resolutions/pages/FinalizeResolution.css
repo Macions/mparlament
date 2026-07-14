@@ -1,0 +1,281 @@
+.finalize-resolution-page {
+	width: 100%;
+	max-width: 1880px;
+	margin: 0 auto;
+	padding: 2rem 1.5rem;
+	font-family: "Ubuntu", system-ui, sans-serif;
+	color: #1e2937;
+}
+
+.finalize-header {
+	background: white;
+	border-radius: 18px;
+	padding: 2rem 2.5rem;
+	border: 1px solid #e2e8f0;
+	box-shadow: 0 6px 16px rgba(0, 43, 92, 0.07);
+	margin-bottom: 2rem;
+}
+
+.finalize-header button {
+	padding: 10px 20px;
+	background: #f1f5f9;
+	border: 2px solid #e2e8f0;
+	border-radius: 9999px;
+	font-weight: 700;
+	cursor: pointer;
+	transition: all 0.25s ease;
+}
+
+.finalize-header button:hover {
+	background: #e2e8f0;
+	transform: translateY(-2px);
+}
+
+.finalize-header h1 {
+	margin: 0.75rem 0 0.5rem;
+	font-size: 2.1rem;
+	font-weight: 800;
+	color: #002b5c;
+	letter-spacing: -0.6px;
+}
+
+.step-indicator {
+	font-size: 1.05rem;
+	color: #64748b;
+	font-weight: 600;
+}
+
+/* Komunikaty */
+.alert {
+	padding: 16px 20px;
+	border-radius: 16px;
+	margin-bottom: 1.5rem;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	font-weight: 500;
+}
+
+.alert-error {
+	background: #fee2e2;
+	color: #b91c1c;
+	border: 1px solid #f87171;
+}
+
+.alert-success {
+	background: #ecfdf5;
+	color: #0f766e;
+	border: 1px solid #34d399;
+}
+
+/* Krok 1 - Upload */
+.upload-area {
+	background: white;
+	border: 3px dashed #cbd5e1;
+	border-radius: 24px;
+	padding: 4rem 2rem;
+	text-align: center;
+	transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+	border-color: #2563eb;
+	background: #f0f7ff;
+}
+
+.upload-area h2 {
+	color: #002b5c;
+	margin-bottom: 0.75rem;
+}
+
+.file-info {
+	margin-top: 1.5rem;
+	padding: 1rem 1.5rem;
+	background: #f8fafc;
+	border-radius: 14px;
+	display: inline-flex;
+	align-items: center;
+	gap: 12px;
+	font-weight: 600;
+}
+
+/* Karty wyboru (posiedzenia / uchwały) */
+.selection-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-top: 1.5rem;
+}
+
+.selection-card {
+	background: white;
+	border: 2px solid #e2e8f0;
+	border-radius: 16px;
+	padding: 1.5rem 1.75rem;
+	cursor: pointer;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow: 0 4px 12px rgba(0, 43, 92, 0.05);
+}
+
+.selection-card:hover {
+	border-color: #94a3b8;
+	transform: translateY(-4px);
+	box-shadow: 0 12px 24px rgba(0, 43, 92, 0.1);
+}
+
+.selection-card.active {
+	border-color: #2563eb;
+	background: #f0f7ff;
+	box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+.selection-card strong {
+	font-size: 1.15rem;
+	color: #1e2937;
+}
+
+/* Krok 4 - Podgląd */
+.finalize-layout {
+	display: grid;
+	grid-template-columns: 380px 1fr;
+	gap: 1.75rem;
+}
+
+.summary-panel {
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 20px;
+	padding: 2rem;
+	height: fit-content;
+	position: sticky;
+	top: 2rem;
+	box-shadow: 0 8px 20px rgba(0, 43, 92, 0.08);
+}
+
+.summary-panel h3 {
+	color: #002b5c;
+	margin-bottom: 1.25rem;
+	font-size: 1.35rem;
+}
+
+.summary-stats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin: 1.25rem 0;
+}
+
+.stat-badge {
+	padding: 8px 16px;
+	border-radius: 9999px;
+	font-weight: 700;
+	font-size: 0.95rem;
+}
+
+.generate-btn {
+	width: 100%;
+	padding: 18px;
+	font-size: 1.15rem;
+	font-weight: 700;
+	border-radius: 9999px;
+	background: linear-gradient(135deg, #002b5c, #003d80);
+	color: white;
+	border: none;
+	cursor: pointer;
+	box-shadow: 0 6px 20px rgba(0, 43, 92, 0.3);
+	transition: all 0.3s ease;
+	margin: 1.5rem 0 0.75rem;
+}
+
+.generate-btn:hover:not(:disabled) {
+	transform: translateY(-3px);
+	box-shadow: 0 12px 28px rgba(0, 43, 92, 0.4);
+}
+
+.generate-btn:disabled {
+	background: #cbd5e1;
+	cursor: not-allowed;
+	transform: none;
+}
+
+/* Lista poprawek */
+.amendments-panel {
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 20px;
+	padding: 2rem;
+	box-shadow: 0 8px 20px rgba(0, 43, 92, 0.08);
+}
+
+.amendment-card {
+	border: 1px solid #e2e8f0;
+	border-radius: 16px;
+	padding: 1.5rem;
+	margin-bottom: 1rem;
+	transition: all 0.25s ease;
+}
+
+.amendment-card.accepted {
+	background: #ecfdf5;
+	border-color: #34d399;
+}
+.amendment-card.rejected {
+	background: #fef2f2;
+	border-color: #f87171;
+}
+.amendment-card.pending {
+	background: #fffbeb;
+	border-color: #fbbf24;
+}
+.amendment-card.withdrawn {
+	background: #f8fafc;
+	border-color: #94a3b8;
+}
+
+.amendment-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	margin-bottom: 12px;
+}
+
+.amendment-status {
+	padding: 4px 14px;
+	border-radius: 9999px;
+	font-size: 0.85rem;
+	font-weight: 700;
+	color: white;
+}
+
+.changes-list {
+	background: #f8fafc;
+	border-radius: 12px;
+	padding: 12px;
+	font-size: 0.95rem;
+	margin-top: 12px;
+}
+
+/* Responsywność */
+@media (max-width: 1024px) {
+	.finalize-layout {
+		grid-template-columns: 1fr;
+	}
+
+	.summary-panel {
+		position: static;
+	}
+}
+
+@media (max-width: 768px) {
+	.finalize-resolution-page {
+		padding: 1rem 1rem;
+	}
+
+	.finalize-header {
+		padding: 1.5rem;
+	}
+
+	.upload-area {
+		padding: 3rem 1.5rem;
+	}
+}
