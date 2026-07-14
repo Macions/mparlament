@@ -54,6 +54,9 @@
 }
 
 .dashboard__card--calendar {
+	cursor: not-allowed;
+	opacity: 0.4;
+	filter: grayscale(0.3);
 	min-height: 16rem;
 }
 

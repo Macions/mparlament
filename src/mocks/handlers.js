@@ -43,12 +43,7 @@ const getUserSignature = (resolutionId, userId) => {
 			signature.userId === userId,
 	);
 };
-
-const buildResolutionResponse = (
-	resolution,
-	signedUsers,
-	currentUser = null,
-) => {
+const buildResolutionResponse = (resolution, currentUser = null) => {
 	const signatures = getSignaturesForResolution(resolution.id);
 	const signaturesCount = signatures.length;
 
@@ -65,6 +60,12 @@ const buildResolutionResponse = (
 		})
 		.filter(Boolean);
 
+	// 👇 Sprawdź czy użytkownik jest autorem
+	const isAuthor = currentUser && resolution.authorId === currentUser.id;
+
+	// 👇 Autor jest zawsze podpisany (automatycznie)
+	const hasSigned = isAuthor || !!getUserSignature(resolution.id, currentUser?.id);
+
 	return {
 		resolution: {
 			...resolution,
@@ -77,12 +78,27 @@ const buildResolutionResponse = (
 		},
 		...(currentUser && {
 			currentUser: {
-				hasSigned: !!getUserSignature(resolution.id, currentUser.id),
-				isAuthor: resolution.authorId === currentUser.id,
-				signatureType: getUserSignature(resolution.id, currentUser.id)?.type ?? null,
+				hasSigned: hasSigned, // 👈 ZMIENIONE
+				isAuthor: isAuthor,
+				signatureType: isAuthor ? "author" : getUserSignature(resolution.id, currentUser.id)?.type ?? null,
+				isAutoSigned: isAuthor, // 👈 DODAJ info o automatycznym podpisie
 			},
 		}),
 	};
+};
+const getCurrentUser = () => {
+	if (currentUser) return currentUser;
+	if (typeof localStorage !== 'undefined') {
+		const savedUser = localStorage.getItem('msw_current_user');
+		if (savedUser) {
+			try {
+				return JSON.parse(savedUser);
+			} catch (e) {
+				return null;
+			}
+		}
+	}
+	return null;
 };
 
 const handleResolutionSign = (resolutionId, userId) => {
@@ -505,7 +521,9 @@ export const handlers = [
 			);
 		}
 
-		return HttpResponse.json(buildResolutionResponse(resolution, null, true));
+		const user = getCurrentUser(); // 👈 Użyj funkcji pomocniczej
+
+		return HttpResponse.json(buildResolutionResponse(resolution, user));
 	}),
 
 	http.post("/api/resolutions/:id/sign", ({ params }) => {
@@ -609,9 +627,10 @@ export const handlers = [
 				party: data.party,
 				preamble: data.preamble || "",
 				chapters: data.chapters || [],
+				sessionId: data.sessionId, // 👈 DODAJ TĘ LINIĘ (ważne!)
 				signatures: 1,
 				status: "pending",
-				createdAt: new Date().toISOString(),
+				createdAt: new Date().toISOString().split("T")[0], // format YYYY-MM-DD
 				fileInfo: file ? {
 					name: file.name,
 					size: file.size,
@@ -619,8 +638,10 @@ export const handlers = [
 				} : null,
 			};
 
+			// Dodaj do tablicy resolutions
 			resolutions.push(newResolution);
 
+			// Dodaj podpis autora
 			resolutionSignatures.push({
 				id: Date.now(),
 				resolutionId: newResolution.id,
@@ -950,5 +971,100 @@ export const handlers = [
 		}
 
 		return HttpResponse.json(voting);
+	}),
+	// Generuj końcową uchwałę
+	router.post('/api/resolutions/:id/generate-final', async (req, res) => {
+		try {
+			const { id } = req.params;
+
+			// 1. Znajdź uchwałę
+			const resolution = resolutions.find(r => r.id === Number(id));
+			if (!resolution) {
+				return res.status(404).json({
+					success: false,
+					message: 'Nie znaleziono uchwały'
+				});
+			}
+
+			// 2. Znajdź poprawki do uchwały
+			const resolutionAmendments = amendments.filter(a => a.resolutionId === Number(id));
+
+			if (resolutionAmendments.length === 0) {
+				return res.status(400).json({
+					success: false,
+					message: 'Brak poprawek do tej uchwały'
+				});
+			}
+
+			// 3. Sprawdź czy są przyjęte poprawki
+			const accepted = resolutionAmendments.filter(a => a.status === 'accepted');
+			if (accepted.length === 0) {
+				return res.status(400).json({
+					success: false,
+					message: 'Brak przyjętych poprawek do zastosowania'
+				});
+			}
+
+			// 4. Generuj końcową wersję
+			const result = await generateFinalResolution(
+				Number(id),
+				resolution,
+				resolutionAmendments
+			);
+
+			if (!result.success) {
+				return res.status(400).json(result);
+			}
+
+			res.json({
+				success: true,
+				message: 'Uchwała została wygenerowana',
+				fileUrl: result.url,
+				fileName: result.fileName,
+				appliedAmendments: result.appliedAmendments,
+				totalAmendments: result.totalAmendments,
+				appliedChanges: result.appliedChanges
+			});
+
+		} catch (error) {
+			console.error('Błąd generowania:', error);
+			res.status(500).json({
+				success: false,
+				message: 'Wystąpił błąd podczas generowania uchwały'
+			});
+		}
+	}),
+	// Pobierz poprawki do uchwały
+	http.get("/api/resolutions/:id/amendments", ({ params }) => {
+		const { id } = params;
+
+		const resolutionAmendments = amendments.filter(a => a.resolutionId === Number(id));
+
+		// Przygotuj czytelną listę zmian
+		const formattedAmendments = resolutionAmendments.map(a => ({
+			id: a.id,
+			author: a.author,
+			content: a.content,
+			status: a.status,
+			createdAt: a.createdAt,
+			withdrawnReason: a.withdrawnReason || null,
+			changes: a.changes.map(c => ({
+				articleId: c.articleId,
+				before: c.before || '(nowy artykuł)',
+				after: c.after || '(usunięty)'
+			}))
+		}));
+
+		return HttpResponse.json({
+			resolutionId: Number(id),
+			amendments: formattedAmendments,
+			stats: {
+				total: resolutionAmendments.length,
+				accepted: resolutionAmendments.filter(a => a.status === 'accepted').length,
+				rejected: resolutionAmendments.filter(a => a.status === 'rejected').length,
+				pending: resolutionAmendments.filter(a => a.status === 'pending').length,
+				withdrawn: resolutionAmendments.filter(a => a.status === 'withdrawn').length
+			}
+		});
 	}),
 ];

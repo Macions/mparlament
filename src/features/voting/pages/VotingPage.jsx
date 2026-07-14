@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import BackButton from "../../../components/PageBack";
 import { useParams, useNavigate } from "react-router-dom";
 import "./VotingPage.css";
 
@@ -209,9 +210,10 @@ export default function VotingPage() {
 	return (
 		<>
 			<div className="voting-page">
-				<button className="back-btn" onClick={() => navigate(-1)}>
-					← Powrót
-				</button>
+				<BackButton
+					to="/glosowania"
+					label="Głosowania"
+				/>
 
 				<div className="voting-container">
 					<div className="voting-header">
@@ -227,7 +229,7 @@ export default function VotingPage() {
 
 					<h1 className="voting-title">{vote.title}</h1>
 
-					
+
 					<div className="voting-details">
 						{vote.description && (
 							<div className="voting-description">
@@ -236,7 +238,7 @@ export default function VotingPage() {
 							</div>
 						)}
 
-						
+
 						<div className="voting-meta">
 							<div className="meta-item">
 								<span className="meta-label">Kategoria:</span>
@@ -264,7 +266,7 @@ export default function VotingPage() {
 							</div>
 						</div>
 
-						
+
 						{linkedItem && (
 							<div className="voting-linked-item">
 								<h3>Powiązane:</h3>
@@ -316,7 +318,7 @@ export default function VotingPage() {
 							</div>
 						)}
 
-						
+
 						{(!vote.linkedItemType || vote.linkedItemType === "none") && (
 							<div className="voting-linked-item no-link">
 								<p className="no-link-text">Brak powiązania z uchwałą lub poprawką</p>

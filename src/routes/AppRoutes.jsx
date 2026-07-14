@@ -1,10 +1,13 @@
 import { Routes, Route } from "react-router-dom";
 
 import Home from "../features/home/pages/Home";
+import ProtectedRoute from "./ProtectedRoute";
 
 import SessionDetails from "../features/meetings/pages/SessionDetails";
 
 import Login from "../features/authentication/pages/Login";
+
+import FinalizeResolution from '../features/resolutions/pages/FinalizeResolution';
 
 import Dashboard from "../features/dashboard/pages/Dashboard";
 
@@ -29,31 +32,33 @@ export default function AppRoutes() {
 	return (
 		<Routes>
 			<Route path="/" element={<Home />} />
-
-			<Route path="/posiedzenie" element={<SessionDetails />} />
-
 			<Route path="/zaloguj" element={<Login />} />
-
-			<Route path="/panel" element={<Dashboard />} />
-
-			<Route path="/uchwaly" element={<Resolutions />} />
-			<Route path="/zloz-uchwale" element={<SubmitResolution />} />
-
-			<Route path="/:slug" element={<ResolutionDetails />} />
-			<Route path="/:slug/poprawki" element={<AmendmentsPage />} />
-			<Route path="/:slug/dodaj-poprawke" element={<AddAmendment />} />
-			<Route
-				path="/:slug/poprawka/:amendmentId"
-				element={<AmendmentDetails />}
-			/>
-
-			<Route path="/glosowania" element={<VotingList />} />
-			<Route path="/glosowanie/:id" element={<VotingPage />} />
-			<Route path="/glosowania/nowe" element={<CreateVoting />} />
-
 			<Route path="/parlamentarzysci" element={<Parliamentarians />} />
-			<Route path="/glosowanie/:id/szczegoly" element={<VotingDetailsPage />} />
-			<Route path="/glosowanie/:id/edytuj" element={<EditVoting />} />
+
+			<Route element={<ProtectedRoute />}>
+				<Route path="/posiedzenie" element={<SessionDetails />} />
+				<Route path="/panel" element={<Dashboard />} />
+
+				<Route path="/uchwaly" element={<Resolutions />} />
+				<Route path="/zloz-uchwale" element={<SubmitResolution />} />
+
+				<Route path="/:slug" element={<ResolutionDetails />} />
+				<Route path="/:slug/poprawki" element={<AmendmentsPage />} />
+				<Route path="/:slug/dodaj-poprawke" element={<AddAmendment />} />
+				<Route
+					path="/:slug/poprawka/:amendmentId"
+					element={<AmendmentDetails />}
+				/>
+
+				<Route path="/glosowania" element={<VotingList />} />
+				<Route path="/glosowanie/:id" element={<VotingPage />} />
+				<Route path="/glosowania/nowe" element={<CreateVoting />} />
+
+				<Route path="/glosowanie/:id/szczegoly" element={<VotingDetailsPage />} />
+				<Route path="/finalizuj-uchwale/:sessionId" element={<FinalizeResolution />} />
+
+				<Route path="/glosowanie/:id/edytuj" element={<EditVoting />} />
+			</Route>
 		</Routes>
 	);
 }

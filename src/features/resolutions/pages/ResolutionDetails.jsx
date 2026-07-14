@@ -175,7 +175,6 @@ export default function ResolutionDetails() {
 								className="btn btn-pill btn-cyan btn-wide sign-btn"
 								onClick={() => {
 									setActionType(currentUser?.hasSigned ? "remove" : "sign");
-
 									setShowConfirm(true);
 								}}
 							>

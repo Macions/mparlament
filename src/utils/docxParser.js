@@ -5,11 +5,6 @@ export async function parseDocx(file) {
 	const result = await mammoth.convertToHtml({ arrayBuffer });
 	const html = result.value;
 	const text = htmlToStructuredText(html);
-
-	console.log("=== SUROWY TEKST Z MAMMOTHA ===");
-	console.log(text);
-	console.log("=== KONIEC ===");
-
 	return parse(text);
 }
 
@@ -59,11 +54,9 @@ function htmlToStructuredText(html) {
 		if (bodyText) return bodyText;
 	}
 
-
 	const merged = [];
 	for (let i = 0; i < lines.length; i++) {
 		const line = lines[i];
-
 
 		if (
 			/^(Rozdział|DZIAŁ|CZĘŚĆ)\s+[IVXLCDM\d]+$/i.test(line) &&
@@ -81,7 +74,6 @@ function htmlToStructuredText(html) {
 			}
 		}
 
-
 		if (/^Art\.\s*\d+[a-z]*\.?\s*$/.test(line) && i + 1 < lines.length) {
 			const nextLine = lines[i + 1];
 			if (
@@ -95,9 +87,7 @@ function htmlToStructuredText(html) {
 			}
 		}
 
-
 		if (merged.length > 0 && merged[merged.length - 1] === line) continue;
-
 		merged.push(line);
 	}
 
@@ -162,7 +152,6 @@ function parse(text) {
 		if (/^[_\-\s]{3,}$/.test(line)) continue;
 		if (/^\d+[.)]\s*$/.test(line)) continue;
 
-
 		if (/^(Rozdział|DZIAŁ|CZĘŚĆ)\s+[IVXLCDM\d]+/i.test(line)) {
 			flushArticle();
 			chapterIndex++;
@@ -171,18 +160,16 @@ function parse(text) {
 			continue;
 		}
 
-
 		const artMatch = line.match(/^Art\.\s*\d+[a-z]*\.?/i);
 		if (artMatch) {
 			flushArticle();
-
 
 			const artNumber = artMatch[0].replace(/\.$/, "").trim();
 			if (currentChapter) {
 				const isDuplicate = currentChapter.articles.some(
 					(a) => a.number === artNumber,
 				);
-				if (isDuplicate) continue; 
+				if (isDuplicate) continue;
 			}
 
 			articleIndex++;
@@ -219,7 +206,6 @@ function parse(text) {
 			continue;
 		}
 
-
 		if (/^Załącznik\s+nr/i.test(line)) {
 			flushArticle();
 			chapterIndex++;
@@ -249,7 +235,6 @@ function parse(text) {
 			i = j - 1;
 			continue;
 		}
-
 
 		if (!currentChapter) {
 			currentChapter = { id: "ch_0", title: "Przepisy wstępne", articles: [] };

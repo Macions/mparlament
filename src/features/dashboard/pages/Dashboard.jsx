@@ -174,7 +174,7 @@ export default function Dashboard() {
 					</Link>
 				</div>
 
-				<article className="dashboard__card dashboard__card--calendar">
+				<article className="dashboard__card dashboard__card--calendar" title="W budowie...">
 					<h2 className="dashboard__card-title">KALENDARZ</h2>
 
 					<div className="dashboard__calendar-wrap">

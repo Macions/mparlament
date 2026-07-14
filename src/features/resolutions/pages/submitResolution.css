@@ -17,6 +17,10 @@
 	padding: 0 20px 60px;
 }
 
+.submit-page {
+	max-width: 1300px;
+}
+
 .form-card {
 	width: 100%;
 	max-width: 1150px;
@@ -89,21 +93,13 @@
 	border: 1px solid #e2e8f0;
 }
 
-.submit-btn {
+.submit-res-btn {
 	background: #e74c3c;
 	color: white;
-	border: none;
-	padding: 16px 92px;
-	font-size: calc(var(--font-base) * 1.25);
-	font-weight: 700;
-	border-radius: 50px;
-	cursor: pointer;
 	float: right;
-	margin-top: 10px;
-	transition: all 0.2s;
 }
 
-.submit-btn:hover {
+.submit-res-btn:hover {
 	background: #c0392b;
 	transform: translateY(-3px);
 }
@@ -198,7 +194,8 @@
 }
 
 
-.parse-btn {
+.parse-btn,
+.submit-res-btn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -257,6 +254,26 @@
 	}
 }
 
+.submit-res-btn:hover:not(:disabled) {
+	background: #c0392b;
+	transform: translateY(-3px);
+}
+
+.submit-res-btn:disabled {
+	background: #b0bcc8;
+	color: #e2e8f0;
+	cursor: not-allowed;
+	opacity: 0.7;
+	box-shadow: none;
+}
+
+.submit-res-btn:disabled:hover {
+	background: #b0bcc8;
+	color: #e2e8f0;
+	cursor: not-allowed;
+	transform: none;
+	opacity: 0.7;
+}
 
 .error {
 	color: #e74c3c;
@@ -267,41 +284,6 @@
 	background: #fef2f2;
 	border-left: 3px solid #e74c3c;
 	border-radius: 6px;
-}
-
-.submit-btn {
-	background: #e74c3c;
-	color: white;
-	border: none;
-	padding: 16px 92px;
-	font-size: calc(var(--font-base) * 1.25);
-	font-weight: 700;
-	border-radius: 50px;
-	cursor: pointer;
-	float: right;
-	margin-top: 10px;
-	transition: all 0.2s;
-}
-
-.submit-btn:hover:not(:disabled) {
-	background: #c0392b;
-	transform: translateY(-3px);
-}
-
-.submit-btn:disabled {
-	background: #b0bcc8;
-	color: #e2e8f0;
-	cursor: not-allowed;
-	opacity: 0.7;
-	box-shadow: none;
-}
-
-.submit-btn:disabled:hover {
-	background: #b0bcc8;
-	color: #e2e8f0;
-	cursor: not-allowed;
-	transform: none;
-	opacity: 0.7;
 }
 
 .file-button {
@@ -500,4 +482,39 @@ body.modal-open {
 	background: #f0f8ff;
 	border-radius: 4px;
 	border: 1px solid #d0e8ff;
+}
+
+.form-content {
+	position: relative;
+}
+
+.form-content.disabled {
+	opacity: 0.5;
+	pointer-events: none;
+	user-select: none;
+}
+
+.form-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(255, 255, 255, 0.8);
+	backdrop-filter: blur(2px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 12px;
+	z-index: 10;
+}
+
+.form-overlay p {
+	background: #fff;
+	padding: 30px 40px;
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.471);
+	font-weight: 600;
+	color: #000000;
+	font-size: 22px;
 }

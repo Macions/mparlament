@@ -14,3 +14,6 @@
     transition: all 0.2s ease;
 }
 
+.back-to-home-btn:hover{
+    gap: 5px;
+}

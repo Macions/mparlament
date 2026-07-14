@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import BackButton from "../../../components/PageBack";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import "./VotingDetailsPage.css";
 
@@ -182,9 +183,10 @@ export default function VotingDetailsPage() {
 		return (
 			<div className="voting-details-error">
 				<h2>{error}</h2>
-				<button onClick={() => navigate(-1)} className="back-btn">
-					← Powrót
-				</button>
+				<BackButton
+					to="/glosowania"
+					label="Głosowania"
+				/>
 			</div>
 		);
 	}
@@ -193,9 +195,10 @@ export default function VotingDetailsPage() {
 		return (
 			<div className="voting-details-notfound">
 				<h2>Nie znaleziono głosowania</h2>
-				<button onClick={() => navigate(-1)} className="back-btn">
-					← Powrót
-				</button>
+				<BackButton
+					to="/glosowania"
+					label="Głosowania"
+				/>
 			</div>
 		);
 	}
@@ -220,9 +223,10 @@ export default function VotingDetailsPage() {
 	return (
 		<div className="voting-details-page">
 			<div className="voting-details-header">
-				<button className="back-btn" onClick={() => navigate(-1)}>
-					← Powrót
-				</button>
+				<BackButton
+					to="/glosowania"
+					label="Głosowania"
+				/>
 
 			</div>
 
@@ -277,7 +281,7 @@ export default function VotingDetailsPage() {
 					</div>
 				</div>
 
-				
+
 				<div className="voting-details-recipients">
 					<h3 className="recipients-title">Uprawnieni do głosowania</h3>
 
