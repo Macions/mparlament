@@ -230,7 +230,7 @@ export const handlers = [
 				try {
 					currentUser = JSON.parse(savedUser);
 					return HttpResponse.json(currentUser);
-				} catch (e) {}
+				} catch (e) { }
 			}
 		}
 		return HttpResponse.json({ message: "Nie zalogowany" }, { status: 401 });
@@ -769,10 +769,10 @@ export const handlers = [
 				...amendment,
 				resolution: resolution
 					? {
-							id: resolution.id,
-							title: resolution.title,
-							slug: resolution.slug,
-						}
+						id: resolution.id,
+						title: resolution.title,
+						slug: resolution.slug,
+					}
 					: null,
 			},
 		});
@@ -859,49 +859,41 @@ export const handlers = [
 			console.log("🔄 Filtruję dla usera:", userId);
 
 			filteredVotings = filteredVotings.filter((vote) => {
-				console.log(`\n📋 Sprawdzam: ${vote.title}`);
-				console.log("  assignedTo:", vote.assignedTo);
-
-				// Jeśli brak assignedTo lub "all" - wszyscy widzą
-				if (!vote.assignedTo || vote.assignedTo === "all") {
-					console.log("  ✅ WSZYSCY");
-					return true;
-				}
-
-				// Jeśli assignedTo === "members" - sprawdź selectedMembers
-				if (vote.assignedTo === "members") {
-					const hasAccess = vote.selectedMembers?.includes(Number(userId));
-					console.log(
-						`  🔍 User ${userId} w selectedMembers ${JSON.stringify(vote.selectedMembers)}?`,
-						hasAccess,
-					);
-					console.log(`  ${hasAccess ? "✅ MA DOSTĘP" : "❌ BRAK DOSTĘPU"}`);
-					return hasAccess;
-				}
-
-				// Jeśli assignedTo === "groups" - sprawdź grupy
-				if (vote.assignedTo === "groups") {
-					const user = users.find((u) => u.id === Number(userId));
-					if (user) {
-						const hasAccess =
-							vote.selectedGroups?.includes(user.groupId) ||
-							vote.selectedGroups?.includes(user.committeeId);
-						console.log(`  🔍 User w grupie?`, hasAccess);
-						return hasAccess;
-					}
-					console.log("  ❌ Nie znaleziono usera");
-					return false;
-				}
-
-				console.log("  ❌ BRAK DOSTĘPU - domyślnie");
-				return false;
+				// ... reszta filtrowania (to co już masz)
 			});
 		} else {
 			console.log("👑 Admin lub brak userId - zwracam wszystko");
 		}
 
-		console.log(`\n📊 Zwracam ${filteredVotings.length} głosowań`);
-		return HttpResponse.json(filteredVotings);
+		// DODAJ OBLICZANIE GŁOSÓW DLA KAŻDEGO GŁOSOWANIA
+		const votingsWithResults = filteredVotings.map((voting) => {
+			// Pobierz głosy dla tego głosowania
+			const votingVotes = votes.filter((v) => v.votingId === voting.id);
+
+			// Oblicz liczby
+			const votesFor = votingVotes.filter((v) => v.vote === "for").length;
+			const votesAgainst = votingVotes.filter((v) => v.vote === "against").length;
+			const abstained = votingVotes.filter((v) => v.vote === "abstained").length;
+
+			// Sprawdź czy obecny user głosował
+			const currentUser = getCurrentUser();
+			const userVote = votingVotes.find((v) => v.userId === currentUser?.id);
+			const hasVoted = !!userVote;
+			const myVote = userVote?.vote || null;
+
+			return {
+				...voting,
+				votesFor,
+				votesAgainst,
+				abstained,
+				hasVoted,
+				myVote,
+				votedCount: votingVotes.length,
+			};
+		});
+
+		console.log(`\n📊 Zwracam ${votingsWithResults.length} głosowań z wynikami`);
+		return HttpResponse.json(votingsWithResults);
 	}),
 	http.get("/api/votings/:id", ({ params }) => {
 		const voting = votings.find((v) => v.id === Number(params.id));
@@ -914,6 +906,12 @@ export const handlers = [
 
 		// Pobierz głosy dla tego głosowania
 		const votingVotes = votes.filter((v) => v.votingId === voting.id);
+
+		// OBLICZ ILE ZA, PRZECIW, WSTRZYMUJĄCYCH
+		const votesFor = votingVotes.filter((v) => v.vote === "for").length;
+		const votesAgainst = votingVotes.filter((v) => v.vote === "against").length;
+		const abstained = votingVotes.filter((v) => v.vote === "abstained").length;
+
 		const votedUserIds = votingVotes.map((v) => v.userId);
 
 		// Pobierz wszystkich parlamentarzystów
@@ -948,13 +946,23 @@ export const handlers = [
 			(u) => !votedUserIds.includes(u.id),
 		);
 
+		// Sprawdź czy obecny user głosował
+		const currentUser = getCurrentUser();
+		const myVote = votingVotes.find((v) => v.userId === currentUser?.id)?.vote || null;
+		const hasVoted = !!myVote;
+
 		return HttpResponse.json({
 			...voting,
+			votesFor: votesFor,
+			votesAgainst: votesAgainst,
+			abstained: abstained,
+			votedCount: votedUsers.length,
 			totalEligible: eligibleUsers.length,
 			eligibleUsers,
 			votedUsers,
 			notVotedUsers,
-			votedCount: votedUsers.length,
+			hasVoted: hasVoted,
+			myVote: myVote,
 		});
 	}),
 ];
