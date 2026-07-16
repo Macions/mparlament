@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate  } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./VotingList.css";
+import BackButton from "../../../components/PageBack";
 
 function getVoteStatus(vote) {
-
 	if (vote.status === "archived") return "archived";
 
 	const now = Date.now();
@@ -56,8 +56,8 @@ function getCategoryLabel(category) {
 }
 
 export default function Votings() {
-		const location = useLocation();
-	const navigate = useNavigate()
+	const location = useLocation();
+	const navigate = useNavigate();
 	const [votes, setVotes] = useState([]);
 	const [filter, setFilter] = useState("all");
 	const [loading, setLoading] = useState(true);
@@ -67,8 +67,7 @@ export default function Votings() {
 	const [archivingId, setArchivingId] = useState(null);
 	const [showArchiveModal, setShowArchiveModal] = useState(false);
 	const [userId, setUserId] = useState(null);
-
-
+	const [user, setUser] = useState(null);
 
 	const [showActivateModal, setShowActivateModal] = useState(false);
 	const [activatingId, setActivatingId] = useState(null);
@@ -104,8 +103,10 @@ export default function Votings() {
 				console.log(" Zalogowany użytkownik:", user);
 				setUserId(user.id);
 				setIsAdmin(
-					user.role === "admin" || user.permissions?.includes("MANAGE_VOTINGS")
+					user.role === "admin" || user.permissions?.includes("MANAGE_VOTINGS"),
 				);
+
+				setUser(user);
 			} catch {
 				setIsAdmin(false);
 			}
@@ -117,18 +118,53 @@ export default function Votings() {
 	useEffect(() => {
 		async function fetchVotings() {
 			try {
+				console.log("🚀 [FRONTEND] Pobieram głosowania...");
 
-				const response = await fetch("/api/votings", {
+				if (!user && !isAdmin) {
+					console.log("⏳ Brak usera - pobieram...");
+					try {
+						const userResponse = await fetch("/api/auth/me", {
+							headers: { Authorization: `Bearer ${token}` },
+						});
+						if (userResponse.ok) {
+							const userData = await userResponse.json();
+							console.log("👤 Pobrano usera:", userData);
+							setUser(userData);
+							setIsAdmin(
+								userData.role === "admin" ||
+									userData.permissions?.includes("MANAGE_VOTINGS"),
+							);
+							return;
+						}
+					} catch (err) {
+						console.error("❌ Błąd pobierania usera:", err);
+					}
+				}
+
+				let url = "/api/votings";
+				if (!isAdmin && user) {
+					url = `/api/votings?userId=${user.id}&role=${user.role}`;
+					console.log(`📤 Zapytanie do: ${url}`);
+				} else {
+					console.log("📤 Admin - pobieram wszystkie");
+				}
+
+				const response = await fetch(url, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},
 				});
 				const data = await response.json();
+				console.log("📦 Otrzymane dane:", data);
+				console.log(`📊 Liczba głosowań: ${data.length}`);
+				data.forEach((v) =>
+					console.log(`  - ${v.title} (assignedTo: ${v.assignedTo})`),
+				);
+
 				setVotes(data);
 
 				if (!response.ok)
 					throw new Error(data.message || "Nie udało się pobrać głosowań");
-
 			} catch (err) {
 				setError(err.message);
 			} finally {
@@ -137,8 +173,7 @@ export default function Votings() {
 		}
 
 		fetchVotings();
-	}, [token]);
-
+	}, [token, user, isAdmin]);
 
 	const handleArchive = async (voteId) => {
 		try {
@@ -154,10 +189,12 @@ export default function Votings() {
 				throw new Error("Nie udało się zarchiwizować głosowania");
 			}
 
-			const updatedResponse = await fetch("/api/votings", {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
+			let url = "/api/votings";
+			if (!isAdmin && user) {
+				url = `/api/votings?userId=${user.id}&role=${user.role}`;
+			}
+			const updatedResponse = await fetch(url, {
+				headers: { Authorization: `Bearer ${token}` },
 			});
 			const data = await updatedResponse.json();
 			setVotes(data);
@@ -173,13 +210,13 @@ export default function Votings() {
 		setShowArchiveModal(true);
 	};
 
-
 	const handleActivate = async (voteId) => {
 		try {
-
 			const now = new Date();
 			const startTime = new Date(now.getTime() + activationStartDelay * 60000);
-			const endTime = new Date(startTime.getTime() + activationDuration * 3600000);
+			const endTime = new Date(
+				startTime.getTime() + activationDuration * 3600000,
+			);
 
 			const response = await fetch(`/api/votings/${voteId}/activate`, {
 				method: "POST",
@@ -199,11 +236,12 @@ export default function Votings() {
 				throw new Error("Nie udało się aktywować głosowania");
 			}
 
-
-			const updatedResponse = await fetch("/api/votings", {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
+			let url = "/api/votings";
+			if (!isAdmin && user) {
+				url = `/api/votings?userId=${user.id}&role=${user.role}`;
+			}
+			const updatedResponse = await fetch(url, {
+				headers: { Authorization: `Bearer ${token}` },
 			});
 			const data = await updatedResponse.json();
 			setVotes(data);
@@ -233,6 +271,9 @@ export default function Votings() {
 
 	const filteredVotes = votes.filter((vote) => {
 		const status = getVoteStatus(vote);
+		console.log(
+			`🔍 Filtruję: ${vote.title}, status: ${status}, filter: ${filter}`,
+		);
 
 		if (filter === "archived") return status === "archived";
 		if (filter === "all") return status !== "archived";
@@ -243,31 +284,12 @@ export default function Votings() {
 		return true;
 	});
 
+	console.log(`📊 Po filtrowaniu statusem: ${filteredVotes.length} głosowań`);
+
 	return (
 		<>
 			<div className="votings-page">
-				<button
-					className="back-to-home-btn"
-					onClick={() => navigate("/panel")}
-				>
-					<svg
-						width="18"
-						height="18"
-						viewBox="0 0 24 24"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<path
-							d="M15 18L9 12L15 6"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-						/>
-					</svg>
-
-					Panel
-				</button>
+				<BackButton to="/panel" label="Panel" />
 				<div className="votings-header">
 					<h1>Głosowania</h1>
 					<p>Aktualne i zakończone głosowania Parlamentu Młodych RP</p>
@@ -279,7 +301,7 @@ export default function Votings() {
 						["upcoming", "Oczekujące"],
 						["active", "Aktywne"],
 						["finished", "Zakończone"],
-						...(isAdmin ? [["archived", "Zarchiwizowane"]] : [])
+						...(isAdmin ? [["archived", "Zarchiwizowane"]] : []),
 					].map(([key, label]) => (
 						<button
 							key={key}
@@ -311,14 +333,18 @@ export default function Votings() {
 						const result = status === "finished" ? getResult(vote) : null;
 						const isArchived = status === "archived";
 
-						const canEdit = canManageVote(vote) && (status === "active" || status === "upcoming");
+						const canEdit =
+							canManageVote(vote) &&
+							(status === "active" || status === "upcoming");
 						const canArchive = canManageVote(vote) && status === "finished";
 						const canActivate = canManageVote(vote) && status === "upcoming";
 
 						return (
 							<div key={vote.id} className={`voting-card ${status}`}>
 								<div className="voting-card-header">
-									<span className="voting-type">{getCategoryLabel(vote.category)}</span>
+									<span className="voting-type">
+										{getCategoryLabel(vote.category)}
+									</span>
 									<span className={`voting-status ${status}`}>
 										{isArchived
 											? "ZARCHIWIZOWANE"
@@ -383,7 +409,7 @@ export default function Votings() {
 													className="bar"
 													style={{
 														width: `${(vote.votesFor / (vote.votesFor + vote.votesAgainst + vote.abstained)) * 100 || 0}%`,
-														background: '#166534'
+														background: "#166534",
 													}}
 												/>
 												<strong>{vote.votesFor}</strong>
@@ -395,12 +421,11 @@ export default function Votings() {
 													className="bar"
 													style={{
 														width: `${(vote.votesAgainst / (vote.votesFor + vote.votesAgainst + vote.abstained)) * 100 || 0}%`,
-														background: '#991b1b'
+														background: "#991b1b",
 													}}
 												/>
 												<strong>{vote.votesAgainst}</strong>
 											</div>
-
 
 											<div className="result-abstained">
 												<span>WSTRZYMAŁO SIĘ</span>
@@ -408,7 +433,7 @@ export default function Votings() {
 													className="bar"
 													style={{
 														width: `${(vote.abstained / (vote.votesFor + vote.votesAgainst + vote.abstained)) * 100 || 0}%`,
-														background: '#6c757d'
+														background: "#6c757d",
 													}}
 												/>
 												<strong>{vote.abstained}</strong>
@@ -439,7 +464,6 @@ export default function Votings() {
 									</div>
 								)}
 
-
 								{!isArchived && status === "upcoming" && (
 									<div className="voting-actions">
 										<Link
@@ -469,7 +493,6 @@ export default function Votings() {
 									</div>
 								)}
 
-
 								{!isArchived && status === "active" && (
 									<div className="voting-actions">
 										<Link
@@ -479,6 +502,14 @@ export default function Votings() {
 											Zobacz szczegóły
 										</Link>
 
+										{canEdit && (
+											<Link
+												to={`/glosowanie/${vote.id}/live`}
+												className="edit-vote-btn"
+											>
+												Live
+											</Link>
+										)}
 										{canEdit && (
 											<Link
 												to={`/glosowanie/${vote.id}/edytuj`}
@@ -519,7 +550,6 @@ export default function Votings() {
 				)}
 			</div>
 
-
 			{showArchiveModal && (
 				<div
 					className="archive-modal-overlay"
@@ -557,7 +587,6 @@ export default function Votings() {
 				</div>
 			)}
 
-
 			{showActivateModal && (
 				<div
 					className="activate-modal-overlay"
@@ -571,7 +600,9 @@ export default function Votings() {
 
 						<div className="activate-modal-info">
 							<p>
-								<strong>{votes.find(v => v.id === activatingId)?.title}</strong>
+								<strong>
+									{votes.find((v) => v.id === activatingId)?.title}
+								</strong>
 							</p>
 							<p className="activate-modal-subtitle">
 								Ustaw czas trwania i opóźnienie startu głosowania.
@@ -580,9 +611,7 @@ export default function Votings() {
 
 						<div className="activate-modal-fields">
 							<div className="activate-field">
-								<label htmlFor="duration">
-									Czas trwania głosowania
-								</label>
+								<label htmlFor="duration">Czas trwania głosowania</label>
 								<div className="activate-field-input">
 									<input
 										id="duration"
@@ -591,7 +620,9 @@ export default function Votings() {
 										max="72"
 										step="0.5"
 										value={activationDuration}
-										onChange={(e) => setActivationDuration(parseFloat(e.target.value) || 1)}
+										onChange={(e) =>
+											setActivationDuration(parseFloat(e.target.value) || 1)
+										}
 									/>
 									<span className="activate-field-unit">godzin</span>
 								</div>
@@ -601,9 +632,7 @@ export default function Votings() {
 							</div>
 
 							<div className="activate-field">
-								<label htmlFor="delay">
-									Opóźnienie startu
-								</label>
+								<label htmlFor="delay">Opóźnienie startu</label>
 								<div className="activate-field-input">
 									<input
 										id="delay"
@@ -612,13 +641,13 @@ export default function Votings() {
 										max="60"
 										step="1"
 										value={activationStartDelay}
-										onChange={(e) => setActivationStartDelay(parseInt(e.target.value) || 0)}
+										onChange={(e) =>
+											setActivationStartDelay(parseInt(e.target.value) || 0)
+										}
 									/>
 									<span className="activate-field-unit">minut</span>
 								</div>
-								<small className="activate-field-hint">
-									(maks. 60 minut)
-								</small>
+								<small className="activate-field-hint">(maks. 60 minut)</small>
 							</div>
 						</div>
 
@@ -627,18 +656,27 @@ export default function Votings() {
 								<strong>Podgląd:</strong>
 							</p>
 							<p>
-								Start: <span className="preview-time">
-									{new Date(Date.now() + activationStartDelay * 60000).toLocaleString("pl-PL")}
+								Start:{" "}
+								<span className="preview-time">
+									{new Date(
+										Date.now() + activationStartDelay * 60000,
+									).toLocaleString("pl-PL")}
 								</span>
 							</p>
 							<p>
-								Koniec: <span className="preview-time">
-									{new Date(Date.now() + activationStartDelay * 60000 + activationDuration * 3600000).toLocaleString("pl-PL")}
+								Koniec:{" "}
+								<span className="preview-time">
+									{new Date(
+										Date.now() +
+											activationStartDelay * 60000 +
+											activationDuration * 3600000,
+									).toLocaleString("pl-PL")}
 								</span>
 							</p>
 							<p className="preview-duration">
 								Czas trwania: <strong>{activationDuration} godzin</strong>
-								{activationStartDelay > 0 && ` (start za ${activationStartDelay} minut)`}
+								{activationStartDelay > 0 &&
+									` (start za ${activationStartDelay} minut)`}
 							</p>
 						</div>
 

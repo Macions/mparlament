@@ -15,6 +15,7 @@
 	--transition-fast: 0.15s ease;
 	--transition-medium: 0.2s ease;
 	--transition-slow: 0.35s ease;
+	--font-global-ubuntu: "Ubuntu", sans-serif;
 }
 
 *,
@@ -31,7 +32,7 @@ html {
 body {
 	margin: 0;
 	min-width: 320px;
-	font-family: "Ubuntu", sans-serif;
+	font-family: var(--font-global-ubuntu);
 }
 
 .app {
@@ -1022,7 +1023,7 @@ html {
 body {
 	margin: 0;
 	min-width: 320px;
-	font-family: "Ubuntu", sans-serif;
+	font-family: var(--font-global-ubuntu);
 }
 
 .app {

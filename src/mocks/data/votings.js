@@ -1,9 +1,9 @@
-
 export let votings = [
 	{
 		id: 1,
 		title: "Uchwała w sprawie zwiększenia finansowania oświaty",
-		description: "Projekt uchwały dotyczący zwiększenia środków przeznaczonych na edukację.",
+		description:
+			"Projekt uchwały dotyczący zwiększenia środków przeznaczonych na edukację.",
 		category: "resolution",
 		startTime: "2026-07-11T16:19:00",
 		endTime: "2026-07-11T22:00:00",
@@ -22,6 +22,7 @@ export let votings = [
 		myVote: "for",
 		createdBy: "Jan Kowalski",
 		managers: [3],
+		assignedTo: "all", // WSZYSCY MOGĄ GLOSOWAĆ
 	},
 	{
 		id: 2,
@@ -43,8 +44,8 @@ export let votings = [
 				name: "projekt_zmian.pdf",
 				size: 1024 * 1024 * 2.5,
 				type: "application/pdf",
-				uploadDate: "2026-07-05T10:00:00"
-			}
+				uploadDate: "2026-07-05T10:00:00",
+			},
 		],
 		votesFor: 100,
 		votesAgainst: 80,
@@ -53,6 +54,7 @@ export let votings = [
 		myVote: "for",
 		createdBy: "Marszałek Parlamentu",
 		managers: [],
+		assignedTo: "groups", // TYLKO KOMISJE (2,4)
 	},
 	{
 		id: 3,
@@ -76,18 +78,20 @@ export let votings = [
 		myVote: "for",
 		createdBy: "Anna Nowak",
 		managers: [],
+		assignedTo: "groups", // TYLKO KOMISJE (1,3,5)
 	},
 	{
 		id: 4,
 		title: "Zmiana regulaminu Parlamentu Młodych RP",
-		description: "Proponowane zmiany w regulaminie dotyczące procedury głosowania.",
+		description:
+			"Proponowane zmiany w regulaminie dotyczące procedury głosowania.",
 		category: "amendment",
 		startTime: "2026-07-12T09:00:00",
 		endTime: "2026-07-12T12:00:00",
 		status: "upcoming",
 		recipientsType: "members",
 		selectedGroups: [],
-		selectedMembers: [1, 3, 5, 7, 9],
+		selectedMembers: [3],
 		linkedItemType: "amendment",
 		linkedItemId: 1,
 		applicant: "",
@@ -97,8 +101,8 @@ export let votings = [
 				name: "regulamin_nowy.docx",
 				size: 1024 * 1024 * 1.2,
 				type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-				uploadDate: "2026-07-11T08:00:00"
-			}
+				uploadDate: "2026-07-11T08:00:00",
+			},
 		],
 		votesFor: 0,
 		votesAgainst: 0,
@@ -107,11 +111,13 @@ export let votings = [
 		myVote: null,
 		createdBy: "Przewodniczący Komisji",
 		managers: [],
+		assignedTo: "members", // TYLKO WYBRANI CZŁONKOWIE (1,3,5,7,9)
 	},
 	{
 		id: 5,
 		title: "Uchwała dotycząca modernizacji infrastruktury",
-		description: "Projekt uchwały w sprawie modernizacji infrastruktury technicznej.",
+		description:
+			"Projekt uchwały w sprawie modernizacji infrastruktury technicznej.",
 		category: "other",
 		startTime: "2026-07-08T14:00:00",
 		endTime: "2026-07-08T16:30:00",
@@ -130,11 +136,13 @@ export let votings = [
 		myVote: "for",
 		createdBy: "Minister Infrastruktury",
 		managers: [],
+		assignedTo: "all", // WSZYSCY
 	},
 	{
 		id: 6,
 		title: "Program wsparcia dla młodych przedsiębiorców",
-		description: "Głosowanie nad programem wsparcia finansowego dla młodych przedsiębiorców.",
+		description:
+			"Głosowanie nad programem wsparcia finansowego dla młodych przedsiębiorców.",
 		category: "other",
 		startTime: "2026-07-05T10:00:00",
 		endTime: "2026-07-05T14:00:00",
@@ -151,15 +159,15 @@ export let votings = [
 				name: "program_wsparcia.pdf",
 				size: 1024 * 1024 * 3.0,
 				type: "application/pdf",
-				uploadDate: "2026-07-04T09:00:00"
+				uploadDate: "2026-07-04T09:00:00",
 			},
 			{
 				id: 4,
 				name: "załącznik_1.xlsx",
 				size: 1024 * 1024 * 0.8,
 				type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-				uploadDate: "2026-07-04T09:30:00"
-			}
+				uploadDate: "2026-07-04T09:30:00",
+			},
 		],
 		votesFor: 75,
 		votesAgainst: 25,
@@ -168,15 +176,16 @@ export let votings = [
 		myVote: "against",
 		createdBy: "Marszałek Parlamentu",
 		managers: [],
+		assignedTo: "members", // TYLKO WYBRANI (2,4,6,8,10,12)
 	},
-
 	{
 		id: 7,
 		title: "Głosowanie nad poprawką do uchwały o finansowaniu oświaty",
-		description: "Głosowanie nad poprawką nr 1 do uchwały w sprawie zwiększenia finansowania oświaty, dotyczącą zwiększenia budżetu na szkolenia z kompetencji cyfrowych.",
+		description:
+			"Głosowanie nad poprawką nr 1 do uchwały w sprawie zwiększenia finansowania oświaty, dotyczącą zwiększenia budżetu na szkolenia z kompetencji cyfrowych.",
 		category: "amendment",
-		startTime: "2026-07-15T10:00:00",
-		endTime: "2026-07-15T14:00:00",
+		startTime: "2026-07-16T10:00:00",
+		endTime: "2026-07-16T22:00:00",
 		status: "active",
 		recipientsType: "all",
 		selectedGroups: [],
@@ -190,8 +199,8 @@ export let votings = [
 				name: "poprawka_nr1.pdf",
 				size: 1024 * 1024 * 0.5,
 				type: "application/pdf",
-				uploadDate: "2026-07-14T10:00:00"
-			}
+				uploadDate: "2026-07-14T10:00:00",
+			},
 		],
 		votesFor: 0,
 		votesAgainst: 0,
@@ -200,5 +209,6 @@ export let votings = [
 		myVote: null,
 		createdBy: "Anna Nowak",
 		managers: [],
+		assignedTo: "all", 
 	},
 ];

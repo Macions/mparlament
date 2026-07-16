@@ -11,6 +11,7 @@ import { sessions, currentSession } from "./data/sessions";
 import { speakers } from "./data/speakers";
 import { groups } from "./data/groups";
 import { members } from "./data/members";
+import { votes } from "./data/votes";
 
 let currentUser = null;
 
@@ -30,14 +31,14 @@ const getResolutionById = (id) => resolutions.find((r) => r.id === Number(id));
 
 const getSignaturesForResolution = (resolutionId) =>
 	resolutionSignatures.filter(
-		(signature) => signature.resolutionId === Number(resolutionId)
+		(signature) => signature.resolutionId === Number(resolutionId),
 	);
 
 const getUserSignature = (resolutionId, userId) =>
 	resolutionSignatures.find(
 		(signature) =>
 			signature.resolutionId === Number(resolutionId) &&
-			signature.userId === userId
+			signature.userId === userId,
 	);
 
 const buildResolutionResponse = (resolution, currentUser = null) => {
@@ -56,7 +57,8 @@ const buildResolutionResponse = (resolution, currentUser = null) => {
 		.filter(Boolean);
 
 	const isAuthor = currentUser && resolution.authorId === currentUser.id;
-	const hasSigned = isAuthor || !!getUserSignature(resolution.id, currentUser?.id);
+	const hasSigned =
+		isAuthor || !!getUserSignature(resolution.id, currentUser?.id);
 
 	return {
 		resolution: {
@@ -74,7 +76,7 @@ const buildResolutionResponse = (resolution, currentUser = null) => {
 				isAuthor,
 				signatureType: isAuthor
 					? "author"
-					: getUserSignature(resolution.id, currentUser.id)?.type ?? null,
+					: (getUserSignature(resolution.id, currentUser.id)?.type ?? null),
 				isAutoSigned: isAuthor,
 			},
 		}),
@@ -100,7 +102,7 @@ const handleResolutionSign = (resolutionId, userId) => {
 	const alreadySigned = resolutionSignatures.some(
 		(signature) =>
 			signature.resolutionId === Number(resolutionId) &&
-			signature.userId === userId
+			signature.userId === userId,
 	);
 
 	if (alreadySigned) {
@@ -122,42 +124,33 @@ const handleResolutionSign = (resolutionId, userId) => {
 	return { success: true };
 };
 const updateLinkedItemStatus = (voting) => {
-
 	if (voting.linkedItemType === "amendment") {
-
 		const amendment = amendments.find(
-			a => a.id === Number(voting.linkedItemId)
+			(a) => a.id === Number(voting.linkedItemId),
 		);
 
 		if (!amendment) return;
 
 		amendment.status =
-			voting.votesFor > voting.votesAgainst
-				? "accepted"
-				: "rejected";
+			voting.votesFor > voting.votesAgainst ? "accepted" : "rejected";
 	}
 
-
 	if (voting.linkedItemType === "resolution") {
-
 		const resolution = resolutions.find(
-			r => r.id === Number(voting.linkedItemId)
+			(r) => r.id === Number(voting.linkedItemId),
 		);
 
 		if (!resolution) return;
 
 		resolution.status =
-			voting.votesFor > voting.votesAgainst
-				? "accepted"
-				: "rejected";
+			voting.votesFor > voting.votesAgainst ? "accepted" : "rejected";
 	}
-
 };
 const handleResolutionUnsign = (resolutionId, userId) => {
 	const signatureIndex = resolutionSignatures.findIndex(
 		(signature) =>
 			signature.resolutionId === Number(resolutionId) &&
-			signature.userId === userId
+			signature.userId === userId,
 	);
 
 	if (signatureIndex === -1) {
@@ -200,11 +193,10 @@ const createVoting = (body) => {
 };
 
 export const handlers = [
-
 	http.post("/api/auth/login", async ({ request }) => {
 		const body = await request.json();
 		const foundUser = users.find(
-			(u) => u.username === body.username && u.password === body.password
+			(u) => u.username === body.username && u.password === body.password,
 		);
 
 		if (foundUser) {
@@ -226,7 +218,7 @@ export const handlers = [
 
 		return HttpResponse.json(
 			{ message: "Nieprawidłowy login lub hasło" },
-			{ status: 401 }
+			{ status: 401 },
 		);
 	}),
 
@@ -238,20 +230,17 @@ export const handlers = [
 				try {
 					currentUser = JSON.parse(savedUser);
 					return HttpResponse.json(currentUser);
-				} catch (e) { }
+				} catch (e) {}
 			}
 		}
-		return HttpResponse.json(
-			{ message: "Nie zalogowany" },
-			{ status: 401 }
-		);
+		return HttpResponse.json({ message: "Nie zalogowany" }, { status: 401 });
 	}),
 
 	http.get("/api/parliamentarians", () =>
 		HttpResponse.json({
 			parliamentarians: parliamentarians.filter((p) => p.clubId !== null),
 			unaffiliated: parliamentarians.filter((p) => p.clubId === null),
-		})
+		}),
 	),
 
 	http.get("/api/session/current", () => HttpResponse.json(currentSession)),
@@ -262,7 +251,6 @@ export const handlers = [
 	}),
 
 	http.get("/api/speakers", () => HttpResponse.json(speakers)),
-
 
 	http.post("/api/speakers", async ({ request }) => {
 		const body = await request.json();
@@ -275,8 +263,12 @@ export const handlers = [
 			id: Date.now(),
 			...body,
 			clubId: body.clubId || null,
-			clubName: body.clubId ? clubs.find((c) => c.id === body.clubId)?.name : null,
-			clubColor: body.clubId ? clubs.find((c) => c.id === body.clubId)?.color : null,
+			clubName: body.clubId
+				? clubs.find((c) => c.id === body.clubId)?.name
+				: null,
+			clubColor: body.clubId
+				? clubs.find((c) => c.id === body.clubId)?.color
+				: null,
 		};
 		parliamentarians.push(newMember);
 
@@ -386,12 +378,18 @@ export const handlers = [
 
 		const club = clubs.find((c) => c.id === clubId);
 		if (!club) {
-			return HttpResponse.json({ message: "Nie znaleziono klubu" }, { status: 404 });
+			return HttpResponse.json(
+				{ message: "Nie znaleziono klubu" },
+				{ status: 404 },
+			);
 		}
 
 		const member = parliamentarians.find((p) => p.id === memberId);
 		if (!member) {
-			return HttpResponse.json({ message: "Nie znaleziono członka" }, { status: 404 });
+			return HttpResponse.json(
+				{ message: "Nie znaleziono członka" },
+				{ status: 404 },
+			);
 		}
 
 		if (member.clubId) {
@@ -445,8 +443,6 @@ export const handlers = [
 
 	http.get("/api/sessions/current", () => HttpResponse.json(currentSession)),
 
-	http.get("/api/votings", () => HttpResponse.json(votings)),
-
 	http.post("/api/votings", async ({ request }) => {
 		const body = await request.json();
 		const newVoting = createVoting(body);
@@ -457,7 +453,10 @@ export const handlers = [
 	http.put("/api/votings/:id", async ({ params, request }) => {
 		const index = findVotingIndex(params.id);
 		if (index === -1) {
-			return HttpResponse.json({ message: "Nie znaleziono głosowania" }, { status: 404 });
+			return HttpResponse.json(
+				{ message: "Nie znaleziono głosowania" },
+				{ status: 404 },
+			);
 		}
 		const body = await request.json();
 		votings[index] = { ...votings[index], ...body };
@@ -467,7 +466,10 @@ export const handlers = [
 	http.patch("/api/votings/:id", async ({ params, request }) => {
 		const index = findVotingIndex(params.id);
 		if (index === -1) {
-			return HttpResponse.json({ message: "Nie znaleziono głosowania" }, { status: 404 });
+			return HttpResponse.json(
+				{ message: "Nie znaleziono głosowania" },
+				{ status: 404 },
+			);
 		}
 		const body = await request.json();
 		votings[index] = { ...votings[index], ...body };
@@ -477,7 +479,10 @@ export const handlers = [
 	http.delete("/api/votings/:id", ({ params }) => {
 		const index = findVotingIndex(params.id);
 		if (index === -1) {
-			return HttpResponse.json({ message: "Nie znaleziono głosowania" }, { status: 404 });
+			return HttpResponse.json(
+				{ message: "Nie znaleziono głosowania" },
+				{ status: 404 },
+			);
 		}
 		votings.splice(index, 1);
 		return HttpResponse.json({ success: true });
@@ -495,7 +500,10 @@ export const handlers = [
 	http.get("/api/resolutions/:slug", ({ params }) => {
 		const resolution = getResolutionBySlug(params.slug);
 		if (!resolution) {
-			return HttpResponse.json({ message: "Nie znaleziono uchwały" }, { status: 404 });
+			return HttpResponse.json(
+				{ message: "Nie znaleziono uchwały" },
+				{ status: 404 },
+			);
 		}
 		const user = getCurrentUser();
 		return HttpResponse.json(buildResolutionResponse(resolution, user));
@@ -504,14 +512,21 @@ export const handlers = [
 	http.post("/api/resolutions/:id/sign", ({ params }) => {
 		const resolution = getResolutionById(params.id);
 		if (!resolution) {
-			return HttpResponse.json({ message: "Nie znaleziono uchwały" }, { status: 404 });
+			return HttpResponse.json(
+				{ message: "Nie znaleziono uchwały" },
+				{ status: 404 },
+			);
 		}
 		const user = getCurrentUser();
 		if (!user) {
 			return HttpResponse.json({ message: "Nie zalogowany" }, { status: 401 });
 		}
-		const result = handleResolutionSign(params.id, user.id); if (result.error) {
-			return HttpResponse.json({ message: result.message }, { status: result.status });
+		const result = handleResolutionSign(params.id, user.id);
+		if (result.error) {
+			return HttpResponse.json(
+				{ message: result.message },
+				{ status: result.status },
+			);
 		}
 		return HttpResponse.json({ success: true });
 	}),
@@ -519,7 +534,10 @@ export const handlers = [
 	http.delete("/api/resolutions/:id/sign", ({ params }) => {
 		const resolution = getResolutionById(params.id);
 		if (!resolution) {
-			return HttpResponse.json({ message: "Nie znaleziono uchwały" }, { status: 404 });
+			return HttpResponse.json(
+				{ message: "Nie znaleziono uchwały" },
+				{ status: 404 },
+			);
 		}
 		const user = getCurrentUser();
 		if (!user) {
@@ -527,18 +545,27 @@ export const handlers = [
 		}
 		const result = handleResolutionUnsign(params.id, user.id);
 		if (result.error) {
-			return HttpResponse.json({ message: result.message }, { status: result.status });
+			return HttpResponse.json(
+				{ message: result.message },
+				{ status: result.status },
+			);
 		}
-		return HttpResponse.json({ success: true, message: "Podpis został usunięty" }, { status: 200 });
+		return HttpResponse.json(
+			{ success: true, message: "Podpis został usunięty" },
+			{ status: 200 },
+		);
 	}),
 
 	http.get("/api/resolutions/:slug/amendments", ({ params }) => {
 		const resolution = resolutions.find((r) => r.slug === params.slug);
 		if (!resolution) {
-			return HttpResponse.json({ message: "Nie znaleziono uchwały" }, { status: 404 });
+			return HttpResponse.json(
+				{ message: "Nie znaleziono uchwały" },
+				{ status: 404 },
+			);
 		}
 		const billAmendments = amendments.filter(
-			(amendment) => amendment.resolutionId === resolution.id
+			(amendment) => amendment.resolutionId === resolution.id,
 		);
 		return HttpResponse.json({
 			resolution: { title: resolution.title, slug: resolution.slug },
@@ -559,7 +586,10 @@ export const handlers = [
 			const newResolution = {
 				id: Date.now(),
 				title: data.title,
-				slug: data.title.toLowerCase().replaceAll(" ", "-").replaceAll(/[^\w-]/g, ""),
+				slug: data.title
+					.toLowerCase()
+					.replaceAll(" ", "-")
+					.replaceAll(/[^\w-]/g, ""),
 				fileName: file ? file.name : data.fileName,
 				authorId: data.authorId,
 				author: data.author,
@@ -570,7 +600,9 @@ export const handlers = [
 				signatures: 1,
 				status: "pending",
 				createdAt: new Date().toISOString().split("T")[0],
-				fileInfo: file ? { name: file.name, size: file.size, type: file.type } : null,
+				fileInfo: file
+					? { name: file.name, size: file.size, type: file.type }
+					: null,
 			};
 
 			resolutions.push(newResolution);
@@ -586,7 +618,7 @@ export const handlers = [
 		} catch (error) {
 			return HttpResponse.json(
 				{ message: "Błąd przetwarzania uchwały", error: error.message },
-				{ status: 500 }
+				{ status: 500 },
 			);
 		}
 	}),
@@ -594,13 +626,20 @@ export const handlers = [
 	http.get("/api/resolutions/:slug/amendments/:amendmentId", ({ params }) => {
 		const resolution = resolutions.find((r) => r.slug === params.slug);
 		if (!resolution) {
-			return HttpResponse.json({ message: "Nie znaleziono uchwały" }, { status: 404 });
+			return HttpResponse.json(
+				{ message: "Nie znaleziono uchwały" },
+				{ status: 404 },
+			);
 		}
 		const amendment = amendments.find(
-			(a) => a.id === Number(params.amendmentId) && a.resolutionId === resolution.id
+			(a) =>
+				a.id === Number(params.amendmentId) && a.resolutionId === resolution.id,
 		);
 		if (!amendment) {
-			return HttpResponse.json({ message: "Nie znaleziono poprawki" }, { status: 404 });
+			return HttpResponse.json(
+				{ message: "Nie znaleziono poprawki" },
+				{ status: 404 },
+			);
 		}
 		return HttpResponse.json({
 			resolution: { title: resolution.title, slug: resolution.slug },
@@ -612,44 +651,53 @@ export const handlers = [
 		});
 	}),
 
-	http.post("/api/resolutions/:slug/amendments", async ({ params, request }) => {
-		const resolution = resolutions.find((r) => r.slug === params.slug);
-		if (!resolution) {
-			return HttpResponse.json({ message: "Nie znaleziono uchwały" }, { status: 404 });
-		}
-		const body = await request.json();
-		const newAmendment = {
-			id: Date.now(),
-			resolutionId: resolution.id,
-			author: body.author,
-			authorId: body.authorId,
-			club: body.club,
-			content: body.content,
-			status: "pending",
-			createdAt: new Date().toISOString().split("T")[0],
-			withdrawnReason: null,
-			changes: body.changes || [],
-		};
-		amendments.push(newAmendment);
-		return HttpResponse.json({ success: true, amendment: newAmendment }, { status: 201 });
-	}),
+	http.post(
+		"/api/resolutions/:slug/amendments",
+		async ({ params, request }) => {
+			const resolution = resolutions.find((r) => r.slug === params.slug);
+			if (!resolution) {
+				return HttpResponse.json(
+					{ message: "Nie znaleziono uchwały" },
+					{ status: 404 },
+				);
+			}
+			const body = await request.json();
+			const newAmendment = {
+				id: Date.now(),
+				resolutionId: resolution.id,
+				author: body.author,
+				authorId: body.authorId,
+				club: body.club,
+				content: body.content,
+				status: "pending",
+				createdAt: new Date().toISOString().split("T")[0],
+				withdrawnReason: null,
+				changes: body.changes || [],
+			};
+			amendments.push(newAmendment);
+			return HttpResponse.json(
+				{ success: true, amendment: newAmendment },
+				{ status: 201 },
+			);
+		},
+	),
 
 	http.get("/api/current-user", () => {
 		const user = getCurrentUser();
 		if (user) {
 			return HttpResponse.json({ user });
 		}
-		return HttpResponse.json(
-			{ message: "Nie zalogowany" },
-			{ status: 401 }
-		);
+		return HttpResponse.json({ message: "Nie zalogowany" }, { status: 401 });
 	}),
 
 	http.post("/api/amendments/:id/withdraw", async ({ params, request }) => {
 		const amendmentId = Number(params.id);
 		const amendment = amendments.find((a) => a.id === amendmentId);
 		if (!amendment) {
-			return HttpResponse.json({ message: "Nie znaleziono poprawki" }, { status: 404 });
+			return HttpResponse.json(
+				{ message: "Nie znaleziono poprawki" },
+				{ status: 404 },
+			);
 		}
 
 		// ✅ Pobierz zalogowanego użytkownika
@@ -662,14 +710,14 @@ export const handlers = [
 		if (amendment.authorId !== user.id) {
 			return HttpResponse.json(
 				{ message: "Nie masz uprawnień do wycofania tej poprawki" },
-				{ status: 403 }
+				{ status: 403 },
 			);
 		}
 
 		if (amendment.status === "withdrawn") {
 			return HttpResponse.json(
 				{ message: "Ta poprawka została już wycofana" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 		const body = await request.json();
@@ -682,7 +730,10 @@ export const handlers = [
 		const votingId = Number(params.id);
 		const voting = votings.find((v) => v.id === votingId);
 		if (!voting) {
-			return HttpResponse.json({ message: "Nie znaleziono głosowania" }, { status: 404 });
+			return HttpResponse.json(
+				{ message: "Nie znaleziono głosowania" },
+				{ status: 404 },
+			);
 		}
 		const body = await request.json();
 		voting.startTime = body.startTime;
@@ -697,9 +748,7 @@ export const handlers = [
 
 	http.get("/api/groups", () => HttpResponse.json(groups)),
 
-
 	http.get("/api/members", () => HttpResponse.json(members)),
-
 
 	http.get("/api/amendments", () => HttpResponse.json(amendments)),
 
@@ -709,14 +758,21 @@ export const handlers = [
 		const amendmentId = Number(params.id);
 		const amendment = amendments.find((a) => a.id === amendmentId);
 		if (!amendment) {
-			return HttpResponse.json({ message: "Nie znaleziono poprawki" }, { status: 404 });
+			return HttpResponse.json(
+				{ message: "Nie znaleziono poprawki" },
+				{ status: 404 },
+			);
 		}
 		const resolution = resolutions.find((r) => r.id === amendment.resolutionId);
 		return HttpResponse.json({
 			data: {
 				...amendment,
 				resolution: resolution
-					? { id: resolution.id, title: resolution.title, slug: resolution.slug }
+					? {
+							id: resolution.id,
+							title: resolution.title,
+							slug: resolution.slug,
+						}
 					: null,
 			},
 		});
@@ -726,7 +782,10 @@ export const handlers = [
 		const votingId = Number(params.id);
 		const voting = votings.find((v) => v.id === votingId);
 		if (!voting) {
-			return HttpResponse.json({ message: "Nie znaleziono głosowania" }, { status: 404 });
+			return HttpResponse.json(
+				{ message: "Nie znaleziono głosowania" },
+				{ status: 404 },
+			);
 		}
 		const body = await request.json();
 		Object.assign(voting, {
@@ -744,20 +803,18 @@ export const handlers = [
 			applicant: body.applicant,
 			managers: body.managers || [],
 		});
-		return HttpResponse.json({ success: true, message: "Głosowanie zostało zaktualizowane", voting });
-	}),
-
-	http.get("/api/votings/:id", ({ params }) => {
-		const voting = votings.find((v) => v.id === Number(params.id));
-		if (!voting) {
-			return HttpResponse.json({ message: "Nie znaleziono głosowania" }, { status: 404 });
-		}
-		return HttpResponse.json(voting);
+		return HttpResponse.json({
+			success: true,
+			message: "Głosowanie zostało zaktualizowane",
+			voting,
+		});
 	}),
 
 	http.get("/api/resolutions/session/:sessionId", ({ params }) => {
 		const sessionId = Number(params.sessionId);
-		const sessionResolutions = resolutions.filter((r) => r.sessionId === sessionId);
+		const sessionResolutions = resolutions.filter(
+			(r) => r.sessionId === sessionId,
+		);
 		return HttpResponse.json({
 			resolutions: sessionResolutions,
 			sessionId,
@@ -766,32 +823,138 @@ export const handlers = [
 	}),
 
 	http.get("/finalizuj-uchwale/:sessionId", () =>
-		HttpResponse.json({ message: "Strona finalizacji" })
+		HttpResponse.json({ message: "Strona finalizacji" }),
 	),
 	http.post("/api/votings/:id/archive", ({ params }) => {
 		const votingId = Number(params.id);
 
-		const voting = votings.find(
-			(v) => v.id === votingId
-		);
+		const voting = votings.find((v) => v.id === votingId);
 
 		if (!voting) {
-			return HttpResponse.json(
-				{ message: "Nie znaleziono" },
-				{ status: 404 }
-			);
+			return HttpResponse.json({ message: "Nie znaleziono" }, { status: 404 });
 		}
-
 
 		voting.status = "archived";
 
-
 		updateLinkedItemStatus(voting);
-
 
 		return HttpResponse.json({
 			success: true,
-			voting
+			voting,
+		});
+	}),
+	http.get("/api/votings", ({ request }) => {
+		const url = new URL(request.url);
+		const userId = url.searchParams.get("userId");
+		const role = url.searchParams.get("role");
+
+		console.log("🔍 [HANDLER] GET /api/votings");
+		console.log("📌 userId:", userId);
+		console.log("📌 role:", role);
+
+		let filteredVotings = [...votings];
+
+		// Jeśli userId jest podany i rola to NIE admin
+		if (userId && role !== "admin") {
+			console.log("🔄 Filtruję dla usera:", userId);
+
+			filteredVotings = filteredVotings.filter((vote) => {
+				console.log(`\n📋 Sprawdzam: ${vote.title}`);
+				console.log("  assignedTo:", vote.assignedTo);
+
+				// Jeśli brak assignedTo lub "all" - wszyscy widzą
+				if (!vote.assignedTo || vote.assignedTo === "all") {
+					console.log("  ✅ WSZYSCY");
+					return true;
+				}
+
+				// Jeśli assignedTo === "members" - sprawdź selectedMembers
+				if (vote.assignedTo === "members") {
+					const hasAccess = vote.selectedMembers?.includes(Number(userId));
+					console.log(
+						`  🔍 User ${userId} w selectedMembers ${JSON.stringify(vote.selectedMembers)}?`,
+						hasAccess,
+					);
+					console.log(`  ${hasAccess ? "✅ MA DOSTĘP" : "❌ BRAK DOSTĘPU"}`);
+					return hasAccess;
+				}
+
+				// Jeśli assignedTo === "groups" - sprawdź grupy
+				if (vote.assignedTo === "groups") {
+					const user = users.find((u) => u.id === Number(userId));
+					if (user) {
+						const hasAccess =
+							vote.selectedGroups?.includes(user.groupId) ||
+							vote.selectedGroups?.includes(user.committeeId);
+						console.log(`  🔍 User w grupie?`, hasAccess);
+						return hasAccess;
+					}
+					console.log("  ❌ Nie znaleziono usera");
+					return false;
+				}
+
+				console.log("  ❌ BRAK DOSTĘPU - domyślnie");
+				return false;
+			});
+		} else {
+			console.log("👑 Admin lub brak userId - zwracam wszystko");
+		}
+
+		console.log(`\n📊 Zwracam ${filteredVotings.length} głosowań`);
+		return HttpResponse.json(filteredVotings);
+	}),
+	http.get("/api/votings/:id", ({ params }) => {
+		const voting = votings.find((v) => v.id === Number(params.id));
+		if (!voting) {
+			return HttpResponse.json(
+				{ message: "Nie znaleziono głosowania" },
+				{ status: 404 },
+			);
+		}
+
+		// Pobierz głosy dla tego głosowania
+		const votingVotes = votes.filter((v) => v.votingId === voting.id);
+		const votedUserIds = votingVotes.map((v) => v.userId);
+
+		// Pobierz wszystkich parlamentarzystów
+		const allParliamentarians = parliamentarians.filter(
+			(p) => p.clubId !== null,
+		);
+
+		// Określ uprawnionych
+		let eligibleIds = [];
+		if (voting.recipientsType === "all") {
+			eligibleIds = allParliamentarians.map((p) => p.id);
+		} else if (voting.recipientsType === "members") {
+			eligibleIds = voting.selectedMembers || [];
+		} else if (voting.recipientsType === "groups") {
+			eligibleIds = allParliamentarians
+				.filter((p) => voting.selectedGroups?.includes(p.groupId))
+				.map((p) => p.id);
+		}
+
+		// Mapuj na obiekty z danymi
+		const eligibleUsers = eligibleIds.map((id) => {
+			const p = allParliamentarians.find((m) => m.id === id);
+			return {
+				id: p?.id || id,
+				name: p ? `${p.firstName} ${p.lastName}` : `User ${id}`,
+				club: p?.clubName || "",
+			};
+		});
+
+		const votedUsers = eligibleUsers.filter((u) => votedUserIds.includes(u.id));
+		const notVotedUsers = eligibleUsers.filter(
+			(u) => !votedUserIds.includes(u.id),
+		);
+
+		return HttpResponse.json({
+			...voting,
+			totalEligible: eligibleUsers.length,
+			eligibleUsers,
+			votedUsers,
+			notVotedUsers,
+			votedCount: votedUsers.length,
 		});
 	}),
 ];

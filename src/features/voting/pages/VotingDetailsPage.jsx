@@ -49,9 +49,9 @@ function getRecipientsLabel(vote) {
 		case "all":
 			return "Wszyscy członkowie";
 		case "groups":
-			return "Wybrane grupy";
+			return "Wybrane grupy:";
 		case "members":
-			return "Wybrani członkowie";
+			return "Wybrani członkowie:";
 		default:
 			return "Nieokreślone";
 	}
@@ -110,7 +110,6 @@ export default function VotingDetailsPage() {
 
 				setVote(data);
 
-
 				if (data.recipientsType === "groups" && data.selectedGroups) {
 					try {
 						const groupsResponse = await fetch("/api/groups", {
@@ -120,17 +119,20 @@ export default function VotingDetailsPage() {
 						});
 						const groupsData = await groupsResponse.json();
 
-						const selectedGroupsDetails = groupsData.filter(g =>
-							data.selectedGroups.includes(g.id)
+						const selectedGroupsDetails = groupsData.filter((g) =>
+							data.selectedGroups.includes(g.id),
 						);
 						setRecipientsDetails({
 							type: "groups",
-							data: selectedGroupsDetails
+							data: selectedGroupsDetails,
 						});
 					} catch {
 						setRecipientsDetails({
 							type: "groups",
-							data: data.selectedGroups.map(id => ({ id, name: `Grupa ${id}` }))
+							data: data.selectedGroups.map((id) => ({
+								id,
+								name: `Grupa ${id}`,
+							})),
 						});
 					}
 				} else if (data.recipientsType === "members" && data.selectedMembers) {
@@ -142,23 +144,26 @@ export default function VotingDetailsPage() {
 						});
 						const membersData = await membersResponse.json();
 
-						const selectedMembersDetails = membersData.filter(m =>
-							data.selectedMembers.includes(m.id)
+						const selectedMembersDetails = membersData.filter((m) =>
+							data.selectedMembers.includes(m.id),
 						);
 						setRecipientsDetails({
 							type: "members",
-							data: selectedMembersDetails
+							data: selectedMembersDetails,
 						});
 					} catch {
 						setRecipientsDetails({
 							type: "members",
-							data: data.selectedMembers.map(id => ({ id, name: `Członek ${id}` }))
+							data: data.selectedMembers.map((id) => ({
+								id,
+								name: `Członek ${id}`,
+							})),
 						});
 					}
 				} else {
 					setRecipientsDetails({
 						type: "all",
-						data: null
+						data: null,
 					});
 				}
 			} catch (error) {
@@ -183,10 +188,7 @@ export default function VotingDetailsPage() {
 		return (
 			<div className="voting-details-error">
 				<h2>{error}</h2>
-				<BackButton
-					to="/glosowania"
-					label="Głosowania"
-				/>
+				<BackButton to="/glosowania" label="Głosowania" />
 			</div>
 		);
 	}
@@ -195,10 +197,7 @@ export default function VotingDetailsPage() {
 		return (
 			<div className="voting-details-notfound">
 				<h2>Nie znaleziono głosowania</h2>
-				<BackButton
-					to="/glosowania"
-					label="Głosowania"
-				/>
+				<BackButton to="/glosowania" label="Głosowania" />
 			</div>
 		);
 	}
@@ -219,21 +218,26 @@ export default function VotingDetailsPage() {
 		totalVotes > 0 ? Math.round((vote.abstained / totalVotes) * 100) : 0;
 
 	const recipientsLabel = getRecipientsLabel(vote);
-
+	const categoryTranslations = {
+		resolution: "Uchwała",
+		law: "Ustawa",
+		other: "Inne",
+		bill: "Projekt ustawy",
+		amendment: "Poprawka",
+		motion: "Wniosek",
+	};
 	return (
 		<div className="voting-details-page">
 			<div className="voting-details-header">
-				<BackButton
-					to="/glosowania"
-					label="Głosowania"
-				/>
-
+				<BackButton to="/glosowania" label="Głosowania" />
 			</div>
 
 			<div className="voting-details-container">
 				<div className="voting-details-top">
 					<div className="voting-details-meta">
-						<span className="voting-details-type">{vote.category}</span>
+						<span className="voting-details-type">
+							{categoryTranslations[vote.category] || vote.category}
+						</span>
 						<span className={`voting-details-status ${statusClass}`}>
 							{statusLabel}
 						</span>
@@ -281,7 +285,6 @@ export default function VotingDetailsPage() {
 					</div>
 				</div>
 
-
 				<div className="voting-details-recipients">
 					<h3 className="recipients-title">Uprawnieni do głosowania</h3>
 
@@ -290,13 +293,13 @@ export default function VotingDetailsPage() {
 
 						{recipientsDetails?.type === "all" && (
 							<p className="recipients-description">
-								Wszyscy członkowie Parlamentu Młodych RP są uprawnieni do głosowania.
+								Wszyscy członkowie Parlamentu Młodych RP są uprawnieni do
+								głosowania.
 							</p>
 						)}
 
 						{recipientsDetails?.type === "groups" && recipientsDetails.data && (
 							<div className="recipients-list">
-								<p className="recipients-subtitle">Wybrane grupy:</p>
 								<div className="recipients-tags">
 									{recipientsDetails.data.map((group, index) => (
 										<span key={index} className="recipient-tag group">
@@ -307,32 +310,24 @@ export default function VotingDetailsPage() {
 							</div>
 						)}
 
-						{recipientsDetails?.type === "members" && recipientsDetails.data && (
-							<div className="recipients-list">
-								<p className="recipients-subtitle">Wybrani członkowie:</p>
-								<div className="recipients-tags">
-									{recipientsDetails.data.map((member, index) => (
-										<span key={index} className="recipient-tag member">
-											{member.name || `Członek ${member.id}`}
-										</span>
-									))}
+						{recipientsDetails?.type === "members" &&
+							recipientsDetails.data && (
+								<div className="recipients-list">
+									<div className="recipients-tags">
+										{recipientsDetails.data.map((member, index) => (
+											<span key={index} className="recipient-tag member">
+												{member.name || `Członek ${member.id}`}
+											</span>
+										))}
+									</div>
 								</div>
-							</div>
-						)}
+							)}
 					</div>
 				</div>
 
 				{(statusClass === "finished" || statusClass === "archived") && (
 					<div className="voting-details-results">
 						<h2>Wyniki głosowania</h2>
-
-						<div className="results-summary">
-							<div className={`result-badge ${result}`}>
-								{result === "passed" && "Uchwała przyjęta"}
-								{result === "rejected" && "Uchwała odrzucona"}
-								{result === "tie" && "Remis"}
-							</div>
-						</div>
 
 						<div className="results-bars">
 							<div className="result-bar-item for">
@@ -382,6 +377,13 @@ export default function VotingDetailsPage() {
 							</div>
 						</div>
 
+						<div className="results-summary">
+							<div className={`result-badge ${result}`}>
+								{result === "passed" && "Uchwała przyjęta"}
+								{result === "rejected" && "Uchwała odrzucona"}
+								{result === "tie" && "Remis"}
+							</div>
+						</div>
 						<div className="results-stats">
 							<div className="stat-item">
 								<span className="stat-label">Frekwencja</span>

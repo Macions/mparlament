@@ -7,13 +7,26 @@ export default function Login() {
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
 	const navigate = useNavigate();
-	useEffect(() => {
-		const token = localStorage.getItem("token");
 
-		if (token) {
-			navigate("/panel", { replace: true });
+	useEffect(() => {
+		const tokenData = localStorage.getItem("token");
+
+		if (tokenData) {
+			try {
+				const parsed = JSON.parse(tokenData);
+				if (parsed.expiresAt && Date.now() > parsed.expiresAt) {
+					localStorage.removeItem("token");
+					localStorage.removeItem("user");
+					return;
+				}
+				navigate("/panel", { replace: true });
+			} catch (e) {
+				localStorage.removeItem("token");
+				localStorage.removeItem("user");
+			}
 		}
 	}, [navigate]);
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setError("");
@@ -36,7 +49,12 @@ export default function Login() {
 				throw new Error(data.message || "Błąd logowania");
 			}
 
-			localStorage.setItem("token", data.token);
+			const tokenData = {
+				token: data.token,
+				expiresAt: Date.now() + 10 * 60 * 60 * 1000,
+			};
+
+			localStorage.setItem("token", JSON.stringify(tokenData));
 			localStorage.setItem("user", JSON.stringify(data.user));
 
 			navigate("/panel");

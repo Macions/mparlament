@@ -7,7 +7,7 @@ import SessionDetails from "../features/meetings/pages/SessionDetails";
 
 import Login from "../features/authentication/pages/Login";
 
-import FinalizeResolution from '../features/resolutions/pages/FinalizeResolution';
+import FinalizeResolution from "../features/resolutions/pages/FinalizeResolution";
 
 import Dashboard from "../features/dashboard/pages/Dashboard";
 
@@ -26,39 +26,46 @@ import CreateVoting from "../features/voting/pages/CreateVoting";
 import Parliamentarians from "../features/parliamentarians/pages/Parliamentarians";
 import VotingDetailsPage from "../features/voting/pages/VotingDetailsPage";
 import EditVoting from "../features/voting/pages/EditVoting";
-
+import LiveVoting from "../features/voting/pages/LiveVoting";
+import { SocketProvider } from "../socket/SocketProvider";
 
 export default function AppRoutes() {
 	return (
-		<Routes>
-			<Route path="/" element={<Home />} />
-			<Route path="/zaloguj" element={<Login />} />
-			<Route path="/parlamentarzysci" element={<Parliamentarians />} />
+		<SocketProvider>
+			<Routes>
+				<Route path="/" element={<Home />} />
+				<Route path="/zaloguj" element={<Login />} />
+				<Route path="/parlamentarzysci" element={<Parliamentarians />} />
 
-			<Route path="/posiedzenie" element={<SessionDetails />} />
-			<Route element={<ProtectedRoute />}>
-				<Route path="/panel" element={<Dashboard />} />
+				<Route path="/posiedzenie" element={<SessionDetails />} />
+				<Route element={<ProtectedRoute />}>
+					<Route path="/panel" element={<Dashboard />} />
 
-				<Route path="/uchwaly" element={<Resolutions />} />
-				<Route path="/zloz-uchwale" element={<SubmitResolution />} />
+					<Route path="/uchwaly" element={<Resolutions />} />
+					<Route path="/zloz-uchwale" element={<SubmitResolution />} />
 
-				<Route path="/:slug" element={<ResolutionDetails />} />
-				<Route path="/:slug/poprawki" element={<AmendmentsPage />} />
-				<Route path="/:slug/dodaj-poprawke" element={<AddAmendment />} />
-				<Route
-					path="/:slug/poprawka/:amendmentId"
-					element={<AmendmentDetails />}
-				/>
+					<Route path="/:slug" element={<ResolutionDetails />} />
+					<Route path="/:slug/poprawki" element={<AmendmentsPage />} />
+					<Route path="/:slug/dodaj-poprawke" element={<AddAmendment />} />
+					<Route
+						path="/:slug/poprawka/:amendmentId"
+						element={<AmendmentDetails />}
+					/>
 
-				<Route path="/glosowania" element={<VotingList />} />
-				<Route path="/glosowanie/:id" element={<VotingPage />} />
-				<Route path="/glosowania/nowe" element={<CreateVoting />} />
+					<Route path="/glosowania" element={<VotingList />} />
+					<Route path="/glosowanie/:id" element={<VotingPage />} />
+					<Route path="/glosowania/nowe" element={<CreateVoting />} />
 
-				<Route path="/glosowanie/:id/szczegoly" element={<VotingDetailsPage />} />
-				<Route path="/finalizuj-uchwale" element={<FinalizeResolution />} />
+					<Route
+						path="/glosowanie/:id/szczegoly"
+						element={<VotingDetailsPage />}
+					/>
+					<Route path="/finalizuj-uchwale" element={<FinalizeResolution />} />
 
-				<Route path="/glosowanie/:id/edytuj" element={<EditVoting />} />
-			</Route>
-		</Routes>
+					<Route path="/glosowanie/:id/edytuj" element={<EditVoting />} />
+					<Route path="/glosowanie/:id/live" element={<LiveVoting />} />
+				</Route>
+			</Routes>
+		</SocketProvider>
 	);
 }

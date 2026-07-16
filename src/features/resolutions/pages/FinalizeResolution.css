@@ -3,7 +3,7 @@
 	max-width: 1880px;
 	margin: 0 auto;
 	padding: 2rem 1.5rem;
-	font-family: "Ubuntu", system-ui, sans-serif;
+	font-family: var(--font-global-ubuntu);
 	color: #1e2937;
 }
 
@@ -689,7 +689,7 @@
 	background: #f8fafc;
 	border: 2px dashed #cbd5e1;
 	border-radius: 18px;
-	font-family: "Ubuntu", system-ui, sans-serif;
+	font-family: var(--font-global-ubuntu);
 	font-size: 1rem;
 	color: #64748b;
 	cursor: pointer;

@@ -172,14 +172,19 @@
 
 .results-summary {
     margin-bottom: 28px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 .result-badge {
     display: inline-block;
-    padding: 12px 28px;
+    padding: 12px 68px;
     border-radius: 50px;
     font-size: 1.1rem;
     font-weight: 600;
+    width: 50%;
+    text-align: center;
 }
 
 .result-badge.passed {
@@ -195,9 +200,9 @@
 }
 
 .result-badge.tie {
-    background-color: #fff3cd;
-    color: #856404;
-    border: 2px solid #ffc107;
+    background-color: #f5f500;
+    color: #000000;
+    border: 2px solid #dba400;
 }
 
 
