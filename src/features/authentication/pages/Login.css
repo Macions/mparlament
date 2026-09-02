@@ -115,3 +115,12 @@ body {
 		padding: 1rem 1.25rem;
 	}
 }
+
+.fgPs{
+	color: white;
+	padding: 7px 4px;
+	text-align: center;
+	border: 1px solid red;
+	background-color: rgba(255, 255, 255, 0.188);
+	border-radius: 5px;
+}

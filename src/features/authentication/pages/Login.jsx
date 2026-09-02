@@ -20,7 +20,7 @@ export default function Login() {
 					return;
 				}
 				navigate("/panel", { replace: true });
-			} catch (e) {
+			} catch {
 				localStorage.removeItem("token");
 				localStorage.removeItem("user");
 			}
@@ -102,7 +102,7 @@ export default function Login() {
 						required
 					/>
 				</div>
-
+				<div className="fgPs">Zapomniał*ś hasła? Skontaktuj się z Działem Technicznym PMRP.</div>
 				<button type="submit" className="login__button">
 					Zaloguj się
 				</button>

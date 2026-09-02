@@ -24,8 +24,6 @@ const parseTimeToMinutes = (timeStr) => {
 };
 
 export default function SessionDetails() {
-	const navigate = useNavigate();
-
 	const { socket, isConnected } = useSocket();
 	const [session, setSession] = useState(null);
 	const [status, setStatus] = useState("");
@@ -721,6 +719,14 @@ export default function SessionDetails() {
 											Dodaj mówcę
 										</button>
 									</form>
+									<div className="speakerBts">
+										<button type="submit" className="previous-speaker">
+											Poprzedni mówca
+										</button>
+										<button type="submit" className="next-speaker">
+											Następny mówca
+										</button>
+									</div>
 								</div>
 							</div>
 						) : (
@@ -782,7 +788,7 @@ export default function SessionDetails() {
 								) : sessionMode === "zo" ? (
 									<div className="break-controls">
 										<span className="break-info">
-											Tryb ZO –
+											Tryb ZO -
 											{isEditingZO ? (
 												<input
 													type="text"

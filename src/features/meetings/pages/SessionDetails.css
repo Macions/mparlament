@@ -19,8 +19,8 @@
 	border-radius: var(--radius);
 	padding: 2rem 1.5rem;
 	background: var(--bg-page);
-	min-height: 100vh;
-	color: var(--text-primary);
+
+	.previous-speaker color: var(--text-primary);
 	font-family:
 		-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
@@ -1385,6 +1385,7 @@
 	color: #6c757d;
 	font-weight: 400;
 }
+
 .back-to-dashboard-btn {
 	background: white;
 	border: 2px solid #e2e8f0;
@@ -1412,6 +1413,7 @@
 .back-to-dashboard-btn:active {
 	transform: scale(0.96);
 }
+
 .admin-toggle-container {
 	display: flex;
 	align-items: center;
@@ -1476,15 +1478,15 @@
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.admin-toggle input:checked + .admin-toggle-slider {
+.admin-toggle input:checked+.admin-toggle-slider {
 	background: linear-gradient(135deg, #002b5c, #003d80);
 }
 
-.admin-toggle input:checked + .admin-toggle-slider:before {
+.admin-toggle input:checked+.admin-toggle-slider:before {
 	transform: translateX(26px);
 }
 
-.admin-toggle input:focus + .admin-toggle-slider {
+.admin-toggle input:focus+.admin-toggle-slider {
 	box-shadow: 0 0 0 3px rgba(0, 43, 92, 0.3);
 }
 
@@ -1495,6 +1497,7 @@
 .admin-toggle-slider:before {
 	transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .admin-point-actions {
 	display: flex;
 	flex-wrap: wrap;
@@ -1783,6 +1786,7 @@
 		flex-direction: column;
 	}
 }
+
 .session-panel {
 	background: white;
 	border-radius: 18px;
@@ -2267,6 +2271,7 @@
 		min-width: 80px;
 	}
 }
+
 .title-input.crossed {
 	text-decoration: line-through;
 	color: #94a3b8;
@@ -2361,23 +2366,27 @@
 	border: 1px solid #fca5a5;
 }
 
-.ws-status span.circle-ws-status{
+.ws-status span.circle-ws-status {
 	width: 15px;
 	height: 15px;
 	border-radius: 100%;
 }
-.ws-status.connected span.circle-ws-status{
+
+.ws-status.connected span.circle-ws-status {
 	background-color: green;
 }
-.ws-status.disconnected span.circle-ws-status{
+
+.ws-status.disconnected span.circle-ws-status {
 	background-color: red;
 }
 
 @keyframes pulse-green {
+
 	0%,
 	100% {
 		opacity: 1;
 	}
+
 	50% {
 		opacity: 0.4;
 	}
@@ -2425,4 +2434,38 @@
 	.ws-status {
 		align-self: center;
 	}
+}
+
+.speakerBts{
+	margin-top: 10px;
+	display: flex;
+	gap: 5px;
+	width: 100%;
+	justify-content: center;
+}
+
+.previous-speaker,
+.next-speaker {
+	padding: 6px 20px;
+	border: none;
+	border-radius: 20px;
+	background: #22c55e;
+	color: white;
+	font-weight: 600;
+	font-size: 0.85rem;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+
+.previous-speaker{
+	background-color: rgba(255, 0, 0, 0.542);
+}
+
+.previous-speaker{
+	background-color: rgba(0, 0, 255, 0.65);
+}
+
+.previous-speaker:hover,
+.next-speaker:hover {
+	opacity: .8;
 }
