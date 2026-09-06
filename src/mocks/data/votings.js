@@ -18,6 +18,7 @@ export let votings = [
 		createdBy: "Jan Kowalski",
 		managers: [3],
 		assignedTo: "all",
+		isAnonymous: false, // DODAJ
 	},
 	{
 		id: 2,
@@ -45,6 +46,7 @@ export let votings = [
 		createdBy: "Marszałek Parlamentu",
 		managers: [],
 		assignedTo: "groups",
+		isAnonymous: true, // DODAJ - niejawne
 	},
 	{
 		id: 3,
@@ -64,6 +66,7 @@ export let votings = [
 		createdBy: "Anna Nowak",
 		managers: [],
 		assignedTo: "groups",
+		isAnonymous: false, // DODAJ
 	},
 	{
 		id: 4,
@@ -92,6 +95,7 @@ export let votings = [
 		createdBy: "Przewodniczący Komisji",
 		managers: [],
 		assignedTo: "members",
+		isAnonymous: false, // DODAJ
 	},
 	{
 		id: 5,
@@ -112,6 +116,7 @@ export let votings = [
 		createdBy: "Minister Infrastruktury",
 		managers: [],
 		assignedTo: "all",
+		isAnonymous: false, // DODAJ
 	},
 	{
 		id: 6,
@@ -147,6 +152,7 @@ export let votings = [
 		createdBy: "Marszałek Parlamentu",
 		managers: [],
 		assignedTo: "members",
+		isAnonymous: true, // DODAJ - niejawne
 	},
 	{
 		id: 7,
@@ -175,5 +181,6 @@ export let votings = [
 		createdBy: "Anna Nowak",
 		managers: [],
 		assignedTo: "all",
+		isAnonymous: false, // DODAJ
 	},
 ];

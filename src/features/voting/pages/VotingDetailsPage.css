@@ -1,4 +1,3 @@
-
 .voting-details-page {
     max-width: 900px;
     margin: 0 auto;
@@ -623,4 +622,176 @@
         font-size: 0.8rem;
         padding: 4px 12px;
     }
+}
+
+/* Lista głosujących */
+.voting-details-voters {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #e2e8f0;
+}
+
+.voters-list-section h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e2937;
+    margin-bottom: 1rem;
+}
+
+.voters-table-wrapper {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.voters-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.voters-table thead {
+    background: #f8fafc;
+}
+
+.voters-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.voters-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.voters-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.voters-table tbody tr.vote-for {
+    background: #f0fdf4;
+}
+
+.voters-table tbody tr.vote-for:hover {
+    background: #dcfce7;
+}
+
+.voters-table tbody tr.vote-against {
+    background: #fef2f2;
+}
+
+.voters-table tbody tr.vote-against:hover {
+    background: #fee2e2;
+}
+
+.voters-table tbody tr.vote-abstain {
+    background: #fefce8;
+}
+
+.voters-table tbody tr.vote-abstain:hover {
+    background: #fef9c3;
+}
+
+.vote-badge {
+    display: inline-block;
+    padding: 2px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.vote-badge.for {
+    background: #22c55e;
+    color: white;
+}
+
+.vote-badge.against {
+    background: #ef4444;
+    color: white;
+}
+
+.vote-badge.abstain {
+    background: #eab308;
+    color: white;
+}
+
+.vote-badge.none {
+    background: #e2e8f0;
+    color: #64748b;
+}
+
+.voters-list-empty,
+.voters-list-anonymous {
+    padding: 2rem;
+    text-align: center;
+    color: #64748b;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px dashed #cbd5e1;
+}
+
+.voters-list-anonymous p {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    .voters-table {
+        font-size: 0.85rem;
+    }
+
+    .voters-table th,
+    .voters-table td {
+        padding: 8px 12px;
+    }
+}
+
+.vote-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.vote-badge.for {
+    background: #22c55e;
+    color: white;
+}
+
+.vote-badge.against {
+    background: #ef4444;
+    color: white;
+}
+
+.vote-badge.abstain {
+    background: #eab308;
+    color: white;
+}
+
+.vote-badge.none {
+    background: #e2e8f0;
+    color: #64748b;
+}
+
+.vote-for td:last-child {
+    background: #f0fdf4;
+}
+
+.vote-against td:last-child {
+    background: #fef2f2;
+}
+
+.vote-abstain td:last-child {
+    background: #fefce8;
 }

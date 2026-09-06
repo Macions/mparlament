@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import BackButton from "../../../components/PageBack";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import "./VotingDetailsPage.css";
+import { Eye, Lock, Check, X, Minus } from "lucide-react";
 
 function formatVote(v) {
 	switch (v) {
@@ -109,6 +110,9 @@ export default function VotingDetailsPage() {
 				}
 
 				setVote(data);
+				console.log("📊 vote.votedUsers:", data.votedUsers);
+				console.log("📊 vote.eligibleUsers:", data.eligibleUsers);
+				console.log("📊 vote.isAnonymous:", data.isAnonymous);
 
 				if (data.recipientsType === "groups" && data.selectedGroups) {
 					try {
@@ -226,6 +230,69 @@ export default function VotingDetailsPage() {
 		amendment: "Poprawka",
 		motion: "Wniosek",
 	};
+
+	// Dodaj tę funkcję przed return
+	const renderVotersList = () => {
+		if (!vote.isAnonymous && (statusClass === "finished" || statusClass === "archived")) {
+			const voters = vote.votedUsers || [];
+
+			if (voters.length === 0) {
+				return (
+					<div className="voters-list-empty">
+						<p>Brak danych o głosujących</p>
+					</div>
+				);
+			}
+
+			return (
+				<div className="voters-list-section">
+					<h3>Lista głosujących</h3>
+					<div className="voters-table-wrapper">
+						<table className="voters-table">
+							<thead>
+								<tr>
+									<th>Lp.</th>
+									<th>Imię i nazwisko</th>
+									<th>Klub</th>
+									<th>Głos</th>
+								</tr>
+							</thead>
+							<tbody>
+								{voters.map((voter, index) => {
+									const voteValue = voter.vote || 'abstain';
+									return (
+										<tr key={voter.id || index} className={`vote-${voteValue}`}>
+											<td>{index + 1}</td>
+											<td>{voter.name || `Użytkownik ${voter.id}`}</td>
+											<td>{voter.club || '—'}</td>
+											<td>
+												<span className={`vote-badge ${voteValue}`}>
+													{voteValue === 'for' && <Check size={14} style={{ display: 'inline', marginRight: '4px' }} />}
+													{voteValue === 'against' && <X size={14} style={{ display: 'inline', marginRight: '4px' }} />}
+													{voteValue === 'abstain' && <Minus size={14} style={{ display: 'inline', marginRight: '4px' }} />}
+													{formatVote(voter.vote)}
+												</span>
+											</td>
+										</tr>
+									);
+								})}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			);
+		}
+
+		if (vote.isAnonymous) {
+			return (
+				<div className="voters-list-anonymous">
+					<p><Lock size={18} style={{ display: 'inline', marginRight: '8px' }} /> Głosowanie jest niejawne - lista głosujących nie jest dostępna</p>
+				</div>
+			);
+		}
+
+		return null;
+	};
 	return (
 		<div className="voting-details-page">
 			<div className="voting-details-header">
@@ -332,7 +399,9 @@ export default function VotingDetailsPage() {
 						<div className="results-bars">
 							<div className="result-bar-item for">
 								<div className="result-bar-label">
-									<span>ZA</span>
+									<span>
+										<Check size={16} style={{ display: 'inline', marginRight: '4px' }} /> ZA
+									</span>
 									<span className="result-bar-count">{vote.votesFor}</span>
 								</div>
 								<div className="result-bar-track">
@@ -346,7 +415,9 @@ export default function VotingDetailsPage() {
 
 							<div className="result-bar-item against">
 								<div className="result-bar-label">
-									<span>PRZECIW</span>
+									<span>
+										<X size={16} style={{ display: 'inline', marginRight: '4px' }} /> PRZECIW
+									</span>
 									<span className="result-bar-count">{vote.votesAgainst}</span>
 								</div>
 								<div className="result-bar-track">
@@ -362,7 +433,9 @@ export default function VotingDetailsPage() {
 
 							<div className="result-bar-item abstain">
 								<div className="result-bar-label">
-									<span>WSTRZYMANIE</span>
+									<span>
+										<Minus size={16} style={{ display: 'inline', marginRight: '4px' }} /> WSTRZYMANIE
+									</span>
 									<span className="result-bar-count">{vote.abstained}</span>
 								</div>
 								<div className="result-bar-track">
@@ -398,7 +471,11 @@ export default function VotingDetailsPage() {
 								</span>
 							</div>
 						</div>
+						<div className="voting-details-voters">
+							{renderVotersList()}
+						</div>
 					</div>
+
 				)}
 
 				{statusClass === "upcoming" && (

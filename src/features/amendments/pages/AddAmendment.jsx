@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { X, Plus, ArrowLeft } from "lucide-react";
 import "./AddAmendment.css";
 
 export default function AddAmendment() {
@@ -17,6 +18,12 @@ export default function AddAmendment() {
 	]);
 
 	const [currentUser, setCurrentUser] = useState(null);
+
+	const [target, setTarget] = useState({
+		article: "",
+		section: "other",
+		fragment: "",
+	});
 
 	const CHANGE_TYPES = [
 		{ value: "modify", label: "Zmiana treści" },
@@ -47,7 +54,6 @@ export default function AddAmendment() {
 				setLoading(false);
 			});
 	}, [slug]);
-
 
 	const getAllArticles = () => {
 		if (!resolution) return [];
@@ -134,6 +140,11 @@ export default function AddAmendment() {
 			return;
 		}
 
+		if (!target.article) {
+			alert("Wybierz artykuł, którego dotyczy zmiana.");
+			return;
+		}
+
 		setSubmitting(true);
 
 		try {
@@ -148,6 +159,11 @@ export default function AddAmendment() {
 					return `Zmiana treści artykułu: ${c.to}`;
 				}).join("; "),
 				status: "pending",
+				target: {
+					article: target.article ? Number(target.article) : null,
+					section: target.section || "other",
+					fragment: target.fragment || validChanges[0]?.from || null,
+				},
 				changes: validChanges.map((c) => ({
 					articleId: c.type === "add" ? `new_${Date.now()}` : c.articleId,
 					type: c.type,
@@ -181,19 +197,7 @@ export default function AddAmendment() {
 		<div className="add-amendment">
 			<div className="uchwaly-bar">
 				<Link to={`/${slug}/poprawki`} className="uchwaly-title">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="50"
-						height="50"
-						fill="currentColor"
-						className="bi bi-arrow-left"
-						viewBox="0 0 16 16"
-					>
-						<path
-							fillRule="evenodd"
-							d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"
-						/>
-					</svg>
+					<ArrowLeft size={24} />
 					WRÓĆ
 				</Link>
 				<div className="session-info">
@@ -216,6 +220,54 @@ export default function AddAmendment() {
 				{error && <div className="error-message">{error}</div>}
 
 				<form onSubmit={handleSubmit}>
+					<div className="form-section">
+						<h3>Cel zmiany</h3>
+						<p className="field-hint">Określ czego dotyczy Twoja poprawka - pomoże to w wykrywaniu konfliktów</p>
+
+						<div className="form-group">
+							<label>Artykuł/paragraf</label>
+							<select
+								value={target.article}
+								onChange={(e) => setTarget({ ...target, article: e.target.value })}
+								className="form-select"
+								required
+							>
+								<option value="">-- wybierz artykuł --</option>
+								{allArticles.map((art, idx) => (
+									<option key={art.id || idx} value={art.id}>
+										{art.number || `Art. ${idx + 1}`}: {art.content?.substring(0, 40)}...
+									</option>
+								))}
+							</select>
+						</div>
+
+						<div className="form-group">
+							<label>Obszar zmiany</label>
+							<select
+								value={target.section}
+								onChange={(e) => setTarget({ ...target, section: e.target.value })}
+								className="form-select"
+							>
+								<option value="other">Inne</option>
+								<option value="budget">Budżet / Finanse</option>
+								<option value="deadline">Termin / Data</option>
+								<option value="people">Ludzie / Członkowie</option>
+								<option value="procedure">Procedura</option>
+							</select>
+						</div>
+
+						<div className="form-group">
+							<label>Fragment który zmieniasz (opcjonalnie)</label>
+							<textarea
+								value={target.fragment}
+								onChange={(e) => setTarget({ ...target, fragment: e.target.value })}
+								placeholder="Wklej dokładny fragment tekstu który zmieniasz (pomoże to w wykryciu konfliktów)..."
+								className="form-textarea"
+								rows={2}
+							/>
+						</div>
+					</div>
+
 					<div className="changes-section">
 						<div className="changes-header">
 							<h2>Zmiany w artykułach</h2>
@@ -224,7 +276,7 @@ export default function AddAmendment() {
 								onClick={addNewChange}
 								className="add-change-btn"
 							>
-								+ Dodaj kolejną zmianę
+								<Plus size={16} /> Dodaj kolejną zmianę
 							</button>
 						</div>
 
@@ -238,7 +290,7 @@ export default function AddAmendment() {
 											onClick={() => removeChange(change.id)}
 											className="remove-change-btn"
 										>
-											✕
+											<X size={16} />
 										</button>
 									)}
 								</div>
@@ -304,7 +356,7 @@ export default function AddAmendment() {
 
 								{change.type === "delete" && change.articleId && (
 									<div className="delete-info">
-										️ Ten artykuł zostanie <strong>usunięty</strong> z uchwały.
+										Ten artykuł zostanie <strong>usunięty</strong> z uchwały.
 									</div>
 								)}
 							</div>

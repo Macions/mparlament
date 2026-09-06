@@ -3,6 +3,7 @@ import "./SessionDetails.css";
 import BackButton from "../../../components/PageBack";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../../../socket/SocketProvider";
+import { Check, RotateCcw, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 
 const getCurrentTime = () => {
 	const now = new Date();
@@ -30,6 +31,9 @@ export default function SessionDetails() {
 	const [displayPoint, setDisplayPoint] = useState(null);
 	const [schedule, setSchedule] = useState([]);
 	const [title, setTitle] = useState("");
+	// Zmień nazwy dla czytelności:
+	const [plannedSpeakers, setPlannedSpeakers] = useState([]); // zamiast speakerHistory
+	const [currentSpeakerIndex, setCurrentSpeakerIndex] = useState(-1);
 	const [date, setDate] = useState("");
 	const [speakers, setSpeakers] = useState([]);
 	const [loading, setLoading] = useState(true);
@@ -147,7 +151,75 @@ export default function SessionDetails() {
 		setPointChanging(true);
 		setTimeout(() => setPointChanging(false), 400);
 	};
+	const goToPreviousSpeaker = () => {
+		if (currentSpeakerIndex <= 0) return;
+		const prevIndex = currentSpeakerIndex - 1;
+		const prevSpeaker = plannedSpeakers[prevIndex];
+		if (prevSpeaker) {
+			setPlannedSpeakers(prev => {
+				const updated = prev.map((s, i) => {
+					if (i === currentSpeakerIndex && s.status === "active") {
+						return { ...s, status: "waiting" };
+					}
+					if (i === prevIndex) {
+						return { ...s, status: "active" };
+					}
+					return s;
+				});
 
+				// DODAJ TO:
+				if (socket && isConnected) {
+					socket.emit("speakersUpdated", updated);
+				}
+
+				return updated;
+			});
+
+			setDisplaySpeaker(prevSpeaker);
+			setCurrentSpeakerIndex(prevIndex);
+			setSpeakerChanging(true);
+			setTimeout(() => setSpeakerChanging(false), 400);
+			if (socket && isConnected) {
+				socket.emit("speakerUpdated", prevSpeaker);
+			}
+		}
+	};
+	const goToNextSpeaker = () => {
+		if (currentSpeakerIndex >= plannedSpeakers.length - 1) {
+			console.log("Brak kolejnego mówcy");
+			return;
+		}
+		const nextIndex = currentSpeakerIndex + 1;
+		const nextSpeaker = plannedSpeakers[nextIndex];
+		if (nextSpeaker) {
+			setPlannedSpeakers(prev => {
+				const updated = prev.map((s, i) => {
+					if (i === currentSpeakerIndex && s.status === "active") {
+						return { ...s, status: "done" };
+					}
+					if (i === nextIndex) {
+						return { ...s, status: "active" };
+					}
+					return s;
+				});
+
+				// DODAJ TO:
+				if (socket && isConnected) {
+					socket.emit("speakersUpdated", updated);
+				}
+
+				return updated;
+			});
+
+			setDisplaySpeaker(nextSpeaker);
+			setCurrentSpeakerIndex(nextIndex);
+			setSpeakerChanging(true);
+			setTimeout(() => setSpeakerChanging(false), 400);
+			if (socket && isConnected) {
+				socket.emit("speakerUpdated", nextSpeaker);
+			}
+		}
+	};
 	const allSpeakers = useMemo(() => {
 		const speakersMap = speakers.reduce(
 			(acc, s) => ({
@@ -158,7 +230,97 @@ export default function SessionDetails() {
 		);
 		return { ...speakersMap, ...customSpeakers };
 	}, [speakers, customSpeakers]);
+	useEffect(() => {
+		if (speakers.length > 0 && plannedSpeakers.length === 0) {
+			const history = speakers.map((s, index) => ({
+				name: s.name,
+				club: s.club || "",
+				role: s.role || "Parlamentarzysta",
+				time: getCurrentTime(),
+				status: index === 0 ? "active" : "waiting" // pierwszy od razu aktywny
+			}));
+			console.log("📊 ustawiam planowanych mówców z", history.length, "mówcami");
+			setPlannedSpeakers(history);
+			setCurrentSpeakerIndex(0);
+			setDisplaySpeaker(history[0]);
+		}
+	}, [speakers]);
+	// Oznacz mówcę jako zrealizowanego
+	const markSpeakerDone = (index) => {
+		const updated = [...plannedSpeakers];
+		updated[index].status = "done";
+		setPlannedSpeakers(updated);
 
+		// Wyślij przez socket
+		if (socket && isConnected) {
+			socket.emit("speakersUpdated", updated);
+		}
+	};
+
+	// Oznacz mówcę jako aktywny
+	const markSpeakerActive = (index) => {
+		const updated = plannedSpeakers.map((s, i) => {
+			if (i === index) return { ...s, status: "active" };
+			if (s.status === "active") return { ...s, status: "done" };
+			return s;
+		});
+		setPlannedSpeakers(updated);
+		setCurrentSpeakerIndex(index);
+		setDisplaySpeaker(plannedSpeakers[index]);
+		if (socket && isConnected) {
+			socket.emit("speakersUpdated", updated);
+		}
+	};
+
+	// Usuń mówcę
+	const removeSpeaker = (index) => {
+		if (window.confirm(`Czy na pewno usunąć mówcę ${plannedSpeakers[index].name}?`)) {
+			const updated = plannedSpeakers.filter((_, i) => i !== index);
+			setPlannedSpeakers(updated);
+			if (currentSpeakerIndex >= updated.length) {
+				setCurrentSpeakerIndex(updated.length - 1);
+			}
+
+			// Wyślij przez socket
+			if (socket && isConnected) {
+				socket.emit("speakersUpdated", updated);
+			}
+		}
+	};
+
+	// Edytuj mówcę
+	const editSpeaker = (index, field, value) => {
+		// Aktualizuj plannedSpeakers
+		const updated = [...plannedSpeakers];
+		updated[index][field] = value;
+		setPlannedSpeakers(updated);
+
+		// Znajdź i zaktualizuj tego samego mówcę w speakers
+		const speakerName = updated[index].name;
+		const speakerIndex = speakers.findIndex(s => s.name === speakerName);
+
+		if (speakerIndex !== -1) {
+			const updatedSpeakers = [...speakers];
+			updatedSpeakers[speakerIndex] = {
+				...updatedSpeakers[speakerIndex],
+				[field]: value
+			};
+			setSpeakers(updatedSpeakers);
+
+			// Wyślij aktualizację na serwer
+			fetch("/api/speakers", {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify(updatedSpeakers[speakerIndex]),
+			}).catch(err => console.error("Błąd aktualizacji mówcy:", err));
+			if (socket && isConnected) {
+				socket.emit("speakersUpdated", updated);
+			}
+		}
+	};
 	useEffect(() => {
 		async function fetchUser() {
 			try {
@@ -191,8 +353,14 @@ export default function SessionDetails() {
 			if (session.zoContent) {
 				setZoContent(session.zoContent);
 			}
+			// USUŃ ten fragment - on nadpisuje historię:
+			// if (session.currentSpeaker && speakerHistory.length === 0) {
+			// 	setSpeakerHistory([session.currentSpeaker]);
+			// 	setCurrentSpeakerIndex(0);
+			// 	setDisplaySpeaker(session.currentSpeaker);
+			// }
 		}
-	}, [session]);
+	}, [session]); // <- usuń speakerHistory.length z zależności
 
 	useEffect(() => {
 		if (sessionMode !== "normal" || !displayPoint) return;
@@ -295,13 +463,41 @@ export default function SessionDetails() {
 			club: data.club || "",
 			role: data.role || "Parlamentarzysta",
 			time: getCurrentTime(),
+			status: "active"
 		};
+
+		setPlannedSpeakers(prev => {
+			const updated = prev.map(s => {
+				if (s.status === "active") {
+					return { ...s, status: "done" };
+				}
+				return s;
+			});
+			const result = [...updated, newSpeaker];
+
+			// DODAJ TO:
+			if (socket && isConnected) {
+				socket.emit("speakersUpdated", result);
+			}
+
+			return result;
+		});
+
+		setCurrentSpeakerIndex(prev => {
+			const newIndex = plannedSpeakers.length;
+			return newIndex;
+		});
+
 		setDisplaySpeaker(newSpeaker);
 		setSpeakerChanging(true);
 		setTimeout(() => setSpeakerChanging(false), 400);
+		setSessionMode("normal");
 		setDraftSpeakerName("");
 		setShowSuggestions(false);
-		setSessionMode("normal");
+
+		if (socket && isConnected) {
+			socket.emit("speakerUpdated", newSpeaker);
+		}
 	};
 
 	const addCustomSpeaker = async (e) => {
@@ -324,6 +520,12 @@ export default function SessionDetails() {
 		setNewSpeakerName("");
 		setNewSpeakerClub("");
 		setNewSpeakerRole("Parlamentarzysta");
+
+		// DODAJ TO - pobierz zaktualizowaną listę z speakers:
+		const updatedSpeakers = [...speakers, speakerData];
+		if (socket && isConnected) {
+			socket.emit("speakersUpdated", updatedSpeakers);
+		}
 	};
 
 	const startBreak = () => {
@@ -450,8 +652,6 @@ export default function SessionDetails() {
 		setSpeakerChanging(true);
 		setTimeout(() => setSpeakerChanging(false), 400);
 		setSessionMode("zo");
-		setDraftSpeakerName("");
-		setShowSuggestions(false);
 	};
 
 	const cancelZO = () => {
@@ -568,24 +768,30 @@ export default function SessionDetails() {
 	useEffect(() => {
 		if (!socket) return;
 
-		// Aktualizacja harmonogramu
 		const handleScheduleUpdate = (newSchedule) => {
 			console.log("📨 Odebrano nowy harmonogram");
 			setSchedule(newSchedule);
 		};
 
-		// Aktualizacja mówcy
 		const handleSpeakerUpdate = (newSpeaker) => {
 			console.log("📨 Odebrano nowego mówcę");
 			setDisplaySpeaker(newSpeaker);
 		};
 
+		// NOWE: nasłuch na aktualizację całej listy mówców
+		const handleSpeakersUpdate = (newSpeakers) => {
+			console.log("📨 Odebrano zaktualizowaną listę mówców");
+			setPlannedSpeakers(newSpeakers);
+		};
+
 		socket.on("scheduleUpdated", handleScheduleUpdate);
 		socket.on("speakerUpdated", handleSpeakerUpdate);
+		socket.on("speakersUpdated", handleSpeakersUpdate); // NOWE
 
 		return () => {
 			socket.off("scheduleUpdated", handleScheduleUpdate);
 			socket.off("speakerUpdated", handleSpeakerUpdate);
+			socket.off("speakersUpdated", handleSpeakersUpdate); // NOWE
 		};
 	}, [socket]);
 	const speakerNames = Object.keys(allSpeakers);
@@ -626,7 +832,92 @@ export default function SessionDetails() {
 					</div>
 				)}
 			</header>
-
+			{plannedSpeakers.length > 0 && (
+				<section className="speaker-history-section">
+					<div className="speaker-history-header">
+						<h3>Planowani mówcy</h3>
+						<span className="speaker-count">
+							{plannedSpeakers.filter(s => s.status !== "done").length} / {plannedSpeakers.length} pozostało
+						</span>
+					</div>
+					<div className="speaker-history-list">
+						{plannedSpeakers.map((speaker, index) => (
+							<div
+								key={index}
+								className={`speaker-history-item ${speaker.status === "active" ? 'active' : ''} ${speaker.status === "done" ? 'done' : ''}`}
+							>
+								<div className="speaker-history-avatar">
+									{speaker.name.charAt(0)}
+								</div>
+								<div className="speaker-history-info">
+									{adminMode ? (
+										<>
+											<input
+												type="text"
+												value={speaker.name}
+												onChange={(e) => editSpeaker(index, "name", e.target.value)}
+												className={`admin-input speaker-edit-input ${speaker.status === "done" ? "crossed" : ""}`}
+											/>
+											<input
+												type="text"
+												value={speaker.role || ""}
+												onChange={(e) => editSpeaker(index, "role", e.target.value)}
+												className="admin-input speaker-edit-input speaker-role-input"
+											/>
+										</>
+									) : (
+										<>
+											<div className={`speaker-history-name ${speaker.status === "done" ? "crossed" : ""}`}>
+												{speaker.name}
+											</div>
+											<div className="speaker-history-role">{speaker.role}</div>
+										</>
+									)}
+								</div>
+								{speaker.status === "done" && (
+									<span className="speaker-history-status done">✓</span>
+								)}
+								{speaker.status === "active" && (
+									<span className="speaker-history-status active">●</span>
+								)}
+								{speaker.status === "waiting" && (
+									<span className="speaker-history-status waiting">○</span>
+								)}
+								<div className="speaker-history-time">{speaker.time}</div>
+								{adminMode && (
+									<div className="speaker-actions">
+										{speaker.status !== "done" && (
+											<button
+												onClick={() => markSpeakerDone(index)}
+												className="speaker-action-btn done-btn"
+												title="Oznacz jako zrealizowane"
+											>
+												<Check size={14} />
+											</button>
+										)}
+										{speaker.status === "done" && (
+											<button
+												onClick={() => markSpeakerActive(index)}
+												className="speaker-action-btn active-btn"
+												title="Przywróć"
+											>
+												<RotateCcw size={14} />
+											</button>
+										)}
+										<button
+											onClick={() => removeSpeaker(index)}
+											className="speaker-action-btn delete-btn"
+											title="Usuń mówcę"
+										>
+											<Trash2 size={14} />
+										</button>
+									</div>
+								)}
+							</div>
+						))}
+					</div>
+				</section>
+			)}
 			<section className="session-live">
 				{showSpeaker && (
 					<div className="live-card">
@@ -720,11 +1011,19 @@ export default function SessionDetails() {
 										</button>
 									</form>
 									<div className="speakerBts">
-										<button type="submit" className="previous-speaker">
-											Poprzedni mówca
+										<button
+											className="previous-speaker"
+											onClick={goToPreviousSpeaker}
+											disabled={currentSpeakerIndex <= 0}
+										>
+											<ChevronLeft size={18} /> Poprzedni mówca
 										</button>
-										<button type="submit" className="next-speaker">
-											Następny mówca
+										<button
+											className="next-speaker"
+											onClick={goToNextSpeaker}
+											disabled={currentSpeakerIndex >= plannedSpeakers.length - 1}
+										>
+											Następny mówca <ChevronRight size={18} />
 										</button>
 									</div>
 								</div>

@@ -191,7 +191,120 @@ const createVoting = (body) => {
 		createdBy: user?.username || "unknown",
 	};
 };
+// NOWE 
 
+const extractTarget = (amendment) => {
+	return {
+		article: amendment.target?.article || null,
+		section: amendment.target?.section || 'other',
+		fragment: amendment.target?.fragment || amendment.changes?.[0]?.before || null,
+	};
+};
+
+const compareAmendments = (amendment1, amendment2) => {
+	// Czy dotyczą tego samego dokumentu?
+	if (amendment1.resolutionId !== amendment2.resolutionId) {
+		return { conflict: false, potential: false, reason: null, fragment: null };
+	}
+
+	const target1 = extractTarget(amendment1);
+	const target2 = extractTarget(amendment2);
+
+	// Czy dotyczą tego samego fragmentu?
+	const sameFragment = target1.fragment && target2.fragment &&
+		target1.fragment === target2.fragment;
+	const sameArticle = target1.article && target2.article &&
+		target1.article === target2.article;
+	const sameSection = target1.section === target2.section && target1.section !== 'other';
+
+	// KONFLIKT PEWNY - ten sam fragment, różne zmiany
+	if (sameFragment) {
+		const before1 = amendment1.changes?.[0]?.before || '';
+		const before2 = amendment2.changes?.[0]?.before || '';
+		const after1 = amendment1.changes?.[0]?.after || '';
+		const after2 = amendment2.changes?.[0]?.after || '';
+
+		if (before1 === before2 && after1 !== after2) {
+			return {
+				conflict: true,
+				potential: false,
+				reason: `Zmiana tego samego fragmentu artykułu ${target1.article}`,
+				fragment: target1.fragment
+			};
+		}
+	}
+
+	// KONFLIKT PEWNY - ten sam artykuł, ten sam obszar
+	if (sameArticle && sameSection) {
+		return {
+			conflict: true,
+			potential: false,
+			reason: `Zmiana tego samego artykułu ${target1.article} w obszarze ${target1.section}`,
+			fragment: `Artykuł ${target1.article}`
+		};
+	}
+
+	// POTENCJALNY KONFLIKT - ten sam obszar, inne artykuły
+	if (sameSection && !sameArticle) {
+		return {
+			conflict: false,
+			potential: true,
+			reason: `Poprawki dotyczą tego samego obszaru: ${target1.section}`,
+			fragment: `Obszar: ${target1.section}`
+		};
+	}
+
+	// POTENCJALNY KONFLIKT - ten sam artykuł, inne obszary
+	if (sameArticle && !sameSection) {
+		return {
+			conflict: false,
+			potential: true,
+			reason: `Poprawki dotyczą tego samego artykułu ${target1.article}`,
+			fragment: `Artykuł ${target1.article}`
+		};
+	}
+
+	return { conflict: false, potential: false, reason: null, fragment: null };
+};
+
+// Wykrywanie konfliktów dla wszystkich poprawek
+const detectAllConflicts = (amendmentsList) => {
+	const result = amendmentsList.map(amendment => ({
+		...amendment,
+		conflictsWith: [],
+		potentialConflicts: [],
+		conflictReason: null,
+		conflictFragment: null
+	}));
+
+	for (let i = 0; i < result.length; i++) {
+		for (let j = i + 1; j < result.length; j++) {
+			const comparison = compareAmendments(result[i], result[j]);
+
+			if (comparison.conflict) {
+				if (!result[i].conflictsWith.includes(result[j].id)) {
+					result[i].conflictsWith.push(result[j].id);
+					result[i].conflictReason = comparison.reason;
+					result[i].conflictFragment = comparison.fragment;
+				}
+				if (!result[j].conflictsWith.includes(result[i].id)) {
+					result[j].conflictsWith.push(result[i].id);
+					result[j].conflictReason = comparison.reason;
+					result[j].conflictFragment = comparison.fragment;
+				}
+			} else if (comparison.potential) {
+				if (!result[i].potentialConflicts.includes(result[j].id)) {
+					result[i].potentialConflicts.push(result[j].id);
+				}
+				if (!result[j].potentialConflicts.includes(result[i].id)) {
+					result[j].potentialConflicts.push(result[i].id);
+				}
+			}
+		}
+	}
+
+	return result;
+};
 export const handlers = [
 	http.post("/api/auth/login", async ({ request }) => {
 		const body = await request.json();
@@ -488,11 +601,6 @@ export const handlers = [
 		return HttpResponse.json({ success: true });
 	}),
 
-	http.post("/api/votings/:id/vote", async ({ request }) => {
-		const body = await request.json();
-		return HttpResponse.json({ success: true, vote: body.vote });
-	}),
-
 	http.get("/api/resolutions", () => HttpResponse.json({ resolutions })),
 
 	http.get("/api/sessions", () => HttpResponse.json(sessions)),
@@ -750,33 +858,10 @@ export const handlers = [
 
 	http.get("/api/members", () => HttpResponse.json(members)),
 
-	http.get("/api/amendments", () => HttpResponse.json(amendments)),
 
 	http.get("/api/users", () => HttpResponse.json(users)),
 
-	http.get("/api/amendments/:id", ({ params }) => {
-		const amendmentId = Number(params.id);
-		const amendment = amendments.find((a) => a.id === amendmentId);
-		if (!amendment) {
-			return HttpResponse.json(
-				{ message: "Nie znaleziono poprawki" },
-				{ status: 404 },
-			);
-		}
-		const resolution = resolutions.find((r) => r.id === amendment.resolutionId);
-		return HttpResponse.json({
-			data: {
-				...amendment,
-				resolution: resolution
-					? {
-						id: resolution.id,
-						title: resolution.title,
-						slug: resolution.slug,
-					}
-					: null,
-			},
-		});
-	}),
+
 
 	http.put("/api/votings/:id", async ({ params, request }) => {
 		const votingId = Number(params.id);
@@ -895,6 +980,52 @@ export const handlers = [
 		console.log(`\n📊 Zwracam ${votingsWithResults.length} głosowań z wynikami`);
 		return HttpResponse.json(votingsWithResults);
 	}),
+
+	// NOWE !!!
+
+	http.put("/api/speakers/:id", async ({ params, request }) => {
+		const id = Number(params.id);
+		const body = await request.json();
+
+		// Znajdź mówcę po ID
+		const index = speakers.findIndex(s => s.id === id);
+		if (index === -1) {
+			return HttpResponse.json(
+				{ message: "Nie znaleziono mówcy" },
+				{ status: 404 }
+			);
+		}
+
+		// Zaktualizuj mówcę
+		speakers[index] = { ...speakers[index], ...body };
+
+		return HttpResponse.json(speakers[index], { status: 200 });
+	}),
+
+	// Aktualizacja statusu mówcy (done/active/waiting)
+	http.patch("/api/speakers/:id/status", async ({ params, request }) => {
+		const id = Number(params.id);
+		const { status } = await request.json();
+
+		const speaker = speakers.find(s => s.id === id);
+		if (!speaker) {
+			return HttpResponse.json({ message: "Nie znaleziono" }, { status: 404 });
+		}
+
+		speaker.status = status;
+		return HttpResponse.json(speaker);
+	}),
+
+	// Usuwanie mówcy
+	http.delete("/api/speakers/:id", ({ params }) => {
+		const id = Number(params.id);
+		const index = speakers.findIndex(s => s.id === id);
+		if (index === -1) {
+			return HttpResponse.json({ message: "Nie znaleziono" }, { status: 404 });
+		}
+		speakers.splice(index, 1);
+		return HttpResponse.json({ success: true });
+	}),
 	http.get("/api/votings/:id", ({ params }) => {
 		const voting = votings.find((v) => v.id === Number(params.id));
 		if (!voting) {
@@ -910,7 +1041,7 @@ export const handlers = [
 		// OBLICZ ILE ZA, PRZECIW, WSTRZYMUJĄCYCH
 		const votesFor = votingVotes.filter((v) => v.vote === "for").length;
 		const votesAgainst = votingVotes.filter((v) => v.vote === "against").length;
-		const abstained = votingVotes.filter((v) => v.vote === "abstained").length;
+		const abstained = votingVotes.filter((v) => v.vote === "abstain").length;
 
 		const votedUserIds = votingVotes.map((v) => v.userId);
 
@@ -927,7 +1058,7 @@ export const handlers = [
 			eligibleIds = voting.selectedMembers || [];
 		} else if (voting.recipientsType === "groups") {
 			eligibleIds = allParliamentarians
-				.filter((p) => voting.selectedGroups?.includes(p.groupId))
+				.filter((p) => voting.selectedGroups?.includes(p.clubId))
 				.map((p) => p.id);
 		}
 
@@ -941,7 +1072,17 @@ export const handlers = [
 			};
 		});
 
-		const votedUsers = eligibleUsers.filter((u) => votedUserIds.includes(u.id));
+		// DODAJ pole 'vote' do votedUsers
+		const votedUsers = eligibleUsers
+			.filter((u) => votedUserIds.includes(u.id))
+			.map((u) => {
+				const vote = votingVotes.find((v) => v.userId === u.id);
+				return {
+					...u,
+					vote: vote?.vote || null,
+				};
+			});
+
 		const notVotedUsers = eligibleUsers.filter(
 			(u) => !votedUserIds.includes(u.id),
 		);
@@ -964,5 +1105,49 @@ export const handlers = [
 			hasVoted: hasVoted,
 			myVote: myVote,
 		});
+	}),
+	http.get("/api/amendments", () => {
+		const amendmentsWithConflicts = detectAllConflicts(amendments);
+		return HttpResponse.json(amendmentsWithConflicts);
+	}),
+	http.get("/api/amendments/:id", ({ params }) => {
+		const allWithConflicts = detectAllConflicts(amendments);
+		const result = allWithConflicts.find(a => a.id === Number(params.id));
+
+		if (!result) {
+			return HttpResponse.json(
+				{ message: "Nie znaleziono poprawki" },
+				{ status: 404 }
+			);
+		}
+
+		return HttpResponse.json(result);
+	}),
+	http.post("/api/votings/:id/vote", async ({ request }) => {
+		const body = await request.json();
+		const { amendmentId, vote, userVotes } = body;
+
+		if (vote === 'for') {
+			const allWithConflicts = detectAllConflicts(amendments);
+			const amendment = allWithConflicts.find(a => a.id === amendmentId);
+
+			if (amendment?.conflictsWith?.length > 0) {
+				const hasConflict = amendment.conflictsWith.some(id =>
+					userVotes?.some(v => v.amendmentId === id && v.vote === 'for')
+				);
+
+				if (hasConflict) {
+					return HttpResponse.json({
+						success: false,
+						message: 'Nie możesz głosować ZA tą poprawką, ponieważ jest sprzeczna z inną poprawką, którą poparłeś.',
+						conflictsWith: amendment.conflictsWith,
+						conflictReason: amendment.conflictReason,
+						conflictFragment: amendment.conflictFragment
+					}, { status: 409 });
+				}
+			}
+		}
+
+		return HttpResponse.json({ success: true, vote: body.vote });
 	}),
 ];

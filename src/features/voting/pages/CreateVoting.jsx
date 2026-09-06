@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CreateVoting.css";
+import { Eye, EyeOff, Lock, Unlock, X, Plus, Check, ArrowLeft, ArrowRight } from "lucide-react";
 const getStatusLabel = (status) => {
 	const statusMap = {
 		pending: 'Oczekująca',
@@ -50,6 +51,7 @@ export default function CreateVoting() {
 		attachments: [],
 		applicant: "",
 		managers: [],
+		isAnonymous: false,
 	});
 
 
@@ -308,16 +310,18 @@ export default function CreateVoting() {
 
 
 		if (step === 4) {
-
 			if (formData.linkedItemType === "resolution" && !formData.linkedItemId) {
 				newErrors.linkedItem = "Wybierz uchwałę";
 			}
 			if (formData.linkedItemType === "amendment" && !formData.linkedItemId) {
 				newErrors.linkedItem = "Wybierz poprawkę";
 			}
-
 			if (formData.linkedItemType === "amendment" && !selectedResolution) {
 				newErrors.linkedItem = "Najpierw wybierz uchwałę, a następnie poprawkę";
+			}
+			// DODAJ walidację dla typu głosowania:
+			if (formData.isAnonymous === undefined || formData.isAnonymous === null) {
+				newErrors.isAnonymous = "Wybierz typ głosowania";
 			}
 		}
 
@@ -771,7 +775,7 @@ export default function CreateVoting() {
 					</div>
 				)}
 
-				
+
 				{formData.managers && formData.managers.length > 0 && (
 					<div className="summary-section">
 						<h3>Zarządzający</h3>
@@ -786,6 +790,23 @@ export default function CreateVoting() {
 						</div>
 					</div>
 				)}
+				<div className="summary-section">
+					<h3>Ustawienia głosowania</h3>
+					<div className="summary-item">
+						<span className="summary-label">Typ głosowania:</span>
+						<span className="summary-value">
+							{formData.isAnonymous ? (
+								<span style={{ color: '#7c3aed', display: 'flex', alignItems: 'center', gap: '6px' }}>
+									<Lock size={16} /> Niejawne
+								</span>
+							) : (
+								<span style={{ color: '#2563eb', display: 'flex', alignItems: 'center', gap: '6px' }}>
+									<Eye size={16} /> Jawne
+								</span>
+							)}
+						</span>
+					</div>
+				</div>
 			</div>
 		</div>
 	);
@@ -801,14 +822,14 @@ export default function CreateVoting() {
 			<div className="step-content">
 				<h2>Ustawienia zaawansowane</h2>
 
-				
+
 				<div className="form-section">
 					<h3>Powiązanie z uchwałą/poprawką</h3>
 					<p className="form-hint">
 						Wybierz uchwałę, poprawkę lub utwórz niezależne głosowanie
 					</p>
 
-					
+
 					<div className="linked-item-selector">
 						<button
 							type="button"
@@ -844,7 +865,7 @@ export default function CreateVoting() {
 						</button>
 					</div>
 
-					
+
 					{(formData.linkedItemType === "resolution" || formData.linkedItemType === "amendment") && (
 						<div className="linked-selection">
 							<div className="form-group">
@@ -903,7 +924,7 @@ export default function CreateVoting() {
 															Poprawek: {getAmendmentsForResolution(res.id).length}
 														</span>
 													</div>
-													
+
 													{formData.linkedItemType === "amendment" && isSelected && (
 														<div style={{
 															marginTop: '6px',
@@ -923,7 +944,7 @@ export default function CreateVoting() {
 						</div>
 					)}
 
-					
+
 					{formData.linkedItemType === "amendment" && selectedResolution && (
 						<div className="linked-selection amendment-selection">
 							<div className="form-group">
@@ -1024,7 +1045,7 @@ export default function CreateVoting() {
 						</div>
 					)}
 
-					
+
 					{formData.linkedItemId && (
 						<div className="linked-preview">
 							<h4>Wybrano:</h4>
@@ -1118,7 +1139,7 @@ export default function CreateVoting() {
 						</div>
 					)}
 
-					
+
 					{errors.linkedItem && (
 						<div className="error-text" style={{ marginTop: "10px" }}>
 							{errors.linkedItem}
@@ -1126,10 +1147,37 @@ export default function CreateVoting() {
 					)}
 				</div>
 
-				
+
 				<div className="form-section">
 					<h3>Pozostałe ustawienia</h3>
-
+					<div className="form-group">
+						<label>Typ głosowania *</label>
+						<div className="voting-type-options">
+							<button
+								type="button"
+								className={`voting-type-option ${formData.isAnonymous === false ? "active" : ""}`}
+								onClick={() => setFormData({ ...formData, isAnonymous: false })}
+							>
+								<Eye size={24} className="voting-type-icon" />
+								<div className="voting-type-info">
+									<strong>Jawne</strong>
+									<small>Widoczne kto jak głosował</small>
+								</div>
+							</button>
+							<button
+								type="button"
+								className={`voting-type-option ${formData.isAnonymous === true ? "active" : ""}`}
+								onClick={() => setFormData({ ...formData, isAnonymous: true })}
+							>
+								<Lock size={24} className="voting-type-icon" />
+								<div className="voting-type-info">
+									<strong>Niejawne</strong>
+									<small>Ukryte głosy posłów</small>
+								</div>
+							</button>
+						</div>
+						{errors.isAnonymous && <span className="error-text">{errors.isAnonymous}</span>}
+					</div>
 					<div className="form-group">
 						<label>Wnioskodawca</label>
 						<select
@@ -1150,7 +1198,7 @@ export default function CreateVoting() {
 							</div>
 						)}
 					</div>
-					
+
 					<div className="form-group">
 						<label>Kto może zarządzać głosowaniem?</label>
 						<p className="field-hint" style={{ fontSize: '13px', color: '#6c757d', marginBottom: '8px' }}>
@@ -1218,7 +1266,7 @@ export default function CreateVoting() {
 										{user.group && (
 											<span style={{ fontSize: '11px', color: '#6c757d' }}>({user.group})</span>
 										)}
-										
+
 									</label>
 								))}
 						</div>
@@ -1362,7 +1410,7 @@ export default function CreateVoting() {
 				quorumRequired: 50,
 				majorityType: "simple",
 				allowAbstain: true,
-				isAnonymous: false,
+				isAnonymous: formData.isAnonymous, // ZMIEŃ to - użyj wartości z formData
 				requireComment: false,
 				canChangeVote: false,
 				showResultsDuringVoting: false,
