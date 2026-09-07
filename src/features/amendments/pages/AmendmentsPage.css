@@ -344,8 +344,6 @@
 	}
 }
 
-
-
 .amendment-modal-overlay {
 	position: fixed;
 	inset: 0;
@@ -403,7 +401,6 @@
 	line-height: 1.65;
 }
 
-
 .amendment-modal-field {
 	margin-bottom: 28px;
 }
@@ -422,7 +419,6 @@
 	font-size: 0.875rem;
 	margin-left: 6px;
 }
-
 
 .amendment-modal-textarea {
 	width: 100%;
@@ -449,7 +445,6 @@
 	color: #9ca3af;
 	cursor: not-allowed;
 }
-
 
 .amendment-modal-actions {
 	display: flex;
@@ -498,7 +493,6 @@
 	transform: none;
 }
 
-
 @keyframes amendmentFadeIn {
 	from {
 		opacity: 0;
@@ -518,7 +512,6 @@
 		transform: translateY(0) scale(1);
 	}
 }
-
 
 @media (max-width: 640px) {
 	.amendment-modal-content {
@@ -564,4 +557,268 @@
 
 .amendments-page .withdraw-btn:active {
 	transform: translateY(0);
+}
+
+@media (max-width: 900px) {
+	.amendments-page .amendments-container {
+		padding: 32px 24px;
+	}
+
+	.amendments-page .amendment-card {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 20px;
+	}
+
+	.amendments-page .nav-bar {
+		flex-direction: column;
+		align-items: stretch;
+		padding: 0 16px;
+		gap: 12px;
+	}
+
+	.amendments-page .meeting-pill {
+		text-align: center;
+		white-space: normal;
+	}
+
+	.amendments-page .back-btn {
+		justify-content: center;
+	}
+}
+
+@media (max-width: 768px) {
+	.amendments-page .amendment-title {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.5rem;
+	}
+
+	.amendments-page .withdrawn-badge {
+		font-size: 0.625rem;
+	}
+
+	.amendments-page .amendment-card.withdrawn {
+		opacity: 0.8;
+	}
+
+	.amendments-page .page-title {
+		font-size: 32px;
+	}
+
+	.amendments-page .page-title blockquote {
+		font-size: 22px;
+	}
+
+	.amendments-page .amendment-id {
+		font-size: 20px;
+	}
+
+	.amendments-page .amendment-title {
+		font-size: 22px;
+	}
+
+	.amendments-page .amendment-author {
+		font-size: 17px;
+	}
+
+	.amendments-page .status-badge {
+		padding: 10px 24px !important;
+		font-size: 16px;
+	}
+
+	.amendments-page .amendment-status .read-more {
+		padding: 10px 24px;
+		font-size: 16px;
+	}
+
+	.amendments-page .withdraw-btn {
+		padding: 10px 24px;
+		font-size: 16px;
+	}
+
+	.amendments-page .AddBtn {
+		min-height: 100px;
+		font-size: 22px;
+	}
+}
+
+@media (max-width: 640px) {
+	.amendment-modal-content {
+		padding: 32px 24px 28px;
+		width: 95%;
+		border-radius: 14px;
+	}
+
+	.amendment-modal-title {
+		font-size: 1.55rem;
+	}
+
+	.amendment-modal-actions {
+		flex-direction: column-reverse;
+		gap: 12px;
+	}
+
+	.amendment-modal-btn-cancel,
+	.amendment-modal-btn-confirm {
+		width: 100%;
+		padding: 15px;
+	}
+
+	.amendments-page .amendments-container {
+		padding: 24px 16px;
+	}
+
+	.amendments-page .amendment-card {
+		padding: 24px 20px;
+	}
+
+	.amendments-page .page-title {
+		font-size: 26px;
+	}
+
+	.amendments-page .page-title blockquote {
+		font-size: 18px;
+	}
+
+	.amendments-page .amendment-id {
+		font-size: 17px;
+	}
+
+	.amendments-page .amendment-title {
+		font-size: 18px;
+	}
+
+	.amendments-page .amendment-author {
+		font-size: 15px;
+	}
+
+	.amendments-page .status-badge {
+		padding: 8px 18px !important;
+		font-size: 14px;
+	}
+
+	.amendments-page .amendment-status .read-more {
+		padding: 8px 18px;
+		font-size: 14px;
+	}
+
+	.amendments-page .withdraw-btn {
+		padding: 8px 18px;
+		font-size: 14px;
+	}
+
+	.amendments-page .AddBtn {
+		min-height: 80px;
+		font-size: 18px;
+	}
+
+	.amendments-page .back-btn {
+		padding: 12px 20px;
+		font-size: 16px;
+	}
+
+	.amendments-page .meeting-pill {
+		font-size: 15px;
+		padding: 12px 20px;
+	}
+}
+
+@media (max-width: 480px) {
+	.amendments-page .amendments-container {
+		padding: 16px 12px;
+	}
+
+	.amendments-page .amendment-card {
+		padding: 18px 14px;
+		border-radius: 14px;
+	}
+
+	.amendments-page .page-title {
+		font-size: 22px;
+		margin: 0 0 24px 0;
+	}
+
+	.amendments-page .page-title blockquote {
+		font-size: 16px;
+	}
+
+	.amendments-page .amendment-id {
+		font-size: 15px;
+	}
+
+	.amendments-page .amendment-title {
+		font-size: 16px;
+	}
+
+	.amendments-page .amendment-author {
+		font-size: 13px;
+	}
+
+	.amendments-page .status-badge {
+		padding: 6px 14px !important;
+		font-size: 12px;
+	}
+
+	.amendments-page .amendment-status .read-more {
+		padding: 6px 14px;
+		font-size: 12px;
+	}
+
+	.amendments-page .withdraw-btn {
+		padding: 6px 14px;
+		font-size: 12px;
+	}
+
+	.amendments-page .back-btn {
+		padding: 10px 16px;
+		font-size: 14px;
+	}
+
+	.amendments-page .meeting-pill {
+		font-size: 13px;
+		padding: 10px 16px;
+	}
+
+	.amendments-page .AddBtn {
+		min-height: 60px;
+		font-size: 16px;
+	}
+
+	.amendment-modal-content {
+		padding: 24px 16px 20px;
+	}
+
+	.amendment-modal-title {
+		font-size: 1.3rem;
+		margin: 0 0 20px 0;
+	}
+
+	.amendment-modal-warning {
+		padding: 14px 16px;
+	}
+
+	.amendment-modal-warning strong {
+		font-size: 0.95rem;
+	}
+
+	.amendment-modal-warning p {
+		font-size: 0.85rem;
+	}
+
+	.amendment-modal-label {
+		font-size: 0.9rem;
+	}
+
+	.amendment-modal-textarea {
+		padding: 10px 14px;
+		font-size: 0.9rem;
+		min-height: 80px;
+	}
+
+	.amendment-modal-btn-cancel,
+	.amendment-modal-btn-confirm {
+		font-size: 0.9rem;
+		padding: 12px;
+	}
 }

@@ -392,7 +392,6 @@
 	transform: translateY(-2px);
 }
 
-
 @media (max-width: 1024px) {
 	.main-content {
 		padding: 36px 32px;
@@ -511,5 +510,229 @@
 
 	.change-card-header {
 		font-size: 15px;
+	}
+}
+
+@media (max-width: 1024px) {
+	.main-content {
+		padding: 36px 32px;
+	}
+}
+
+@media (max-width: 768px) {
+	.add-amendment {
+		padding: 10px;
+	}
+
+	.main-content {
+		padding: 24px 18px;
+		border-radius: 16px;
+	}
+
+	.uchwaly-bar {
+		flex-direction: column;
+		gap: 14px;
+		text-align: center;
+		padding: 14px 20px;
+		border-radius: 12px;
+	}
+
+	.uchwaly-title {
+		font-size: 16px;
+	}
+
+	.uchwaly-title svg {
+		width: 28px;
+		height: 28px;
+	}
+
+	.session-info {
+		text-align: center;
+		font-size: 14px;
+	}
+
+	.page-title {
+		font-size: 26px;
+	}
+
+	.page-subtitle {
+		font-size: 15px;
+	}
+
+	.author-badge {
+		font-size: 14px;
+		padding: 10px 20px;
+		flex-wrap: wrap;
+	}
+
+	.changes-header {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.changes-header h2 {
+		text-align: center;
+	}
+
+	.add-change-btn {
+		width: 100%;
+		text-align: center;
+	}
+
+	.change-card {
+		padding: 20px 16px;
+	}
+
+	.change-types {
+		flex-direction: column;
+	}
+
+	.type-btn {
+		min-width: auto;
+	}
+
+	.diff-box {
+		grid-template-columns: 1fr;
+	}
+
+	.diff-arrow {
+		justify-content: center;
+		transform: rotate(90deg);
+	}
+
+	.form-actions {
+		flex-direction: column;
+	}
+
+	.generate-btn,
+	.submit-btn,
+	.cancel-btn {
+		width: 100%;
+		text-align: center;
+		padding: 14px 20px;
+		font-size: 16px;
+	}
+
+	.preview-section {
+		padding: 18px;
+	}
+
+	.preview-title {
+		font-size: 17px;
+	}
+
+	.diff-old,
+	.diff-new {
+		padding: 12px;
+	}
+
+	.diff-old p,
+	.diff-new p {
+		font-size: 13px;
+	}
+
+	.form-group label {
+		font-size: 12px;
+	}
+
+	.delete-info {
+		font-size: 13px;
+		padding: 10px 14px;
+	}
+
+	.changes-section {
+		margin: 20px 0;
+	}
+
+	.not-found {
+		font-size: 17px;
+		padding: 60px 0;
+	}
+}
+
+@media (max-width: 480px) {
+	.main-content {
+		padding: 16px 12px;
+		border-radius: 12px;
+	}
+
+	.page-title {
+		font-size: 22px;
+	}
+
+	.page-subtitle {
+		font-size: 13px;
+	}
+
+	.form-select,
+	.form-textarea {
+		padding: 12px 14px;
+		font-size: 14px;
+		border-radius: 10px;
+	}
+
+	.change-card-header {
+		font-size: 15px;
+	}
+
+	.change-card {
+		padding: 16px 12px;
+		border-radius: 12px;
+	}
+
+	.type-btn {
+		padding: 10px 14px;
+		font-size: 13px;
+	}
+
+	.author-badge {
+		font-size: 12px;
+		padding: 8px 16px;
+		margin: 0 auto 24px;
+	}
+
+	.generate-btn,
+	.submit-btn,
+	.cancel-btn {
+		font-size: 14px;
+		padding: 12px 16px;
+	}
+
+	.preview-section {
+		padding: 14px;
+		margin: 24px 0;
+	}
+
+	.preview-title {
+		font-size: 15px;
+	}
+
+	.diff-old,
+	.diff-new {
+		padding: 10px;
+	}
+
+	.diff-old p,
+	.diff-new p {
+		font-size: 12px;
+	}
+
+	.diff-arrow {
+		font-size: 18px;
+	}
+
+	.form-group {
+		margin-bottom: 16px;
+	}
+
+	.remove-change-btn {
+		width: 28px;
+		height: 28px;
+		font-size: 14px;
+	}
+
+	.not-found {
+		font-size: 15px;
+		padding: 40px 0;
 	}
 }

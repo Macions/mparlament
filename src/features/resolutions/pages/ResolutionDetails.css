@@ -11,7 +11,6 @@
 	--bg-grey: #e9e9ef;
 	--text-light: #f4f6fb;
 
-
 	--de-color-primary: #102360;
 	--de-color-primary-hover: #1e3a8a;
 	--de-color-primary-light: #eff6ff;
@@ -22,12 +21,10 @@
 	--de-color-danger: #dc2626;
 	--de-color-danger-light: #fef2f2;
 
-
 	--color-ink-900: #0f172a;
 	--color-ink-700: #334155;
 	--color-ink-500: #64748b;
 	--color-ink-400: #94a3b8;
-
 
 	--color-border: #e2e8f0;
 	--color-border-strong: #cbd5e1;
@@ -35,19 +32,16 @@
 	--color-surface-muted: #f8fafc;
 	--color-surface-subtle: #f1f5f9;
 
-
 	--shadow-button: 0 6px 14px rgba(30, 64, 175, 0.35);
 	--shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
 	--shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
 	--shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.1);
 	--shadow-focus: 0 0 0 4px rgba(30, 64, 175, 0.12);
 
-
 	--radius-sm: 8px;
 	--radius-md: 12px;
 	--radius-lg: 22px;
 	--radius-full: 9999px;
-
 
 	--transition-fast: 0.15s ease;
 	--transition-base: 0.2s ease;
@@ -79,9 +73,7 @@
 .btn.btn-pill.btn-gray.btn-wide {
 	background-color: rgba(0, 0, 255, 0.147);
 	cursor: not-allowed;
-	
 }
-
 
 .btn.btn-pill.btn-gray.btn-wide:hover {
 	transform: translateY(0px);
@@ -278,7 +270,6 @@
 	margin: 0 0 10px 0;
 }
 
-
 @media (max-width: 900px) {
 	.resolution-grid {
 		flex-direction: column;
@@ -362,7 +353,6 @@
 	backdrop-filter: blur(4px);
 }
 
-
 .modal {
 	width: 90%;
 	max-width: 420px;
@@ -380,7 +370,6 @@
 	animation: modalShow 0.2s ease-out;
 }
 
-
 .modal h2 {
 	margin: 0 0 1rem;
 
@@ -388,7 +377,6 @@
 
 	color: #111827;
 }
-
 
 .modal p {
 	color: #6b7280;
@@ -398,7 +386,6 @@
 	margin-bottom: 2rem;
 }
 
-
 .modal-buttons {
 	display: flex;
 
@@ -406,7 +393,6 @@
 
 	justify-content: center;
 }
-
 
 .modal button {
 	border: none;
@@ -424,15 +410,11 @@
 	transition: 0.2s ease;
 }
 
-
-
-
 .modal-confirm {
 	background: #06b6d4;
 
 	color: white;
 }
-
 
 .modal-confirm:hover {
 	background: #0891b2;
@@ -440,15 +422,11 @@
 	transform: translateY(-2px);
 }
 
-
-
-
 .modal-cancel {
 	background: #e5e7eb;
 
 	color: #374151;
 }
-
 
 .modal-cancel:hover {
 	background: #d1d5db;
@@ -456,22 +434,18 @@
 	transform: translateY(-2px);
 }
 
-
 @keyframes modalShow {
-
 	from {
 		opacity: 0;
 
 		transform: scale(0.9) translateY(20px);
 	}
 
-
 	to {
 		opacity: 1;
 
 		transform: scale(1) translateY(0);
 	}
-
 }
 
 .signatures-panel::-webkit-scrollbar {
@@ -682,5 +656,249 @@
 	.signatures-panel {
 		width: 380px;
 		padding: 28px 24px;
+	}
+}
+
+@media (max-width: 640px) {
+	.signatures-panel {
+		padding: 24px 16px;
+		max-width: 100vw;
+		width: 100%;
+	}
+
+	.signatures-header h2 {
+		font-size: 18px;
+	}
+
+	.signature-item {
+		padding: 10px 12px;
+	}
+
+	.signature-avatar {
+		width: 36px;
+		height: 36px;
+		font-size: 14px;
+	}
+
+	.signature-info strong {
+		font-size: 13px;
+	}
+
+	.signature-info p {
+		font-size: 12px;
+	}
+
+	.signatures-total {
+		font-size: 13px;
+		padding: 12px 16px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 4px;
+	}
+
+	.signatures-total strong {
+		font-size: 18px;
+	}
+
+	.resolution-grid {
+		flex-direction: column;
+		gap: 32px;
+	}
+
+	.resolution-card {
+		padding: 32px 24px;
+		min-width: unset;
+		max-width: 100%;
+	}
+
+	.mparlament-subbar {
+		flex-direction: column;
+		align-items: stretch;
+		padding: 0 16px;
+	}
+
+	.meeting-pill {
+		text-align: center;
+		white-space: normal;
+	}
+
+	.resolution-title {
+		font-size: 28px;
+		margin: 0 0 24px 0;
+	}
+
+	.file-box {
+		font-size: 20px;
+		min-height: 160px;
+		padding: 0 20px;
+		text-align: center;
+	}
+
+	.signatures-count {
+		flex-direction: column;
+		gap: 12px;
+		font-size: 16px;
+		padding: 16px 20px;
+		text-align: center;
+	}
+
+	.signatures-count .check-signatures-btn {
+		font-size: 18px;
+		padding: 14px 20px;
+		width: 100%;
+	}
+
+	.btn-small {
+		font-size: 15px;
+		padding: 14px 20px;
+	}
+
+	.btn-wide {
+		font-size: 17px;
+		padding: 18px 6px;
+	}
+
+	.resolution-left {
+		min-width: 100%;
+	}
+
+	.resolution-right {
+		min-width: 100%;
+	}
+
+	.back-btn {
+		padding: 12px 20px;
+		font-size: 16px;
+		justify-content: center;
+	}
+
+	.signatures-row {
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.modal {
+		padding: 1.5rem;
+		max-width: 95%;
+	}
+
+	.modal h2 {
+		font-size: 1.2rem;
+	}
+
+	.modal p {
+		font-size: 0.9rem;
+	}
+
+	.modal-buttons {
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.modal button {
+		width: 100%;
+		padding: 0.7rem 1.2rem;
+		font-size: 0.9rem;
+	}
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+	.signatures-panel {
+		width: 380px;
+		padding: 28px 24px;
+	}
+
+	.resolution-grid {
+		flex-direction: column;
+		gap: 32px;
+	}
+
+	.resolution-card {
+		padding: 36px 32px;
+		min-width: unset;
+		max-width: 100%;
+	}
+
+	.resolution-left {
+		min-width: 100%;
+	}
+
+	.resolution-right {
+		min-width: 100%;
+	}
+
+	.resolution-title {
+		font-size: 32px;
+	}
+
+	.file-box {
+		font-size: 24px;
+		min-height: 180px;
+	}
+
+	.signatures-count {
+		font-size: 18px;
+	}
+
+	.mparlament-subbar {
+		padding: 0 24px;
+	}
+}
+
+@media (max-width: 480px) {
+	.resolution-card {
+		padding: 20px 16px;
+	}
+
+	.resolution-title {
+		font-size: 22px;
+	}
+
+	.file-box {
+		font-size: 16px;
+		min-height: 120px;
+		padding: 0 16px;
+	}
+
+	.signatures-count {
+		font-size: 14px;
+		padding: 12px 16px;
+	}
+
+	.signatures-count .check-signatures-btn {
+		font-size: 15px;
+		padding: 10px 16px;
+	}
+
+	.btn-small {
+		font-size: 13px;
+		padding: 10px 16px;
+	}
+
+	.btn-wide {
+		font-size: 15px;
+		padding: 14px 6px;
+	}
+
+	.back-btn {
+		padding: 10px 16px;
+		font-size: 14px;
+	}
+
+	.meeting-pill {
+		font-size: 14px;
+		padding: 10px 20px;
+	}
+
+	.modal {
+		padding: 1.2rem;
+	}
+
+	.modal h2 {
+		font-size: 1rem;
+	}
+
+	.modal p {
+		font-size: 0.8rem;
 	}
 }
