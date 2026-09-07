@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import "./ResolutionDetails.css";
 import { createPortal } from "react-dom";
+import { Trash2 } from "lucide-react";
 
 export default function ResolutionDetails() {
 	const { slug } = useParams();
+	const navigate = useNavigate();
 
 	const [resolution, setResolution] = useState(null);
 	const [signedUsers, setSignedUsers] = useState([]);
@@ -15,6 +17,8 @@ export default function ResolutionDetails() {
 	const [showSignatures, setShowSignatures] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [errorMessage, setErrorMessage] = useState(null);
+	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
 	useEffect(() => {
 		window.scrollTo({
 			top: 0,
@@ -23,27 +27,31 @@ export default function ResolutionDetails() {
 	}, []);
 
 	useEffect(() => {
-		fetch(`/api/resolutions/${slug}`)
-			.then((res) => {
-				if (!res.ok) {
-					throw new Error("Nie znaleziono uchwały");
-				}
-
-				return res.json();
-			})
-			.then((data) => {
-				setResolution(data.resolution);
-				setSignedUsers(data.signedUsers);
-				setSession(data.session);
-				setCurrentUser(data.currentUser);
-			})
-			.catch((error) => {
-				setErrorMessage(error.message);
-			})
-			.finally(() => {
-				setLoading(false);
-			});
+		fetchResolution();
 	}, [slug]);
+
+	const fetchResolution = async () => {
+		setLoading(true);
+		setErrorMessage(null);
+
+		try {
+			const res = await fetch(`/api/resolutions/${slug}`);
+
+			if (!res.ok) {
+				throw new Error("Nie znaleziono uchwały");
+			}
+
+			const data = await res.json();
+			setResolution(data.resolution);
+			setSignedUsers(data.signedUsers);
+			setSession(data.session);
+			setCurrentUser(data.currentUser);
+		} catch (error) {
+			setErrorMessage(error.message);
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	const handleSignatureAction = async () => {
 		const endpoint =
@@ -61,26 +69,48 @@ export default function ResolutionDetails() {
 				throw new Error(data.message || "Wystąpił błąd");
 			}
 
-
-			let data = null;
-			try {
-				data = await res.json();
-			} catch (e) {
-
-			}
-
 			setShowConfirm(false);
 			setErrorMessage(null);
 
-			const refresh = await fetch(`/api/resolutions/${slug}`);
-			const updated = await refresh.json();
-
-			setResolution(updated.resolution);
-			setSignedUsers(updated.signedUsers);
-			setCurrentUser(updated.currentUser);
+			await fetchResolution();
 		} catch (error) {
 			setErrorMessage(error.message);
 		}
+	};
+
+	const handleDeleteResolution = async () => {
+		try {
+			const res = await fetch(`/api/resolutions/${resolution.id}`, {
+				method: "DELETE",
+			});
+
+			if (!res.ok) {
+				const data = await res.json();
+				throw new Error(data.message || "Wystąpił błąd podczas usuwania");
+			}
+
+			setShowDeleteConfirm(false);
+			navigate("/uchwaly");
+		} catch (error) {
+			setErrorMessage(error.message);
+		}
+	};
+
+	// ===== FUNKCJA DO SPRAWDZANIA ROLI =====
+	const getUserRole = (user) => {
+		if (!user) return "member";
+
+		// Jeśli API zwraca role_id (z bazy)
+		if (user.role_id === 1) return "admin";
+		if (user.role_id === 2 || user.role_id === 3) return "coordinator";
+		if (user.role_id === 4) return "member";
+
+		// Jeśli API zwraca string
+		const role = user.role?.toLowerCase();
+		if (role === "admin" || role === "zarząd") return "admin";
+		if (role === "coordinator" || role === "koordynator") return "coordinator";
+
+		return "member";
 	};
 
 	if (loading) {
@@ -90,6 +120,11 @@ export default function ResolutionDetails() {
 	if (!resolution) {
 		return <h2>Nie znaleziono uchwały</h2>;
 	}
+
+	// Sprawdzenie czy użytkownik jest adminem lub koordynatorem
+	const userRole = getUserRole(currentUser);
+	const isAdminOrCoordinator =
+		userRole === "admin" || userRole === "coordinator";
 
 	return (
 		<div className="mparlament-page">
@@ -131,7 +166,7 @@ export default function ResolutionDetails() {
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									{resolution.fileName || 'Pobierz plik'}
+									{resolution.fileName || "Pobierz plik"}
 								</a>
 							) : resolution.fileName ? (
 								<a
@@ -188,6 +223,20 @@ export default function ResolutionDetails() {
 						>
 							WYŚWIETL POPRAWKI
 						</Link>
+
+						{isAdminOrCoordinator && (
+							<button
+								className="btn btn-pill btn-red btn-wide delete-btn"
+								onClick={() => setShowDeleteConfirm(true)}
+								style={{ marginTop: "10px" }}
+							>
+								<Trash2
+									size={18}
+									style={{ marginRight: "8px", verticalAlign: "middle" }}
+								/>
+								USUŃ UCHWAŁĘ
+							</button>
+						)}
 					</div>
 				</div>
 			</main>
@@ -199,11 +248,9 @@ export default function ResolutionDetails() {
 							className="signatures-overlay"
 							onClick={() => setShowSignatures(false)}
 						/>
-
 						<div className="signatures-panel">
 							<div className="signatures-header">
 								<h2>Kto podpisał?</h2>
-
 								<button
 									className="close-panel"
 									onClick={() => setShowSignatures(false)}
@@ -211,42 +258,32 @@ export default function ResolutionDetails() {
 									✕
 								</button>
 							</div>
-
 							<div className="signatures-total">
 								Liczba podpisów: <strong>{signedUsers.length}</strong>
 							</div>
-
 							<div className="signatures-list">
-								{signedUsers.map((user, index) => {
-									console.log(user.timestamp);
-
-									return (
-										<div className="signature-item" key={index}>
-											<div
-												className="signature-avatar"
-												style={{
-													background: `hsl(${(index * 45) % 360}, 70%, 90%)`,
-												}}
-											>
-												{user.name.charAt(0).toUpperCase()}
-											</div>
-
-											<div className="signature-info">
-												<strong>{user.name}</strong>
-
-												<p>{user.club}</p>
-
-												<span>
-													{new Date(user.timestamp).toLocaleString("pl-PL")}
-												</span>
-											</div>
+								{signedUsers.map((user, index) => (
+									<div className="signature-item" key={index}>
+										<div
+											className="signature-avatar"
+											style={{
+												background: `hsl(${(index * 45) % 360}, 70%, 90%)`,
+											}}
+										>
+											{user.name.charAt(0).toUpperCase()}
 										</div>
-									);
-								})}
+										<div className="signature-info">
+											<strong>{user.name}</strong>
+											<p>{user.club}</p>
+											<span>
+												{new Date(user.timestamp).toLocaleString("pl-PL")}
+											</span>
+										</div>
+									</div>
+								))}
 							</div>
 						</div>
 					</>,
-
 					document.body,
 				)}
 
@@ -257,17 +294,47 @@ export default function ResolutionDetails() {
 							<h2>
 								{actionType === "sign" ? "Podpisać uchwałę?" : "Usunąć podpis?"}
 							</h2>
-
 							{errorMessage && <p className="modal-error">{errorMessage}</p>}
 							<p>
 								{actionType === "sign"
 									? "Czy na pewno chcesz podpisać tę uchwałę?"
 									: "Czy na pewno chcesz usunąć swój podpis?"}
 							</p>
-
 							<button onClick={handleSignatureAction}>Potwierdź</button>
-
 							<button onClick={() => setShowConfirm(false)}>Anuluj</button>
+						</div>
+					</div>,
+					document.body,
+				)}
+
+			{showDeleteConfirm &&
+				createPortal(
+					<div className="modal-overlay">
+						<div className="modal modal-danger">
+							<h2>Usunąć uchwałę?</h2>
+							{errorMessage && <p className="modal-error">{errorMessage}</p>}
+							<p>
+								Czy na pewno chcesz usunąć uchwałę{" "}
+								<strong>"{resolution.title}"</strong>?
+								<br />
+								<span style={{ color: "red", fontSize: "0.9rem" }}>
+									Tej operacji nie można cofnąć!
+								</span>
+							</p>
+							<div className="modal-buttons">
+								<button
+									className="btn btn-danger"
+									onClick={handleDeleteResolution}
+								>
+									Tak, usuń
+								</button>
+								<button
+									className="btn btn-gray"
+									onClick={() => setShowDeleteConfirm(false)}
+								>
+									Anuluj
+								</button>
+							</div>
 						</div>
 					</div>,
 					document.body,

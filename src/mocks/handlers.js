@@ -41,48 +41,6 @@ const getUserSignature = (resolutionId, userId) =>
 			signature.userId === userId,
 	);
 
-const buildResolutionResponse = (resolution, currentUser = null) => {
-	const signatures = getSignaturesForResolution(resolution.id);
-	const usersWithSignatures = signatures
-		.map((signature) => {
-			const signedUser = users.find((u) => u.id === signature.userId);
-			if (!signedUser) return null;
-			return {
-				name: signedUser.name,
-				club: signedUser.club,
-				timestamp: signature.timestamp,
-				type: signature.type,
-			};
-		})
-		.filter(Boolean);
-
-	const isAuthor = currentUser && resolution.authorId === currentUser.id;
-	const hasSigned =
-		isAuthor || !!getUserSignature(resolution.id, currentUser?.id);
-
-	return {
-		resolution: {
-			...resolution,
-			signatures: signatures.length,
-		},
-		signedUsers: usersWithSignatures,
-		session: {
-			city: currentSession?.city,
-			date: currentSession?.date || "20.05",
-		},
-		...(currentUser && {
-			currentUser: {
-				hasSigned,
-				isAuthor,
-				signatureType: isAuthor
-					? "author"
-					: (getUserSignature(resolution.id, currentUser.id)?.type ?? null),
-				isAutoSigned: isAuthor,
-			},
-		}),
-	};
-};
-
 const getCurrentUser = () => {
 	if (currentUser) return currentUser;
 	if (typeof localStorage !== "undefined") {
@@ -191,13 +149,14 @@ const createVoting = (body) => {
 		createdBy: user?.username || "unknown",
 	};
 };
-// NOWE 
+// NOWE
 
 const extractTarget = (amendment) => {
 	return {
 		article: amendment.target?.article || null,
-		section: amendment.target?.section || 'other',
-		fragment: amendment.target?.fragment || amendment.changes?.[0]?.before || null,
+		section: amendment.target?.section || "other",
+		fragment:
+			amendment.target?.fragment || amendment.changes?.[0]?.before || null,
 	};
 };
 
@@ -211,25 +170,28 @@ const compareAmendments = (amendment1, amendment2) => {
 	const target2 = extractTarget(amendment2);
 
 	// Czy dotyczą tego samego fragmentu?
-	const sameFragment = target1.fragment && target2.fragment &&
+	const sameFragment =
+		target1.fragment &&
+		target2.fragment &&
 		target1.fragment === target2.fragment;
-	const sameArticle = target1.article && target2.article &&
-		target1.article === target2.article;
-	const sameSection = target1.section === target2.section && target1.section !== 'other';
+	const sameArticle =
+		target1.article && target2.article && target1.article === target2.article;
+	const sameSection =
+		target1.section === target2.section && target1.section !== "other";
 
 	// KONFLIKT PEWNY - ten sam fragment, różne zmiany
 	if (sameFragment) {
-		const before1 = amendment1.changes?.[0]?.before || '';
-		const before2 = amendment2.changes?.[0]?.before || '';
-		const after1 = amendment1.changes?.[0]?.after || '';
-		const after2 = amendment2.changes?.[0]?.after || '';
+		const before1 = amendment1.changes?.[0]?.before || "";
+		const before2 = amendment2.changes?.[0]?.before || "";
+		const after1 = amendment1.changes?.[0]?.after || "";
+		const after2 = amendment2.changes?.[0]?.after || "";
 
 		if (before1 === before2 && after1 !== after2) {
 			return {
 				conflict: true,
 				potential: false,
 				reason: `Zmiana tego samego fragmentu artykułu ${target1.article}`,
-				fragment: target1.fragment
+				fragment: target1.fragment,
 			};
 		}
 	}
@@ -240,7 +202,7 @@ const compareAmendments = (amendment1, amendment2) => {
 			conflict: true,
 			potential: false,
 			reason: `Zmiana tego samego artykułu ${target1.article} w obszarze ${target1.section}`,
-			fragment: `Artykuł ${target1.article}`
+			fragment: `Artykuł ${target1.article}`,
 		};
 	}
 
@@ -250,7 +212,7 @@ const compareAmendments = (amendment1, amendment2) => {
 			conflict: false,
 			potential: true,
 			reason: `Poprawki dotyczą tego samego obszaru: ${target1.section}`,
-			fragment: `Obszar: ${target1.section}`
+			fragment: `Obszar: ${target1.section}`,
 		};
 	}
 
@@ -260,7 +222,7 @@ const compareAmendments = (amendment1, amendment2) => {
 			conflict: false,
 			potential: true,
 			reason: `Poprawki dotyczą tego samego artykułu ${target1.article}`,
-			fragment: `Artykuł ${target1.article}`
+			fragment: `Artykuł ${target1.article}`,
 		};
 	}
 
@@ -269,12 +231,12 @@ const compareAmendments = (amendment1, amendment2) => {
 
 // Wykrywanie konfliktów dla wszystkich poprawek
 const detectAllConflicts = (amendmentsList) => {
-	const result = amendmentsList.map(amendment => ({
+	const result = amendmentsList.map((amendment) => ({
 		...amendment,
 		conflictsWith: [],
 		potentialConflicts: [],
 		conflictReason: null,
-		conflictFragment: null
+		conflictFragment: null,
 	}));
 
 	for (let i = 0; i < result.length; i++) {
@@ -304,6 +266,62 @@ const detectAllConflicts = (amendmentsList) => {
 	}
 
 	return result;
+};
+
+// handlers.ts - ZMIEŃ TĘ FUNKCJĘ
+
+const buildResolutionResponse = (resolution, currentUser = null) => {
+	const signatures = getSignaturesForResolution(resolution.id);
+	const usersWithSignatures = signatures
+		.map((signature) => {
+			const signedUser = users.find((u) => u.id === signature.userId);
+			if (!signedUser) return null;
+			return {
+				name: signedUser.name,
+				club: signedUser.club,
+				timestamp: signature.timestamp,
+				type: signature.type,
+			};
+		})
+		.filter(Boolean);
+
+	const isAuthor = currentUser && resolution.authorId === currentUser.id;
+	const hasSigned =
+		isAuthor || !!getUserSignature(resolution.id, currentUser?.id);
+
+	// ✅ ZBUDUJ OBIEKT currentUser Z ROLĄ
+	let currentUserResponse = null;
+	if (currentUser) {
+		currentUserResponse = {
+			hasSigned,
+			isAuthor,
+			signatureType: isAuthor
+				? "author"
+				: (getUserSignature(resolution.id, currentUser.id)?.type ?? null),
+			isAutoSigned: isAuthor,
+			// ✅ DODAJ ROLĘ I ID
+			id: currentUser.id,
+			role: currentUser.role || currentUser.role_id || "member",
+			role_id: currentUser.role_id || null,
+			name: currentUser.name || currentUser.username,
+			club: currentUser.club || null,
+		};
+	}
+
+	return {
+		resolution: {
+			...resolution,
+			signatures: signatures.length,
+		},
+		signedUsers: usersWithSignatures,
+		session: {
+			city: currentSession?.city,
+			date: currentSession?.date || "20.05",
+		},
+		...(currentUser && {
+			currentUser: currentUserResponse, // ✅ UŻYJ NOWEGO OBIEKTU
+		}),
+	};
 };
 export const handlers = [
 	http.post("/api/auth/login", async ({ request }) => {
@@ -343,7 +361,7 @@ export const handlers = [
 				try {
 					currentUser = JSON.parse(savedUser);
 					return HttpResponse.json(currentUser);
-				} catch (e) { }
+				} catch (e) {}
 			}
 		}
 		return HttpResponse.json({ message: "Nie zalogowany" }, { status: 401 });
@@ -858,10 +876,7 @@ export const handlers = [
 
 	http.get("/api/members", () => HttpResponse.json(members)),
 
-
 	http.get("/api/users", () => HttpResponse.json(users)),
-
-
 
 	http.put("/api/votings/:id", async ({ params, request }) => {
 		const votingId = Number(params.id);
@@ -957,8 +972,12 @@ export const handlers = [
 
 			// Oblicz liczby
 			const votesFor = votingVotes.filter((v) => v.vote === "for").length;
-			const votesAgainst = votingVotes.filter((v) => v.vote === "against").length;
-			const abstained = votingVotes.filter((v) => v.vote === "abstained").length;
+			const votesAgainst = votingVotes.filter(
+				(v) => v.vote === "against",
+			).length;
+			const abstained = votingVotes.filter(
+				(v) => v.vote === "abstained",
+			).length;
 
 			// Sprawdź czy obecny user głosował
 			const currentUser = getCurrentUser();
@@ -977,7 +996,9 @@ export const handlers = [
 			};
 		});
 
-		console.log(`\n📊 Zwracam ${votingsWithResults.length} głosowań z wynikami`);
+		console.log(
+			`\n📊 Zwracam ${votingsWithResults.length} głosowań z wynikami`,
+		);
 		return HttpResponse.json(votingsWithResults);
 	}),
 
@@ -988,11 +1009,11 @@ export const handlers = [
 		const body = await request.json();
 
 		// Znajdź mówcę po ID
-		const index = speakers.findIndex(s => s.id === id);
+		const index = speakers.findIndex((s) => s.id === id);
 		if (index === -1) {
 			return HttpResponse.json(
 				{ message: "Nie znaleziono mówcy" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -1007,7 +1028,7 @@ export const handlers = [
 		const id = Number(params.id);
 		const { status } = await request.json();
 
-		const speaker = speakers.find(s => s.id === id);
+		const speaker = speakers.find((s) => s.id === id);
 		if (!speaker) {
 			return HttpResponse.json({ message: "Nie znaleziono" }, { status: 404 });
 		}
@@ -1019,7 +1040,7 @@ export const handlers = [
 	// Usuwanie mówcy
 	http.delete("/api/speakers/:id", ({ params }) => {
 		const id = Number(params.id);
-		const index = speakers.findIndex(s => s.id === id);
+		const index = speakers.findIndex((s) => s.id === id);
 		if (index === -1) {
 			return HttpResponse.json({ message: "Nie znaleziono" }, { status: 404 });
 		}
@@ -1089,7 +1110,8 @@ export const handlers = [
 
 		// Sprawdź czy obecny user głosował
 		const currentUser = getCurrentUser();
-		const myVote = votingVotes.find((v) => v.userId === currentUser?.id)?.vote || null;
+		const myVote =
+			votingVotes.find((v) => v.userId === currentUser?.id)?.vote || null;
 		const hasVoted = !!myVote;
 
 		return HttpResponse.json({
@@ -1112,12 +1134,12 @@ export const handlers = [
 	}),
 	http.get("/api/amendments/:id", ({ params }) => {
 		const allWithConflicts = detectAllConflicts(amendments);
-		const result = allWithConflicts.find(a => a.id === Number(params.id));
+		const result = allWithConflicts.find((a) => a.id === Number(params.id));
 
 		if (!result) {
 			return HttpResponse.json(
 				{ message: "Nie znaleziono poprawki" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -1127,27 +1149,61 @@ export const handlers = [
 		const body = await request.json();
 		const { amendmentId, vote, userVotes } = body;
 
-		if (vote === 'for') {
+		if (vote === "for") {
 			const allWithConflicts = detectAllConflicts(amendments);
-			const amendment = allWithConflicts.find(a => a.id === amendmentId);
+			const amendment = allWithConflicts.find((a) => a.id === amendmentId);
 
 			if (amendment?.conflictsWith?.length > 0) {
-				const hasConflict = amendment.conflictsWith.some(id =>
-					userVotes?.some(v => v.amendmentId === id && v.vote === 'for')
+				const hasConflict = amendment.conflictsWith.some((id) =>
+					userVotes?.some((v) => v.amendmentId === id && v.vote === "for"),
 				);
 
 				if (hasConflict) {
-					return HttpResponse.json({
-						success: false,
-						message: 'Nie możesz głosować ZA tą poprawką, ponieważ jest sprzeczna z inną poprawką, którą poparłeś.',
-						conflictsWith: amendment.conflictsWith,
-						conflictReason: amendment.conflictReason,
-						conflictFragment: amendment.conflictFragment
-					}, { status: 409 });
+					return HttpResponse.json(
+						{
+							success: false,
+							message:
+								"Nie możesz głosować ZA tą poprawką, ponieważ jest sprzeczna z inną poprawką, którą poparłeś.",
+							conflictsWith: amendment.conflictsWith,
+							conflictReason: amendment.conflictReason,
+							conflictFragment: amendment.conflictFragment,
+						},
+						{ status: 409 },
+					);
 				}
 			}
 		}
 
 		return HttpResponse.json({ success: true, vote: body.vote });
+	}),
+	// ===== USUWANIE UCHWAŁY (DELETE) =====
+	http.delete("/api/resolutions/:id", ({ params }) => {
+		const id = Number(params.id);
+		const resolutionIndex = resolutions.findIndex((r) => r.id === id);
+
+		if (resolutionIndex === -1) {
+			return HttpResponse.json(
+				{ message: "Nie znaleziono uchwały" },
+				{ status: 404 },
+			);
+		}
+
+		// Usuń uchwałę z listy
+		resolutions.splice(resolutionIndex, 1);
+
+		// Usuń wszystkie podpisy powiązane z tą uchwałą
+		const signatureIndices = resolutionSignatures
+			.map((s, index) => (s.resolutionId === id ? index : -1))
+			.filter((index) => index !== -1)
+			.sort((a, b) => b - a);
+
+		for (const index of signatureIndices) {
+			resolutionSignatures.splice(index, 1);
+		}
+
+		return HttpResponse.json(
+			{ success: true, message: "Uchwała została usunięta" },
+			{ status: 200 },
+		);
 	}),
 ];
