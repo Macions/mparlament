@@ -193,7 +193,6 @@
 	margin-bottom: 0;
 }
 
-
 .parse-btn,
 .submit-res-btn {
 	display: inline-flex;
@@ -231,7 +230,6 @@
 	box-shadow: none;
 	opacity: 0.7;
 }
-
 
 .parse-btn.loading {
 	background: #0088cc;
@@ -313,7 +311,6 @@ body.modal-open {
 	height: 100vh;
 }
 
-
 .editor-section {
 	margin-top: 30px;
 	padding-top: 20px;
@@ -341,7 +338,6 @@ body.modal-open {
 	cursor: pointer;
 	font-weight: 500;
 }
-
 
 .chapter-edit-block {
 	background: #f8f9fc;
@@ -376,7 +372,6 @@ body.modal-open {
 	cursor: pointer;
 	white-space: nowrap;
 }
-
 
 .article-edit {
 	background: white;
@@ -432,7 +427,6 @@ body.modal-open {
 	margin-top: 8px;
 }
 
-
 .text-input,
 .edit-textarea {
 	width: 100%;
@@ -461,7 +455,7 @@ body.modal-open {
 
 .progress-fill {
 	height: 100%;
-	background: linear-gradient(90deg, #4CAF50, #8BC34A);
+	background: linear-gradient(90deg, #4caf50, #8bc34a);
 	border-radius: 4px;
 	transition: width 0.3s ease;
 }
@@ -517,4 +511,342 @@ body.modal-open {
 	font-weight: 600;
 	color: #000000;
 	font-size: 22px;
+}
+@media (max-width: 768px) {
+	.submit-page {
+		padding-top: 10px;
+		font-size: 16px;
+	}
+
+	.submit-container {
+		padding: 0 10px 30px;
+	}
+
+	.form-card {
+		padding: 1.5rem 1rem;
+		border-radius: 8px;
+	}
+
+	.form-group {
+		margin-bottom: 1.5rem;
+		padding: 1rem 0.8rem;
+		border-radius: 8px;
+	}
+
+	.label {
+		font-size: 16px;
+		margin-bottom: 6px;
+	}
+
+	.text-input {
+		padding: 12px 14px;
+		font-size: 15px;
+	}
+
+	.file-button {
+		padding: 12px 20px;
+		font-size: 14px;
+		width: 100%;
+		justify-content: center;
+	}
+
+	.selected-file {
+		padding: 10px 14px;
+		font-size: 14px;
+		word-break: break-all;
+	}
+
+	.submit-res-btn {
+		float: none;
+		width: 100%;
+	}
+
+	.parsed-preview {
+		padding: 20px 16px;
+		max-height: 400px;
+		margin-top: 16px;
+	}
+
+	.preview-header {
+		margin-bottom: 18px;
+		padding-bottom: 12px;
+	}
+
+	.preview-header h2 {
+		font-size: 20px;
+	}
+
+	.preview-header p {
+		font-size: 12px;
+	}
+
+	.chapter-block {
+		margin-bottom: 18px;
+	}
+
+	.chapter-block h3 {
+		font-size: 16px;
+		padding: 8px 12px;
+	}
+
+	.article-item {
+		padding: 10px 14px;
+		font-size: 14px;
+		line-height: 1.5;
+	}
+
+	.parse-btn,
+	.submit-res-btn {
+		padding: 14px 24px;
+		font-size: 15px;
+		width: 100%;
+		justify-content: center;
+	}
+
+	.error {
+		font-size: 14px;
+		padding: 8px 12px;
+	}
+
+	.editor-section {
+		margin-top: 20px;
+		padding-top: 16px;
+	}
+
+	.editor-header {
+		flex-direction: column;
+		gap: 12px;
+		align-items: stretch;
+	}
+
+	.editor-header h2 {
+		font-size: 18px;
+		text-align: center;
+	}
+
+	.add-chapter-btn {
+		padding: 8px 14px;
+		font-size: 14px;
+		width: 100%;
+	}
+
+	.chapter-edit-block {
+		padding: 14px;
+		margin-bottom: 16px;
+	}
+
+	.chapter-header {
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.chapter-title-input {
+		padding: 10px 12px;
+		font-size: 15px;
+		width: 100%;
+	}
+
+	.remove-btn {
+		padding: 8px 12px;
+		font-size: 13px;
+		width: 100%;
+	}
+
+	.article-edit {
+		padding: 12px;
+		margin-bottom: 12px;
+	}
+
+	.article-number-row {
+		flex-wrap: wrap;
+		gap: 6px;
+	}
+
+	.article-number-input {
+		width: 70px;
+		padding: 6px 10px;
+		font-size: 14px;
+	}
+
+	.remove-article-btn {
+		padding: 5px 10px;
+		font-size: 12px;
+	}
+
+	.article-textarea {
+		min-height: 70px;
+		padding: 10px 12px;
+		font-size: 14px;
+	}
+
+	.add-article-btn {
+		padding: 8px 14px;
+		font-size: 13px;
+		width: 100%;
+	}
+
+	.text-input,
+	.edit-textarea {
+		padding: 10px 12px;
+		font-size: 14px;
+	}
+
+	.progress-container {
+		margin: 12px 0;
+		padding: 8px;
+	}
+
+	.progress-text {
+		font-size: 12px;
+	}
+
+	.file-info {
+		font-size: 12px;
+		padding: 6px 10px;
+	}
+
+	.form-overlay p {
+		padding: 20px 24px;
+		font-size: 16px;
+		text-align: center;
+	}
+
+	.file-upload-area {
+		gap: 8px;
+	}
+}
+
+@media (max-width: 480px) {
+	.submit-page {
+		font-size: 14px;
+	}
+
+	.form-card {
+		padding: 1rem 0.8rem;
+	}
+
+	.form-group {
+		padding: 0.8rem 0.6rem;
+	}
+
+	.label {
+		font-size: 14px;
+	}
+
+	.text-input {
+		padding: 10px 12px;
+		font-size: 13px;
+	}
+
+	.file-button {
+		font-size: 13px;
+		padding: 10px 16px;
+	}
+
+	.selected-file {
+		font-size: 12px;
+		padding: 8px 12px;
+	}
+
+	.parse-btn,
+	.submit-res-btn {
+		font-size: 13px;
+		padding: 12px 18px;
+	}
+
+	.parsed-preview {
+		padding: 14px 12px;
+		max-height: 300px;
+	}
+
+	.preview-header h2 {
+		font-size: 17px;
+	}
+
+	.chapter-block h3 {
+		font-size: 14px;
+	}
+
+	.article-item {
+		font-size: 12px;
+		padding: 8px 10px;
+	}
+
+	.error {
+		font-size: 12px;
+		padding: 6px 10px;
+	}
+
+	.editor-header h2 {
+		font-size: 16px;
+	}
+
+	.chapter-title-input {
+		font-size: 13px;
+	}
+
+	.article-textarea {
+		font-size: 13px;
+		min-height: 60px;
+	}
+
+	.article-number-input {
+		width: 60px;
+		font-size: 13px;
+	}
+
+	.form-overlay p {
+		font-size: 14px;
+		padding: 16px 20px;
+	}
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+	.submit-page {
+		font-size: 18px;
+	}
+
+	.form-card {
+		padding: 2rem 1.8rem;
+	}
+
+	.form-group {
+		padding: 1rem 1.2rem;
+	}
+
+	.label {
+		font-size: 18px;
+	}
+
+	.text-input {
+		font-size: 16px;
+		padding: 13px 16px;
+	}
+
+	.file-button {
+		font-size: 16px;
+		padding: 12px 26px;
+	}
+
+	.parse-btn,
+	.submit-res-btn {
+		font-size: 17px;
+		padding: 14px 32px;
+	}
+
+	.parsed-preview {
+		padding: 24px 28px;
+	}
+
+	.preview-header h2 {
+		font-size: 24px;
+	}
+
+	.chapter-block h3 {
+		font-size: 18px;
+	}
+
+	.article-item {
+		font-size: 15px;
+	}
 }
