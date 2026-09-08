@@ -21,6 +21,15 @@ function CalendarIcon() {
 	);
 }
 
+const formatDate = (dateStr) => {
+	if (!dateStr) return '';
+	const date = new Date(dateStr);
+	const day = String(date.getDate()).padStart(2, '0');
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const year = date.getFullYear();
+	return `${day}.${month}.${year}`;
+};
+
 export default function Dashboard() {
 	const navigate = useNavigate();
 
@@ -141,11 +150,19 @@ export default function Dashboard() {
 								<h3>{currentSession.title}</h3>
 
 								<p className="dashboard__session-time">
-									<span className="date">{currentSession.start}</span>
-									<span className="time">{currentSession.startTime}</span>
+									<span className="date">
+										{formatDate(currentSession.start)}
+									</span>
+									<span className="time">
+										{currentSession.startTime}
+									</span>
 									<span className="separator">–</span>
-									<span className="date">{currentSession.end}</span>
-									<span className="time">{currentSession.endTime}</span>
+									<span className="date">
+										{formatDate(currentSession.end)}
+									</span>
+									<span className="time">
+										{currentSession.endTime}
+									</span>
 								</p>
 							</div>
 
@@ -185,12 +202,12 @@ export default function Dashboard() {
 						GŁOSOWANIA
 					</Link>
 					{isAdmin && (
-					<Link
-						to="/finalizuj-uchwale"
-						className="dashboard__action dashboard__action--finalize"
-					>
-						FINALIZUJ UCHWAŁĘ
-					</Link>
+						<Link
+							to="/finalizuj-uchwale"
+							className="dashboard__action dashboard__action--finalize"
+						>
+							FINALIZUJ UCHWAŁĘ
+						</Link>
 					)}
 				</div>
 
