@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { X, Plus, ArrowLeft } from "lucide-react";
+import { X, Plus, ArrowLeft, AlertTriangle, CheckCircle, Info } from "lucide-react";
 import "./AddAmendment.css";
 
 export default function AddAmendment() {
@@ -18,6 +18,9 @@ export default function AddAmendment() {
 	]);
 
 	const [currentUser, setCurrentUser] = useState(null);
+	const [existingAmendments, setExistingAmendments] = useState([]);
+	const [conflicts, setConflicts] = useState([]);
+	const [showConflicts, setShowConflicts] = useState(false);
 
 	const [target, setTarget] = useState({
 		article: "",
@@ -31,23 +34,31 @@ export default function AddAmendment() {
 		{ value: "delete", label: "Usunięcie artykułu" },
 	];
 
+	// W AddAmendment.jsx - zmień useEffect:
+
 	useEffect(() => {
 		Promise.all([
 			fetch(`/api/resolutions/${slug}`),
-			fetch("/api/auth/me")
+			fetch(`/api/resolutions/${slug}/amendments`),
+			fetch("/api/current-user")  // <- używamy /api/current-user
 		])
-			.then(([resRes, userRes]) => {
+			.then(([resRes, amdRes, userRes]) => {
 				if (!resRes.ok) throw new Error("Nie znaleziono uchwały");
 				if (!userRes.ok) throw new Error("Nie znaleziono użytkownika");
-				return Promise.all([resRes.json(), userRes.json()]);
+				return Promise.all([resRes.json(), amdRes.json(), userRes.json()]);
 			})
-			.then(([resolutionData, userData]) => {
+			.then(([resolutionData, amendmentsData, userData]) => {
 				setResolution(resolutionData.resolution);
 				setResolutionData(resolutionData);
-				setCurrentUser(userData);
+				// amendmentsData to tablica poprawek
+				setExistingAmendments(amendmentsData.filter(a =>
+					a.status === 'pending' || a.status === 'accepted'
+				));
+				setCurrentUser(userData);  // <- userData to już obiekt użytkownika
 				setError(null);
 			})
 			.catch((err) => {
+				console.error('Błąd:', err);
 				setError(err.message);
 			})
 			.finally(() => {
@@ -65,6 +76,101 @@ export default function AddAmendment() {
 	};
 
 	const allArticles = getAllArticles();
+
+	// Funkcja sprawdzająca kolizje
+	const checkConflicts = (newChanges, targetArticle, targetFragment) => {
+		const conflictsList = [];
+
+		// Pobierz istniejące poprawki dla wybranego artykułu
+		const existingForArticle = existingAmendments.filter(
+			a => a.target?.article === Number(targetArticle) &&
+				(a.status === 'pending' || a.status === 'accepted')
+		);
+
+		if (existingForArticle.length > 0) {
+			conflictsList.push({
+				level: 'warning',
+				type: 'existing_amendments',
+				message: `Istnieją już ${existingForArticle.length} poprawki dla tego artykułu`,
+				amendments: existingForArticle
+			});
+
+			// Sprawdź czy zmiany dotyczą tego samego fragmentu
+			existingForArticle.forEach(existing => {
+				if (existing.target?.fragment &&
+					targetFragment &&
+					targetFragment.length > 10 &&
+					existing.target.fragment.includes(targetFragment.substring(0, 30))) {
+					conflictsList.push({
+						level: 'conflict',
+						type: 'same_fragment',
+						message: `Poprawka #${existing.id} (${existing.author}) dotyczy tego samego fragmentu`,
+						amendment: existing
+					});
+				}
+			});
+		}
+
+		// Sprawdź czy zmiany są ze sobą sprzeczne
+		const hasAdd = newChanges.some(c => c.type === 'add');
+		const hasDelete = newChanges.some(c => c.type === 'delete');
+		const hasModify = newChanges.some(c => c.type === 'modify');
+
+		if (hasAdd && hasDelete) {
+			conflictsList.push({
+				level: 'conflict',
+				type: 'add_delete_conflict',
+				message: 'Nie możesz jednocześnie dodawać i usuwać artykułów w tej samej poprawce'
+			});
+		}
+
+		if (hasDelete && hasModify) {
+			conflictsList.push({
+				level: 'warning',
+				type: 'delete_modify_warning',
+				message: 'Usuwasz jeden artykuł i modyfikujesz inny - czy to zamierzone?'
+			});
+		}
+
+		// Sprawdź czy dodawany artykuł już istnieje
+		if (hasAdd) {
+			const newArticleContent = newChanges.find(c => c.type === 'add')?.to || '';
+			const similarArticles = allArticles.filter(a =>
+				a.content &&
+				newArticleContent.length > 20 &&
+				a.content.includes(newArticleContent.substring(0, 30))
+			);
+			if (similarArticles.length > 0) {
+				conflictsList.push({
+					level: 'warning',
+					type: 'similar_article',
+					message: `Nowy artykuł jest podobny do istniejącego artykułu ${similarArticles[0].number || ''}`,
+					article: similarArticles[0]
+				});
+			}
+		}
+
+		return conflictsList;
+	};
+
+	// Sprawdzaj kolizje przy każdej zmianie
+	useEffect(() => {
+		if (target.article) {
+			const validChanges = changes.filter(c =>
+				c.type && (c.to || c.type === 'delete')
+			);
+			const newConflicts = checkConflicts(
+				validChanges,
+				target.article,
+				target.fragment
+			);
+			setConflicts(newConflicts);
+			setShowConflicts(newConflicts.length > 0);
+		} else {
+			setConflicts([]);
+			setShowConflicts(false);
+		}
+	}, [target.article, target.fragment, changes, existingAmendments]);
 
 	if (loading) {
 		return <div className="loading">Ładowanie...</div>;
@@ -145,6 +251,18 @@ export default function AddAmendment() {
 			return;
 		}
 
+		// Sprawdź czy są konflikty przed wysłaniem
+		const hasConflicts = conflicts.some(c => c.level === 'conflict');
+		if (hasConflicts) {
+			const confirmSubmit = window.confirm(
+				`⚠️ Wykryto konflikty:\n\n${conflicts
+					.filter(c => c.level === 'conflict')
+					.map(c => `• ${c.message}`)
+					.join('\n')}\n\nCzy na pewno chcesz dodać tę poprawkę?`
+			);
+			if (!confirmSubmit) return;
+		}
+
 		setSubmitting(true);
 
 		try {
@@ -193,6 +311,22 @@ export default function AddAmendment() {
 		}
 	};
 
+	const getConflictIcon = (level) => {
+		switch (level) {
+			case 'conflict': return <AlertTriangle size={18} color="#dc2626" />;
+			case 'warning': return <Info size={18} color="#f59e0b" />;
+			default: return <Info size={18} color="#3b82f6" />;
+		}
+	};
+
+	const getConflictClass = (level) => {
+		switch (level) {
+			case 'conflict': return 'conflict-item--conflict';
+			case 'warning': return 'conflict-item--warning';
+			default: return 'conflict-item--info';
+		}
+	};
+
 	return (
 		<div className="add-amendment">
 			<div className="uchwaly-bar">
@@ -233,12 +367,31 @@ export default function AddAmendment() {
 								required
 							>
 								<option value="">-- wybierz artykuł --</option>
-								{allArticles.map((art, idx) => (
-									<option key={art.id || idx} value={art.id}>
-										{art.number || `Art. ${idx + 1}`}: {art.content?.substring(0, 40)}...
-									</option>
-								))}
+								{allArticles.map((art, idx) => {
+									const hasAmendments = existingAmendments.some(
+										a => a.target?.article === Number(art.id) &&
+											(a.status === 'pending' || a.status === 'accepted')
+									);
+									return (
+										<option key={art.id || idx} value={art.id}>
+											{art.number || `Art. ${idx + 1}`}: {art.content?.substring(0, 40)}...
+											{hasAmendments ? ' ⚠️' : ''}
+										</option>
+									);
+								})}
 							</select>
+							{target.article && (
+								<small className="field-hint">
+									{existingAmendments.filter(
+										a => a.target?.article === Number(target.article) &&
+											(a.status === 'pending' || a.status === 'accepted')
+									).length > 0 && (
+											<span className="warning-hint">
+												⚠️ Istnieją już poprawki do tego artykułu
+											</span>
+										)}
+								</small>
+							)}
 						</div>
 
 						<div className="form-group">
@@ -266,6 +419,50 @@ export default function AddAmendment() {
 								rows={2}
 							/>
 						</div>
+
+						{/* Sekcja konfliktów */}
+						{showConflicts && conflicts.length > 0 && (
+							<div className="conflicts-section">
+								<h4 className="conflicts-title">
+									<AlertTriangle size={20} />
+									Wykryto {conflicts.length} {conflicts.length === 1 ? 'potencjalny konflikt' : 'potencjalne konflikty'}
+								</h4>
+								<div className="conflicts-list">
+									{conflicts.map((conflict, index) => (
+										<div
+											key={index}
+											className={`conflict-item ${getConflictClass(conflict.level)}`}
+										>
+											<div className="conflict-item-icon">
+												{getConflictIcon(conflict.level)}
+											</div>
+											<div className="conflict-item-content">
+												<p className="conflict-item-message">{conflict.message}</p>
+												{conflict.amendments && (
+													<div className="conflict-item-amendments">
+														{conflict.amendments.map(amd => (
+															<span key={amd.id} className="amendment-tag">
+																#{amd.id} {amd.author} ({amd.status})
+															</span>
+														))}
+													</div>
+												)}
+												{conflict.article && (
+													<div className="conflict-item-article">
+														Artykuł: {conflict.article.number || ''}
+													</div>
+												)}
+											</div>
+										</div>
+									))}
+								</div>
+								<p className="conflicts-note">
+									{conflicts.some(c => c.level === 'conflict')
+										? '⚠️ Wykryto poważne konflikty - rozważ zmianę poprawki przed zatwierdzeniem.'
+										: 'ℹ️ To są tylko ostrzeżenia - możesz kontynuować, ale sprawdź czy zmiany są zamierzone.'}
+								</p>
+							</div>
+						)}
 					</div>
 
 					<div className="changes-section">
@@ -366,10 +563,11 @@ export default function AddAmendment() {
 					<div className="form-actions">
 						<button
 							type="submit"
-							className="submit-btn"
+							className={`submit-btn ${conflicts.some(c => c.level === 'conflict') ? 'has-conflicts' : ''}`}
 							disabled={submitting}
 						>
 							{submitting ? "Dodawanie..." : "Dodaj poprawkę"}
+							{conflicts.some(c => c.level === 'conflict') && " ⚠️"}
 						</button>
 						<Link to={`/${slug}/poprawki`} className="cancel-btn">
 							Anuluj

@@ -808,14 +808,6 @@ export const handlers = [
 		},
 	),
 
-	http.get("/api/current-user", () => {
-		const user = getCurrentUser();
-		if (user) {
-			return HttpResponse.json({ user });
-		}
-		return HttpResponse.json({ message: "Nie zalogowany" }, { status: 401 });
-	}),
-
 	http.post("/api/amendments/:id/withdraw", async ({ params, request }) => {
 		const amendmentId = Number(params.id);
 		const amendment = amendments.find((a) => a.id === amendmentId);
@@ -1206,4 +1198,12 @@ export const handlers = [
 			{ status: 200 },
 		);
 	}),
+	http.get("/api/current-user", () => {
+	const user = getCurrentUser();
+	if (user) {
+		// Zwróć samo dane użytkownika, bez zagnieżdżania
+		return HttpResponse.json(user);
+	}
+	return HttpResponse.json({ message: "Nie zalogowany" }, { status: 401 });
+}),
 ];

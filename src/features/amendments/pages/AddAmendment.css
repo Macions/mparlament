@@ -736,3 +736,106 @@
 		padding: 40px 0;
 	}
 }
+
+/* Sekcja konfliktów */
+.conflicts-section {
+	margin-top: 1.5rem;
+	padding: 1.25rem;
+	background: #fef3c7;
+	border: 1px solid #f59e0b;
+	border-radius: 8px;
+}
+
+.conflicts-title {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	font-size: 1rem;
+	font-weight: 600;
+	color: #92400e;
+	margin: 0 0 1rem 0;
+}
+
+.conflicts-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.conflict-item {
+	display: flex;
+	gap: 0.75rem;
+	padding: 0.75rem 1rem;
+	background: white;
+	border-radius: 6px;
+	border-left: 4px solid #e5e7eb;
+}
+
+.conflict-item--conflict {
+	border-left-color: #dc2626;
+	background: #fef2f2;
+}
+
+.conflict-item--warning {
+	border-left-color: #f59e0b;
+	background: #fffbeb;
+}
+
+.conflict-item--info {
+	border-left-color: #3b82f6;
+	background: #eff6ff;
+}
+
+.conflict-item-icon {
+	flex-shrink: 0;
+	margin-top: 0.125rem;
+}
+
+.conflict-item-content {
+	flex: 1;
+}
+
+.conflict-item-message {
+	margin: 0 0 0.5rem 0;
+	font-size: 0.9rem;
+	color: #1f2937;
+}
+
+.conflict-item-amendments {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.amendment-tag {
+	padding: 0.25rem 0.75rem;
+	background: #e5e7eb;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+	color: #4b5563;
+}
+
+.conflict-item-article {
+	font-size: 0.85rem;
+	color: #6b7280;
+	margin-top: 0.25rem;
+}
+
+.conflicts-note {
+	margin: 0.75rem 0 0 0;
+	font-size: 0.85rem;
+	color: #6b7280;
+}
+
+.warning-hint {
+	color: #f59e0b;
+	font-size: 0.8rem;
+}
+
+.submit-btn.has-conflicts {
+	background: #dc2626;
+}
+
+.submit-btn.has-conflicts:hover {
+	background: #b91c1c;
+}

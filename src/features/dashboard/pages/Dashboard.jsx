@@ -23,12 +23,22 @@ function CalendarIcon() {
 
 const formatDate = (dateStr) => {
 	if (!dateStr) return '';
+
+	// Jeśli data jest już w formacie DD.MM.YYYY (zawiera kropki)
+	if (typeof dateStr === 'string' && /^\d{2}\.\d{2}\.\d{4}$/.test(dateStr)) {
+		return dateStr;
+	}
+
 	const date = new Date(dateStr);
-	const day = String(date.getDate()).padStart(2, '0');
-	const month = String(date.getMonth() + 1).padStart(2, '0');
-	const year = date.getFullYear();
-	return `${day}.${month}.${year}`;
+	if (isNaN(date.getTime())) return '';
+
+	return date.toLocaleDateString('pl-PL', {
+		day: '2-digit',
+		month: '2-digit',
+		year: 'numeric'
+	});
 };
+
 
 export default function Dashboard() {
 	const navigate = useNavigate();
@@ -150,19 +160,10 @@ export default function Dashboard() {
 								<h3>{currentSession.title}</h3>
 
 								<p className="dashboard__session-time">
-									<span className="date">
-										{formatDate(currentSession.start)}
-									</span>
-									<span className="time">
-										{currentSession.startTime}
-									</span>
-									<span className="separator">–</span>
-									<span className="date">
-										{formatDate(currentSession.end)}
-									</span>
-									<span className="time">
-										{currentSession.endTime}
-									</span>
+									<span className="date">{currentSession.start}</span>
+									<span className="time"> {currentSession.startTime}</span>
+									<span className="separator"> – </span>
+									<span className="time">{currentSession.endTime}</span>
 								</p>
 							</div>
 
