@@ -21,11 +21,12 @@ export default function AddAmendment() {
 	const [existingAmendments, setExistingAmendments] = useState([]);
 	const [conflicts, setConflicts] = useState([]);
 	const [showConflicts, setShowConflicts] = useState(false);
+	const [blockingConflicts, setBlockingConflicts] = useState([]);
 
 	const [target, setTarget] = useState({
 		article: "",
 		section: "other",
-		fragment: "",
+		fragment: "", // Teraz będzie automatycznie wypełniane
 	});
 
 	const CHANGE_TYPES = [
@@ -34,36 +35,57 @@ export default function AddAmendment() {
 		{ value: "delete", label: "Usunięcie artykułu" },
 	];
 
-	// W AddAmendment.jsx - zmień useEffect:
-
+	// ============================================
+	// POBIERANIE DANYCH
+	// ============================================
 	useEffect(() => {
-		Promise.all([
-			fetch(`/api/resolutions/${slug}`),
-			fetch(`/api/resolutions/${slug}/amendments`),
-			fetch("/api/current-user")  // <- używamy /api/current-user
-		])
-			.then(([resRes, amdRes, userRes]) => {
+		const fetchData = async () => {
+			try {
+				const [resRes, amdRes, userRes] = await Promise.all([
+					fetch(`/api/resolutions/${slug}`),
+					fetch(`/api/resolutions/${slug}/amendments`),
+					fetch("/api/current-user")
+				]);
+
 				if (!resRes.ok) throw new Error("Nie znaleziono uchwały");
 				if (!userRes.ok) throw new Error("Nie znaleziono użytkownika");
-				return Promise.all([resRes.json(), amdRes.json(), userRes.json()]);
-			})
-			.then(([resolutionData, amendmentsData, userData]) => {
-				setResolution(resolutionData.resolution);
+
+				const resolutionData = await resRes.json();
+				const amendmentsData = await amdRes.json();
+				const userData = await userRes.json();
+
+				let amendmentsList = [];
+				if (Array.isArray(amendmentsData)) {
+					amendmentsList = amendmentsData;
+				} else if (amendmentsData && typeof amendmentsData === 'object') {
+					if (Array.isArray(amendmentsData.amendments)) {
+						amendmentsList = amendmentsData.amendments;
+					} else if (Array.isArray(amendmentsData.data)) {
+						amendmentsList = amendmentsData.data;
+					} else {
+						amendmentsList = [amendmentsData].filter(Boolean);
+					}
+				}
+
+				setResolution(resolutionData.resolution || resolutionData);
 				setResolutionData(resolutionData);
-				// amendmentsData to tablica poprawek
-				setExistingAmendments(amendmentsData.filter(a =>
-					a.status === 'pending' || a.status === 'accepted'
-				));
-				setCurrentUser(userData);  // <- userData to już obiekt użytkownika
+
+				const activeAmendments = amendmentsList.filter(a =>
+					a && (a.status === 'pending' || a.status === 'accepted')
+				);
+				setExistingAmendments(activeAmendments);
+				setCurrentUser(userData);
 				setError(null);
-			})
-			.catch((err) => {
+
+			} catch (err) {
 				console.error('Błąd:', err);
 				setError(err.message);
-			})
-			.finally(() => {
+			} finally {
 				setLoading(false);
-			});
+			}
+		};
+
+		fetchData();
 	}, [slug]);
 
 	const getAllArticles = () => {
@@ -77,50 +99,149 @@ export default function AddAmendment() {
 
 	const allArticles = getAllArticles();
 
-	// Funkcja sprawdzająca kolizje
+	// ============================================
+	// AUTOMATYCZNE UZUPEŁNIANIE FRAGMENTU
+	// ============================================
+	const handleArticleChange = (articleId) => {
+		const article = allArticles.find(a => String(a.id) === String(articleId));
+
+		if (article) {
+			// Automatycznie ustaw fragment na treść artykułu
+			setTarget({
+				...target,
+				article: articleId,
+				fragment: article.content || ""
+			});
+		} else {
+			setTarget({
+				...target,
+				article: articleId,
+				fragment: ""
+			});
+		}
+	};
+
+	// ============================================
+	// POMOCNICZA FUNKCJA DO OBLICZANIA PODOBIEŃSTWA
+	// ============================================
+	const calculateSimilarity = (str1, str2) => {
+		if (!str1 || !str2) return 0;
+		const s1 = str1.toLowerCase().trim();
+		const s2 = str2.toLowerCase().trim();
+
+		const words1 = s1.split(/\s+/).filter(w => w.length > 3);
+		const words2 = s2.split(/\s+/).filter(w => w.length > 3);
+
+		if (words1.length === 0 || words2.length === 0) return 0;
+
+		const common = words1.filter(w => words2.includes(w));
+		const maxLength = Math.max(words1.length, words2.length);
+
+		return common.length / maxLength;
+	};
+
+	// ============================================
+	// FUNKCJA SPRAWDZANIA KONFLIKTÓW
+	// ============================================
 	const checkConflicts = (newChanges, targetArticle, targetFragment) => {
 		const conflictsList = [];
+		const blockingList = [];
 
-		// Pobierz istniejące poprawki dla wybranego artykułu
+		// 1. Sprawdź czy są poprawki dla wybranego artykułu
 		const existingForArticle = existingAmendments.filter(
-			a => a.target?.article === Number(targetArticle) &&
+			a => a?.target?.article === Number(targetArticle) &&
 				(a.status === 'pending' || a.status === 'accepted')
 		);
 
 		if (existingForArticle.length > 0) {
-			conflictsList.push({
-				level: 'warning',
-				type: 'existing_amendments',
-				message: `Istnieją już ${existingForArticle.length} poprawki dla tego artykułu`,
-				amendments: existingForArticle
+			existingForArticle.forEach(existing => {
+				newChanges.forEach(newChange => {
+					// KONFLIKT: Dodanie vs Usunięcie
+					if (newChange.type === 'add' && existing.changes?.some(ec => ec.type === 'delete')) {
+						const deletedArticleId = existing.changes.find(ec => ec.type === 'delete')?.articleId;
+						if (deletedArticleId) {
+							blockingList.push({
+								level: 'blocking',
+								type: 'add_delete_conflict',
+								message: `❌ Nie możesz dodać nowego artykułu - w poprawce #${existing.id} (${existing.author}) artykuł został usunięty`,
+								amendment: existing
+							});
+						}
+					}
+
+					// KONFLIKT: Usunięcie vs Dodanie
+					if (newChange.type === 'delete' && existing.changes?.some(ec => ec.type === 'add')) {
+						blockingList.push({
+							level: 'blocking',
+							type: 'delete_add_conflict',
+							message: `❌ Nie możesz usunąć tego artykułu - w poprawce #${existing.id} (${existing.author}) został on dodany`,
+							amendment: existing
+						});
+					}
+
+					// KONFLIKT: Modyfikacja vs Usunięcie
+					if (newChange.type === 'modify' && existing.changes?.some(ec => ec.type === 'delete' && ec.articleId === newChange.articleId)) {
+						blockingList.push({
+							level: 'blocking',
+							type: 'modify_delete_conflict',
+							message: `❌ Nie możesz modyfikować tego artykułu - w poprawce #${existing.id} (${existing.author}) został on usunięty`,
+							amendment: existing
+						});
+					}
+
+					// KONFLIKT: Usunięcie vs Modyfikacja
+					if (newChange.type === 'delete' && existing.changes?.some(ec => ec.type === 'modify' && ec.articleId === newChange.articleId)) {
+						blockingList.push({
+							level: 'blocking',
+							type: 'delete_modify_conflict',
+							message: `❌ Nie możesz usunąć tego artykułu - w poprawce #${existing.id} (${existing.author}) jest on modyfikowany`,
+							amendment: existing
+						});
+					}
+
+					// KONFLIKT: Modyfikacja vs Modyfikacja tego samego fragmentu
+					if (newChange.type === 'modify' && existing.changes?.some(ec => ec.type === 'modify')) {
+						const existingModify = existing.changes.find(ec => ec.type === 'modify');
+						if (existingModify && targetFragment && targetFragment.length > 10) {
+							const similarity = calculateSimilarity(
+								targetFragment,
+								existing.target?.fragment || existingModify.before || ''
+							);
+							if (similarity > 0.5) {
+								blockingList.push({
+									level: 'blocking',
+									type: 'modify_modify_conflict',
+									message: `❌ Ten sam fragment jest już modyfikowany w poprawce #${existing.id} (${existing.author})`,
+									amendment: existing,
+									similarity: Math.round(similarity * 100)
+								});
+							}
+						}
+					}
+				});
 			});
 
-			// Sprawdź czy zmiany dotyczą tego samego fragmentu
-			existingForArticle.forEach(existing => {
-				if (existing.target?.fragment &&
-					targetFragment &&
-					targetFragment.length > 10 &&
-					existing.target.fragment.includes(targetFragment.substring(0, 30))) {
-					conflictsList.push({
-						level: 'conflict',
-						type: 'same_fragment',
-						message: `Poprawka #${existing.id} (${existing.author}) dotyczy tego samego fragmentu`,
-						amendment: existing
-					});
-				}
-			});
+			// OSTRZEŻENIA: Istnieją inne poprawki
+			if (blockingList.length === 0) {
+				conflictsList.push({
+					level: 'warning',
+					type: 'existing_amendments',
+					message: `ℹ️ Istnieją już ${existingForArticle.length} inne poprawki dla tego artykułu - sprawdź czy nie ma konfliktów`,
+					amendments: existingForArticle
+				});
+			}
 		}
 
-		// Sprawdź czy zmiany są ze sobą sprzeczne
+		// 2. Sprzeczności wewnątrz poprawki
 		const hasAdd = newChanges.some(c => c.type === 'add');
 		const hasDelete = newChanges.some(c => c.type === 'delete');
 		const hasModify = newChanges.some(c => c.type === 'modify');
 
 		if (hasAdd && hasDelete) {
-			conflictsList.push({
-				level: 'conflict',
-				type: 'add_delete_conflict',
-				message: 'Nie możesz jednocześnie dodawać i usuwać artykułów w tej samej poprawce'
+			blockingList.push({
+				level: 'blocking',
+				type: 'internal_add_delete_conflict',
+				message: '❌ Nie możesz jednocześnie dodawać i usuwać artykułów w tej samej poprawce'
 			});
 		}
 
@@ -128,11 +249,11 @@ export default function AddAmendment() {
 			conflictsList.push({
 				level: 'warning',
 				type: 'delete_modify_warning',
-				message: 'Usuwasz jeden artykuł i modyfikujesz inny - czy to zamierzone?'
+				message: '⚠️ Usuwasz jeden artykuł i modyfikujesz inny - czy to zamierzone?'
 			});
 		}
 
-		// Sprawdź czy dodawany artykuł już istnieje
+		// 3. Sprawdź czy dodawany artykuł już istnieje
 		if (hasAdd) {
 			const newArticleContent = newChanges.find(c => c.type === 'add')?.to || '';
 			const similarArticles = allArticles.filter(a =>
@@ -144,30 +265,53 @@ export default function AddAmendment() {
 				conflictsList.push({
 					level: 'warning',
 					type: 'similar_article',
-					message: `Nowy artykuł jest podobny do istniejącego artykułu ${similarArticles[0].number || ''}`,
+					message: `⚠️ Nowy artykuł jest podobny do istniejącego artykułu ${similarArticles[0].number || ''}`,
 					article: similarArticles[0]
 				});
 			}
 		}
 
-		return conflictsList;
+		// 4. Sprawdź czy usuwany artykuł jest używany w innych poprawkach
+		if (hasDelete) {
+			const deletedArticleId = newChanges.find(c => c.type === 'delete')?.articleId;
+			if (deletedArticleId) {
+				const amendmentsUsingArticle = existingAmendments.filter(a =>
+					a.changes?.some(c => c.articleId === deletedArticleId) &&
+					a.status === 'pending'
+				);
+				if (amendmentsUsingArticle.length > 0) {
+					blockingList.push({
+						level: 'blocking',
+						type: 'delete_used_article',
+						message: `❌ Ten artykuł jest używany w ${amendmentsUsingArticle.length} innych poprawkach - nie można go usunąć`,
+						amendments: amendmentsUsingArticle
+					});
+				}
+			}
+		}
+
+		return { conflicts: conflictsList, blocking: blockingList };
 	};
 
-	// Sprawdzaj kolizje przy każdej zmianie
+	// ============================================
+	// AUTOMATYCZNE SPRAWDZANIE KONFLIKTÓW
+	// ============================================
 	useEffect(() => {
 		if (target.article) {
 			const validChanges = changes.filter(c =>
 				c.type && (c.to || c.type === 'delete')
 			);
-			const newConflicts = checkConflicts(
+			const result = checkConflicts(
 				validChanges,
 				target.article,
 				target.fragment
 			);
-			setConflicts(newConflicts);
-			setShowConflicts(newConflicts.length > 0);
+			setConflicts(result.conflicts);
+			setBlockingConflicts(result.blocking);
+			setShowConflicts(result.conflicts.length > 0 || result.blocking.length > 0);
 		} else {
 			setConflicts([]);
+			setBlockingConflicts([]);
 			setShowConflicts(false);
 		}
 	}, [target.article, target.fragment, changes, existingAmendments]);
@@ -187,7 +331,7 @@ export default function AddAmendment() {
 	};
 
 	const handleArticleSelect = (changeId, articleId) => {
-		const article = allArticles.find((a) => a.id === Number(articleId) || a.id === articleId);
+		const article = allArticles.find((a) => String(a.id) === String(articleId));
 		setChanges((prev) =>
 			prev.map((c) =>
 				c.id === changeId
@@ -251,14 +395,30 @@ export default function AddAmendment() {
 			return;
 		}
 
-		// Sprawdź czy są konflikty przed wysłaniem
-		const hasConflicts = conflicts.some(c => c.level === 'conflict');
-		if (hasConflicts) {
+		// Sprawdź konflikty
+		const result = checkConflicts(validChanges, target.article, target.fragment);
+
+		if (result.blocking.length > 0) {
+			const blockingMessages = result.blocking
+				.map(b => `• ${b.message}`)
+				.join('\n');
+
+			alert(
+				`🚫 NIE MOŻNA DODAĆ POPRAWKI - wykryto blokujące konflikty:\n\n${blockingMessages}\n\n` +
+				`Rozwiąż konflikty przed dodaniem poprawki.`
+			);
+			return;
+		}
+
+		if (result.conflicts.length > 0) {
+			const warningMessages = result.conflicts
+				.filter(c => c.level === 'warning')
+				.map(c => `• ${c.message}`)
+				.join('\n');
+
 			const confirmSubmit = window.confirm(
-				`⚠️ Wykryto konflikty:\n\n${conflicts
-					.filter(c => c.level === 'conflict')
-					.map(c => `• ${c.message}`)
-					.join('\n')}\n\nCzy na pewno chcesz dodać tę poprawkę?`
+				`⚠️ Wykryto ostrzeżenia:\n\n${warningMessages}\n\n` +
+				`Czy na pewno chcesz dodać tę poprawkę?`
 			);
 			if (!confirmSubmit) return;
 		}
@@ -313,6 +473,7 @@ export default function AddAmendment() {
 
 	const getConflictIcon = (level) => {
 		switch (level) {
+			case 'blocking': return <AlertTriangle size={18} color="#dc2626" />;
 			case 'conflict': return <AlertTriangle size={18} color="#dc2626" />;
 			case 'warning': return <Info size={18} color="#f59e0b" />;
 			default: return <Info size={18} color="#3b82f6" />;
@@ -321,6 +482,7 @@ export default function AddAmendment() {
 
 	const getConflictClass = (level) => {
 		switch (level) {
+			case 'blocking': return 'conflict-item--blocking';
 			case 'conflict': return 'conflict-item--conflict';
 			case 'warning': return 'conflict-item--warning';
 			default: return 'conflict-item--info';
@@ -362,14 +524,14 @@ export default function AddAmendment() {
 							<label>Artykuł/paragraf</label>
 							<select
 								value={target.article}
-								onChange={(e) => setTarget({ ...target, article: e.target.value })}
+								onChange={(e) => handleArticleChange(e.target.value)}
 								className="form-select"
 								required
 							>
 								<option value="">-- wybierz artykuł --</option>
 								{allArticles.map((art, idx) => {
 									const hasAmendments = existingAmendments.some(
-										a => a.target?.article === Number(art.id) &&
+										a => a?.target?.article === Number(art.id) &&
 											(a.status === 'pending' || a.status === 'accepted')
 									);
 									return (
@@ -380,18 +542,6 @@ export default function AddAmendment() {
 									);
 								})}
 							</select>
-							{target.article && (
-								<small className="field-hint">
-									{existingAmendments.filter(
-										a => a.target?.article === Number(target.article) &&
-											(a.status === 'pending' || a.status === 'accepted')
-									).length > 0 && (
-											<span className="warning-hint">
-												⚠️ Istnieją już poprawki do tego artykułu
-											</span>
-										)}
-								</small>
-							)}
 						</div>
 
 						<div className="form-group">
@@ -409,57 +559,127 @@ export default function AddAmendment() {
 							</select>
 						</div>
 
-						<div className="form-group">
-							<label>Fragment który zmieniasz (opcjonalnie)</label>
-							<textarea
-								value={target.fragment}
-								onChange={(e) => setTarget({ ...target, fragment: e.target.value })}
-								placeholder="Wklej dokładny fragment tekstu który zmieniasz (pomoże to w wykryciu konfliktów)..."
-								className="form-textarea"
-								rows={2}
-							/>
-						</div>
+						{/* ============================================
+							UKRYTE POLE - automatycznie wypełniane
+						    ============================================ */}
+						{target.fragment && (
+							<div className="form-group" style={{ display: 'none' }}>
+								<label>Fragment który zmieniasz (automatycznie)</label>
+								<textarea
+									value={target.fragment}
+									readOnly
+									className="form-textarea"
+									rows={2}
+									style={{ backgroundColor: '#f3f4f6', color: '#6b7280' }}
+								/>
+							</div>
+						)}
+
+						{/* Informacja o automatycznym pobraniu fragmentu */}
+						{target.article && target.fragment && (
+							<div className="form-group">
+								<small className="field-hint" style={{ color: '#059669' }}>
+									✅ Automatycznie pobrano fragment do porównania
+								</small>
+							</div>
+						)}
 
 						{/* Sekcja konfliktów */}
-						{showConflicts && conflicts.length > 0 && (
+						{showConflicts && (conflicts.length > 0 || blockingConflicts.length > 0) && (
 							<div className="conflicts-section">
-								<h4 className="conflicts-title">
-									<AlertTriangle size={20} />
-									Wykryto {conflicts.length} {conflicts.length === 1 ? 'potencjalny konflikt' : 'potencjalne konflikty'}
-								</h4>
-								<div className="conflicts-list">
-									{conflicts.map((conflict, index) => (
-										<div
-											key={index}
-											className={`conflict-item ${getConflictClass(conflict.level)}`}
-										>
-											<div className="conflict-item-icon">
-												{getConflictIcon(conflict.level)}
-											</div>
-											<div className="conflict-item-content">
-												<p className="conflict-item-message">{conflict.message}</p>
-												{conflict.amendments && (
-													<div className="conflict-item-amendments">
-														{conflict.amendments.map(amd => (
-															<span key={amd.id} className="amendment-tag">
-																#{amd.id} {amd.author} ({amd.status})
-															</span>
-														))}
+								{blockingConflicts.length > 0 && (
+									<>
+										<h4 className="conflicts-title conflicts-title--blocking">
+											<AlertTriangle size={20} />
+											🚫 BLOKUJĄCE KONFLIKTY - {blockingConflicts.length}
+										</h4>
+										<div className="conflicts-list">
+											{blockingConflicts.map((conflict, index) => (
+												<div
+													key={`blocking-${index}`}
+													className={`conflict-item ${getConflictClass(conflict.level)}`}
+												>
+													<div className="conflict-item-icon">
+														{getConflictIcon(conflict.level)}
 													</div>
-												)}
-												{conflict.article && (
-													<div className="conflict-item-article">
-														Artykuł: {conflict.article.number || ''}
+													<div className="conflict-item-content">
+														<p className="conflict-item-message">{conflict.message}</p>
+														{conflict.amendment && (
+															<div className="conflict-item-amendments">
+																<span className="amendment-tag amendment-tag--blocking">
+																	Poprawka #{conflict.amendment.id} - {conflict.amendment.author}
+																</span>
+															</div>
+														)}
+														{conflict.amendments && conflict.amendments.length > 0 && (
+															<div className="conflict-item-amendments">
+																{conflict.amendments.map(amd => (
+																	<span key={amd.id} className="amendment-tag amendment-tag--blocking">
+																		#{amd.id} {amd.author}
+																	</span>
+																))}
+															</div>
+														)}
+														{conflict.similarity && (
+															<div className="conflict-item-similarity">
+																Podobieństwo: {conflict.similarity}%
+															</div>
+														)}
 													</div>
-												)}
-											</div>
+												</div>
+											))}
 										</div>
-									))}
-								</div>
+									</>
+								)}
+
+								{conflicts.length > 0 && (
+									<>
+										<h4 className="conflicts-title">
+											<Info size={20} />
+											Ostrzeżenia - {conflicts.length}
+										</h4>
+										<div className="conflicts-list">
+											{conflicts.map((conflict, index) => (
+												<div
+													key={`warning-${index}`}
+													className={`conflict-item ${getConflictClass(conflict.level)}`}
+												>
+													<div className="conflict-item-icon">
+														{getConflictIcon(conflict.level)}
+													</div>
+													<div className="conflict-item-content">
+														<p className="conflict-item-message">{conflict.message}</p>
+														{conflict.amendments && (
+															<div className="conflict-item-amendments">
+																{conflict.amendments.map(amd => (
+																	<span key={amd.id} className="amendment-tag">
+																		#{amd.id} {amd.author} ({amd.status})
+																	</span>
+																))}
+															</div>
+														)}
+														{conflict.article && (
+															<div className="conflict-item-article">
+																Artykuł: {conflict.article.number || ''}
+															</div>
+														)}
+													</div>
+												</div>
+											))}
+										</div>
+									</>
+								)}
+
 								<p className="conflicts-note">
-									{conflicts.some(c => c.level === 'conflict')
-										? '⚠️ Wykryto poważne konflikty - rozważ zmianę poprawki przed zatwierdzeniem.'
-										: 'ℹ️ To są tylko ostrzeżenia - możesz kontynuować, ale sprawdź czy zmiany są zamierzone.'}
+									{blockingConflicts.length > 0 ? (
+										<span style={{ color: '#dc2626', fontWeight: 'bold' }}>
+											🚫 Wykryto blokujące konflikty - NIE MOŻNA dodać poprawki do czasu ich rozwiązania
+										</span>
+									) : (
+										<span style={{ color: '#f59e0b' }}>
+											ℹ️ To są tylko ostrzeżenia - możesz kontynuować
+										</span>
+									)}
 								</p>
 							</div>
 						)}
@@ -563,11 +783,12 @@ export default function AddAmendment() {
 					<div className="form-actions">
 						<button
 							type="submit"
-							className={`submit-btn ${conflicts.some(c => c.level === 'conflict') ? 'has-conflicts' : ''}`}
-							disabled={submitting}
+							className={`submit-btn ${blockingConflicts.length > 0 ? 'has-blocking-conflicts' : ''} ${conflicts.length > 0 ? 'has-warnings' : ''}`}
+							disabled={submitting || blockingConflicts.length > 0}
 						>
-							{submitting ? "Dodawanie..." : "Dodaj poprawkę"}
-							{conflicts.some(c => c.level === 'conflict') && " ⚠️"}
+							{blockingConflicts.length > 0 ? "🚫 Rozwiąż konflikty przed dodaniem" :
+								submitting ? "Dodawanie..." : "Dodaj poprawkę"}
+							{conflicts.length > 0 && !blockingConflicts.length > 0 && " ⚠️"}
 						</button>
 						<Link to={`/${slug}/poprawki`} className="cancel-btn">
 							Anuluj
