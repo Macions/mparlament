@@ -8,7 +8,7 @@ export default function LiveVoting() {
 	const { id } = useParams();
 	const navigate = useNavigate();
 	const token = localStorage.getItem("token");
-	const { socket, isConnected } = useSocket(); // <-- PRZENIESIONE DO ŚRODKA
+	const { socket, isConnected } = useSocket();
 
 	const [voting, setVoting] = useState(null);
 	const [loading, setLoading] = useState(true);
@@ -24,7 +24,6 @@ export default function LiveVoting() {
 	const [isLive, setIsLive] = useState(true);
 	const [parliamentarians, setParliamentarians] = useState([]);
 
-	// WebSocket - nasłuchuj na aktualizacje
 	useEffect(() => {
 		if (!socket) return;
 
@@ -104,7 +103,6 @@ export default function LiveVoting() {
 				const data = await response.json();
 				setVoting(data);
 
-				// UŻYJ TEGO SAMEGO data - NIE POBIERAJ DRUGI RAZ!
 				setEligibleUsers(data.eligibleUsers || []);
 				setVotedUsers(data.votedUsers || []);
 				setNotVotedUsers(data.notVotedUsers || []);
@@ -122,7 +120,6 @@ export default function LiveVoting() {
 		}
 	}, [id, token, parliamentarians]);
 
-	// Licznik czasu
 	useEffect(() => {
 		if (!voting) return;
 
@@ -150,9 +147,7 @@ export default function LiveVoting() {
 		return () => clearInterval(interval);
 	}, [voting]);
 
-	// Polling - fallback gdy WebSocket nie działa
 	useEffect(() => {
-		// Jeśli WebSocket jest podłączony - nie używaj polling
 		if (isConnected || !isLive || !voting) return;
 
 		console.log("WebSocket nieaktywny - używam polling co 3 sekundy");

@@ -8,7 +8,6 @@ export const generateDocxWithTags = async (originalFile, data) => {
 	const zip = await JSZip.loadAsync(arrayBuffer);
 	let xml = await zip.file("word/document.xml").async("string");
 
-	// Przetwarzanie poprawek (usuwanie, dodawanie, podmiana)
 	Object.entries(data).forEach(([key, newContent]) => {
 		if (!newContent) return;
 
@@ -20,7 +19,6 @@ export const generateDocxWithTags = async (originalFile, data) => {
 			: newContent;
 
 		if (isDeleted) {
-			// ️ USUŃ ARTYKUŁ
 			console.log(`️ Usuwam Art. ${num}`);
 			const searchText = `Art. ${num}.`;
 			const match = xml.match(new RegExp(`${searchText}[^<]*`, "i"));
@@ -35,7 +33,6 @@ export const generateDocxWithTags = async (originalFile, data) => {
 				}
 			}
 		} else if (isNew) {
-			//  DODAJ NOWY ARTYKUŁ (z tymczasowym numerem)
 			console.log(` Dodaję nowy artykuł po Art. ${num}`);
 			const newArticleText = `Art. ${num}. ${content}`;
 
@@ -51,7 +48,6 @@ export const generateDocxWithTags = async (originalFile, data) => {
 				}
 			}
 		} else {
-			// ️ PODMIANA ISTNIEJĄCEGO
 			console.log(` Podmieniam Art. ${num} na: "${content}"`);
 			const searchText = `Art. ${num}.`;
 			const match = xml.match(new RegExp(`${searchText}[^<]*`, "i"));
@@ -64,7 +60,6 @@ export const generateDocxWithTags = async (originalFile, data) => {
 		}
 	});
 
-	//  PRZENUMERUJ WSZYSTKIE ARTYKUŁY
 	console.log(" Przenumerowuję artykuły...");
 	xml = renumberArticles(xml);
 
@@ -79,9 +74,7 @@ export const generateDocxWithTags = async (originalFile, data) => {
 	return blob;
 };
 
-// Funkcja do przenumerowania artykułów od 1 do n
 function renumberArticles(xml) {
-	// Znajdź wszystkie artykuły w kolejności występowania
 	const articleRegex = /Art\.\s*(\d+)/g;
 	let match;
 	const articles = [];
@@ -97,7 +90,6 @@ function renumberArticles(xml) {
 
 	console.log(`   Znaleziono ${articles.length} artykułów`);
 
-	// Przenumeruj od 1 do n (od tyłu, żeby nie psuć indeksów)
 	let newNumber = 1;
 	let offset = 0;
 
@@ -106,13 +98,11 @@ function renumberArticles(xml) {
 		const oldText = `Art. ${art.number}`;
 		const newText = `Art. ${newNumber}`;
 
-		// Znajdź i zamień (uwzględniając offset)
 		const currentPos = art.start + offset;
 		const beforeReplace = xml.substring(0, currentPos);
 		const afterReplace = xml.substring(currentPos + oldText.length);
 		xml = beforeReplace + newText + afterReplace;
 
-		// Aktualizuj offset dla następnych pozycji
 		offset += newText.length - oldText.length;
 		newNumber++;
 	}

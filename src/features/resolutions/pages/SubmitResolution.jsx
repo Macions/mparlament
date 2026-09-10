@@ -122,13 +122,11 @@ export default function SubmitResolution() {
 	const handleSubmit = async () => {
 		if (!editedData || submitting) return;
 
-		// Sprawdź czy plik istnieje
 		if (!file) {
 			setError("Nie wybrano pliku");
 			return;
 		}
 
-		//  DODAJ TĘ WALIDACJĘ:
 		if (!selectedSessionId || selectedSessionId === "all") {
 			setError("Wybierz posiedzenie");
 			return;
@@ -136,7 +134,7 @@ export default function SubmitResolution() {
 
 		setSubmitting(true);
 		setError("");
-		setUploadProgress(0); //  DODAJ
+		setUploadProgress(0);
 
 		try {
 			const userResponse = await fetch("/api/auth/me");
@@ -145,38 +143,33 @@ export default function SubmitResolution() {
 			}
 			const userData = await userResponse.json();
 
-			// Tworzymy FormData
 			const formData = new FormData();
 
-			// Dodajemy plik
 			formData.append("file", file);
 
-			// Przygotowujemy dane
 			const bill = {
 				...editedData,
 				fileName,
 				author: userData.name,
 				authorId: userData.id,
 				party: userData.club || userData.party || "Niezrzeszony",
-				sessionId: selectedSessionId !== "all" ? Number(selectedSessionId) : null, //  DODAJ
+				sessionId:
+					selectedSessionId !== "all" ? Number(selectedSessionId) : null,
 			};
 
-			// Dodajemy dane jako JSON string
 			formData.append("data", JSON.stringify(bill));
 
-			//  ZMIEŃ fetch na XMLHttpRequest z progress
 			const response = await new Promise((resolve, reject) => {
 				const xhr = new XMLHttpRequest();
 
-				// Nasłuchuj postęp wysyłania
-				xhr.upload.addEventListener('progress', (event) => {
+				xhr.upload.addEventListener("progress", (event) => {
 					if (event.lengthComputable) {
 						const percent = (event.loaded / event.total) * 100;
 						setUploadProgress(percent);
 					}
 				});
 
-				xhr.open('POST', '/api/resolutions');
+				xhr.open("POST", "/api/resolutions");
 
 				xhr.onload = () => {
 					if (xhr.status >= 200 && xhr.status < 300) {
@@ -216,13 +209,9 @@ export default function SubmitResolution() {
 		}
 	};
 
-
 	return (
 		<div className="submit-page">
-			<button
-				className="back-to-home-btn"
-				onClick={() => navigate("/panel")}
-			>
+			<button className="back-to-home-btn" onClick={() => navigate("/panel")}>
 				<svg
 					width="18"
 					height="18"
@@ -238,13 +227,10 @@ export default function SubmitResolution() {
 						strokeLinejoin="round"
 					/>
 				</svg>
-
 				Panel
 			</button>
 			<div className="uchwaly-bar">
-				<h1 className="uchwaly-title">
-					ZŁÓŻ UCHWAŁĘ
-				</h1>
+				<h1 className="uchwaly-title">ZŁÓŻ UCHWAŁĘ</h1>
 				<div className="session-selector">
 					<label htmlFor="session-select">Posiedzenie:</label>
 					<select
@@ -265,8 +251,9 @@ export default function SubmitResolution() {
 
 			<div className="submit-container">
 				<div className="form-card">
-					<div className={`form-content ${!selectedSessionId ? 'disabled' : ''}`}>
-
+					<div
+						className={`form-content ${!selectedSessionId ? "disabled" : ""}`}
+					>
 						<div className="form-group">
 							<label className="label">Nazwa uchwały</label>
 							<input
@@ -418,7 +405,6 @@ export default function SubmitResolution() {
 												+ Dodaj artykuł
 											</button>
 										</div>
-
 									</div>
 								))}
 							</div>

@@ -161,7 +161,6 @@ const extractTarget = (amendment) => {
 };
 
 const compareAmendments = (amendment1, amendment2) => {
-	// Czy dotyczą tego samego dokumentu?
 	if (amendment1.resolutionId !== amendment2.resolutionId) {
 		return { conflict: false, potential: false, reason: null, fragment: null };
 	}
@@ -169,7 +168,6 @@ const compareAmendments = (amendment1, amendment2) => {
 	const target1 = extractTarget(amendment1);
 	const target2 = extractTarget(amendment2);
 
-	// Czy dotyczą tego samego fragmentu?
 	const sameFragment =
 		target1.fragment &&
 		target2.fragment &&
@@ -179,7 +177,6 @@ const compareAmendments = (amendment1, amendment2) => {
 	const sameSection =
 		target1.section === target2.section && target1.section !== "other";
 
-	// KONFLIKT PEWNY - ten sam fragment, różne zmiany
 	if (sameFragment) {
 		const before1 = amendment1.changes?.[0]?.before || "";
 		const before2 = amendment2.changes?.[0]?.before || "";
@@ -196,7 +193,6 @@ const compareAmendments = (amendment1, amendment2) => {
 		}
 	}
 
-	// KONFLIKT PEWNY - ten sam artykuł, ten sam obszar
 	if (sameArticle && sameSection) {
 		return {
 			conflict: true,
@@ -206,7 +202,6 @@ const compareAmendments = (amendment1, amendment2) => {
 		};
 	}
 
-	// POTENCJALNY KONFLIKT - ten sam obszar, inne artykuły
 	if (sameSection && !sameArticle) {
 		return {
 			conflict: false,
@@ -216,7 +211,6 @@ const compareAmendments = (amendment1, amendment2) => {
 		};
 	}
 
-	// POTENCJALNY KONFLIKT - ten sam artykuł, inne obszary
 	if (sameArticle && !sameSection) {
 		return {
 			conflict: false,
@@ -229,7 +223,6 @@ const compareAmendments = (amendment1, amendment2) => {
 	return { conflict: false, potential: false, reason: null, fragment: null };
 };
 
-// Wykrywanie konfliktów dla wszystkich poprawek
 const detectAllConflicts = (amendmentsList) => {
 	const result = amendmentsList.map((amendment) => ({
 		...amendment,
@@ -268,8 +261,6 @@ const detectAllConflicts = (amendmentsList) => {
 	return result;
 };
 
-// handlers.ts - ZMIEŃ TĘ FUNKCJĘ
-
 const buildResolutionResponse = (resolution, currentUser = null) => {
 	const signatures = getSignaturesForResolution(resolution.id);
 	const usersWithSignatures = signatures
@@ -289,7 +280,6 @@ const buildResolutionResponse = (resolution, currentUser = null) => {
 	const hasSigned =
 		isAuthor || !!getUserSignature(resolution.id, currentUser?.id);
 
-	// ✅ ZBUDUJ OBIEKT currentUser Z ROLĄ
 	let currentUserResponse = null;
 	if (currentUser) {
 		currentUserResponse = {
@@ -299,7 +289,7 @@ const buildResolutionResponse = (resolution, currentUser = null) => {
 				? "author"
 				: (getUserSignature(resolution.id, currentUser.id)?.type ?? null),
 			isAutoSigned: isAuthor,
-			// ✅ DODAJ ROLĘ I ID
+
 			id: currentUser.id,
 			role: currentUser.role || currentUser.role_id || "member",
 			role_id: currentUser.role_id || null,
@@ -319,7 +309,7 @@ const buildResolutionResponse = (resolution, currentUser = null) => {
 			date: currentSession?.date || "20.05",
 		},
 		...(currentUser && {
-			currentUser: currentUserResponse, // ✅ UŻYJ NOWEGO OBIEKTU
+			currentUser: currentUserResponse,
 		}),
 	};
 };
@@ -581,19 +571,6 @@ export const handlers = [
 		return HttpResponse.json(newVoting, { status: 201 });
 	}),
 
-	http.put("/api/votings/:id", async ({ params, request }) => {
-		const index = findVotingIndex(params.id);
-		if (index === -1) {
-			return HttpResponse.json(
-				{ message: "Nie znaleziono głosowania" },
-				{ status: 404 },
-			);
-		}
-		const body = await request.json();
-		votings[index] = { ...votings[index], ...body };
-		return HttpResponse.json(votings[index]);
-	}),
-
 	http.patch("/api/votings/:id", async ({ params, request }) => {
 		const index = findVotingIndex(params.id);
 		if (index === -1) {
@@ -818,13 +795,11 @@ export const handlers = [
 			);
 		}
 
-		// ✅ Pobierz zalogowanego użytkownika
 		const user = getCurrentUser();
 		if (!user) {
 			return HttpResponse.json({ message: "Nie zalogowany" }, { status: 401 });
 		}
 
-		// ✅ Sprawdź czy zalogowany użytkownik jest autorem poprawki
 		if (amendment.authorId !== user.id) {
 			return HttpResponse.json(
 				{ message: "Nie masz uprawnień do wycofania tej poprawki" },
@@ -946,32 +921,31 @@ export const handlers = [
 
 		let filteredVotings = [...votings];
 
-		// Jeśli userId jest podany i rola to NIE admin
 		if (userId && role !== "admin") {
-			console.log("🔄 Filtruję dla usera:", userId);
-
 			filteredVotings = filteredVotings.filter((vote) => {
-				// ... reszta filtrowania (to co już masz)
+				if (vote.recipientsType === "all") return true;
+				if (vote.recipientsType === "members") {
+					return vote.selectedMembers?.includes(Number(userId));
+				}
+				if (vote.recipientsType === "groups") {
+					const user = users.find((u) => u.id === Number(userId));
+					return user && vote.selectedGroups?.includes(user.clubId);
+				}
+				return false;
 			});
 		} else {
 			console.log("👑 Admin lub brak userId - zwracam wszystko");
 		}
 
-		// DODAJ OBLICZANIE GŁOSÓW DLA KAŻDEGO GŁOSOWANIA
 		const votingsWithResults = filteredVotings.map((voting) => {
-			// Pobierz głosy dla tego głosowania
 			const votingVotes = votes.filter((v) => v.votingId === voting.id);
 
-			// Oblicz liczby
 			const votesFor = votingVotes.filter((v) => v.vote === "for").length;
 			const votesAgainst = votingVotes.filter(
 				(v) => v.vote === "against",
 			).length;
-			const abstained = votingVotes.filter(
-				(v) => v.vote === "abstained",
-			).length;
+			const abstained = votingVotes.filter((v) => v.vote === "abstain").length;
 
-			// Sprawdź czy obecny user głosował
 			const currentUser = getCurrentUser();
 			const userVote = votingVotes.find((v) => v.userId === currentUser?.id);
 			const hasVoted = !!userVote;
@@ -1000,7 +974,6 @@ export const handlers = [
 		const id = Number(params.id);
 		const body = await request.json();
 
-		// Znajdź mówcę po ID
 		const index = speakers.findIndex((s) => s.id === id);
 		if (index === -1) {
 			return HttpResponse.json(
@@ -1009,13 +982,11 @@ export const handlers = [
 			);
 		}
 
-		// Zaktualizuj mówcę
 		speakers[index] = { ...speakers[index], ...body };
 
 		return HttpResponse.json(speakers[index], { status: 200 });
 	}),
 
-	// Aktualizacja statusu mówcy (done/active/waiting)
 	http.patch("/api/speakers/:id/status", async ({ params, request }) => {
 		const id = Number(params.id);
 		const { status } = await request.json();
@@ -1029,7 +1000,6 @@ export const handlers = [
 		return HttpResponse.json(speaker);
 	}),
 
-	// Usuwanie mówcy
 	http.delete("/api/speakers/:id", ({ params }) => {
 		const id = Number(params.id);
 		const index = speakers.findIndex((s) => s.id === id);
@@ -1048,22 +1018,18 @@ export const handlers = [
 			);
 		}
 
-		// Pobierz głosy dla tego głosowania
 		const votingVotes = votes.filter((v) => v.votingId === voting.id);
 
-		// OBLICZ ILE ZA, PRZECIW, WSTRZYMUJĄCYCH
 		const votesFor = votingVotes.filter((v) => v.vote === "for").length;
 		const votesAgainst = votingVotes.filter((v) => v.vote === "against").length;
 		const abstained = votingVotes.filter((v) => v.vote === "abstain").length;
 
 		const votedUserIds = votingVotes.map((v) => v.userId);
 
-		// Pobierz wszystkich parlamentarzystów
 		const allParliamentarians = parliamentarians.filter(
 			(p) => p.clubId !== null,
 		);
 
-		// Określ uprawnionych
 		let eligibleIds = [];
 		if (voting.recipientsType === "all") {
 			eligibleIds = allParliamentarians.map((p) => p.id);
@@ -1075,7 +1041,6 @@ export const handlers = [
 				.map((p) => p.id);
 		}
 
-		// Mapuj na obiekty z danymi
 		const eligibleUsers = eligibleIds.map((id) => {
 			const p = allParliamentarians.find((m) => m.id === id);
 			return {
@@ -1085,7 +1050,6 @@ export const handlers = [
 			};
 		});
 
-		// DODAJ pole 'vote' do votedUsers
 		const votedUsers = eligibleUsers
 			.filter((u) => votedUserIds.includes(u.id))
 			.map((u) => {
@@ -1100,7 +1064,6 @@ export const handlers = [
 			(u) => !votedUserIds.includes(u.id),
 		);
 
-		// Sprawdź czy obecny user głosował
 		const currentUser = getCurrentUser();
 		const myVote =
 			votingVotes.find((v) => v.userId === currentUser?.id)?.vote || null;
@@ -1168,7 +1131,7 @@ export const handlers = [
 
 		return HttpResponse.json({ success: true, vote: body.vote });
 	}),
-	// ===== USUWANIE UCHWAŁY (DELETE) =====
+
 	http.delete("/api/resolutions/:id", ({ params }) => {
 		const id = Number(params.id);
 		const resolutionIndex = resolutions.findIndex((r) => r.id === id);
@@ -1180,10 +1143,8 @@ export const handlers = [
 			);
 		}
 
-		// Usuń uchwałę z listy
 		resolutions.splice(resolutionIndex, 1);
 
-		// Usuń wszystkie podpisy powiązane z tą uchwałą
 		const signatureIndices = resolutionSignatures
 			.map((s, index) => (s.resolutionId === id ? index : -1))
 			.filter((index) => index !== -1)
@@ -1199,11 +1160,10 @@ export const handlers = [
 		);
 	}),
 	http.get("/api/current-user", () => {
-	const user = getCurrentUser();
-	if (user) {
-		// Zwróć samo dane użytkownika, bez zagnieżdżania
-		return HttpResponse.json(user);
-	}
-	return HttpResponse.json({ message: "Nie zalogowany" }, { status: 401 });
-}),
+		const user = getCurrentUser();
+		if (user) {
+			return HttpResponse.json(user);
+		}
+		return HttpResponse.json({ message: "Nie zalogowany" }, { status: 401 });
+	}),
 ];

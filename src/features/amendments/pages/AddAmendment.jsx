@@ -50,18 +50,12 @@ export default function AddAmendment() {
 		{ value: "delete", label: "Usunięcie artykułu" },
 	];
 
-	// ============================================
-	// TOAST
-	// ============================================
 	const showToast = (type, title, message) => {
 		setToast({ type, title, message });
 	};
 
 	const closeToast = () => setToast(null);
 
-	// ============================================
-	// POBIERANIE DANYCH
-	// ============================================
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
@@ -122,9 +116,6 @@ export default function AddAmendment() {
 
 	const allArticles = getAllArticles();
 
-	// ============================================
-	// AUTOMATYCZNE UZUPEŁNIANIE FRAGMENTU
-	// ============================================
 	const handleArticleChange = (articleId) => {
 		const article = allArticles.find((a) => String(a.id) === String(articleId));
 
@@ -144,9 +135,6 @@ export default function AddAmendment() {
 		setHasCheckedConflicts(false);
 	};
 
-	// ============================================
-	// POMOCNICZA FUNKCJA DO OBLICZANIA PODOBIEŃSTWA
-	// ============================================
 	const calculateSimilarity = (str1, str2) => {
 		if (!str1 || !str2) return 0;
 		const s1 = str1.toLowerCase().trim();
@@ -163,23 +151,16 @@ export default function AddAmendment() {
 		return common.length / maxLength;
 	};
 
-	// ============================================
-	// FUNKCJA DO WYCIĄGANIA LICZB Z TEKSTU
-	// ============================================
 	const extractNumbers = (text) => {
 		if (!text) return [];
 		const matches = text.match(/\d+([.,]\d+)?/g);
 		return matches ? matches.map((m) => parseFloat(m.replace(",", "."))) : [];
 	};
 
-	// ============================================
-	// FUNKCJA SPRAWDZANIA KONFLIKTÓW
-	// ============================================
 	const checkConflicts = (newChanges, targetArticle, targetFragment) => {
 		const conflictsList = [];
 		const blockingList = [];
 
-		// 1. Duplikaty i sprzeczne wartości liczbowe
 		existingAmendments.forEach((existing) => {
 			const sameAuthor = existing.authorId === currentUser?.id;
 			const existingContent = existing.content || "";
@@ -250,7 +231,6 @@ export default function AddAmendment() {
 			}
 		});
 
-		// 2. Poprawki dla wybranego artykułu
 		const existingForArticle = existingAmendments.filter(
 			(a) =>
 				a?.target?.article === Number(targetArticle) &&
@@ -350,7 +330,6 @@ export default function AddAmendment() {
 			}
 		}
 
-		// 3. Sprzeczności wewnątrz poprawki
 		const hasAdd = newChanges.some((c) => c.type === "add");
 		const hasDelete = newChanges.some((c) => c.type === "delete");
 		const hasModify = newChanges.some((c) => c.type === "modify");
@@ -373,7 +352,6 @@ export default function AddAmendment() {
 			});
 		}
 
-		// 4. Podobny artykuł
 		if (hasAdd) {
 			const newArticleContent =
 				newChanges.find((c) => c.type === "add")?.to || "";
@@ -393,7 +371,6 @@ export default function AddAmendment() {
 			}
 		}
 
-		// 5. Usuwanie artykułu używanego w innych poprawkach
 		if (hasDelete) {
 			const deletedArticleId = newChanges.find(
 				(c) => c.type === "delete",
@@ -418,9 +395,6 @@ export default function AddAmendment() {
 		return { conflicts: conflictsList, blocking: blockingList };
 	};
 
-	// ============================================
-	// RĘCZNE SPRAWDZANIE KONFLIKTÓW
-	// ============================================
 	const handleCheckConflicts = () => {
 		const validChanges = changes.filter(
 			(c) => c.type && (c.to || c.type === "delete"),
@@ -465,9 +439,6 @@ export default function AddAmendment() {
 		}
 	};
 
-	// ============================================
-	// AUTOMATYCZNE SPRAWDZANIE KONFLIKTÓW
-	// ============================================
 	useEffect(() => {
 		if (target.article) {
 			const validChanges = changes.filter(
@@ -560,9 +531,6 @@ export default function AddAmendment() {
 		setHasCheckedConflicts(false);
 	};
 
-	// ============================================
-	// SUBMIT – wydzielone, używane przez modal
-	// ============================================
 	const submitAmendment = async (validChanges) => {
 		setSubmitting(true);
 
@@ -656,7 +624,6 @@ export default function AddAmendment() {
 			return;
 		}
 
-		// Jeśli są kolizje – pokaż modal
 		if (blockingConflicts.length > 0 || conflicts.length > 0) {
 			const allMessages = [
 				...blockingConflicts.map((b) => b.message),
@@ -1011,10 +978,8 @@ export default function AddAmendment() {
 				</form>
 			</div>
 
-			{/* Toast */}
 			<Toast toast={toast} onClose={closeToast} />
 
-			{/* Modal potwierdzenia kolizji */}
 			<Modal
 				isOpen={!!confirmModal}
 				title={confirmModal?.title}

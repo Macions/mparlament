@@ -3,7 +3,13 @@ import "./SessionDetails.css";
 import BackButton from "../../../components/PageBack";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../../../socket/SocketProvider";
-import { Check, RotateCcw, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+	Check,
+	RotateCcw,
+	Trash2,
+	ChevronLeft,
+	ChevronRight,
+} from "lucide-react";
 
 const getCurrentTime = () => {
 	const now = new Date();
@@ -31,8 +37,8 @@ export default function SessionDetails() {
 	const [displayPoint, setDisplayPoint] = useState(null);
 	const [schedule, setSchedule] = useState([]);
 	const [title, setTitle] = useState("");
-	// Zmień nazwy dla czytelności:
-	const [plannedSpeakers, setPlannedSpeakers] = useState([]); // zamiast speakerHistory
+
+	const [plannedSpeakers, setPlannedSpeakers] = useState([]);
 	const [currentSpeakerIndex, setCurrentSpeakerIndex] = useState(-1);
 	const [date, setDate] = useState("");
 	const [speakers, setSpeakers] = useState([]);
@@ -67,7 +73,6 @@ export default function SessionDetails() {
 			console.log("📨 Odebrano nową treść ZO:", newZoContent);
 			setZoContent(newZoContent);
 
-			// Jeśli jesteś w trybie ZO, zaktualizuj wyświetlany punkt
 			if (sessionMode === "zo" && displayPoint) {
 				setDisplayPoint((prev) => ({
 					...prev,
@@ -76,7 +81,6 @@ export default function SessionDetails() {
 			}
 		};
 
-		// Nasłuchuj na zdarzenie 'zoContentUpdated'
 		socket.on("zoContentUpdated", handleZOUpdate);
 
 		return () => {
@@ -156,7 +160,7 @@ export default function SessionDetails() {
 		const prevIndex = currentSpeakerIndex - 1;
 		const prevSpeaker = plannedSpeakers[prevIndex];
 		if (prevSpeaker) {
-			setPlannedSpeakers(prev => {
+			setPlannedSpeakers((prev) => {
 				const updated = prev.map((s, i) => {
 					if (i === currentSpeakerIndex && s.status === "active") {
 						return { ...s, status: "waiting" };
@@ -167,7 +171,6 @@ export default function SessionDetails() {
 					return s;
 				});
 
-				// DODAJ TO:
 				if (socket && isConnected) {
 					socket.emit("speakersUpdated", updated);
 				}
@@ -192,7 +195,7 @@ export default function SessionDetails() {
 		const nextIndex = currentSpeakerIndex + 1;
 		const nextSpeaker = plannedSpeakers[nextIndex];
 		if (nextSpeaker) {
-			setPlannedSpeakers(prev => {
+			setPlannedSpeakers((prev) => {
 				const updated = prev.map((s, i) => {
 					if (i === currentSpeakerIndex && s.status === "active") {
 						return { ...s, status: "done" };
@@ -203,7 +206,6 @@ export default function SessionDetails() {
 					return s;
 				});
 
-				// DODAJ TO:
 				if (socket && isConnected) {
 					socket.emit("speakersUpdated", updated);
 				}
@@ -237,27 +239,29 @@ export default function SessionDetails() {
 				club: s.club || "",
 				role: s.role || "Parlamentarzysta",
 				time: getCurrentTime(),
-				status: index === 0 ? "active" : "waiting" // pierwszy od razu aktywny
+				status: index === 0 ? "active" : "waiting",
 			}));
-			console.log("📊 ustawiam planowanych mówców z", history.length, "mówcami");
+			console.log(
+				"📊 ustawiam planowanych mówców z",
+				history.length,
+				"mówcami",
+			);
 			setPlannedSpeakers(history);
 			setCurrentSpeakerIndex(0);
 			setDisplaySpeaker(history[0]);
 		}
 	}, [speakers]);
-	// Oznacz mówcę jako zrealizowanego
+
 	const markSpeakerDone = (index) => {
 		const updated = [...plannedSpeakers];
 		updated[index].status = "done";
 		setPlannedSpeakers(updated);
 
-		// Wyślij przez socket
 		if (socket && isConnected) {
 			socket.emit("speakersUpdated", updated);
 		}
 	};
 
-	// Oznacz mówcę jako aktywny
 	const markSpeakerActive = (index) => {
 		const updated = plannedSpeakers.map((s, i) => {
 			if (i === index) return { ...s, status: "active" };
@@ -272,42 +276,40 @@ export default function SessionDetails() {
 		}
 	};
 
-	// Usuń mówcę
 	const removeSpeaker = (index) => {
-		if (window.confirm(`Czy na pewno usunąć mówcę ${plannedSpeakers[index].name}?`)) {
+		if (
+			window.confirm(
+				`Czy na pewno usunąć mówcę ${plannedSpeakers[index].name}?`,
+			)
+		) {
 			const updated = plannedSpeakers.filter((_, i) => i !== index);
 			setPlannedSpeakers(updated);
 			if (currentSpeakerIndex >= updated.length) {
 				setCurrentSpeakerIndex(updated.length - 1);
 			}
 
-			// Wyślij przez socket
 			if (socket && isConnected) {
 				socket.emit("speakersUpdated", updated);
 			}
 		}
 	};
 
-	// Edytuj mówcę
 	const editSpeaker = (index, field, value) => {
-		// Aktualizuj plannedSpeakers
 		const updated = [...plannedSpeakers];
 		updated[index][field] = value;
 		setPlannedSpeakers(updated);
 
-		// Znajdź i zaktualizuj tego samego mówcę w speakers
 		const speakerName = updated[index].name;
-		const speakerIndex = speakers.findIndex(s => s.name === speakerName);
+		const speakerIndex = speakers.findIndex((s) => s.name === speakerName);
 
 		if (speakerIndex !== -1) {
 			const updatedSpeakers = [...speakers];
 			updatedSpeakers[speakerIndex] = {
 				...updatedSpeakers[speakerIndex],
-				[field]: value
+				[field]: value,
 			};
 			setSpeakers(updatedSpeakers);
 
-			// Wyślij aktualizację na serwer
 			fetch("/api/speakers", {
 				method: "PUT",
 				headers: {
@@ -315,7 +317,7 @@ export default function SessionDetails() {
 					Authorization: `Bearer ${token}`,
 				},
 				body: JSON.stringify(updatedSpeakers[speakerIndex]),
-			}).catch(err => console.error("Błąd aktualizacji mówcy:", err));
+			}).catch((err) => console.error("Błąd aktualizacji mówcy:", err));
 			if (socket && isConnected) {
 				socket.emit("speakersUpdated", updated);
 			}
@@ -353,14 +355,8 @@ export default function SessionDetails() {
 			if (session.zoContent) {
 				setZoContent(session.zoContent);
 			}
-			// USUŃ ten fragment - on nadpisuje historię:
-			// if (session.currentSpeaker && speakerHistory.length === 0) {
-			// 	setSpeakerHistory([session.currentSpeaker]);
-			// 	setCurrentSpeakerIndex(0);
-			// 	setDisplaySpeaker(session.currentSpeaker);
-			// }
 		}
-	}, [session]); // <- usuń speakerHistory.length z zależności
+	}, [session]);
 
 	useEffect(() => {
 		if (sessionMode !== "normal" || !displayPoint) return;
@@ -463,11 +459,11 @@ export default function SessionDetails() {
 			club: data.club || "",
 			role: data.role || "Parlamentarzysta",
 			time: getCurrentTime(),
-			status: "active"
+			status: "active",
 		};
 
-		setPlannedSpeakers(prev => {
-			const updated = prev.map(s => {
+		setPlannedSpeakers((prev) => {
+			const updated = prev.map((s) => {
 				if (s.status === "active") {
 					return { ...s, status: "done" };
 				}
@@ -475,7 +471,6 @@ export default function SessionDetails() {
 			});
 			const result = [...updated, newSpeaker];
 
-			// DODAJ TO:
 			if (socket && isConnected) {
 				socket.emit("speakersUpdated", result);
 			}
@@ -483,7 +478,7 @@ export default function SessionDetails() {
 			return result;
 		});
 
-		setCurrentSpeakerIndex(prev => {
+		setCurrentSpeakerIndex((prev) => {
 			const newIndex = plannedSpeakers.length;
 			return newIndex;
 		});
@@ -521,7 +516,6 @@ export default function SessionDetails() {
 		setNewSpeakerClub("");
 		setNewSpeakerRole("Parlamentarzysta");
 
-		// DODAJ TO - pobierz zaktualizowaną listę z speakers:
 		const updatedSpeakers = [...speakers, speakerData];
 		if (socket && isConnected) {
 			socket.emit("speakersUpdated", updatedSpeakers);
@@ -752,7 +746,6 @@ export default function SessionDetails() {
 			};
 			setDisplayPoint(updatedPoint);
 
-			// Zapisz na serwerze
 			updateSession({
 				currentPoint: updatedPoint,
 				zoContent: zoContent,
@@ -764,7 +757,7 @@ export default function SessionDetails() {
 			}
 		}
 	};
-	// W SessionDetails.jsx
+
 	useEffect(() => {
 		if (!socket) return;
 
@@ -778,7 +771,6 @@ export default function SessionDetails() {
 			setDisplaySpeaker(newSpeaker);
 		};
 
-		// NOWE: nasłuch na aktualizację całej listy mówców
 		const handleSpeakersUpdate = (newSpeakers) => {
 			console.log("📨 Odebrano zaktualizowaną listę mówców");
 			setPlannedSpeakers(newSpeakers);
@@ -786,12 +778,12 @@ export default function SessionDetails() {
 
 		socket.on("scheduleUpdated", handleScheduleUpdate);
 		socket.on("speakerUpdated", handleSpeakerUpdate);
-		socket.on("speakersUpdated", handleSpeakersUpdate); // NOWE
+		socket.on("speakersUpdated", handleSpeakersUpdate);
 
 		return () => {
 			socket.off("scheduleUpdated", handleScheduleUpdate);
 			socket.off("speakerUpdated", handleSpeakerUpdate);
-			socket.off("speakersUpdated", handleSpeakersUpdate); // NOWE
+			socket.off("speakersUpdated", handleSpeakersUpdate);
 		};
 	}, [socket]);
 	const speakerNames = Object.keys(allSpeakers);
@@ -806,9 +798,13 @@ export default function SessionDetails() {
 			<div className="session-top-bar">
 				<BackButton to="/panel" label="Panel" />
 				{isConnected ? (
-					<span className="ws-status connected"><span className="circle-ws-status"></span>Połączono</span>
+					<span className="ws-status connected">
+						<span className="circle-ws-status"></span>Połączono
+					</span>
 				) : (
-					<span className="ws-status disconnected"><span className="circle-ws-status"></span>Rozłączono</span>
+					<span className="ws-status disconnected">
+						<span className="circle-ws-status"></span>Rozłączono
+					</span>
 				)}
 			</div>
 			<header className="session-header">
@@ -837,14 +833,15 @@ export default function SessionDetails() {
 					<div className="speaker-history-header">
 						<h3>Planowani mówcy</h3>
 						<span className="speaker-count">
-							{plannedSpeakers.filter(s => s.status !== "done").length} / {plannedSpeakers.length} pozostało
+							{plannedSpeakers.filter((s) => s.status !== "done").length} /{" "}
+							{plannedSpeakers.length} pozostało
 						</span>
 					</div>
 					<div className="speaker-history-list">
 						{plannedSpeakers.map((speaker, index) => (
 							<div
 								key={index}
-								className={`speaker-history-item ${speaker.status === "active" ? 'active' : ''} ${speaker.status === "done" ? 'done' : ''}`}
+								className={`speaker-history-item ${speaker.status === "active" ? "active" : ""} ${speaker.status === "done" ? "done" : ""}`}
 							>
 								<div className="speaker-history-avatar">
 									{speaker.name.charAt(0)}
@@ -855,19 +852,25 @@ export default function SessionDetails() {
 											<input
 												type="text"
 												value={speaker.name}
-												onChange={(e) => editSpeaker(index, "name", e.target.value)}
+												onChange={(e) =>
+													editSpeaker(index, "name", e.target.value)
+												}
 												className={`admin-input speaker-edit-input ${speaker.status === "done" ? "crossed" : ""}`}
 											/>
 											<input
 												type="text"
 												value={speaker.role || ""}
-												onChange={(e) => editSpeaker(index, "role", e.target.value)}
+												onChange={(e) =>
+													editSpeaker(index, "role", e.target.value)
+												}
 												className="admin-input speaker-edit-input speaker-role-input"
 											/>
 										</>
 									) : (
 										<>
-											<div className={`speaker-history-name ${speaker.status === "done" ? "crossed" : ""}`}>
+											<div
+												className={`speaker-history-name ${speaker.status === "done" ? "crossed" : ""}`}
+											>
 												{speaker.name}
 											</div>
 											<div className="speaker-history-role">{speaker.role}</div>
@@ -1021,7 +1024,9 @@ export default function SessionDetails() {
 										<button
 											className="next-speaker"
 											onClick={goToNextSpeaker}
-											disabled={currentSpeakerIndex >= plannedSpeakers.length - 1}
+											disabled={
+												currentSpeakerIndex >= plannedSpeakers.length - 1
+											}
 										>
 											Następny mówca <ChevronRight size={18} />
 										</button>

@@ -11,19 +11,16 @@ import {
 export default function FinalizeResolution() {
 	const navigate = useNavigate();
 
-	// Stany dla wyboru
 	const [sessions, setSessions] = useState([]);
 	const [selectedSession, setSelectedSession] = useState(null);
 	const [resolutions, setResolutions] = useState([]);
 	const [selectedResolution, setSelectedResolution] = useState(null);
 	const [selectedFile, setSelectedFile] = useState(null);
 
-	// Stany dla poprawek i artykułów
 	const [amendments, setAmendments] = useState([]);
 	const [articleMap, setArticleMap] = useState({});
 	const [parsedContent, setParsedContent] = useState(null);
 
-	// Stany UI
 	const [loading, setLoading] = useState(false);
 	const [generating, setGenerating] = useState(false);
 	const [error, setError] = useState(null);
@@ -150,7 +147,7 @@ export default function FinalizeResolution() {
 		if (
 			!file.name.endsWith(".docx") &&
 			file.type !==
-			"application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+				"application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 		) {
 			setError("Proszę wybrać plik w formacie DOCX");
 			return;
@@ -299,11 +296,8 @@ export default function FinalizeResolution() {
 
 	return (
 		<div className="finalize-resolution-page">
-			<BackButton
-				to="/panel"
-				label="Panel"
-			/>
-			{/* Nagłówek */}
+			<BackButton to="/panel" label="Panel" />
+
 			<div className="finalize-header">
 				<h1> Finalizowanie uchwały</h1>
 				<p className="step-indicator">
@@ -311,7 +305,6 @@ export default function FinalizeResolution() {
 				</p>
 			</div>
 
-			{/* Komunikaty */}
 			{error && (
 				<div className="alert alert-error">
 					{error}
@@ -329,17 +322,18 @@ export default function FinalizeResolution() {
 				</div>
 			)}
 
-			{/* Krok 1: Wybór pliku */}
 			{step === 1 && (
 				<div className="upload-area">
 					<h2> Wybierz plik uchwały</h2>
-					<p>Wybierz plik DOCX uchwały, którą chcesz wygenerować po poprawkach</p>
+					<p>
+						Wybierz plik DOCX uchwały, którą chcesz wygenerować po poprawkach
+					</p>
 					<input
 						id="fileInput"
 						type="file"
 						accept=".docx"
 						onChange={handleFileSelect}
-						className={`file-input-finalize ${selectedFile ? 'file-selected' : ''}`}
+						className={`file-input-finalize ${selectedFile ? "file-selected" : ""}`}
 					/>
 					{selectedFile && (
 						<div className="file-info">
@@ -361,7 +355,6 @@ export default function FinalizeResolution() {
 				</div>
 			)}
 
-			{/* Krok 2: Wybór posiedzenia */}
 			{step === 2 && (
 				<div className="selection-step">
 					<h2>️ Wybierz posiedzenie</h2>
@@ -370,10 +363,13 @@ export default function FinalizeResolution() {
 							<button
 								key={session.id}
 								onClick={() => handleSessionSelect(session.id)}
-								className={`selection-card ${selectedSession?.id === session.id ? "active" : ""
-									}`}
+								className={`selection-card ${
+									selectedSession?.id === session.id ? "active" : ""
+								}`}
 							>
-								<strong>{session.name || `Posiedzenie nr ${session.number}`}</strong>
+								<strong>
+									{session.name || `Posiedzenie nr ${session.number}`}
+								</strong>
 								<br />
 								<small>
 									{session.date || session.startDate} |{" "}
@@ -385,7 +381,6 @@ export default function FinalizeResolution() {
 				</div>
 			)}
 
-			{/* Krok 3: Wybór uchwały */}
 			{step === 3 && (
 				<div className="selection-step">
 					<h2> Wybierz uchwałę</h2>
@@ -398,19 +393,20 @@ export default function FinalizeResolution() {
 							<button
 								key={res.id}
 								onClick={() => handleResolutionSelect(res.id)}
-								className={`selection-card ${selectedResolution?.id === res.id ? "active" : ""
-									}`}
+								className={`selection-card ${
+									selectedResolution?.id === res.id ? "active" : ""
+								}`}
 							>
 								<strong>{res.title}</strong>
 								<br />
 								<small>
-									Status: {
-										{
-											accepted: "Zaakceptowana",
-											rejected: "Odrzucona",
-											pending: "Oczekuje na głosowanie"
-										}[res.status] || res.status
-									} | Autor: {res.author}
+									Status:{" "}
+									{{
+										accepted: "Zaakceptowana",
+										rejected: "Odrzucona",
+										pending: "Oczekuje na głosowanie",
+									}[res.status] || res.status}{" "}
+									| Autor: {res.author}
 								</small>
 							</button>
 						))}
@@ -421,10 +417,8 @@ export default function FinalizeResolution() {
 				</div>
 			)}
 
-			{/* Krok 4: Podgląd i generowanie */}
 			{step === 4 && (
 				<div className="finalize-layout">
-					{/* Lewa kolumna - informacje */}
 					<div className="summary-panel">
 						<h3> Podsumowanie</h3>
 						<p>
@@ -471,9 +465,7 @@ export default function FinalizeResolution() {
 							disabled={generating || stats.accepted === 0}
 							className="generate-btn"
 						>
-							{generating
-								? " Generowanie..."
-								: " Generuj końcową uchwałę"}
+							{generating ? " Generowanie..." : " Generuj końcową uchwałę"}
 						</button>
 
 						{stats.accepted === 0 && (
@@ -487,7 +479,6 @@ export default function FinalizeResolution() {
 						</button>
 					</div>
 
-					{/* Prawa kolumna - lista poprawek */}
 					<div className="amendments-panel">
 						<h3> Poprawki do uchwały ({amendments.length})</h3>
 
@@ -497,15 +488,10 @@ export default function FinalizeResolution() {
 
 						<div className="amendments-list">
 							{amendments.map((am) => (
-								<div
-									key={am.id}
-									className={`amendment-card ${am.status}`}
-								>
+								<div key={am.id} className={`amendment-card ${am.status}`}>
 									<div className="amendment-header">
 										<strong>{am.author}</strong>
-										<span
-											className={`amendment-status ${am.status}`}
-										>
+										<span className={`amendment-status ${am.status}`}>
 											{am.status === "accepted"
 												? " Przyjęta"
 												: am.status === "rejected"

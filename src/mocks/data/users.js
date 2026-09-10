@@ -6,7 +6,7 @@ export const users = [
 		name: "Jan Kowalski",
 		club: "TEST",
 		role: "admin",
-		permissions: ["MANAGE_VOTINGS"]
+		permissions: ["MANAGE_VOTINGS"],
 	},
 	{
 		id: 2,
@@ -15,7 +15,7 @@ export const users = [
 		name: "Anna Nowak",
 		club: "KLUB MŁODYCH LIDERÓW",
 		role: "member",
-		permissions: []
+		permissions: [],
 	},
 	{
 		id: 3,
@@ -24,9 +24,9 @@ export const users = [
 		name: "Piotr Wiśniewski",
 		club: "MŁODZI DLA POLSKI",
 		role: "member",
-		permissions: []
+		permissions: [],
 	},
-	// DODAJ WIĘCEJ UŻYTKOWNIKÓW
+
 	{
 		id: 4,
 		username: "MARIA123",
@@ -34,7 +34,7 @@ export const users = [
 		name: "Maria Kowalska",
 		club: "SOLIDARNI",
 		role: "member",
-		permissions: []
+		permissions: [],
 	},
 	{
 		id: 5,
@@ -43,7 +43,7 @@ export const users = [
 		name: "Tomasz Zieliński",
 		club: "KONSERWATYŚCI I LIBERALIŚCI",
 		role: "member",
-		permissions: []
+		permissions: [],
 	},
 	{
 		id: 6,
@@ -52,7 +52,7 @@ export const users = [
 		name: "Katarzyna Woźniak",
 		club: "ALTERNATYWA CENTRUM",
 		role: "member",
-		permissions: []
+		permissions: [],
 	},
 	{
 		id: 7,
@@ -61,7 +61,7 @@ export const users = [
 		name: "Michał Kamiński",
 		club: "KOOPERYTYWA SPOŁECZNA",
 		role: "member",
-		permissions: []
+		permissions: [],
 	},
 	{
 		id: 8,
@@ -70,7 +70,7 @@ export const users = [
 		name: "Agnieszka Lewandowska",
 		club: "CZAS MŁODYCH",
 		role: "member",
-		permissions: []
+		permissions: [],
 	},
 	{
 		id: 9,
@@ -79,7 +79,7 @@ export const users = [
 		name: "Paweł Dąbrowski",
 		club: "KLUB MŁODYCH LIDERÓW",
 		role: "member",
-		permissions: []
+		permissions: [],
 	},
 	{
 		id: 10,
@@ -88,7 +88,7 @@ export const users = [
 		name: "Ewa Nowakowska",
 		club: "MŁODZI DLA POLSKI",
 		role: "member",
-		permissions: []
+		permissions: [],
 	},
 	{
 		id: 11,
@@ -97,7 +97,7 @@ export const users = [
 		name: "Grzegorz Majewski",
 		club: "SOLIDARNI",
 		role: "member",
-		permissions: []
+		permissions: [],
 	},
 	{
 		id: 12,
@@ -106,6 +106,6 @@ export const users = [
 		name: "Magdalena Kowalczyk",
 		club: "KONSERWATYŚCI I LIBERALIŚCI",
 		role: "member",
-		permissions: []
-	}
+		permissions: [],
+	},
 ];

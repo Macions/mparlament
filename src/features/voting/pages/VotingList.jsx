@@ -71,8 +71,8 @@ export default function Votings() {
 
 	const [showActivateModal, setShowActivateModal] = useState(false);
 	const [activatingId, setActivatingId] = useState(null);
-	const [activationDuration, setActivationDuration] = useState(1); // w godzinach
-	const [activationStartDelay, setActivationStartDelay] = useState(0); // w minutach
+	const [activationDuration, setActivationDuration] = useState(1);
+	const [activationStartDelay, setActivationStartDelay] = useState(0);
 
 	const token = localStorage.getItem("token");
 	const canManageVote = (vote) => {

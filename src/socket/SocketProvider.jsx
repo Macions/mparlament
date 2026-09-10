@@ -21,35 +21,6 @@ export const SocketProvider = ({ children }) => {
 	const [isConnected, setIsConnected] = useState(false);
 	const socketRef = useRef(null);
 
-	// useEffect(() => {
-	// 	const SOCKET_URL = "http://localhost:4000";
-
-	// 	socketRef.current = io(SOCKET_URL, {
-	// 		transports: ["websocket"],
-	// 		autoConnect: true,
-	// 	});
-
-	// 	socketRef.current.on("connect", () => {
-	// 		console.log("✅ Połączono z WebSocket");
-	// 		setIsConnected(true);
-	// 	});
-
-	// 	socketRef.current.on("disconnect", () => {
-	// 		console.log("❌ Rozłączono z WebSocket");
-	// 		setIsConnected(false);
-	// 	});
-
-	// 	socketRef.current.on("connect_error", (error) => {
-	// 		console.error("Błąd połączenia WebSocket:", error);
-	// 	});
-
-	// 	return () => {
-	// 		if (socketRef.current) {
-	// 			socketRef.current.disconnect();
-	// 		}
-	// 	};
-	// }, []);
-
 	const value = {
 		socket: socketRef.current,
 		isConnected,

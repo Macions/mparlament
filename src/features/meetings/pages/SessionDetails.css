@@ -2346,7 +2346,6 @@
 	font-weight: 500;
 }
 
-/* Status WebSocket */
 .ws-status {
 	display: inline-flex;
 	align-items: center;
@@ -2399,7 +2398,6 @@
 	}
 }
 
-/* Responsywność */
 @media (max-width: 768px) {
 	.session-page {
 		padding: 1rem;
@@ -2718,7 +2716,6 @@
 	background: #d32f2f;
 }
 
-/* Responsywność */
 @media (max-width: 768px) {
 	.speaker-history-item {
 		flex-wrap: wrap;

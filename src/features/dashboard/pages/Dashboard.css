@@ -164,7 +164,6 @@
 	color: #ffffff;
 }
 
-/* ========== MEDIA QUERY DLA MOBILNYCH - UKŁAD 1 KOLUMNA ========== */
 @media (max-width: 767px) {
 	.dashboard {
 		gap: 1.25rem;
@@ -268,7 +267,6 @@
 	}
 }
 
-/* ========== MEDIA QUERY DLA TABLETÓW (768px - 1023px) ========== */
 @media (min-width: 768px) and (max-width: 1023px) {
 	.dashboard {
 		gap: 1.5rem;
@@ -346,7 +344,6 @@
 	}
 }
 
-/* ========== MEDIA QUERY DLA DUŻYCH EKRANÓW (≥1024px) ========== */
 @media (min-width: 1024px) {
 	.dashboard__card,
 	.dashboard__actions {
@@ -387,7 +384,6 @@
 	}
 }
 
-/* ========== STYLE DLA .dashboard__user (wspólne) ========== */
 .dashboard__user {
 	position: relative;
 	display: flex;

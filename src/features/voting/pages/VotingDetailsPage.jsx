@@ -231,9 +231,11 @@ export default function VotingDetailsPage() {
 		motion: "Wniosek",
 	};
 
-	// Dodaj tę funkcję przed return
 	const renderVotersList = () => {
-		if (!vote.isAnonymous && (statusClass === "finished" || statusClass === "archived")) {
+		if (
+			!vote.isAnonymous &&
+			(statusClass === "finished" || statusClass === "archived")
+		) {
 			const voters = vote.votedUsers || [];
 
 			if (voters.length === 0) {
@@ -259,17 +261,32 @@ export default function VotingDetailsPage() {
 							</thead>
 							<tbody>
 								{voters.map((voter, index) => {
-									const voteValue = voter.vote || 'abstain';
+									const voteValue = voter.vote || "abstain";
 									return (
 										<tr key={voter.id || index} className={`vote-${voteValue}`}>
 											<td>{index + 1}</td>
 											<td>{voter.name || `Użytkownik ${voter.id}`}</td>
-											<td>{voter.club || '—'}</td>
+											<td>{voter.club || "—"}</td>
 											<td>
 												<span className={`vote-badge ${voteValue}`}>
-													{voteValue === 'for' && <Check size={14} style={{ display: 'inline', marginRight: '4px' }} />}
-													{voteValue === 'against' && <X size={14} style={{ display: 'inline', marginRight: '4px' }} />}
-													{voteValue === 'abstain' && <Minus size={14} style={{ display: 'inline', marginRight: '4px' }} />}
+													{voteValue === "for" && (
+														<Check
+															size={14}
+															style={{ display: "inline", marginRight: "4px" }}
+														/>
+													)}
+													{voteValue === "against" && (
+														<X
+															size={14}
+															style={{ display: "inline", marginRight: "4px" }}
+														/>
+													)}
+													{voteValue === "abstain" && (
+														<Minus
+															size={14}
+															style={{ display: "inline", marginRight: "4px" }}
+														/>
+													)}
 													{formatVote(voter.vote)}
 												</span>
 											</td>
@@ -286,7 +303,10 @@ export default function VotingDetailsPage() {
 		if (vote.isAnonymous) {
 			return (
 				<div className="voters-list-anonymous">
-					<p><Lock size={18} style={{ display: 'inline', marginRight: '8px' }} /> Głosowanie jest niejawne - lista głosujących nie jest dostępna</p>
+					<p>
+						<Lock size={18} style={{ display: "inline", marginRight: "8px" }} />{" "}
+						Głosowanie jest niejawne - lista głosujących nie jest dostępna
+					</p>
 				</div>
 			);
 		}
@@ -400,7 +420,11 @@ export default function VotingDetailsPage() {
 							<div className="result-bar-item for">
 								<div className="result-bar-label">
 									<span>
-										<Check size={16} style={{ display: 'inline', marginRight: '4px' }} /> ZA
+										<Check
+											size={16}
+											style={{ display: "inline", marginRight: "4px" }}
+										/>{" "}
+										ZA
 									</span>
 									<span className="result-bar-count">{vote.votesFor}</span>
 								</div>
@@ -416,7 +440,11 @@ export default function VotingDetailsPage() {
 							<div className="result-bar-item against">
 								<div className="result-bar-label">
 									<span>
-										<X size={16} style={{ display: 'inline', marginRight: '4px' }} /> PRZECIW
+										<X
+											size={16}
+											style={{ display: "inline", marginRight: "4px" }}
+										/>{" "}
+										PRZECIW
 									</span>
 									<span className="result-bar-count">{vote.votesAgainst}</span>
 								</div>
@@ -434,7 +462,11 @@ export default function VotingDetailsPage() {
 							<div className="result-bar-item abstain">
 								<div className="result-bar-label">
 									<span>
-										<Minus size={16} style={{ display: 'inline', marginRight: '4px' }} /> WSTRZYMANIE
+										<Minus
+											size={16}
+											style={{ display: "inline", marginRight: "4px" }}
+										/>{" "}
+										WSTRZYMANIE
 									</span>
 									<span className="result-bar-count">{vote.abstained}</span>
 								</div>
@@ -471,11 +503,8 @@ export default function VotingDetailsPage() {
 								</span>
 							</div>
 						</div>
-						<div className="voting-details-voters">
-							{renderVotersList()}
-						</div>
+						<div className="voting-details-voters">{renderVotersList()}</div>
 					</div>
-
 				)}
 
 				{statusClass === "upcoming" && (

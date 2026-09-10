@@ -517,8 +517,6 @@ body {
 	}
 }
 
-/* ====================== BASE STYLES ====================== */
-
 .header {
 	display: flex;
 	flex-direction: column;
@@ -562,8 +560,6 @@ body {
 	max-width: 100%;
 }
 
-/* ====================== MEDIA QUERIES ====================== */
-
 @media (max-width: 479px) {
 	.header {
 		padding: 0.65rem 0.9rem;
@@ -572,13 +568,12 @@ body {
 
 	.parlament-logo__img {
 		width: 9.8em;
-		/* mocno większe */
 	}
 
 	.login-button__icon,
 	.logout-button__icon {
 		width: 54px;
-		/* DUŻE */
+
 		height: 54px;
 		font-size: 1.35rem;
 	}
@@ -595,7 +590,6 @@ body {
 
 	.header__bottom .mparlament-logo__img {
 		height: 62px;
-		/* większe */
 	}
 
 	.header__bottom .mparlament-logo__text {
@@ -615,7 +609,7 @@ body {
 	.login-button__icon,
 	.logout-button__icon {
 		width: 58px;
-		/* DUŻE */
+
 		height: 58px;
 		font-size: 1.4rem;
 	}
@@ -684,7 +678,6 @@ body {
 	}
 }
 
-/* Niska wysokość ekranu */
 @media (max-height: 700px) and (min-width: 768px) {
 	.header {
 		min-height: 68px;

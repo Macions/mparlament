@@ -16,7 +16,6 @@
 	align-items: center;
 	justify-content: center;
 
-	/* ✅ Wymusza własny kontekst stackingowy */
 	isolation: isolate;
 	transform: none;
 }

@@ -12,7 +12,6 @@ export default function Toast({ toast, onClose, duration = 4000 }) {
 
 	if (!toast) return null;
 
-	// ✅ Ten sam portal root
 	const modalRoot =
 		(typeof document !== "undefined" &&
 			document.getElementById("modal-root")) ||

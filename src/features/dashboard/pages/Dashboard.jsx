@@ -22,23 +22,21 @@ function CalendarIcon() {
 }
 
 const formatDate = (dateStr) => {
-	if (!dateStr) return '';
+	if (!dateStr) return "";
 
-	// Jeśli data jest już w formacie DD.MM.YYYY (zawiera kropki)
-	if (typeof dateStr === 'string' && /^\d{2}\.\d{2}\.\d{4}$/.test(dateStr)) {
+	if (typeof dateStr === "string" && /^\d{2}\.\d{2}\.\d{4}$/.test(dateStr)) {
 		return dateStr;
 	}
 
 	const date = new Date(dateStr);
-	if (isNaN(date.getTime())) return '';
+	if (isNaN(date.getTime())) return "";
 
-	return date.toLocaleDateString('pl-PL', {
-		day: '2-digit',
-		month: '2-digit',
-		year: 'numeric'
+	return date.toLocaleDateString("pl-PL", {
+		day: "2-digit",
+		month: "2-digit",
+		year: "numeric",
 	});
 };
-
 
 export default function Dashboard() {
 	const navigate = useNavigate();
@@ -75,11 +73,11 @@ export default function Dashboard() {
 
 				setIsAdmin(
 					userData.role === "admin" ||
-					userData.permissions?.includes("MANAGE_RESOLUTIONS")
+						userData.permissions?.includes("MANAGE_RESOLUTIONS"),
 				);
 				setIsAdmin(
 					userData.role === "admin" ||
-					userData.permissions?.includes("MANAGE_RESOLUTIONS")
+						userData.permissions?.includes("MANAGE_RESOLUTIONS"),
 				);
 
 				const sessionResponse = await fetch("/api/sessions/current", {
@@ -111,11 +109,7 @@ export default function Dashboard() {
 	return (
 		<div className="dashboard">
 			<section className="dashboard__user">
-
-				<button
-					className="back-to-home-btn"
-					onClick={() => navigate("/")}
-				>
+				<button className="back-to-home-btn" onClick={() => navigate("/")}>
 					<svg
 						width="18"
 						height="18"
@@ -131,19 +125,13 @@ export default function Dashboard() {
 							strokeLinejoin="round"
 						/>
 					</svg>
-
 					Strona główna
 				</button>
 				<div className="dashboard__user-info">
-					<p className="dashboard__user-name">
-						Zalogowano jako {user?.name}
-					</p>
+					<p className="dashboard__user-name">Zalogowano jako {user?.name}</p>
 
-					<p className="dashboard__user-club">
-						{user?.club}
-					</p>
+					<p className="dashboard__user-club">{user?.club}</p>
 				</div>
-
 			</section>
 
 			<div className="dashboard__grid">
@@ -153,9 +141,7 @@ export default function Dashboard() {
 					{currentSession ? (
 						<>
 							<div className="dashboard__session-info">
-								<span className="dashboard__session-badge">
-									Trwa teraz
-								</span>
+								<span className="dashboard__session-badge">Trwa teraz</span>
 
 								<h3>{currentSession.title}</h3>
 
@@ -212,7 +198,10 @@ export default function Dashboard() {
 					)}
 				</div>
 
-				<article className="dashboard__card dashboard__card--calendar" title="W budowie...">
+				<article
+					className="dashboard__card dashboard__card--calendar"
+					title="W budowie..."
+				>
 					<h2 className="dashboard__card-title">KALENDARZ</h2>
 
 					<div className="dashboard__calendar-wrap">

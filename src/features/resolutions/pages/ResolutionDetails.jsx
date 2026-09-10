@@ -96,16 +96,13 @@ export default function ResolutionDetails() {
 		}
 	};
 
-	// ===== FUNKCJA DO SPRAWDZANIA ROLI =====
 	const getUserRole = (user) => {
 		if (!user) return "member";
 
-		// Jeśli API zwraca role_id (z bazy)
 		if (user.role_id === 1) return "admin";
 		if (user.role_id === 2 || user.role_id === 3) return "coordinator";
 		if (user.role_id === 4) return "member";
 
-		// Jeśli API zwraca string
 		const role = user.role?.toLowerCase();
 		if (role === "admin" || role === "zarząd") return "admin";
 		if (role === "coordinator" || role === "koordynator") return "coordinator";
@@ -121,7 +118,6 @@ export default function ResolutionDetails() {
 		return <h2>Nie znaleziono uchwały</h2>;
 	}
 
-	// Sprawdzenie czy użytkownik jest adminem lub koordynatorem
 	const userRole = getUserRole(currentUser);
 	const isAdminOrCoordinator =
 		userRole === "admin" || userRole === "coordinator";

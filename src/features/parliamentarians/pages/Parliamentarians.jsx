@@ -1,12 +1,13 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import ReactDOM from "react-dom";
-import "./Parliamentarians.css";
+import styles from "./Parliamentarians.module.css";
+import BackButton from "../../../components/PageBack";
 
 const ModalPortal = ({ children, onClose }) => {
 	return ReactDOM.createPortal(
-		<div className="modal-overlay" onClick={onClose}>
-			<div className="modal-content" onClick={(e) => e.stopPropagation()}>
+		<div className={styles.modalOverlay} onClick={onClose}>
+			<div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
 				{children}
 			</div>
 		</div>,
@@ -14,14 +15,9 @@ const ModalPortal = ({ children, onClose }) => {
 	);
 };
 
-// ============================================================
-// HEMICYCLE – układ sali plenarnej z sektorami
-// ============================================================
 function Hemicycle({ parliamentarians, unaffiliated, clubs, onSelect }) {
-	// Kolejność klubów od lewej do prawej (jak w opisie)
 	const seatOrder = useMemo(() => {
 		const order = [];
-		// najpierw kluby w kolejności z listy
 		clubs.forEach((club) => {
 			order.push({
 				id: club.id,
@@ -31,7 +27,6 @@ function Hemicycle({ parliamentarians, unaffiliated, clubs, onSelect }) {
 				members: parliamentarians.filter((p) => p.clubId === club.id),
 			});
 		});
-		// na końcu niezrzeszeni
 		order.push({
 			id: "unaffiliated",
 			name: "Niezrzeszeni",
@@ -39,9 +34,8 @@ function Hemicycle({ parliamentarians, unaffiliated, clubs, onSelect }) {
 			count: unaffiliated.length,
 			members: unaffiliated,
 		});
-		// dodaj puste miejsca, żeby wypełnić salę (opcjonalnie)
 		const total = order.reduce((s, g) => s + g.count, 0);
-		const emptySeats = Math.max(0, 100 - total); // np. 100 miejsc w sali
+		const emptySeats = Math.max(0, 100 - total);
 		if (emptySeats > 0) {
 			order.push({
 				id: "empty",
@@ -57,30 +51,57 @@ function Hemicycle({ parliamentarians, unaffiliated, clubs, onSelect }) {
 
 	const totalSeats = seatOrder.reduce((s, g) => s + g.count, 0);
 
-	// Geometria
-	const width = 1000;
-	const height = 520;
-	const centerX = width / 2;
-	const centerY = height - 20;
-	const maxRadius = 460;
-	const minRadius = 100;
-	const rows = 8;
+	const innerRadius = 300;
+	const outerRadius = 780;
+	const ringThickness = outerRadius - innerRadius;
 
-	// Rozkładamy wszystkie miejsca po kolei (klub po klubie)
-	const allSeats = useMemo(() => {
-		const seats = [];
-		seatOrder.forEach((group) => {
-			group.members.forEach((m, i) => {
-				seats.push({
-					...m,
-					group,
-					groupIndex: seatOrder.findIndex((g) => g.id === group.id),
-				});
+	const seatSize = 40;
+	const gap = 16;
+	const cell = seatSize + gap;
+
+	const maxSeatsPerColumn = Math.floor(ringThickness / cell);
+	const seatsPerColumn = Math.min(7, Math.max(3, maxSeatsPerColumn));
+	const totalColumns = Math.max(1, Math.ceil(totalSeats / seatsPerColumn));
+
+	const padding = seatSize;
+
+	const width = outerRadius * 2 + padding * 2;
+	const height = outerRadius + padding * 2 + seatSize;
+
+	const centerX = width / 2;
+	const centerY = height - padding;
+
+	const seatPositions = useMemo(() => {
+		const positions = [];
+		let seatIndex = 0;
+
+		const angleStart = Math.PI;
+		const angleEnd = 0;
+
+		const addSeat = (seat) => {
+			const col = Math.floor(seatIndex / seatsPerColumn);
+			const row = seatIndex % seatsPerColumn;
+
+			const t = totalColumns === 1 ? 0.5 : col / (totalColumns - 1);
+			const angle = angleStart + t * (angleEnd - angleStart);
+
+			const radius = innerRadius + row * cell + seatSize / 2;
+
+			const cx = centerX + radius * Math.cos(angle);
+			const cy = centerY + radius * Math.sin(angle) * -1;
+
+			positions.push({
+				x: cx - seatSize / 2,
+				y: cy - seatSize / 2,
+				seat,
 			});
-			// puste miejsca
+			seatIndex++;
+		};
+
+		seatOrder.forEach((group) => {
 			if (group.isEmpty) {
 				for (let i = 0; i < group.count; i++) {
-					seats.push({
+					addSeat({
 						id: `empty-${i}`,
 						firstName: "",
 						lastName: "",
@@ -88,37 +109,26 @@ function Hemicycle({ parliamentarians, unaffiliated, clubs, onSelect }) {
 						isEmpty: true,
 					});
 				}
+			} else {
+				group.members.forEach((m) => {
+					addSeat({ ...m, group });
+				});
 			}
 		});
-		return seats;
-	}, [seatOrder]);
 
-	// Rozmieszczenie miejsc: dla każdego miejsca liczymy kąt i promień
-	const seatPositions = useMemo(() => {
-		const positions = [];
-		const total = allSeats.length;
-		// kąty od 180° (lewo) do 0° (prawo)
-		const angleStart = Math.PI;
-		const angleEnd = 0;
-
-		allSeats.forEach((seat, idx) => {
-			// proporcjonalnie do pozycji w całym półkolu
-			const t = total === 1 ? 0 : idx / (total - 1);
-			const angle = angleStart + t * (angleEnd - angleStart);
-
-			// rząd: im dalej od środka, tym wyżej
-			const rowIndex = idx % rows;
-			const radius =
-				minRadius + (rowIndex / (rows - 1)) * (maxRadius - minRadius);
-
-			const x = centerX + radius * Math.cos(angle);
-			const y = centerY + radius * Math.sin(angle) * -1;
-			positions.push({ x, y, seat });
-		});
 		return positions;
-	}, [allSeats, rows, minRadius, maxRadius, centerX, centerY]);
+	}, [
+		seatOrder,
+		totalSeats,
+		totalColumns,
+		seatsPerColumn,
+		innerRadius,
+		cell,
+		seatSize,
+		centerX,
+		centerY,
+	]);
 
-	// Kolory sektorów (dla legendy)
 	const sectorLegend = seatOrder.map((g) => ({
 		name: g.name,
 		count: g.count,
@@ -127,17 +137,16 @@ function Hemicycle({ parliamentarians, unaffiliated, clubs, onSelect }) {
 	}));
 
 	return (
-		<div className="hemicycle-wrapper">
-			<h2 className="hemicycle-title">Układ sali plenarnej</h2>
-			<p className="hemicycle-subtitle">
+		<div className={styles.hemicycleWrapper}>
+			<h2 className={styles.hemicycleTitle}>Układ sali plenarnej</h2>
+			<p className={styles.hemicycleSubtitle}>
 				{totalSeats} mandatów · {clubs.length} klubów i kół
 			</p>
 
-			{/* Pasek proporcji */}
-			<div className="hemicycle-bar">
+			<div className={styles.hemicycleBar}>
 				<svg
 					viewBox={`0 0 ${width} 40`}
-					className="hemicycle-bar-svg"
+					className={styles.hemicycleBarSvg}
 					preserveAspectRatio="none"
 				>
 					<defs>
@@ -194,12 +203,11 @@ function Hemicycle({ parliamentarians, unaffiliated, clubs, onSelect }) {
 				</svg>
 			</div>
 
-			{/* Legenda */}
-			<div className="hemicycle-legend">
+			<div className={styles.hemicycleLegend}>
 				{sectorLegend.map((g) => (
-					<div key={g.name} className="hemicycle-legend__item">
+					<div key={g.name} className={styles.hemicycleLegendItem}>
 						<span
-							className="hemicycle-legend__color"
+							className={styles.hemicycleLegendColor}
 							style={{
 								background: g.isEmpty
 									? "repeating-linear-gradient(-45deg, #fff, #fff 4px, #ff4d4d 4px, #ff4d4d 8px)"
@@ -207,59 +215,78 @@ function Hemicycle({ parliamentarians, unaffiliated, clubs, onSelect }) {
 								border: g.isEmpty ? "1px solid #ccc" : "none",
 							}}
 						/>
-						<span className="hemicycle-legend__label">
+						<span className={styles.hemicycleLegendLabel}>
 							<strong>{g.name}:</strong> {g.count}
 						</span>
 					</div>
 				))}
 			</div>
 
-			{/* Półkole */}
-			<svg viewBox={`0 0 ${width} ${height}`} className="hemicycle-svg">
-				{/* Łuki pomocnicze */}
-				{Array.from({ length: rows }).map((_, rowIndex) => {
-					const radius =
-						minRadius + (rowIndex / (rows - 1)) * (maxRadius - minRadius);
-					return (
-						<path
-							key={`arc-${rowIndex}`}
-							d={`M ${centerX - radius} ${centerY} A ${radius} ${radius} 0 0 1 ${centerX + radius} ${centerY}`}
-							className="hemicycle-arc"
+			<svg
+				viewBox={`0 0 ${width} ${height}`}
+				className={styles.hemicycleSvg}
+				preserveAspectRatio="xMidYMid meet"
+			>
+				<defs>
+					<pattern
+						id="stripe-pattern-seats"
+						width="8"
+						height="8"
+						patternTransform="rotate(45 0 0)"
+						patternUnits="userSpaceOnUse"
+					>
+						<line
+							x1="0"
+							y1="0"
+							x2="0"
+							y2="8"
+							stroke="#ff4d4d"
+							strokeWidth="3.5"
 						/>
-					);
-				})}
+						<line
+							x1="4"
+							y1="0"
+							x2="4"
+							y2="8"
+							stroke="#ffffff"
+							strokeWidth="3.5"
+						/>
+					</pattern>
+				</defs>
 
-				{/* Miejsca */}
+				<path
+					d={`M ${centerX - innerRadius} ${centerY} A ${innerRadius} ${innerRadius} 0 0 1 ${centerX + innerRadius} ${centerY}`}
+					className={styles.hemicycleArc}
+				/>
+				<path
+					d={`M ${centerX - outerRadius} ${centerY} A ${outerRadius} ${outerRadius} 0 0 1 ${centerX + outerRadius} ${centerY}`}
+					className={styles.hemicycleArc}
+				/>
+
 				{seatPositions.map(({ x, y, seat }, idx) => (
-					<g
+					<rect
 						key={seat.id || idx}
-						className={`hemicycle-seat ${seat.isEmpty ? "hemicycle-seat--empty" : ""}`}
+						x={x}
+						y={y}
+						width={seatSize}
+						height={seatSize}
+						rx={4}
+						ry={4}
+						fill={
+							seat.isEmpty ? "url(#stripe-pattern-seats)" : seat.group.color
+						}
+						stroke={seat.isEmpty ? "#ff4d4d" : "#ffffff"}
+						strokeWidth={seat.isEmpty ? 1.2 : 1.5}
+						className={`${styles.hemicycleSeat} ${seat.isEmpty ? styles.hemicycleSeatEmpty : ""}`}
 						onClick={() => !seat.isEmpty && onSelect && onSelect(seat)}
 						style={{ cursor: seat.isEmpty ? "default" : "pointer" }}
-					>
-						<circle
-							cx={x}
-							cy={y}
-							r={7}
-							fill={seat.isEmpty ? "none" : seat.group.color}
-							stroke={seat.isEmpty ? "#ff4d4d" : "#ffffff"}
-							strokeWidth={seat.isEmpty ? 1.5 : 1.5}
-						/>
-						{!seat.isEmpty && (
-							<title>
-								{seat.firstName} {seat.lastName} · {seat.group.name}
-							</title>
-						)}
-					</g>
+					/>
 				))}
 			</svg>
 		</div>
 	);
 }
 
-// ============================================================
-// GŁÓWNY KOMPONENT
-// ============================================================
 export default function Parliamentarians() {
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -279,7 +306,7 @@ export default function Parliamentarians() {
 	const [editingClub, setEditingClub] = useState(null);
 
 	const [adminMode, setAdminMode] = useState(false);
-	const [viewMode, setViewMode] = useState("list"); // "list" | "hemicycle"
+	const [viewMode, setViewMode] = useState("list");
 
 	const token = localStorage.getItem("token");
 
@@ -517,54 +544,37 @@ export default function Parliamentarians() {
 	};
 
 	return (
-		<div className="parliamentarians-page">
-			<button className="back-to-home-btn" onClick={() => navigate("/")}>
-				<svg
-					width="18"
-					height="18"
-					viewBox="0 0 24 24"
-					fill="none"
-					xmlns="http://www.w3.org/2000/svg"
-				>
-					<path
-						d="M15 18L9 12L15 6"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-					/>
-				</svg>
-				Strona główna
-			</button>
+		<div className={styles.parliamentariansPage}>
+			<BackButton />
 
-			<section className="stats-section">
-				<div className="stat-card">
-					<span className="stat-number">{totalSeats}</span>
-					<span className="stat-label">
+			<section className={styles.statsSection}>
+				<div className={styles.statCard}>
+					<span className={styles.statNumber}>{totalSeats}</span>
+					<span className={styles.statLabel}>
 						{polishPlural(totalSeats, "Mandat", "Mandaty", "Mandatów")}
 					</span>
 				</div>
-				<div className="stat-card">
-					<span className="stat-number">{totalClubs}</span>
-					<span className="stat-label">
+				<div className={styles.statCard}>
+					<span className={styles.statNumber}>{totalClubs}</span>
+					<span className={styles.statLabel}>
 						{polishPlural(totalClubs, "Klub", "Kluby", "Klubów")}
 					</span>
 				</div>
-				<div className="stat-card">
-					<span className="stat-number">{totalCircles}</span>
-					<span className="stat-label">
+				<div className={styles.statCard}>
+					<span className={styles.statNumber}>{totalCircles}</span>
+					<span className={styles.statLabel}>
 						{polishPlural(totalCircles, "Koło", "Koła", "Kół")}
 					</span>
 				</div>
-				<div className="stat-card">
-					<span className="stat-number">{totalCommittees}</span>
-					<span className="stat-label">
+				<div className={styles.statCard}>
+					<span className={styles.statNumber}>{totalCommittees}</span>
+					<span className={styles.statLabel}>
 						{polishPlural(totalCommittees, "Komitet", "Komitety", "Komitetów")}
 					</span>
 				</div>
-				<div className="stat-card">
-					<span className="stat-number">{unaffiliatedList.length}</span>
-					<span className="stat-label">
+				<div className={styles.statCard}>
+					<span className={styles.statNumber}>{unaffiliatedList.length}</span>
+					<span className={styles.statLabel}>
 						{polishPlural(
 							unaffiliatedList.length,
 							"Niezrzeszony",
@@ -580,16 +590,15 @@ export default function Parliamentarians() {
 				/>
 			</section>
 
-			{/* ✅ Przełącznik widoku */}
-			<div className="view-toggle">
+			<div className={styles.viewToggle}>
 				<button
-					className={`view-toggle__btn ${viewMode === "list" ? "active" : ""}`}
+					className={`${styles.viewToggleBtn} ${viewMode === "list" ? styles.viewToggleBtnActive : ""}`}
 					onClick={() => setViewMode("list")}
 				>
 					Widok listy
 				</button>
 				<button
-					className={`view-toggle__btn ${viewMode === "hemicycle" ? "active" : ""}`}
+					className={`${styles.viewToggleBtn} ${viewMode === "hemicycle" ? styles.viewToggleBtnActive : ""}`}
 					onClick={() => setViewMode("hemicycle")}
 				>
 					Układ sali
@@ -605,56 +614,62 @@ export default function Parliamentarians() {
 				/>
 			) : (
 				<div
-					className={`parliamentarians-content ${isAdmin && adminMode ? "admin" : ""}`}
+					className={`${styles.parliamentariansContent} ${isAdmin && adminMode ? styles.parliamentariansContentAdmin : ""}`}
 				>
 					<aside
-						className={`clubs-panel ${isAdmin && adminMode ? "admin" : ""}`}
+						className={`${styles.clubsPanel} ${isAdmin && adminMode ? styles.clubsPanelAdmin : ""}`}
 					>
-						<div className="panel-header">
+						<div className={styles.panelHeader}>
 							<h2>Kluby i koła</h2>
-							<div className="panel-actions">
+							<div className={styles.panelActions}>
 								{(selectedClubId !== "all" || searchTerm) && (
-									<button className="clear-filter" onClick={clearAllFilters}>
+									<button
+										className={styles.clearFilter}
+										onClick={clearAllFilters}
+									>
 										Wyczyść filtry
 									</button>
 								)}
 								{isAdmin && adminMode && (
-									<button className="add-club-btn" onClick={openAddClubModal}>
+									<button
+										className={styles.addClubBtn}
+										onClick={openAddClubModal}
+									>
 										+ Dodaj
 									</button>
 								)}
 							</div>
 						</div>
-						<ul className="clubs-list">
+						<ul className={styles.clubsList}>
 							{clubsList.map((club) => (
 								<li
 									key={club.id}
-									className={`club-item ${selectedClubId === club.id ? "active" : ""}`}
+									className={`${styles.clubItem} ${selectedClubId === club.id ? styles.clubItemActive : ""}`}
 									onClick={() => handleSelectClub(club.id)}
 								>
 									<span
-										className="club-color"
+										className={styles.clubColor}
 										style={{ backgroundColor: club.color }}
 									></span>
-									<span className="club-name">{club.name}</span>
-									<span className="club-count">
+									<span className={styles.clubName}>{club.name}</span>
+									<span className={styles.clubCount}>
 										{getClubMemberCount(club.id)}
 									</span>
-									<span className="club-type-badge">{club.type}</span>
+									<span className={styles.clubTypeBadge}>{club.type}</span>
 									{isAdmin && adminMode && (
 										<div
-											className="club-admin-actions"
+											className={styles.clubAdminActions}
 											onClick={(e) => e.stopPropagation()}
 										>
 											<button
-												className="club-edit-btn"
+												className={styles.clubEditBtn}
 												onClick={() => openEditClubModal(club)}
 												title="Edytuj"
 											>
 												✏️
 											</button>
 											<button
-												className="club-delete-btn"
+												className={styles.clubDeleteBtn}
 												onClick={() => deleteClub(club.id)}
 												title="Usuń"
 											>
@@ -665,21 +680,23 @@ export default function Parliamentarians() {
 								</li>
 							))}
 							<li
-								className={`club-item ${selectedClubId === "unaffiliated" ? "active" : ""}`}
+								className={`${styles.clubItem} ${selectedClubId === "unaffiliated" ? styles.clubItemActive : ""}`}
 								onClick={() => handleSelectClub("unaffiliated")}
 							>
 								<span
-									className="club-color"
+									className={styles.clubColor}
 									style={{ backgroundColor: "#94a3b8" }}
 								></span>
-								<span className="club-name">Niezrzeszeni</span>
-								<span className="club-count">{unaffiliatedList.length}</span>
+								<span className={styles.clubName}>Niezrzeszeni</span>
+								<span className={styles.clubCount}>
+									{unaffiliatedList.length}
+								</span>
 							</li>
 						</ul>
 					</aside>
 
-					<main className="members-panel">
-						<div className="search-bar">
+					<main className={styles.membersPanel}>
+						<div className={styles.searchBar}>
 							<input
 								type="text"
 								placeholder="Szukaj po imieniu, nazwisku, klubie..."
@@ -688,7 +705,7 @@ export default function Parliamentarians() {
 							/>
 							{searchTerm && (
 								<button
-									className="clear-filter"
+									className={styles.clearFilter}
 									onClick={() => setSearchTerm("")}
 								>
 									✕
@@ -697,7 +714,7 @@ export default function Parliamentarians() {
 						</div>
 
 						{isAdmin && adminMode && (
-							<button className="add-member-btn" onClick={openAddModal}>
+							<button className={styles.addMemberBtn} onClick={openAddModal}>
 								+ Dodaj parlamentarzystę
 							</button>
 						)}
@@ -713,29 +730,29 @@ export default function Parliamentarians() {
 							/>
 						)}
 
-						<div className="members-grid">
+						<div className={styles.membersGrid}>
 							{filteredParliamentarians.length === 0 ? (
-								<p className="no-results">
+								<p className={styles.noResults}>
 									Brak parlamentarzystów spełniających kryteria.
 								</p>
 							) : (
 								filteredParliamentarians.map((p) => (
 									<div
 										key={p.id}
-										className={`member-card ${selectedParliamentarian?.id === p.id ? "selected" : ""}`}
+										className={`${styles.memberCard} ${selectedParliamentarian?.id === p.id ? styles.memberCardSelected : ""}`}
 										onClick={() => setSelectedParliamentarian(p)}
 									>
-										<div className="member-avatar">
+										<div className={styles.memberAvatar}>
 											{p.firstName.charAt(0)}
 											{p.lastName.charAt(0)}
 										</div>
-										<div className="member-info">
+										<div className={styles.memberInfo}>
 											<h4>
 												{p.firstName} {p.lastName}
 											</h4>
 											{p.clubName && (
 												<span
-													className="member-club"
+													className={styles.memberClub}
 													style={{ color: p.clubColor }}
 												>
 													{p.clubName}
@@ -743,9 +760,9 @@ export default function Parliamentarians() {
 											)}
 
 											{p.functions.length > 0 && (
-												<div className="member-functions">
+												<div className={styles.memberFunctions}>
 													{p.functions.map((f, i) => (
-														<span key={i} className="function-badge">
+														<span key={i} className={styles.functionBadge}>
 															{f}
 														</span>
 													))}
@@ -754,7 +771,7 @@ export default function Parliamentarians() {
 										</div>
 
 										{isAdmin && adminMode && (
-											<div className="admin-actions">
+											<div className={styles.adminActions}>
 												<button
 													onClick={(e) => {
 														e.stopPropagation();
@@ -783,26 +800,26 @@ export default function Parliamentarians() {
 
 			{selectedParliamentarian && !isAddModalOpen && (
 				<ModalPortal onClose={() => setSelectedParliamentarian(null)}>
-					<div className="modal-header">
-						<div className="modal-avatar">
+					<div className={styles.modalHeader}>
+						<div className={styles.modalAvatar}>
 							{selectedParliamentarian.firstName.charAt(0)}
 							{selectedParliamentarian.lastName.charAt(0)}
 						</div>
-						<div className="info-wrapper">
+						<div className={styles.infoWrapper}>
 							<h2>
 								{selectedParliamentarian.firstName}{" "}
 								{selectedParliamentarian.lastName}
 							</h2>
 							{selectedParliamentarian.clubName && (
-								<div className="club-info">
+								<div className={styles.clubInfo}>
 									<span
-										className="club-dot"
+										className={styles.clubDot}
 										style={{
 											backgroundColor: selectedParliamentarian.clubColor,
 										}}
 									></span>
 									<p
-										className="club-name"
+										className={styles.clubName}
 										style={{
 											color: selectedParliamentarian.clubColor,
 										}}
@@ -813,24 +830,24 @@ export default function Parliamentarians() {
 							)}
 						</div>
 						<button
-							className="modal-close"
+							className={styles.modalClose}
 							onClick={() => setSelectedParliamentarian(null)}
 						>
 							✕
 						</button>
 					</div>
 
-					<div className="modal-body">
-						<div className="member-stats">
-							<div className="stat-chip">
-								<span className="stat-label">Funkcje</span>
-								<span className="stat-value">
+					<div className={styles.modalBody}>
+						<div className={styles.memberStats}>
+							<div className={styles.statChip}>
+								<span className={styles.statLabel}>Funkcje</span>
+								<span className={styles.statValue}>
 									{selectedParliamentarian.functions.length}
 								</span>
 							</div>
-							<div className="stat-chip">
-								<span className="stat-label">Komisje</span>
-								<span className="stat-value">
+							<div className={styles.statChip}>
+								<span className={styles.statLabel}>Komisje</span>
+								<span className={styles.statValue}>
 									{selectedParliamentarian.commissions.length}
 								</span>
 							</div>
@@ -842,7 +859,7 @@ export default function Parliamentarians() {
 								<ul>
 									{selectedParliamentarian.functions.map((f, i) => (
 										<li key={i}>
-											<span className="item-content">{f}</span>
+											<span className={styles.itemContent}>{f}</span>
 										</li>
 									))}
 								</ul>
@@ -855,7 +872,7 @@ export default function Parliamentarians() {
 								<ul>
 									{selectedParliamentarian.commissions.map((c, i) => (
 										<li key={i}>
-											<span className="item-content">{c}</span>
+											<span className={styles.itemContent}>{c}</span>
 										</li>
 									))}
 								</ul>
@@ -864,9 +881,9 @@ export default function Parliamentarians() {
 
 						{!selectedParliamentarian.functions.length &&
 							!selectedParliamentarian.commissions.length && (
-								<div className="no-info">
+								<div className={styles.noInfo}>
 									Brak dodatkowych informacji o tym parlamentarzyście.
-									<div className="sub-text">
+									<div className={styles.subText}>
 										Nie pełni żadnych funkcji ani nie należy do komisji.
 									</div>
 								</div>
@@ -890,31 +907,25 @@ export default function Parliamentarians() {
 	);
 }
 
-// ============================================================
-// AdminToggle
-// ============================================================
 function AdminToggle({ isAdmin, adminMode, setAdminMode }) {
 	if (!isAdmin) return null;
 	return (
-		<div className="admin-toggle-container">
-			<span className="admin-toggle-label">
+		<div className={styles.adminToggleContainer}>
+			<span className={styles.adminToggleLabel}>
 				{adminMode ? "Tryb Admina" : "Tryb Użytkownika"}
 			</span>
-			<label className="admin-toggle">
+			<label className={styles.adminToggle}>
 				<input
 					type="checkbox"
 					checked={adminMode}
 					onChange={() => setAdminMode(!adminMode)}
 				/>
-				<span className="admin-toggle-slider"></span>
+				<span className={styles.adminToggleSlider}></span>
 			</label>
 		</div>
 	);
 }
 
-// ============================================================
-// ClubModal
-// ============================================================
 function ClubModal({ club, onSave, onClose }) {
 	const [form, setForm] = useState({
 		name: club?.name || "",
@@ -1018,7 +1029,7 @@ function ClubModal({ club, onSave, onClose }) {
 					</div>
 				</div>
 
-				<div className="modal-actions" style={{ marginTop: "1.5rem" }}>
+				<div className={styles.modalActions} style={{ marginTop: "1.5rem" }}>
 					<button type="button" onClick={onClose}>
 						Anuluj
 					</button>
@@ -1029,9 +1040,6 @@ function ClubModal({ club, onSave, onClose }) {
 	);
 }
 
-// ============================================================
-// AddEditModal
-// ============================================================
 function AddEditModal({ parliamentarian, onSave, onClose, clubs }) {
 	const [form, setForm] = useState({
 		firstName: parliamentarian?.firstName || "",
@@ -1269,7 +1277,7 @@ function AddEditModal({ parliamentarian, onSave, onClose, clubs }) {
 					</div>
 				</div>
 
-				<div className="modal-actions">
+				<div className={styles.modalActions}>
 					<button type="button" onClick={onClose}>
 						Anuluj
 					</button>

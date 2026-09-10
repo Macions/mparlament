@@ -7,7 +7,7 @@ export default function Modal({
 	isOpen,
 	title,
 	icon,
-	variant = "info", // "info" | "warning" | "danger"
+	variant = "info",
 	children,
 	confirmText = "Potwierdź",
 	cancelText = "Anuluj",
@@ -17,7 +17,6 @@ export default function Modal({
 }) {
 	if (!isOpen) return null;
 
-	// ✅ Renderujemy do #modal-root, jeśli istnieje (poza drzewem aplikacji)
 	const modalRoot =
 		(typeof document !== "undefined" &&
 			document.getElementById("modal-root")) ||

@@ -1,4 +1,4 @@
-.parliamentarians-page {
+.parliamentariansPage {
 	width: 100%;
 	max-width: 1880px;
 	margin: 0 auto;
@@ -6,14 +6,14 @@
 	font-family: var(--font-global-ubuntu);
 }
 
-.stats-section {
+.statsSection {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
 	gap: 1.5rem;
 	margin-bottom: 3rem;
 }
 
-.stat-card {
+.statCard {
 	background: white;
 	border: 1px solid #e2e8f0;
 	border-radius: 16px;
@@ -23,12 +23,12 @@
 	transition: all 0.3s ease;
 }
 
-.stat-card:hover {
+.statCard:hover {
 	transform: translateY(-6px);
 	box-shadow: 0 12px 28px rgba(0, 43, 92, 0.12);
 }
 
-.stat-number {
+.statNumber {
 	display: block;
 	font-size: 2.8rem;
 	font-weight: 800;
@@ -37,7 +37,7 @@
 	margin-bottom: 0.5rem;
 }
 
-.stat-label {
+.statLabel {
 	font-size: 1rem;
 	color: #475569;
 	font-weight: 600;
@@ -45,17 +45,17 @@
 	text-transform: uppercase;
 }
 
-.parliamentarians-content {
+.parliamentariansContent {
 	display: grid;
 	grid-template-columns: minmax(160px, 520px) minmax(0, 1fr);
 	gap: 1.25rem;
 }
 
-.parliamentarians-content.admin {
+.parliamentariansContentAdmin {
 	grid-template-columns: minmax(280px, 580px) minmax(0, 1fr);
 }
 
-.clubs-panel {
+.clubsPanel {
 	background: white;
 	border: 1px solid #e2e8f0;
 	border-radius: 18px;
@@ -68,14 +68,14 @@
 	overflow: hidden;
 }
 
-.clubs-panel h2 {
+.clubsPanel h2 {
 	margin: 0 0 1.75rem 0;
 	font-size: 1.45rem;
 	color: #002b5c;
 	font-weight: 700;
 }
 
-.panel-header {
+.panelHeader {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -84,21 +84,21 @@
 	flex-wrap: wrap;
 }
 
-.panel-header h2 {
+.panelHeader h2 {
 	margin: 0;
 	font-size: 1.45rem;
 	color: #002b5c;
 	font-weight: 700;
 }
 
-.panel-actions {
+.panelActions {
 	display: flex;
 	align-items: center;
 	gap: 10px;
 	flex-wrap: wrap;
 }
 
-.panel-header .clear-filter {
+.panelHeader .clearFilter {
 	padding: 10px 20px;
 	background: #ef4444;
 	color: white;
@@ -112,13 +112,13 @@
 	min-height: 44px;
 }
 
-.panel-header .clear-filter:hover {
+.panelHeader .clearFilter:hover {
 	background: #dc2626;
 	transform: translateY(-2px);
 	box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
 }
 
-.add-club-btn {
+.addClubBtn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -138,17 +138,17 @@
 	min-height: 44px;
 }
 
-.add-club-btn:hover {
+.addClubBtn:hover {
 	transform: translateY(-2px) scale(1.02);
 	box-shadow: 0 6px 20px rgba(0, 43, 92, 0.4);
 	background: linear-gradient(135deg, #003d80, #0055b3);
 }
 
-.add-club-btn:active {
+.addClubBtn:active {
 	transform: translateY(0) scale(0.98);
 }
 
-.clubs-list {
+.clubsList {
 	list-style: none;
 	padding: 0;
 	margin: 0;
@@ -157,7 +157,7 @@
 	gap: 10px;
 }
 
-.club-item {
+.clubItem {
 	display: flex;
 	align-items: center;
 	gap: 14px;
@@ -171,24 +171,24 @@
 	min-height: 56px;
 }
 
-.club-item:hover {
+.clubItem:hover {
 	background: #f1f5f9;
 	border-color: #e2e8f0;
 	transform: translateX(4px);
 }
 
-.club-item.active {
+.clubItemActive {
 	background: #eff6ff;
 	border-color: #2563eb;
 	box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
 }
 
-.club-item.active:hover {
+.clubItemActive:hover {
 	border-color: #2563eb;
 	background: #eff6ff;
 }
 
-.club-item .club-color {
+.clubItem .clubColor {
 	width: 18px;
 	height: 18px;
 	border-radius: 50%;
@@ -196,7 +196,7 @@
 	border: 2px solid rgba(0, 0, 0, 0.08);
 }
 
-.club-item .club-name {
+.clubItem .clubName {
 	flex: 1;
 	min-width: 0;
 	font-weight: 600;
@@ -207,7 +207,7 @@
 	word-break: break-word;
 }
 
-.club-item .club-count {
+.clubItem .clubCount {
 	font-weight: 700;
 	color: #475569;
 	font-size: 1rem;
@@ -219,12 +219,12 @@
 	flex-shrink: 0;
 }
 
-.club-item.active .club-count {
+.clubItemActive .clubCount {
 	background: #dbeafe;
 	color: #1e40af;
 }
 
-.club-item .club-type-badge {
+.clubItem .clubTypeBadge {
 	font-size: 0.8rem;
 	padding: 4px 14px;
 	background: #e2e8f0;
@@ -236,19 +236,19 @@
 	flex-shrink: 0;
 }
 
-.club-item.active .club-type-badge {
+.clubItemActive .clubTypeBadge {
 	background: #dbeafe;
 	color: #1e40af;
 }
 
-.club-admin-actions {
+.clubAdminActions {
 	display: flex;
 	gap: 4px;
 	margin-left: 6px;
 	flex-shrink: 0;
 }
 
-.club-admin-actions button {
+.clubAdminActions button {
 	width: 32px;
 	height: 32px;
 	border: none;
@@ -266,18 +266,18 @@
 	flex-shrink: 0;
 }
 
-.club-item:hover .club-admin-actions button {
+.clubItem:hover .clubAdminActions button {
 	opacity: 1;
 }
 
-.club-members-btn {
+.clubMembersBtn {
 	color: #7c3aed;
 	background: rgba(139, 92, 246, 0.1);
 	font-size: 1.1rem;
 	border: 1px solid rgba(139, 92, 246, 0.2);
 }
 
-.club-members-btn:hover {
+.clubMembersBtn:hover {
 	background: #ede9fe;
 	transform: scale(1.1);
 	opacity: 1;
@@ -285,43 +285,43 @@
 	border-color: #8b5cf6;
 }
 
-.club-members-btn:active {
+.clubMembersBtn:active {
 	transform: scale(0.9);
 }
 
-.club-edit-btn {
+.clubEditBtn {
 	color: #2563eb;
 	background: rgba(37, 99, 235, 0.05);
 }
 
-.club-edit-btn:hover {
+.clubEditBtn:hover {
 	background: #dbeafe;
 	transform: scale(1.1);
 	opacity: 1;
 	box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
 }
 
-.club-edit-btn:active {
+.clubEditBtn:active {
 	transform: scale(0.9);
 }
 
-.club-delete-btn {
+.clubDeleteBtn {
 	color: #ef4444;
 	background: rgba(239, 68, 68, 0.05);
 }
 
-.club-delete-btn:hover {
+.clubDeleteBtn:hover {
 	background: #fee2e2;
 	transform: scale(1.1);
 	opacity: 1;
 	box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
 }
 
-.club-delete-btn:active {
+.clubDeleteBtn:active {
 	transform: scale(0.9);
 }
 
-.admin-toggle-container {
+.adminToggleContainer {
 	display: flex;
 	align-items: center;
 	gap: 12px;
@@ -334,18 +334,18 @@
 	transition: all 0.3s ease;
 }
 
-.admin-toggle-container:hover {
+.adminToggleContainer:hover {
 	transform: translateY(-6px);
 	box-shadow: 0 12px 28px rgba(0, 43, 92, 0.12);
 }
 
-.admin-toggle-label {
+.adminToggleLabel {
 	font-size: 1rem;
 	font-weight: 600;
 	color: #475569;
 }
 
-.admin-toggle {
+.adminToggle {
 	position: relative;
 	width: 60px;
 	height: 34px;
@@ -353,13 +353,13 @@
 	cursor: pointer;
 }
 
-.admin-toggle input {
+.adminToggle input {
 	opacity: 0;
 	width: 0;
 	height: 0;
 }
 
-.admin-toggle-slider {
+.adminToggleSlider {
 	position: absolute;
 	cursor: pointer;
 	top: 0;
@@ -372,7 +372,7 @@
 	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.admin-toggle-slider:before {
+.adminToggleSlider:before {
 	position: absolute;
 	content: "";
 	height: 26px;
@@ -385,33 +385,33 @@
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.admin-toggle input:checked + .admin-toggle-slider {
+.adminToggle input:checked + .adminToggleSlider {
 	background: linear-gradient(135deg, #002b5c, #003d80);
 }
 
-.admin-toggle input:checked + .admin-toggle-slider:before {
+.adminToggle input:checked + .adminToggleSlider:before {
 	transform: translateX(26px);
 }
 
-.admin-toggle input:focus + .admin-toggle-slider {
+.adminToggle input:focus + .adminToggleSlider {
 	box-shadow: 0 0 0 3px rgba(0, 43, 92, 0.3);
 }
 
-.admin-toggle-slider {
+.adminToggleSlider {
 	transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.admin-toggle-slider:before {
+.adminToggleSlider:before {
 	transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.members-panel {
+.membersPanel {
 	display: flex;
 	flex-direction: column;
 	gap: 1.75rem;
 }
 
-.search-bar {
+.searchBar {
 	display: flex;
 	gap: 12px;
 	align-items: center;
@@ -422,7 +422,7 @@
 	box-shadow: 0 6px 16px rgba(0, 43, 92, 0.08);
 }
 
-.search-bar input {
+.searchBar input {
 	flex: 1;
 	border: none;
 	outline: none;
@@ -431,7 +431,7 @@
 	background: transparent;
 }
 
-.search-bar .clear-filter {
+.searchBar .clearFilter {
 	padding: 12px 24px;
 	background: #ef4444;
 	color: white;
@@ -442,11 +442,11 @@
 	transition: all 0.25s;
 }
 
-.search-bar .clear-filter:hover {
+.searchBar .clearFilter:hover {
 	background: #dc2626;
 }
 
-.add-member-btn {
+.addMemberBtn {
 	align-self: flex-start;
 	padding: 14px 28px;
 	background: linear-gradient(90deg, #002b5c, #003d80);
@@ -460,18 +460,18 @@
 	box-shadow: 0 6px 16px rgba(0, 43, 92, 0.25);
 }
 
-.add-member-btn:hover {
+.addMemberBtn:hover {
 	transform: translateY(-3px);
 	box-shadow: 0 10px 24px rgba(0, 43, 92, 0.35);
 }
 
-.members-grid {
+.membersGrid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
 	gap: 1.2rem;
 }
 
-.member-card {
+.memberCard {
 	background: white;
 	border: 1px solid #e2e8f0;
 	border-radius: 18px;
@@ -483,19 +483,19 @@
 	box-shadow: 0 6px 16px rgba(0, 43, 92, 0.06);
 }
 
-.member-card:hover {
+.memberCard:hover {
 	border-color: #94a3b8;
 	transform: translateY(-8px);
 	box-shadow: 0 16px 32px rgba(0, 43, 92, 0.14);
 }
 
-.member-card.selected {
+.memberCardSelected {
 	border-color: #2563eb;
 	background: #f0f7ff;
 	box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
 }
 
-.member-avatar {
+.memberAvatar {
 	width: 78px;
 	height: 78px;
 	border-radius: 14px;
@@ -509,29 +509,29 @@
 	flex-shrink: 0;
 }
 
-.member-info h4 {
+.memberInfo h4 {
 	margin: 0 0 10px 0;
 	font-size: 1.25rem;
 	color: #1e2937;
 }
 
-.member-club {
+.memberClub {
 	font-weight: 700;
 	display: block;
 	margin-bottom: 12px;
 	font-size: 1.02rem;
 }
 
-.member-functions,
-.member-commissions {
+.memberFunctions,
+.memberCommissions {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px;
 	margin-top: 12px;
 }
 
-.function-badge,
-.commission-badge {
+.functionBadge,
+.commissionBadge {
 	font-size: 0.82rem;
 	padding: 5px 14px;
 	background: #f1f5f9;
@@ -540,14 +540,14 @@
 	font-weight: 600;
 }
 
-.admin-actions {
+.adminActions {
 	margin-left: auto;
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
 }
 
-.admin-actions button {
+.adminActions button {
 	padding: 7px 14px;
 	font-size: 0.85rem;
 	border: none;
@@ -555,17 +555,17 @@
 	cursor: pointer;
 }
 
-.admin-actions button:first-child {
+.adminActions button:first-child {
 	background: #3b82f6;
 	color: white;
 }
 
-.admin-actions button:last-child {
+.adminActions button:last-child {
 	background: #ef4444;
 	color: white;
 }
 
-.modal-overlay {
+.modalOverlay {
 	position: fixed;
 	inset: 0;
 	background: rgba(15, 23, 42, 0.85);
@@ -589,7 +589,7 @@
 	}
 }
 
-.modal-content {
+.modalContent {
 	background: #ffffff;
 	border-radius: 32px;
 	max-width: 720px;
@@ -613,25 +613,25 @@
 	}
 }
 
-.modal-content::-webkit-scrollbar {
+.modalContent::-webkit-scrollbar {
 	width: 10px;
 }
 
-.modal-content::-webkit-scrollbar-track {
+.modalContent::-webkit-scrollbar-track {
 	background: #f1f5f9;
 	border-radius: 10px;
 }
 
-.modal-content::-webkit-scrollbar-thumb {
+.modalContent::-webkit-scrollbar-thumb {
 	background: linear-gradient(to bottom, #2563eb, #002b5c);
 	border-radius: 10px;
 }
 
-.modal-content::-webkit-scrollbar-thumb:hover {
+.modalContent::-webkit-scrollbar-thumb:hover {
 	background: linear-gradient(to bottom, #3b82f6, #003d80);
 }
 
-.modal-header {
+.modalHeader {
 	display: flex;
 	align-items: center;
 	gap: 2rem;
@@ -641,7 +641,7 @@
 	background: linear-gradient(135deg, #fafbff, #ffffff);
 }
 
-.modal-avatar {
+.modalAvatar {
 	width: 100px;
 	height: 100px;
 	border-radius: 50%;
@@ -658,12 +658,12 @@
 	border: 4px solid white;
 }
 
-.modal-header .info-wrapper {
+.modalHeader .infoWrapper {
 	flex: 1;
 	min-width: 0;
 }
 
-.modal-header h2 {
+.modalHeader h2 {
 	margin: 0 0 0.6rem 0;
 	font-size: 2.2rem;
 	font-weight: 800;
@@ -672,7 +672,7 @@
 	letter-spacing: -0.5px;
 }
 
-.modal-header .club-info {
+.modalHeader .clubInfo {
 	display: flex;
 	align-items: center;
 	gap: 12px;
@@ -684,7 +684,7 @@
 	display: inline-flex;
 }
 
-.modal-header .club-dot {
+.modalHeader .clubDot {
 	width: 16px;
 	height: 16px;
 	border-radius: 50%;
@@ -694,14 +694,14 @@
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.modal-header .club-name {
+.modalHeader .clubName {
 	font-weight: 700;
 	font-size: 1.2rem;
 	margin: 0;
 	letter-spacing: 0.3px;
 }
 
-.modal-close {
+.modalClose {
 	position: absolute;
 	top: 1.5rem;
 	right: 1.5rem;
@@ -721,22 +721,22 @@
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-.modal-close:hover {
+.modalClose:hover {
 	background: #fee2e2;
 	color: #ef4444;
 	transform: rotate(90deg) scale(1.1);
 	box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
 }
 
-.modal-close:active {
+.modalClose:active {
 	transform: rotate(90deg) scale(0.9);
 }
 
-.modal-body {
+.modalBody {
 	padding: 2.5rem 3rem 3rem;
 }
 
-.modal-body h3 {
+.modalBody h3 {
 	font-size: 1.2rem;
 	font-weight: 700;
 	color: #1e2937;
@@ -750,11 +750,11 @@
 	gap: 12px;
 }
 
-.modal-body h3:first-of-type {
+.modalBody h3:first-of-type {
 	margin-top: 9px;
 }
 
-.modal-body h3 .badge-count {
+.modalBody h3 .badgeCount {
 	background: #2563eb;
 	color: white;
 	padding: 4px 16px;
@@ -764,11 +764,11 @@
 	margin-left: auto;
 }
 
-.modal-body h3 .badge-count.purple {
+.modalBody h3 .badgeCountPurple {
 	background: #7c3aed;
 }
 
-.modal-body ul {
+.modalBody ul {
 	list-style: none;
 	padding: 0;
 	margin: 0;
@@ -777,7 +777,7 @@
 	gap: 12px;
 }
 
-.modal-body li {
+.modalBody li {
 	padding: 16px 22px;
 	font-size: 1.1rem;
 	color: #1e2937;
@@ -792,17 +792,17 @@
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-.modal-body li:hover {
+.modalBody li:hover {
 	border-color: #2563eb;
 	transform: translateX(8px);
 	box-shadow: 0 4px 20px rgba(37, 99, 235, 0.15);
 }
 
-.modal-body li .item-content {
+.modalBody li .itemContent {
 	flex: 1;
 }
 
-.modal-body li .item-badge {
+.modalBody li .itemBadge {
 	font-size: 0.8rem;
 	padding: 4px 16px;
 	border-radius: 999px;
@@ -811,19 +811,19 @@
 	font-weight: 600;
 }
 
-.modal-body li .item-badge.commission {
+.modalBody li .itemBadgeCommission {
 	background: #f3e8ff;
 	color: #6b21a5;
 }
 
-.modal-body .member-stats {
+.modalBody .memberStats {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 16px;
 	margin: 0 0 1.5rem;
 }
 
-.modal-body .stat-chip {
+.modalBody .statChip {
 	background: white;
 	border: 2px solid #e2e8f0;
 	border-radius: 16px;
@@ -834,26 +834,26 @@
 	transition: all 0.3s ease;
 }
 
-.modal-body .stat-chip:hover {
+.modalBody .statChip:hover {
 	border-color: #2563eb;
 	transform: translateY(-4px);
 	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
-.modal-body .stat-chip .stat-label {
+.modalBody .statChip .statLabel {
 	font-size: 0.95rem;
 	color: #64748b;
 	font-weight: 600;
 }
 
-.modal-body .stat-chip .stat-value {
+.modalBody .statChip .statValue {
 	font-size: 1.3rem;
 	font-weight: 800;
 	color: #0f172a;
 	margin-left: auto;
 }
 
-.modal-body .no-info {
+.modalBody .noInfo {
 	text-align: center;
 	padding: 3.5rem 2rem;
 	color: #94a3b8;
@@ -863,18 +863,18 @@
 	border: 3px dashed #e2e8f0;
 }
 
-.modal-body .no-info .sub-text {
+.modalBody .noInfo .subText {
 	font-size: 1rem;
 	color: #cbd5e1;
 	margin-top: 0.75rem;
 }
 
-.modal-content {
+.modalContent {
 	max-width: 780px !important;
 	padding: 0 !important;
 }
 
-.modal-content > h2 {
+.modalContent > h2 {
 	margin: 0 !important;
 	padding: 2rem 2.5rem 1.5rem !important;
 	font-size: 1.8rem !important;
@@ -883,21 +883,21 @@
 	border-bottom: 2px solid #f1f5f9;
 }
 
-.modal-content form {
+.modalContent form {
 	display: flex;
 	flex-direction: column;
 	gap: 1.75rem;
 	padding: 2rem 2.5rem 2.5rem !important;
 }
 
-.modal-content form .form-row {
+.modalContent form .formRow {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 1.25rem;
 }
 
-.modal-content form input,
-.modal-content form select {
+.modalContent form input,
+.modalContent form select {
 	padding: 16px 20px !important;
 	border: 2px solid #e2e8f0;
 	border-radius: 14px;
@@ -908,19 +908,19 @@
 	width: 100%;
 }
 
-.modal-content form input:focus,
-.modal-content form select:focus {
+.modalContent form input:focus,
+.modalContent form select:focus {
 	border-color: #2563eb;
 	box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
 	outline: none;
 }
 
-.modal-content form input::placeholder {
+.modalContent form input::placeholder {
 	color: #94a3b8;
 	font-size: 1rem;
 }
 
-.modal-content form label {
+.modalContent form label {
 	display: block;
 	margin-bottom: 8px;
 	font-weight: 700;
@@ -928,7 +928,7 @@
 	font-size: 1.05rem;
 }
 
-.modal-content form button[type="button"] {
+.modalContent form button[type="button"] {
 	padding: 12px 24px;
 	background: #f1f5f9;
 	color: #1e2937;
@@ -941,24 +941,24 @@
 	white-space: nowrap;
 }
 
-.modal-content form button[type="button"]:hover {
+.modalContent form button[type="button"]:hover {
 	background: #e2e8f0;
 	border-color: #94a3b8;
 	transform: translateY(-2px);
 }
 
-.modal-content form button[type="button"]:active {
+.modalContent form button[type="button"]:active {
 	transform: scale(0.95);
 }
 
-.modal-content form .tags-container {
+.modalContent form .tagsContainer {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 10px;
 	margin-top: 10px;
 }
 
-.modal-content form .tag {
+.modalContent form .tag {
 	display: inline-flex;
 	align-items: center;
 	gap: 10px;
@@ -969,17 +969,17 @@
 	transition: all 0.2s ease;
 }
 
-.modal-content form .tag-function {
+.modalContent form .tagFunction {
 	background: #e0f2fe;
 	color: #1e40af;
 }
 
-.modal-content form .tag-commission {
+.modalContent form .tagCommission {
 	background: #f3e8ff;
 	color: #6b21a5;
 }
 
-.modal-content form .tag .remove-btn {
+.modalContent form .tag .removeBtn {
 	background: none;
 	border: none;
 	color: #94a3b8;
@@ -990,12 +990,12 @@
 	line-height: 1;
 }
 
-.modal-content form .tag .remove-btn:hover {
+.modalContent form .tag .removeBtn:hover {
 	color: #ef4444;
 	transform: scale(1.3);
 }
 
-.modal-actions {
+.modalActions {
 	display: flex;
 	gap: 16px;
 	justify-content: flex-end;
@@ -1004,7 +1004,7 @@
 	border-top: 2px solid #f1f5f9;
 }
 
-.modal-actions button {
+.modalActions button {
 	padding: 16px 40px !important;
 	border: none;
 	border-radius: 9999px;
@@ -1015,33 +1015,33 @@
 	min-width: 140px;
 }
 
-.modal-actions button:first-child {
+.modalActions button:first-child {
 	background: #f1f5f9;
 	color: #1e2937;
 }
 
-.modal-actions button:first-child:hover {
+.modalActions button:first-child:hover {
 	background: #e2e8f0;
 	transform: translateY(-2px);
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.modal-actions button:last-child {
+.modalActions button:last-child {
 	background: linear-gradient(135deg, #002b5c, #003d80);
 	color: white;
 	box-shadow: 0 4px 16px rgba(0, 43, 92, 0.3);
 }
 
-.modal-actions button:last-child:hover {
+.modalActions button:last-child:hover {
 	transform: translateY(-2px);
 	box-shadow: 0 6px 24px rgba(0, 43, 92, 0.4);
 }
 
-.modal-actions button:active {
+.modalActions button:active {
 	transform: scale(0.97);
 }
 
-.modal-content form select {
+.modalContent form select {
 	appearance: none;
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
 	background-repeat: no-repeat;
@@ -1051,7 +1051,7 @@
 	font-size: 1.1rem;
 }
 
-.modal-content form select option {
+.modalContent form select option {
 	padding: 12px;
 	font-size: 1rem;
 }
@@ -1062,94 +1062,94 @@
 
 /* Zabezpieczenie bazowe: bez tego paddingi + width potrafią
    wypychać kafelki poza ekran (tzw. "grid/flex blowout") */
-.parliamentarians-page *,
-.parliamentarians-page *::before,
-.parliamentarians-page *::after {
+.parliamentariansPage *,
+.parliamentariansPage *::before,
+.parliamentariansPage *::after {
 	box-sizing: border-box;
 }
 
-.parliamentarians-page {
+.parliamentariansPage {
 	overflow-x: hidden;
 }
 
 @media (max-width: 1024px) {
-	.parliamentarians-content,
-	.parliamentarians-content.admin {
+	.parliamentariansContent,
+	.parliamentariansContentAdmin {
 		grid-template-columns: minmax(0, 1fr);
 	}
 
-	.clubs-panel {
+	.clubsPanel {
 		position: static;
 		top: unset;
 	}
 
-	.members-grid {
+	.membersGrid {
 		grid-template-columns: repeat(auto-fill, minmax(0, 1fr));
 	}
 
-	.modal-content form .form-row {
+	.modalContent form .formRow {
 		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	}
 }
 
 @media (max-width: 768px) {
-	.parliamentarians-page {
+	.parliamentariansPage {
 		padding: 1.25rem 1rem;
 	}
 
-	.stats-section {
+	.statsSection {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: 0.85rem;
 		margin-bottom: 1.75rem;
 	}
 
-	.stat-card {
+	.statCard {
 		padding: 1.25rem 1rem;
 		border-radius: 14px;
 		min-width: 0;
 	}
 
-	.stat-card:hover {
+	.statCard:hover {
 		transform: none;
 	}
 
-	.stat-number {
+	.statNumber {
 		font-size: 1.9rem;
 	}
 
-	.stat-label {
+	.statLabel {
 		font-size: 0.75rem;
 		letter-spacing: 0.03em;
 		overflow-wrap: break-word;
 	}
 
-	.parliamentarians-content {
+	.parliamentariansContent {
 		gap: 1rem;
 	}
 
-	.clubs-panel {
+	.clubsPanel {
 		padding: 1.25rem;
 		border-radius: 14px;
 	}
 
-	.clubs-panel h2,
-	.panel-header h2 {
+	.clubsPanel h2,
+	.panelHeader h2 {
 		font-size: 1.15rem;
 	}
 
-	.panel-header {
+	.panelHeader {
 		gap: 10px;
 		margin-bottom: 1.25rem;
 	}
 
-	.panel-actions {
+	.panelActions {
 		width: 100%;
 		flex-wrap: wrap;
 	}
 
-	.panel-header .clear-filter,
-	.add-club-btn,
-	.add-member-btn {
+	.panelHeader .clearFilter,
+	.addClubBtn,
+	.addMemberBtn {
 		flex: 1 1 auto;
 		padding: 10px 14px;
 		font-size: 0.9rem;
@@ -1160,12 +1160,12 @@
 		min-width: 0;
 	}
 
-	.add-member-btn {
+	.addMemberBtn {
 		align-self: stretch;
 		width: 100%;
 	}
 
-	.club-item {
+	.clubItem {
 		padding: 12px 14px;
 		gap: 10px;
 		min-height: 48px;
@@ -1174,73 +1174,73 @@
 		min-width: 0;
 	}
 
-	.club-item:hover {
+	.clubItem:hover {
 		transform: none;
 	}
 
-	.club-item .club-name {
+	.clubItem .clubName {
 		font-size: 0.95rem;
 		min-width: 0;
 	}
 
-	.club-item .club-count {
+	.clubItem .clubCount {
 		font-size: 0.85rem;
 		padding: 3px 10px;
 	}
 
-	.club-item .club-type-badge {
+	.clubItem .clubTypeBadge {
 		font-size: 0.68rem;
 		padding: 3px 10px;
 	}
 
-	.club-admin-actions {
+	.clubAdminActions {
 		flex-shrink: 0;
 	}
 
-	.club-admin-actions button {
+	.clubAdminActions button {
 		width: 30px;
 		height: 30px;
 		font-size: 0.85rem;
 		opacity: 1;
 	}
 
-	.admin-toggle-container {
+	.adminToggleContainer {
 		padding: 1rem 1.25rem;
 		border-radius: 14px;
 		flex-wrap: wrap;
 	}
 
-	.admin-toggle-container:hover {
+	.adminToggleContainer:hover {
 		transform: none;
 	}
 
-	.admin-toggle-label {
+	.adminToggleLabel {
 		font-size: 0.9rem;
 	}
 
-	.search-bar {
+	.searchBar {
 		flex-wrap: wrap;
 		border-radius: 18px;
 		padding: 6px;
 	}
 
-	.search-bar input {
+	.searchBar input {
 		padding: 10px 14px;
 		font-size: 1rem;
 		min-width: 0;
 	}
 
-	.search-bar .clear-filter {
+	.searchBar .clearFilter {
 		padding: 10px 16px;
 		font-size: 0.9rem;
 	}
 
-	.members-grid {
+	.membersGrid {
 		grid-template-columns: minmax(0, 1fr);
 		gap: 1rem;
 	}
 
-	.member-card {
+	.memberCard {
 		padding: 1.1rem;
 		gap: 12px;
 		border-radius: 14px;
@@ -1248,11 +1248,11 @@
 		flex-wrap: wrap;
 	}
 
-	.member-card:hover {
+	.memberCard:hover {
 		transform: none;
 	}
 
-	.member-avatar {
+	.memberAvatar {
 		width: 56px;
 		height: 56px;
 		font-size: 1.2rem;
@@ -1260,31 +1260,31 @@
 		flex-shrink: 0;
 	}
 
-	.member-info {
+	.memberInfo {
 		flex: 1 1 0%;
 		min-width: 0;
 	}
 
-	.member-info h4 {
+	.memberInfo h4 {
 		font-size: 1.05rem;
 		margin-bottom: 6px;
 		overflow-wrap: break-word;
 		word-break: break-word;
 	}
 
-	.member-club {
+	.memberClub {
 		font-size: 0.9rem;
 		margin-bottom: 8px;
 		overflow-wrap: break-word;
 	}
 
-	.function-badge,
-	.commission-badge {
+	.functionBadge,
+	.commissionBadge {
 		font-size: 0.72rem;
 		padding: 4px 10px;
 	}
 
-	.admin-actions {
+	.adminActions {
 		gap: 6px;
 		margin-left: 0;
 		flex-direction: row;
@@ -1292,19 +1292,19 @@
 		width: 100%;
 	}
 
-	.admin-actions button {
+	.adminActions button {
 		padding: 6px 10px;
 		font-size: 0.75rem;
 		flex: 1 1 auto;
 		min-width: 0;
 	}
 
-	.modal-overlay {
+	.modalOverlay {
 		padding: 0;
 		align-items: flex-end;
 	}
 
-	.modal-content {
+	.modalContent {
 		max-width: 100% !important;
 		width: 100%;
 		max-height: 94vh;
@@ -1324,13 +1324,13 @@
 		}
 	}
 
-	.modal-header {
+	.modalHeader {
 		padding: 1.5rem 1.25rem 1.25rem;
 		gap: 1rem;
 		flex-wrap: wrap;
 	}
 
-	.modal-avatar {
+	.modalAvatar {
 		width: 64px;
 		height: 64px;
 		font-size: 1.6rem;
@@ -1338,33 +1338,33 @@
 		flex-shrink: 0;
 	}
 
-	.modal-header .info-wrapper {
+	.modalHeader .infoWrapper {
 		min-width: 0;
 	}
 
-	.modal-header h2 {
+	.modalHeader h2 {
 		font-size: 1.3rem;
 		letter-spacing: -0.2px;
 		overflow-wrap: break-word;
 		word-break: break-word;
 	}
 
-	.modal-header .club-info {
+	.modalHeader .clubInfo {
 		padding: 6px 14px 6px 10px;
 		max-width: 100%;
 	}
 
-	.modal-header .club-dot {
+	.modalHeader .clubDot {
 		width: 12px;
 		height: 12px;
 	}
 
-	.modal-header .club-name {
+	.modalHeader .clubName {
 		font-size: 0.95rem;
 		overflow-wrap: break-word;
 	}
 
-	.modal-close {
+	.modalClose {
 		top: 1rem;
 		right: 1rem;
 		width: 38px;
@@ -1372,18 +1372,18 @@
 		font-size: 1.4rem;
 	}
 
-	.modal-body {
+	.modalBody {
 		padding: 1.5rem 1.25rem 2rem;
 	}
 
-	.modal-body h3 {
+	.modalBody h3 {
 		font-size: 1rem;
 		margin: 1.75rem 0 1rem;
 		padding: 8px 14px;
 		flex-wrap: wrap;
 	}
 
-	.modal-body li {
+	.modalBody li {
 		padding: 12px 14px;
 		font-size: 0.95rem;
 		border-radius: 12px;
@@ -1391,86 +1391,86 @@
 		flex-wrap: wrap;
 	}
 
-	.modal-body li:hover {
+	.modalBody li:hover {
 		transform: none;
 	}
 
-	.modal-body li .item-content {
+	.modalBody li .itemContent {
 		min-width: 0;
 		overflow-wrap: break-word;
 	}
 
-	.modal-body .member-stats {
+	.modalBody .memberStats {
 		grid-template-columns: minmax(0, 1fr);
 		gap: 10px;
 	}
 
-	.modal-body .stat-chip {
+	.modalBody .statChip {
 		padding: 12px 14px;
 		border-radius: 12px;
 		min-width: 0;
 	}
 
-	.modal-body .stat-chip:hover {
+	.modalBody .statChip:hover {
 		transform: none;
 	}
 
-	.modal-body .stat-chip .stat-label {
+	.modalBody .statChip .statLabel {
 		font-size: 0.85rem;
 	}
 
-	.modal-body .stat-chip .stat-value {
+	.modalBody .statChip .statValue {
 		font-size: 1.05rem;
 	}
 
-	.modal-body .no-info {
+	.modalBody .noInfo {
 		padding: 2.25rem 1.25rem;
 		font-size: 1rem;
 		border-radius: 16px;
 	}
 
-	.modal-content > h2 {
+	.modalContent > h2 {
 		padding: 1.5rem 1.25rem 1.1rem !important;
 		font-size: 1.3rem !important;
 		overflow-wrap: break-word;
 	}
 
-	.modal-content form {
+	.modalContent form {
 		gap: 1.25rem;
 		padding: 1.5rem 1.25rem 1.75rem !important;
 	}
 
-	.modal-content form .form-row {
+	.modalContent form .formRow {
 		grid-template-columns: minmax(0, 1fr);
 		gap: 1rem;
 	}
 
-	.modal-content form input,
-	.modal-content form select {
+	.modalContent form input,
+	.modalContent form select {
 		padding: 12px 14px !important;
 		font-size: 1rem !important;
 		border-radius: 12px;
 		min-width: 0;
 	}
 
-	.modal-content form label {
+	.modalContent form label {
 		font-size: 0.95rem;
 		margin-bottom: 6px;
 	}
 
-	.modal-content form .tag {
+	.modalContent form .tag {
 		padding: 8px 14px;
 		font-size: 0.9rem;
 		max-width: 100%;
 	}
 
-	.modal-actions {
+	.modalActions {
 		flex-direction: column-reverse;
 		gap: 10px;
 		padding-top: 1.25rem;
 	}
 
-	.modal-actions button {
+	.modalActions button {
 		padding: 14px 24px !important;
 		font-size: 1rem !important;
 		width: 100%;
@@ -1479,69 +1479,69 @@
 }
 
 @media (max-width: 480px) {
-	.stats-section {
+	.statsSection {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: 0.6rem;
 	}
 
-	.stat-card {
+	.statCard {
 		padding: 1rem 0.6rem;
 	}
 
-	.stat-number {
+	.statNumber {
 		font-size: 1.5rem;
 	}
 
-	.stat-label {
+	.statLabel {
 		font-size: 0.62rem;
 		letter-spacing: 0.02em;
 	}
 
-	.panel-actions {
+	.panelActions {
 		flex-direction: column;
 		width: 100%;
 	}
 
-	.panel-header .clear-filter,
-	.add-club-btn {
+	.panelHeader .clearFilter,
+	.addClubBtn {
 		width: 100%;
 	}
 
-	.club-item .club-type-badge {
+	.clubItem .clubTypeBadge {
 		display: none;
 	}
 
-	.member-card {
+	.memberCard {
 		flex-direction: column;
 	}
 
-	.member-avatar {
+	.memberAvatar {
 		width: 48px;
 		height: 48px;
 		font-size: 1.05rem;
 	}
 
-	.admin-actions {
+	.adminActions {
 		margin-left: 0;
 		flex-direction: row;
 		width: 100%;
 	}
 
-	.admin-actions button {
+	.adminActions button {
 		flex: 1 1 0%;
 	}
 
-	.modal-header {
+	.modalHeader {
 		flex-direction: column;
 		align-items: flex-start;
 		text-align: left;
 	}
 
-	.modal-header h2 {
+	.modalHeader h2 {
 		font-size: 1.15rem;
 	}
 
-	.modal-avatar {
+	.modalAvatar {
 		width: 56px;
 		height: 56px;
 		font-size: 1.4rem;
@@ -1549,18 +1549,18 @@
 }
 
 @media (hover: none) and (pointer: coarse) {
-	.club-item,
-	.member-card,
-	.stat-card,
+	.clubItem,
+	.memberCard,
+	.statCard,
 	button,
-	.add-club-btn,
-	.add-member-btn,
-	.clear-filter {
+	.addClubBtn,
+	.addMemberBtn,
+	.clearFilter {
 		-webkit-tap-highlight-color: transparent;
 	}
 
-	.club-admin-actions button,
-	.modal-close {
+	.clubAdminActions button,
+	.modalClose {
 		opacity: 1;
 	}
 }
@@ -1568,7 +1568,7 @@
 /* ============================================
    PRZEŁĄCZNIK WIDOKU
    ============================================ */
-.view-toggle {
+.viewToggle {
 	display: flex;
 	justify-content: center;
 	gap: 8px;
@@ -1579,7 +1579,7 @@
 	border-radius: 999px;
 }
 
-.view-toggle__btn {
+.viewToggleBtn {
 	flex: 1;
 	padding: 12px 24px;
 	border: none;
@@ -1592,29 +1592,29 @@
 	transition: all 0.2s ease;
 }
 
-.view-toggle__btn:hover {
+.viewToggleBtn:hover {
 	color: #0f172a;
 }
 
-.view-toggle__btn.active {
+.viewToggleBtnActive {
 	background: #fff;
 	color: #002b5c;
 	box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
 }
-
 /* ============================================
    HEMICYCLE
    ============================================ */
-.hemicycle-wrapper {
-	max-width: 1100px;
+
+.hemicycleWrapper {
+	max-width: 1500px;
 	margin: 0 auto 60px;
 	padding: 32px 24px;
-	background: #fff;
+	background: #ffffff;
 	border-radius: 24px;
 	box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
 }
 
-.hemicycle-title {
+.hemicycleTitle {
 	margin: 0 0 6px 0;
 	text-align: center;
 	font-size: 28px;
@@ -1622,36 +1622,37 @@
 	color: #002b5c;
 }
 
-.hemicycle-subtitle {
+.hemicycleSubtitle {
 	margin: 0 0 20px 0;
 	text-align: center;
 	font-size: 15px;
 	color: #64748b;
 }
 
-.hemicycle-bar {
+.hemicycleBar {
 	max-width: 900px;
 	margin: 0 auto 24px;
 }
 
-.hemicycle-bar-svg {
+.hemicycleBarSvg {
 	width: 100%;
 	height: 44px;
+	display: block;
 	border-radius: 8px;
 	overflow: hidden;
 	box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
-	display: block;
 }
 
-.hemicycle-legend {
+.hemicycleLegend {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
 	gap: 12px 20px;
-	margin-bottom: 28px;
+	margin: 0 auto 28px;
+	max-width: 900px;
 }
 
-.hemicycle-legend__item {
+.hemicycleLegendItem {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -1659,61 +1660,76 @@
 	color: #334155;
 }
 
-.hemicycle-legend__color {
+.hemicycleLegendColor {
 	display: inline-block;
 	width: 20px;
 	height: 20px;
 	border-radius: 4px;
+	flex-shrink: 0;
 }
 
-.hemicycle-legend__label strong {
+.hemicycleLegendLabel strong {
 	color: #0f172a;
 }
 
-.hemicycle-svg {
+.hemicycleSvg {
 	width: 100%;
+
 	height: auto;
 	display: block;
+	margin: 0 auto;
+	shape-rendering: crispEdges;
 }
 
-.hemicycle-arc {
+.hemicycleArc {
 	fill: none;
 	stroke: #e2e8f0;
 	stroke-width: 1;
 	stroke-dasharray: 3 5;
 }
 
-.hemicycle-seat circle {
-	transition: filter 0.15s ease;
-	transform-origin: center;
+.hemicycleSeat rect {
+	pointer-events: all;
+	transition:
+		stroke 0.12s ease,
+		filter 0.12s ease;
 }
 
-.hemicycle-seat:hover circle {
-	filter: brightness(1.2);
+.hemicycleSeat:hover rect {
+	stroke: #0f172a;
+	stroke-width: 2;
+	filter: brightness(1.15) drop-shadow(0 0 4px rgba(0, 0, 0, 0.25));
 }
 
-.hemicycle-seat--empty circle {
-	stroke-dasharray: 2 3;
+.hemicycleSeatEmpty rect {
+	opacity: 0.7;
+	pointer-events: none;
 }
 
 @media (max-width: 768px) {
-	.hemicycle-wrapper {
+	.hemicycleWrapper {
 		padding: 20px 12px;
+		margin-bottom: 40px;
 	}
 
-	.hemicycle-title {
+	.hemicycleTitle {
 		font-size: 20px;
 	}
 
-	.hemicycle-subtitle {
+	.hemicycleSubtitle {
 		font-size: 13px;
 	}
 
-	.hemicycle-legend {
+	.hemicycleLegend {
 		gap: 8px 12px;
 	}
 
-	.hemicycle-legend__item {
+	.hemicycleLegendItem {
 		font-size: 12px;
+	}
+
+	.hemicycleLegendColor {
+		width: 16px;
+		height: 16px;
 	}
 }

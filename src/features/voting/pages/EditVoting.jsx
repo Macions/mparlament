@@ -525,7 +525,7 @@ export default function EditVoting() {
     };
 
     const getApplicantLabel = (applicant) => {
-        if (!applicant) return "Nie wybrano"; // ZMIEŃ TĘ LINIĘ
+        if (!applicant) return "Nie wybrano"; 
 
         const found = groups.find((g) => g.id === applicant);
         if (found) return found.name;
@@ -543,8 +543,8 @@ export default function EditVoting() {
         const types = {
             all: "Wszyscy parlamentarzyści",
             groups: "Wybrane grupy/komisje",
-            individual: "Wybrane osoby",  // Zostało individual
-            members: "Wybrane osoby",     // DODAJ OBSŁUGĘ TYPU "members"
+            individual: "Wybrane osoby",  
+            members: "Wybrane osoby",     
         };
         return types[formData.recipientsType] || formData.recipientsType;
     };
@@ -1281,7 +1281,7 @@ export default function EditVoting() {
                                 borderRadius: '6px'
                             }}>
                                 {getFilteredManagers()
-                                    .filter(user => user.role !== "admin") // Pomiń adminów
+                                    .filter(user => user.role !== "admin") 
                                     .map((user) => (
                                         <label key={user.id} className="checkbox-item" style={{
                                             display: 'flex',
@@ -1316,7 +1316,7 @@ export default function EditVoting() {
                                         gap: '6px'
                                     }}>
                                         {formData.managers.map(id => {
-                                            const user = users.find(u => u.id === id); // UŻYWA USERS
+                                            const user = users.find(u => u.id === id); 
                                             return user ? (
                                                 <span key={id} className="manager-tag" style={{
                                                     display: 'inline-flex',

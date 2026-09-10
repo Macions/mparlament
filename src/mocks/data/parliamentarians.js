@@ -1,5 +1,4 @@
 export let parliamentarians = [
-	// ===================== KLUB: CZAS MŁODYCH (clubId: 1, #1a73e8) =====================
 	{
 		id: 1,
 		firstName: "Jan",
@@ -101,7 +100,6 @@ export let parliamentarians = [
 		commissions: ["Komisja Etyki Parlamentarnej"],
 	},
 
-	// ===================== KLUB: KOMITET NARODOWY POLSKI (clubId: 2, #dc143c) =====================
 	{
 		id: 11,
 		firstName: "Anna",
@@ -203,7 +201,6 @@ export let parliamentarians = [
 		commissions: ["Komisja Stała"],
 	},
 
-	// ===================== KLUB: UNIA LIBERALNA (clubId: 3, #f59e0b) =====================
 	{
 		id: 21,
 		firstName: "Piotr",
@@ -295,7 +292,6 @@ export let parliamentarians = [
 		commissions: ["Komisja Stała"],
 	},
 
-	// ===================== KLUB: SOLIDARNI (clubId: 4, #8b0000) =====================
 	{
 		id: 30,
 		firstName: "Maria",
@@ -397,7 +393,6 @@ export let parliamentarians = [
 		commissions: ["Komisja Stała"],
 	},
 
-	// ===================== KLUB: KONSERWATYŚCI I LIBERAŁOWIE (clubId: 5, #2e7d32) =====================
 	{
 		id: 40,
 		firstName: "Tomasz",
@@ -469,7 +464,6 @@ export let parliamentarians = [
 		commissions: ["Komisja Stała"],
 	},
 
-	// ===================== KLUB: ALTERNATYWA CENTRUM (clubId: 6, #6a1b9a) =====================
 	{
 		id: 47,
 		firstName: "Katarzyna",
@@ -531,7 +525,6 @@ export let parliamentarians = [
 		commissions: ["Komisja Stała"],
 	},
 
-	// ===================== KLUB: KOOPERATYWA SPOŁECZNA (clubId: 7, #e65100) =====================
 	{
 		id: 53,
 		firstName: "Michał",
@@ -583,7 +576,6 @@ export let parliamentarians = [
 		commissions: ["Komisja Stała"],
 	},
 
-	// ===================== KOŁO: MŁODZI DLA SAMORZĄDU (clubId: 8, #00838f) =====================
 	{
 		id: 58,
 		firstName: "Aleksandra",
@@ -635,7 +627,6 @@ export let parliamentarians = [
 		commissions: ["Komisja Stała"],
 	},
 
-	// ===================== KOŁO: INICJATYWA OBYWATELSKA (clubId: 9, #5d4037) =====================
 	{
 		id: 63,
 		firstName: "Szymon",
@@ -687,7 +678,6 @@ export let parliamentarians = [
 		commissions: ["Komisja Stała"],
 	},
 
-	// ===================== KOŁO: PATRIOCI 2.0 (clubId: 10, #455a64) =====================
 	{
 		id: 68,
 		firstName: "Kacper",
@@ -749,7 +739,6 @@ export let parliamentarians = [
 		commissions: ["Komisja Stała"],
 	},
 
-	// ===================== KOMITET: KOMITET OBYWATELSKI (clubId: 11, #00695c) =====================
 	{
 		id: 74,
 		firstName: "Adrian",
@@ -801,7 +790,6 @@ export let parliamentarians = [
 		commissions: ["Komisja Stała"],
 	},
 
-	// ===================== KOMITET: KOMITET REFORM (clubId: 12, #37474f) =====================
 	{
 		id: 79,
 		firstName: "Maksym",
@@ -853,7 +841,6 @@ export let parliamentarians = [
 		commissions: ["Komisja Stała"],
 	},
 
-	// ===================== NIEZRZESZENI (clubId: null) =====================
 	{
 		id: 84,
 		firstName: "Marta",

@@ -902,7 +902,6 @@
 		font-size: 0.8rem;
 	}
 }
-/* ===== STYLE DLA PRZYCISKU USUWANIA ===== */
 
 .delete-btn {
 	background: var(--red);
@@ -924,8 +923,6 @@
 	transform: translateY(0);
 	box-shadow: 0 4px 10px rgba(238, 43, 62, 0.25);
 }
-
-/* ===== STYLE DLA MODALA USUWANIA ===== */
 
 .modal-danger {
 	border-top: 6px solid var(--red);
@@ -975,8 +972,6 @@
 	justify-content: center;
 	margin-top: 16px;
 }
-
-/* ===== RESPONSYWNOŚĆ ===== */
 
 @media (max-width: 640px) {
 	.delete-btn {
