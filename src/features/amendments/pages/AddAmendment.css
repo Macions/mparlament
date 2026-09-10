@@ -839,3 +839,263 @@
 .submit-btn.has-conflicts:hover {
 	background: #b91c1c;
 }
+/* ============================================
+   PRZYCISK "SPRAWDŹ KOLIZJE"
+   ============================================ */
+
+.check-conflicts-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+
+	background: #f59e0b;
+	color: white;
+
+	border: none;
+	border-radius: var(--radius-full, 999px);
+
+	padding: 16px 28px;
+
+	font-size: 16px;
+	font-weight: 700;
+	letter-spacing: 0.3px;
+
+	cursor: pointer;
+
+	box-shadow: 0 6px 14px rgba(245, 158, 11, 0.35);
+	transition: all 0.2s ease;
+}
+
+.check-conflicts-btn:hover:not(:disabled) {
+	background: #d97706;
+	transform: translateY(-3px);
+	box-shadow: 0 10px 24px rgba(245, 158, 11, 0.45);
+}
+
+.check-conflicts-btn:active:not(:disabled) {
+	transform: translateY(0);
+	box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25);
+}
+
+.check-conflicts-btn:disabled {
+	background: #d1d5db;
+	color: #9ca3af;
+	cursor: not-allowed;
+	box-shadow: none;
+	transform: none;
+}
+
+/* ============================================
+   PRZYCISK "DODAJ POPRAWKĘ" - ZABLOKOWANY
+   ============================================ */
+
+.submit-btn:disabled {
+	background: #d1d5db !important;
+	color: #9ca3af !important;
+	cursor: not-allowed;
+	transform: none !important;
+	box-shadow: none !important;
+	opacity: 0.85;
+}
+
+.submit-btn.has-blocking-conflicts {
+	background: #dc2626 !important;
+	cursor: not-allowed;
+}
+
+.submit-btn.has-warnings {
+	background: #f59e0b !important;
+}
+
+/* ============================================
+   SEKCJA KONFLIKTÓW
+   ============================================ */
+
+.conflicts-section {
+	margin-top: 24px;
+	padding: 20px;
+	background: #f9fafb;
+	border-radius: 12px;
+	border: 1px solid #e5e7eb;
+}
+
+.conflicts-title {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+
+	margin: 0 0 16px 0;
+
+	font-size: 17px;
+	font-weight: 700;
+
+	color: #f59e0b;
+}
+
+.conflicts-title--blocking {
+	color: #dc2626;
+}
+
+.conflicts-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-bottom: 16px;
+}
+
+.conflict-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+
+	padding: 14px 16px;
+
+	border-radius: 10px;
+
+	background: white;
+	border-left: 4px solid #3b82f6;
+}
+
+.conflict-item--blocking {
+	background: #fef2f2;
+	border-left-color: #dc2626;
+}
+
+.conflict-item--conflict {
+	background: #fef2f2;
+	border-left-color: #dc2626;
+}
+
+.conflict-item--warning {
+	background: #fffbeb;
+	border-left-color: #f59e0b;
+}
+
+.conflict-item--info {
+	background: #eff6ff;
+	border-left-color: #3b82f6;
+}
+
+.conflict-item-icon {
+	flex-shrink: 0;
+	margin-top: 2px;
+}
+
+.conflict-item-content {
+	flex: 1;
+	min-width: 0;
+}
+
+.conflict-item-message {
+	margin: 0 0 8px 0;
+	font-size: 14px;
+	line-height: 1.5;
+	color: #111827;
+}
+
+.conflict-item-amendments {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 6px;
+}
+
+.amendment-tag {
+	display: inline-block;
+
+	padding: 4px 10px;
+
+	background: #f3f4f6;
+	color: #374151;
+
+	border-radius: 999px;
+
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.amendment-tag--blocking {
+	background: #fee2e2;
+	color: #991b1b;
+}
+
+.conflict-item-similarity {
+	margin-top: 6px;
+	font-size: 13px;
+	color: #6b7280;
+	font-style: italic;
+}
+
+.conflict-item-article {
+	margin-top: 6px;
+	font-size: 13px;
+	color: #4b5563;
+}
+
+.conflicts-note {
+	margin: 12px 0 0 0;
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+/* ============================================
+   FORM ACTIONS - UŁOŻENIE PRZYCISKÓW
+   ============================================ */
+
+.form-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: center;
+	justify-content: flex-end;
+	margin-top: 32px;
+	padding-top: 24px;
+	border-top: 1px solid #e5e7eb;
+}
+
+.form-actions .submit-btn {
+	order: 2;
+}
+
+.form-actions .check-conflicts-btn {
+	order: 1;
+}
+
+.form-actions .cancel-btn {
+	order: 3;
+}
+
+/* ============================================
+   RESPONSYWNOŚĆ
+   ============================================ */
+
+@media (max-width: 640px) {
+	.form-actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.check-conflicts-btn,
+	.submit-btn,
+	.cancel-btn {
+		width: 100%;
+		justify-content: center;
+	}
+
+	.conflicts-section {
+		padding: 16px;
+	}
+
+	.conflicts-title {
+		font-size: 15px;
+	}
+
+	.conflict-item {
+		padding: 12px;
+	}
+
+	.conflict-item-message {
+		font-size: 13px;
+	}
+}

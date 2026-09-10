@@ -14,10 +14,255 @@ const ModalPortal = ({ children, onClose }) => {
 	);
 };
 
+// ============================================================
+// HEMICYCLE – układ sali plenarnej z sektorami
+// ============================================================
+function Hemicycle({ parliamentarians, unaffiliated, clubs, onSelect }) {
+	// Kolejność klubów od lewej do prawej (jak w opisie)
+	const seatOrder = useMemo(() => {
+		const order = [];
+		// najpierw kluby w kolejności z listy
+		clubs.forEach((club) => {
+			order.push({
+				id: club.id,
+				name: club.name,
+				color: club.color,
+				count: parliamentarians.filter((p) => p.clubId === club.id).length,
+				members: parliamentarians.filter((p) => p.clubId === club.id),
+			});
+		});
+		// na końcu niezrzeszeni
+		order.push({
+			id: "unaffiliated",
+			name: "Niezrzeszeni",
+			color: "#94a3b8",
+			count: unaffiliated.length,
+			members: unaffiliated,
+		});
+		// dodaj puste miejsca, żeby wypełnić salę (opcjonalnie)
+		const total = order.reduce((s, g) => s + g.count, 0);
+		const emptySeats = Math.max(0, 100 - total); // np. 100 miejsc w sali
+		if (emptySeats > 0) {
+			order.push({
+				id: "empty",
+				name: "Puste",
+				color: "#e6e6e6",
+				count: emptySeats,
+				members: [],
+				isEmpty: true,
+			});
+		}
+		return order;
+	}, [clubs, parliamentarians, unaffiliated]);
 
+	const totalSeats = seatOrder.reduce((s, g) => s + g.count, 0);
+
+	// Geometria
+	const width = 1000;
+	const height = 520;
+	const centerX = width / 2;
+	const centerY = height - 20;
+	const maxRadius = 460;
+	const minRadius = 100;
+	const rows = 8;
+
+	// Rozkładamy wszystkie miejsca po kolei (klub po klubie)
+	const allSeats = useMemo(() => {
+		const seats = [];
+		seatOrder.forEach((group) => {
+			group.members.forEach((m, i) => {
+				seats.push({
+					...m,
+					group,
+					groupIndex: seatOrder.findIndex((g) => g.id === group.id),
+				});
+			});
+			// puste miejsca
+			if (group.isEmpty) {
+				for (let i = 0; i < group.count; i++) {
+					seats.push({
+						id: `empty-${i}`,
+						firstName: "",
+						lastName: "",
+						group,
+						isEmpty: true,
+					});
+				}
+			}
+		});
+		return seats;
+	}, [seatOrder]);
+
+	// Rozmieszczenie miejsc: dla każdego miejsca liczymy kąt i promień
+	const seatPositions = useMemo(() => {
+		const positions = [];
+		const total = allSeats.length;
+		// kąty od 180° (lewo) do 0° (prawo)
+		const angleStart = Math.PI;
+		const angleEnd = 0;
+
+		allSeats.forEach((seat, idx) => {
+			// proporcjonalnie do pozycji w całym półkolu
+			const t = total === 1 ? 0 : idx / (total - 1);
+			const angle = angleStart + t * (angleEnd - angleStart);
+
+			// rząd: im dalej od środka, tym wyżej
+			const rowIndex = idx % rows;
+			const radius =
+				minRadius + (rowIndex / (rows - 1)) * (maxRadius - minRadius);
+
+			const x = centerX + radius * Math.cos(angle);
+			const y = centerY + radius * Math.sin(angle) * -1;
+			positions.push({ x, y, seat });
+		});
+		return positions;
+	}, [allSeats, rows, minRadius, maxRadius, centerX, centerY]);
+
+	// Kolory sektorów (dla legendy)
+	const sectorLegend = seatOrder.map((g) => ({
+		name: g.name,
+		count: g.count,
+		color: g.color,
+		isEmpty: g.isEmpty,
+	}));
+
+	return (
+		<div className="hemicycle-wrapper">
+			<h2 className="hemicycle-title">Układ sali plenarnej</h2>
+			<p className="hemicycle-subtitle">
+				{totalSeats} mandatów · {clubs.length} klubów i kół
+			</p>
+
+			{/* Pasek proporcji */}
+			<div className="hemicycle-bar">
+				<svg
+					viewBox={`0 0 ${width} 40`}
+					className="hemicycle-bar-svg"
+					preserveAspectRatio="none"
+				>
+					<defs>
+						<pattern
+							id="stripe-pattern"
+							width="8"
+							height="8"
+							patternTransform="rotate(45 0 0)"
+							patternUnits="userSpaceOnUse"
+						>
+							<line
+								x1="0"
+								y1="0"
+								x2="0"
+								y2="8"
+								stroke="#ff4d4d"
+								strokeWidth="4"
+							/>
+							<line
+								x1="4"
+								y1="0"
+								x2="4"
+								y2="8"
+								stroke="#ffffff"
+								strokeWidth="4"
+							/>
+						</pattern>
+					</defs>
+					{(() => {
+						let x = 0;
+						return seatOrder.map((g) => {
+							const w = (g.count / totalSeats) * width;
+							const fill = g.isEmpty ? "url(#stripe-pattern)" : g.color;
+							const rect = (
+								<rect
+									key={g.id}
+									x={x}
+									y="0"
+									width={w}
+									height="40"
+									fill={fill}
+									stroke="#ffffff"
+									strokeWidth="1"
+								>
+									<title>
+										{g.name}: {g.count}
+									</title>
+								</rect>
+							);
+							x += w;
+							return rect;
+						});
+					})()}
+				</svg>
+			</div>
+
+			{/* Legenda */}
+			<div className="hemicycle-legend">
+				{sectorLegend.map((g) => (
+					<div key={g.name} className="hemicycle-legend__item">
+						<span
+							className="hemicycle-legend__color"
+							style={{
+								background: g.isEmpty
+									? "repeating-linear-gradient(-45deg, #fff, #fff 4px, #ff4d4d 4px, #ff4d4d 8px)"
+									: g.color,
+								border: g.isEmpty ? "1px solid #ccc" : "none",
+							}}
+						/>
+						<span className="hemicycle-legend__label">
+							<strong>{g.name}:</strong> {g.count}
+						</span>
+					</div>
+				))}
+			</div>
+
+			{/* Półkole */}
+			<svg viewBox={`0 0 ${width} ${height}`} className="hemicycle-svg">
+				{/* Łuki pomocnicze */}
+				{Array.from({ length: rows }).map((_, rowIndex) => {
+					const radius =
+						minRadius + (rowIndex / (rows - 1)) * (maxRadius - minRadius);
+					return (
+						<path
+							key={`arc-${rowIndex}`}
+							d={`M ${centerX - radius} ${centerY} A ${radius} ${radius} 0 0 1 ${centerX + radius} ${centerY}`}
+							className="hemicycle-arc"
+						/>
+					);
+				})}
+
+				{/* Miejsca */}
+				{seatPositions.map(({ x, y, seat }, idx) => (
+					<g
+						key={seat.id || idx}
+						className={`hemicycle-seat ${seat.isEmpty ? "hemicycle-seat--empty" : ""}`}
+						onClick={() => !seat.isEmpty && onSelect && onSelect(seat)}
+						style={{ cursor: seat.isEmpty ? "default" : "pointer" }}
+					>
+						<circle
+							cx={x}
+							cy={y}
+							r={7}
+							fill={seat.isEmpty ? "none" : seat.group.color}
+							stroke={seat.isEmpty ? "#ff4d4d" : "#ffffff"}
+							strokeWidth={seat.isEmpty ? 1.5 : 1.5}
+						/>
+						{!seat.isEmpty && (
+							<title>
+								{seat.firstName} {seat.lastName} · {seat.group.name}
+							</title>
+						)}
+					</g>
+				))}
+			</svg>
+		</div>
+	);
+}
+
+// ============================================================
+// GŁÓWNY KOMPONENT
+// ============================================================
 export default function Parliamentarians() {
 	const location = useLocation();
-	const navigate = useNavigate()
+	const navigate = useNavigate();
 	const [parliamentarians, setParliamentarians] = useState([]);
 	const [unaffiliatedList, setUnaffiliatedList] = useState([]);
 	const [clubsList, setClubsList] = useState([]);
@@ -34,6 +279,7 @@ export default function Parliamentarians() {
 	const [editingClub, setEditingClub] = useState(null);
 
 	const [adminMode, setAdminMode] = useState(false);
+	const [viewMode, setViewMode] = useState("list"); // "list" | "hemicycle"
 
 	const token = localStorage.getItem("token");
 
@@ -41,14 +287,12 @@ export default function Parliamentarians() {
 		async function fetchData() {
 			try {
 				setLoading(true);
-
-
 				const membersRes = await fetch("/api/parliamentarians", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
-				if (!membersRes.ok) throw new Error("Nie udało się pobrać parlamentarzystów");
+				if (!membersRes.ok)
+					throw new Error("Nie udało się pobrać parlamentarzystów");
 				const membersData = await membersRes.json();
-
 
 				const clubsRes = await fetch("/api/clubs", {
 					headers: { Authorization: `Bearer ${token}` },
@@ -73,7 +317,10 @@ export default function Parliamentarians() {
 				});
 				if (response.ok) {
 					const user = await response.json();
-					setIsAdmin(user.role === "admin" || user.permissions?.includes("MANAGE_PARLIAMENTARIANS"));
+					setIsAdmin(
+						user.role === "admin" ||
+							user.permissions?.includes("MANAGE_PARLIAMENTARIANS"),
+					);
 				}
 			} catch {
 				setIsAdmin(false);
@@ -83,9 +330,11 @@ export default function Parliamentarians() {
 		fetchData();
 		fetchUser();
 	}, [token]);
+
 	const getClubMemberCount = (clubId) => {
-		return parliamentarians.filter(p => p.clubId === clubId).length;
+		return parliamentarians.filter((p) => p.clubId === clubId).length;
 	};
+
 	const saveParliamentarian = async (newData) => {
 		try {
 			const response = await fetch("/api/parliamentarians", {
@@ -100,9 +349,11 @@ export default function Parliamentarians() {
 			const saved = await response.json();
 
 			if (editingParliamentarian) {
-				setParliamentarians(prev => prev.map(p => p.id === saved.id ? saved : p));
+				setParliamentarians((prev) =>
+					prev.map((p) => (p.id === saved.id ? saved : p)),
+				);
 			} else {
-				setParliamentarians(prev => [...prev, saved]);
+				setParliamentarians((prev) => [...prev, saved]);
 			}
 			setIsAddModalOpen(false);
 			setEditingParliamentarian(null);
@@ -110,39 +361,23 @@ export default function Parliamentarians() {
 			setError(err.message);
 		}
 	};
+
 	const deleteParliamentarian = async (id) => {
-		if (!window.confirm("Czy na pewno chcesz usunąć tego parlamentarzystę?")) return;
+		if (!window.confirm("Czy na pewno chcesz usunąć tego parlamentarzystę?"))
+			return;
 		try {
 			const response = await fetch(`/api/parliamentarians/${id}`, {
 				method: "DELETE",
 				headers: { Authorization: `Bearer ${token}` },
 			});
-			if (!response.ok) throw new Error("Nie udało się usunąć parlamentarzysty");
-			setParliamentarians(prev => prev.filter(p => p.id !== id));
+			if (!response.ok)
+				throw new Error("Nie udało się usunąć parlamentarzysty");
+			setParliamentarians((prev) => prev.filter((p) => p.id !== id));
 			setSelectedParliamentarian(null);
 		} catch (err) {
 			setError(err.message);
 		}
 	};
-
-	function AdminToggle({ isAdmin, adminMode, setAdminMode }) {
-		if (!isAdmin) return null;
-		return (
-			<div className="admin-toggle-container">
-				<span className="admin-toggle-label">
-					{adminMode ? "Tryb Admina" : "Tryb Użytkownika"}
-				</span>
-				<label className="admin-toggle">
-					<input
-						type="checkbox"
-						checked={adminMode}
-						onChange={() => setAdminMode(!adminMode)}
-					/>
-					<span className="admin-toggle-slider"></span>
-				</label>
-			</div>
-		);
-	}
 
 	const openAddClubModal = () => {
 		setEditingClub(null);
@@ -176,9 +411,11 @@ export default function Parliamentarians() {
 			const saved = await response.json();
 
 			if (editingClub) {
-				setClubsList(prev => prev.map(c => c.id === saved.id ? saved : c));
+				setClubsList((prev) =>
+					prev.map((c) => (c.id === saved.id ? saved : c)),
+				);
 			} else {
-				setClubsList(prev => [...prev, saved]);
+				setClubsList((prev) => [...prev, saved]);
 			}
 			setIsClubModalOpen(false);
 			setEditingClub(null);
@@ -186,6 +423,7 @@ export default function Parliamentarians() {
 			setError(err.message);
 		}
 	};
+
 	const deleteClub = async (clubId) => {
 		if (!window.confirm("Czy na pewno chcesz usunąć ten klub/koło?")) return;
 		try {
@@ -194,10 +432,14 @@ export default function Parliamentarians() {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 			if (!response.ok) throw new Error("Nie udało się usunąć klubu");
-			setClubsList(prev => prev.filter(c => c.id !== clubId));
-			setParliamentarians(prev => prev.map(p =>
-				p.clubId === clubId ? { ...p, clubId: null, clubName: null, clubColor: null } : p
-			));
+			setClubsList((prev) => prev.filter((c) => c.id !== clubId));
+			setParliamentarians((prev) =>
+				prev.map((p) =>
+					p.clubId === clubId
+						? { ...p, clubId: null, clubName: null, clubColor: null }
+						: p,
+				),
+			);
 			if (selectedClubId === clubId) {
 				setSelectedClubId("all");
 			}
@@ -209,17 +451,13 @@ export default function Parliamentarians() {
 	const filteredParliamentarians = useMemo(() => {
 		let result = [];
 
-
 		if (selectedClubId === "unaffiliated") {
 			result = [...unaffiliatedList];
 		} else if (selectedClubId === "all") {
-
 			result = [...parliamentarians, ...unaffiliatedList];
 		} else {
-
 			result = parliamentarians.filter((p) => p.clubId === selectedClubId);
 		}
-
 
 		if (searchTerm.trim()) {
 			const search = searchTerm.toLowerCase().trim();
@@ -249,6 +487,7 @@ export default function Parliamentarians() {
 		setSelectedClubId(clubId === selectedClubId ? "all" : clubId);
 		setSelectedParliamentarian(null);
 	};
+
 	const clearAllFilters = () => {
 		setSearchTerm("");
 		setSelectedClubId("all");
@@ -276,12 +515,10 @@ export default function Parliamentarians() {
 		}
 		return many;
 	};
+
 	return (
 		<div className="parliamentarians-page">
-			<button
-				className="back-to-home-btn"
-				onClick={() => navigate("/")}
-			>
+			<button className="back-to-home-btn" onClick={() => navigate("/")}>
 				<svg
 					width="18"
 					height="18"
@@ -297,39 +534,34 @@ export default function Parliamentarians() {
 						strokeLinejoin="round"
 					/>
 				</svg>
-
 				Strona główna
 			</button>
-			<section className="stats-section">
 
+			<section className="stats-section">
 				<div className="stat-card">
 					<span className="stat-number">{totalSeats}</span>
 					<span className="stat-label">
 						{polishPlural(totalSeats, "Mandat", "Mandaty", "Mandatów")}
 					</span>
 				</div>
-
 				<div className="stat-card">
 					<span className="stat-number">{totalClubs}</span>
 					<span className="stat-label">
 						{polishPlural(totalClubs, "Klub", "Kluby", "Klubów")}
 					</span>
 				</div>
-
 				<div className="stat-card">
 					<span className="stat-number">{totalCircles}</span>
 					<span className="stat-label">
 						{polishPlural(totalCircles, "Koło", "Koła", "Kół")}
 					</span>
 				</div>
-
 				<div className="stat-card">
 					<span className="stat-number">{totalCommittees}</span>
 					<span className="stat-label">
 						{polishPlural(totalCommittees, "Komitet", "Komitety", "Komitetów")}
 					</span>
 				</div>
-
 				<div className="stat-card">
 					<span className="stat-number">{unaffiliatedList.length}</span>
 					<span className="stat-label">
@@ -348,176 +580,207 @@ export default function Parliamentarians() {
 				/>
 			</section>
 
-			<div
-				className={`parliamentarians-content ${isAdmin && adminMode ? "admin" : ""}`}
-			>
-				<aside className={`clubs-panel ${isAdmin && adminMode ? "admin" : ""}`}>
-					<div className="panel-header">
-						<h2>Kluby i koła</h2>
-						<div className="panel-actions">
-							{(selectedClubId !== "all" || searchTerm) && (
-								<button className="clear-filter" onClick={clearAllFilters}>
-									Wyczyść filtry
-								</button>
-							)}
-							{isAdmin && adminMode && (
-								<button className="add-club-btn" onClick={openAddClubModal}>
-									+ Dodaj
-								</button>
-							)}
-						</div>
-					</div>
-					<ul className="clubs-list">
-						{clubsList.map((club) => (
-							<li
-								key={club.id}
-								className={`club-item ${selectedClubId === club.id ? "active" : ""}`}
-								onClick={() => handleSelectClub(club.id)}
-							>
-								<span
-									className="club-color"
-									style={{ backgroundColor: club.color }}
-								></span>
-								<span className="club-name">{club.name}</span>
-								<span className="club-count">{getClubMemberCount(club.id)}</span>
-								<span className="club-type-badge">{club.type}</span>
-								{isAdmin && adminMode && (
-									<div
-										className="club-admin-actions"
-										onClick={(e) => e.stopPropagation()}
-									>
-										<button
-											className="club-edit-btn"
-											onClick={() => openEditClubModal(club)}
-											title="Edytuj"
-										>
-											✏️
-										</button>
-										<button
-											className="club-delete-btn"
-											onClick={() => deleteClub(club.id)}
-											title="Usuń"
-										>
-											❌
-										</button>
-									</div>
+			{/* ✅ Przełącznik widoku */}
+			<div className="view-toggle">
+				<button
+					className={`view-toggle__btn ${viewMode === "list" ? "active" : ""}`}
+					onClick={() => setViewMode("list")}
+				>
+					Widok listy
+				</button>
+				<button
+					className={`view-toggle__btn ${viewMode === "hemicycle" ? "active" : ""}`}
+					onClick={() => setViewMode("hemicycle")}
+				>
+					Układ sali
+				</button>
+			</div>
+
+			{viewMode === "hemicycle" ? (
+				<Hemicycle
+					parliamentarians={parliamentarians}
+					unaffiliated={unaffiliatedList}
+					clubs={clubsList}
+					onSelect={setSelectedParliamentarian}
+				/>
+			) : (
+				<div
+					className={`parliamentarians-content ${isAdmin && adminMode ? "admin" : ""}`}
+				>
+					<aside
+						className={`clubs-panel ${isAdmin && adminMode ? "admin" : ""}`}
+					>
+						<div className="panel-header">
+							<h2>Kluby i koła</h2>
+							<div className="panel-actions">
+								{(selectedClubId !== "all" || searchTerm) && (
+									<button className="clear-filter" onClick={clearAllFilters}>
+										Wyczyść filtry
+									</button>
 								)}
-							</li>
-						))}
-						<li
-							className={`club-item ${selectedClubId === "unaffiliated" ? "active" : ""}`}
-							onClick={() => handleSelectClub("unaffiliated")}
-						>
-							<span
-								className="club-color"
-								style={{ backgroundColor: "#94a3b8" }}
-							></span>
-							<span className="club-name">Niezrzeszeni</span>
-							<span className="club-count">{unaffiliatedList.length}</span>
-						</li>
-					</ul>
-				</aside>
-
-				<main className="members-panel">
-					<div className="search-bar">
-						<input
-							type="text"
-							placeholder="Szukaj po imieniu, nazwisku, klubie..."
-							value={searchTerm}
-							onChange={(e) => setSearchTerm(e.target.value)}
-						/>
-						{searchTerm && (
-							<button
-								className="clear-filter"
-								onClick={() => setSearchTerm("")}
-							>
-								✕
-							</button>
-						)}
-					</div>
-
-					{isAdmin && adminMode && (
-						<button className="add-member-btn" onClick={openAddModal}>
-							+ Dodaj parlamentarzystę
-						</button>
-					)}
-					{ }
-					{isClubModalOpen && (
-						<ClubModal
-							club={editingClub}
-							onSave={saveClub}
-							onClose={() => {
-								setIsClubModalOpen(false);
-								setEditingClub(null);
-							}}
-						/>
-					)}
-					<div className="members-grid">
-						{filteredParliamentarians.length === 0 ? (
-							<p className="no-results">
-								Brak parlamentarzystów spełniających kryteria.
-							</p>
-						) : (
-							filteredParliamentarians.map((p) => (
-								<div
-									key={p.id}
-									className={`member-card ${selectedParliamentarian?.id === p.id ? "selected" : ""}`}
-									onClick={() => setSelectedParliamentarian(p)}
+								{isAdmin && adminMode && (
+									<button className="add-club-btn" onClick={openAddClubModal}>
+										+ Dodaj
+									</button>
+								)}
+							</div>
+						</div>
+						<ul className="clubs-list">
+							{clubsList.map((club) => (
+								<li
+									key={club.id}
+									className={`club-item ${selectedClubId === club.id ? "active" : ""}`}
+									onClick={() => handleSelectClub(club.id)}
 								>
-									<div className="member-avatar">
-										{p.firstName.charAt(0)}
-										{p.lastName.charAt(0)}
-									</div>
-									<div className="member-info">
-										<h4>
-											{p.firstName} {p.lastName}
-										</h4>
-										{p.clubName && (
-											<span
-												className="member-club"
-												style={{ color: p.clubColor }}
-											>
-												{p.clubName}
-											</span>
-										)}
-
-										{p.functions.length > 0 && (
-											<div className="member-functions">
-												{p.functions.map((f, i) => (
-													<span key={i} className="function-badge">
-														{f}
-													</span>
-												))}
-											</div>
-										)}
-									</div>
-
+									<span
+										className="club-color"
+										style={{ backgroundColor: club.color }}
+									></span>
+									<span className="club-name">{club.name}</span>
+									<span className="club-count">
+										{getClubMemberCount(club.id)}
+									</span>
+									<span className="club-type-badge">{club.type}</span>
 									{isAdmin && adminMode && (
-										<div className="admin-actions">
+										<div
+											className="club-admin-actions"
+											onClick={(e) => e.stopPropagation()}
+										>
 											<button
-												onClick={(e) => {
-													e.stopPropagation();
-													openEditModal(p);
-												}}
+												className="club-edit-btn"
+												onClick={() => openEditClubModal(club)}
+												title="Edytuj"
 											>
-												Edytuj
+												✏️
 											</button>
 											<button
-												onClick={(e) => {
-													e.stopPropagation();
-													deleteParliamentarian(p.id);
-												}}
+												className="club-delete-btn"
+												onClick={() => deleteClub(club.id)}
+												title="Usuń"
 											>
-												Usuń
+												❌
 											</button>
 										</div>
 									)}
-								</div>
-							))
+								</li>
+							))}
+							<li
+								className={`club-item ${selectedClubId === "unaffiliated" ? "active" : ""}`}
+								onClick={() => handleSelectClub("unaffiliated")}
+							>
+								<span
+									className="club-color"
+									style={{ backgroundColor: "#94a3b8" }}
+								></span>
+								<span className="club-name">Niezrzeszeni</span>
+								<span className="club-count">{unaffiliatedList.length}</span>
+							</li>
+						</ul>
+					</aside>
+
+					<main className="members-panel">
+						<div className="search-bar">
+							<input
+								type="text"
+								placeholder="Szukaj po imieniu, nazwisku, klubie..."
+								value={searchTerm}
+								onChange={(e) => setSearchTerm(e.target.value)}
+							/>
+							{searchTerm && (
+								<button
+									className="clear-filter"
+									onClick={() => setSearchTerm("")}
+								>
+									✕
+								</button>
+							)}
+						</div>
+
+						{isAdmin && adminMode && (
+							<button className="add-member-btn" onClick={openAddModal}>
+								+ Dodaj parlamentarzystę
+							</button>
 						)}
-					</div>
-				</main>
-			</div>
+
+						{isClubModalOpen && (
+							<ClubModal
+								club={editingClub}
+								onSave={saveClub}
+								onClose={() => {
+									setIsClubModalOpen(false);
+									setEditingClub(null);
+								}}
+							/>
+						)}
+
+						<div className="members-grid">
+							{filteredParliamentarians.length === 0 ? (
+								<p className="no-results">
+									Brak parlamentarzystów spełniających kryteria.
+								</p>
+							) : (
+								filteredParliamentarians.map((p) => (
+									<div
+										key={p.id}
+										className={`member-card ${selectedParliamentarian?.id === p.id ? "selected" : ""}`}
+										onClick={() => setSelectedParliamentarian(p)}
+									>
+										<div className="member-avatar">
+											{p.firstName.charAt(0)}
+											{p.lastName.charAt(0)}
+										</div>
+										<div className="member-info">
+											<h4>
+												{p.firstName} {p.lastName}
+											</h4>
+											{p.clubName && (
+												<span
+													className="member-club"
+													style={{ color: p.clubColor }}
+												>
+													{p.clubName}
+												</span>
+											)}
+
+											{p.functions.length > 0 && (
+												<div className="member-functions">
+													{p.functions.map((f, i) => (
+														<span key={i} className="function-badge">
+															{f}
+														</span>
+													))}
+												</div>
+											)}
+										</div>
+
+										{isAdmin && adminMode && (
+											<div className="admin-actions">
+												<button
+													onClick={(e) => {
+														e.stopPropagation();
+														openEditModal(p);
+													}}
+												>
+													Edytuj
+												</button>
+												<button
+													onClick={(e) => {
+														e.stopPropagation();
+														deleteParliamentarian(p.id);
+													}}
+												>
+													Usuń
+												</button>
+											</div>
+										)}
+									</div>
+								))
+							)}
+						</div>
+					</main>
+				</div>
+			)}
+
 			{selectedParliamentarian && !isAddModalOpen && (
 				<ModalPortal onClose={() => setSelectedParliamentarian(null)}>
 					<div className="modal-header">
@@ -540,7 +803,9 @@ export default function Parliamentarians() {
 									></span>
 									<p
 										className="club-name"
-										style={{ color: selectedParliamentarian.clubColor }}
+										style={{
+											color: selectedParliamentarian.clubColor,
+										}}
 									>
 										{selectedParliamentarian.clubName}
 									</p>
@@ -573,9 +838,7 @@ export default function Parliamentarians() {
 
 						{selectedParliamentarian.functions.length > 0 && (
 							<div>
-								<h3>
-									Funkcje / Role
-								</h3>
+								<h3>Funkcje / Role</h3>
 								<ul>
 									{selectedParliamentarian.functions.map((f, i) => (
 										<li key={i}>
@@ -588,9 +851,7 @@ export default function Parliamentarians() {
 
 						{selectedParliamentarian.commissions.length > 0 && (
 							<div>
-								<h3>
-									Komisje
-								</h3>
+								<h3>Komisje</h3>
 								<ul>
 									{selectedParliamentarian.commissions.map((c, i) => (
 										<li key={i}>
@@ -613,6 +874,7 @@ export default function Parliamentarians() {
 					</div>
 				</ModalPortal>
 			)}
+
 			{isAddModalOpen && (
 				<AddEditModal
 					parliamentarian={editingParliamentarian}
@@ -624,14 +886,15 @@ export default function Parliamentarians() {
 					clubs={clubsList}
 				/>
 			)}
-
 		</div>
 	);
 }
 
+// ============================================================
+// AdminToggle
+// ============================================================
 function AdminToggle({ isAdmin, adminMode, setAdminMode }) {
 	if (!isAdmin) return null;
-
 	return (
 		<div className="admin-toggle-container">
 			<span className="admin-toggle-label">
@@ -649,6 +912,9 @@ function AdminToggle({ isAdmin, adminMode, setAdminMode }) {
 	);
 }
 
+// ============================================================
+// ClubModal
+// ============================================================
 function ClubModal({ club, onSave, onClose }) {
 	const [form, setForm] = useState({
 		name: club?.name || "",
@@ -718,7 +984,13 @@ function ClubModal({ club, onSave, onClose }) {
 						>
 							Kolor
 						</label>
-						<div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+						<div
+							style={{
+								display: "flex",
+								gap: "12px",
+								alignItems: "center",
+							}}
+						>
 							<input
 								type="color"
 								value={form.color}
@@ -757,6 +1029,9 @@ function ClubModal({ club, onSave, onClose }) {
 	);
 }
 
+// ============================================================
+// AddEditModal
+// ============================================================
 function AddEditModal({ parliamentarian, onSave, onClose, clubs }) {
 	const [form, setForm] = useState({
 		firstName: parliamentarian?.firstName || "",
@@ -768,8 +1043,6 @@ function AddEditModal({ parliamentarian, onSave, onClose, clubs }) {
 
 	const [newFunction, setNewFunction] = useState("");
 	const [newCommission, setNewCommission] = useState("");
-
-	const selectedClub = clubs.find((c) => c.id === form.clubId);
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -848,7 +1121,11 @@ function AddEditModal({ parliamentarian, onSave, onClose, clubs }) {
 
 				<div>
 					<label
-						style={{ display: "block", marginBottom: "6px", fontWeight: "600" }}
+						style={{
+							display: "block",
+							marginBottom: "6px",
+							fontWeight: "600",
+						}}
 					>
 						Klub / Koło
 					</label>
@@ -873,11 +1150,21 @@ function AddEditModal({ parliamentarian, onSave, onClose, clubs }) {
 
 				<div>
 					<label
-						style={{ display: "block", marginBottom: "8px", fontWeight: "600" }}
+						style={{
+							display: "block",
+							marginBottom: "8px",
+							fontWeight: "600",
+						}}
 					>
 						Funkcje / Role
 					</label>
-					<div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
+					<div
+						style={{
+							display: "flex",
+							gap: "8px",
+							marginBottom: "8px",
+						}}
+					>
 						<input
 							type="text"
 							placeholder="Np. Przewodniczący komisji..."
@@ -923,11 +1210,22 @@ function AddEditModal({ parliamentarian, onSave, onClose, clubs }) {
 
 				<div>
 					<label
-						style={{ display: "block", marginTop: "9px", marginBottom: "8px", fontWeight: "600" }}
+						style={{
+							display: "block",
+							marginTop: "9px",
+							marginBottom: "8px",
+							fontWeight: "600",
+						}}
 					>
 						Komisje
 					</label>
-					<div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
+					<div
+						style={{
+							display: "flex",
+							gap: "8px",
+							marginBottom: "8px",
+						}}
+					>
 						<input
 							type="text"
 							placeholder="Np. Komisja Spraw Zagranicznych"
