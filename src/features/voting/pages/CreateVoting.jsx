@@ -158,20 +158,20 @@ export default function CreateVoting() {
 			try {
 				setLoading(true);
 
-				const groupsRes = await fetch("/api/groups", {
+				const groupsRes = await fetch("/newapp/api/groups", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (!groupsRes.ok) throw new Error("Nie udało się pobrać grup");
 				const groupsData = await groupsRes.json();
 				setGroups(groupsData.data || groupsData || []);
 
-				const membersRes = await fetch("/api/members", {
+				const membersRes = await fetch("/newapp/api/members", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (!membersRes.ok) throw new Error("Nie udało się pobrać członków");
 				const membersData = await membersRes.json();
 				setMembers(membersData.data || membersData || []);
-				const usersRes = await fetch("/api/users", {
+				const usersRes = await fetch("/newapp/api/users", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (usersRes.ok) {
@@ -180,7 +180,7 @@ export default function CreateVoting() {
 					setUsers(usersData.data || usersData || []);
 				}
 
-				const resolutionsRes = await fetch("/api/resolutions", {
+				const resolutionsRes = await fetch("/newapp/api/resolutions", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (resolutionsRes.ok) {
@@ -232,7 +232,7 @@ export default function CreateVoting() {
 					setResolutions([]);
 				}
 
-				const amendmentsRes = await fetch("/api/amendments", {
+				const amendmentsRes = await fetch("/newapp/api/amendments", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (amendmentsRes.ok) {
@@ -1611,7 +1611,7 @@ export default function CreateVoting() {
 				notifyPush: false,
 			};
 
-			const response = await fetch("/api/votings", {
+			const response = await fetch("/newapp/api/votings", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -1634,7 +1634,7 @@ export default function CreateVoting() {
 					}
 				});
 
-				await fetch(`/api/votings/${data.id}/attachments`, {
+				await fetch(`/newapp/api/votings/${data.id}/attachments`, {
 					method: "POST",
 					headers: {
 						Authorization: `Bearer ${token}`,

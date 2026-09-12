@@ -14,10 +14,10 @@ async function enableMocking() {
 	return Promise.resolve();
 }
 
-enableMocking().then(() => {
-	ReactDOM.createRoot(document.getElementById("root")).render(
-		<HashRouter>
-			<App />
-		</HashRouter>,
-	);
-});
+// enableMocking().then(() => {
+ReactDOM.createRoot(document.getElementById("root")).render(
+	<HashRouter>
+		<App />
+	</HashRouter>,
+);
+// });

@@ -32,7 +32,7 @@ export default function Login() {
 		setError("");
 
 		try {
-			const response = await fetch("/api/auth/login", {
+			const response = await fetch("/newapp/api/auth/login", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -102,7 +102,9 @@ export default function Login() {
 						required
 					/>
 				</div>
-				<div className="fgPs">Zapomniał*ś hasła? Skontaktuj się z Działem Technicznym PMRP.</div>
+				<div className="fgPs">
+					Zapomniał*ś hasła? Skontaktuj się z Działem Technicznym PMRP.
+				</div>
 				<button type="submit" className="login__button">
 					Zaloguj się
 				</button>

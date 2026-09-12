@@ -314,14 +314,14 @@ export default function Parliamentarians() {
 		async function fetchData() {
 			try {
 				setLoading(true);
-				const membersRes = await fetch("/api/parliamentarians", {
+				const membersRes = await fetch("/newapp/api/parliamentarians", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (!membersRes.ok)
 					throw new Error("Nie udało się pobrać parlamentarzystów");
 				const membersData = await membersRes.json();
 
-				const clubsRes = await fetch("/api/clubs", {
+				const clubsRes = await fetch("/newapp/api/clubs", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (!clubsRes.ok) throw new Error("Nie udało się pobrać klubów");
@@ -339,7 +339,7 @@ export default function Parliamentarians() {
 
 		async function fetchUser() {
 			try {
-				const response = await fetch("/api/auth/me", {
+				const response = await fetch("/newapp/api/auth/me", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (response.ok) {
@@ -364,7 +364,7 @@ export default function Parliamentarians() {
 
 	const saveParliamentarian = async (newData) => {
 		try {
-			const response = await fetch("/api/parliamentarians", {
+			const response = await fetch("/newapp/api/parliamentarians", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -393,7 +393,7 @@ export default function Parliamentarians() {
 		if (!window.confirm("Czy na pewno chcesz usunąć tego parlamentarzystę?"))
 			return;
 		try {
-			const response = await fetch(`/api/parliamentarians/${id}`, {
+			const response = await fetch(`/newapp/api/parliamentarians/${id}`, {
 				method: "DELETE",
 				headers: { Authorization: `Bearer ${token}` },
 			});
@@ -418,11 +418,11 @@ export default function Parliamentarians() {
 
 	const saveClub = async (clubData) => {
 		try {
-			let url = "/api/clubs";
+			let url = "/newapp/api/clubs";
 			let method = "POST";
 
 			if (editingClub) {
-				url = `/api/clubs/${editingClub.id}`;
+				url = `/newapp/api/clubs/${editingClub.id}`;
 				method = "PUT";
 			}
 
@@ -454,7 +454,7 @@ export default function Parliamentarians() {
 	const deleteClub = async (clubId) => {
 		if (!window.confirm("Czy na pewno chcesz usunąć ten klub/koło?")) return;
 		try {
-			const response = await fetch(`/api/clubs/${clubId}`, {
+			const response = await fetch(`/newapp/api/clubs/${clubId}`, {
 				method: "DELETE",
 				headers: { Authorization: `Bearer ${token}` },
 			});

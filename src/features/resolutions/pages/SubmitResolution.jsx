@@ -22,7 +22,7 @@ export default function SubmitResolution() {
 	useEffect(() => {
 		async function fetchSessions() {
 			try {
-				const response = await fetch("/api/sessions");
+				const response = await fetch("/newapp/api/sessions");
 				if (!response.ok) throw new Error("Nie udało się pobrać posiedzeń");
 				const data = await response.json();
 				setSessions(data);
@@ -137,7 +137,7 @@ export default function SubmitResolution() {
 		setUploadProgress(0);
 
 		try {
-			const userResponse = await fetch("/api/auth/me");
+			const userResponse = await fetch("/newapp/api/auth/me");
 			if (!userResponse.ok) {
 				throw new Error("Nie można pobrać danych użytkownika");
 			}
@@ -169,7 +169,7 @@ export default function SubmitResolution() {
 					}
 				});
 
-				xhr.open("POST", "/api/resolutions");
+				xhr.open("POST", "/newapp/api/resolutions");
 
 				xhr.onload = () => {
 					if (xhr.status >= 200 && xhr.status < 300) {

@@ -60,9 +60,9 @@ export default function AddAmendment() {
 		const fetchData = async () => {
 			try {
 				const [resRes, amdRes, userRes] = await Promise.all([
-					fetch(`/api/resolutions/${slug}`),
-					fetch(`/api/resolutions/${slug}/amendments`),
-					fetch("/api/current-user"),
+					fetch(`/newapp/api/resolutions/${slug}`),
+					fetch(`/newapp/api/resolutions/${slug}/amendments`),
+					fetch("/newapp/api/current-user"),
 				]);
 
 				if (!resRes.ok) throw new Error("Nie znaleziono uchwały");
@@ -562,7 +562,7 @@ export default function AddAmendment() {
 				withdrawnReason: null,
 			};
 
-			const response = await fetch(`/api/resolutions/${slug}/amendments`, {
+			const response = await fetch(`/newapp/api/resolutions/${slug}/amendments`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(amendmentData),

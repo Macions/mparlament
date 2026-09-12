@@ -73,7 +73,7 @@ export default function VotingDetailsPage() {
 	useEffect(() => {
 		async function fetchUser() {
 			try {
-				const response = await fetch("/api/auth/me", {
+				const response = await fetch("/newapp/api/auth/me", {
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},
@@ -97,7 +97,7 @@ export default function VotingDetailsPage() {
 	useEffect(() => {
 		async function fetchVote() {
 			try {
-				const response = await fetch(`/api/votings/${id}`, {
+				const response = await fetch(`/newapp/api/votings/${id}`, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},
@@ -116,7 +116,7 @@ export default function VotingDetailsPage() {
 
 				if (data.recipientsType === "groups" && data.selectedGroups) {
 					try {
-						const groupsResponse = await fetch("/api/groups", {
+						const groupsResponse = await fetch("/newapp/api/groups", {
 							headers: {
 								Authorization: `Bearer ${token}`,
 							},
@@ -141,7 +141,7 @@ export default function VotingDetailsPage() {
 					}
 				} else if (data.recipientsType === "members" && data.selectedMembers) {
 					try {
-						const membersResponse = await fetch("/api/users", {
+						const membersResponse = await fetch("/newapp/api/users", {
 							headers: {
 								Authorization: `Bearer ${token}`,
 							},

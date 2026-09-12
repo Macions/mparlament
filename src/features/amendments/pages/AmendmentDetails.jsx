@@ -11,7 +11,7 @@ export default function AmendmentDetails() {
 	const [error, setError] = useState(null);
 
 	useEffect(() => {
-		fetch(`/api/resolutions/${slug}/amendments/${amendmentId}`)
+		fetch(`/newapp/api/resolutions/${slug}/amendments/${amendmentId}`)
 			.then((res) => {
 				if (!res.ok) {
 					throw new Error("Nie znaleziono poprawki");

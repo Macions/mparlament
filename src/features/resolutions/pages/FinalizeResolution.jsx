@@ -33,7 +33,7 @@ export default function FinalizeResolution() {
 
 	const fetchSessions = async () => {
 		try {
-			const response = await fetch("/api/sessions");
+			const response = await fetch("/newapp/api/sessions");
 			if (!response.ok) throw new Error("Nie udało się pobrać posiedzeń");
 			const data = await response.json();
 			setSessions(data);
@@ -46,7 +46,7 @@ export default function FinalizeResolution() {
 		setLoading(true);
 		setError(null);
 		try {
-			const response = await fetch(`/api/resolutions/session/${sessionId}`);
+			const response = await fetch(`/newapp/api/resolutions/session/${sessionId}`);
 			if (!response.ok) throw new Error("Nie udało się pobrać uchwał");
 			const data = await response.json();
 			setResolutions(data.resolutions);
@@ -65,8 +65,7 @@ export default function FinalizeResolution() {
 		setError(null);
 		try {
 			console.log(` Pobieram poprawki dla uchwały ID: ${resolutionId}`);
-			const response = await fetch(
-				`/api/resolutions/${resolutionId}/amendments`,
+			const response = await fetch(`/newapp/api/resolutions/${resolutionId}/amendments`,
 			);
 			console.log(" Odpowiedź z API:", response.status, response.statusText);
 

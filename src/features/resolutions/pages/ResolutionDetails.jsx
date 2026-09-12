@@ -35,7 +35,7 @@ export default function ResolutionDetails() {
 		setErrorMessage(null);
 
 		try {
-			const res = await fetch(`/api/resolutions/${slug}`);
+			const res = await fetch(`/newapp/api/resolutions/${slug}`);
 
 			if (!res.ok) {
 				throw new Error("Nie znaleziono uchwały");
@@ -56,8 +56,8 @@ export default function ResolutionDetails() {
 	const handleSignatureAction = async () => {
 		const endpoint =
 			actionType === "sign"
-				? `/api/resolutions/${resolution.id}/sign`
-				: `/api/resolutions/${resolution.id}/sign`;
+				? `/newapp/api/resolutions/${resolution.id}/sign`
+				: `/newapp/api/resolutions/${resolution.id}/sign`;
 
 		const method = actionType === "sign" ? "POST" : "DELETE";
 
@@ -80,7 +80,7 @@ export default function ResolutionDetails() {
 
 	const handleDeleteResolution = async () => {
 		try {
-			const res = await fetch(`/api/resolutions/${resolution.id}`, {
+			const res = await fetch(`/newapp/api/resolutions/${resolution.id}`, {
 				method: "DELETE",
 			});
 

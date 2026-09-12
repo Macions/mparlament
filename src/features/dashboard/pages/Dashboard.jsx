@@ -57,7 +57,7 @@ export default function Dashboard() {
 					return;
 				}
 
-				const userResponse = await fetch("/api/auth/me", {
+				const userResponse = await fetch("/newapp/api/auth/me", {
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},
@@ -80,7 +80,7 @@ export default function Dashboard() {
 						userData.permissions?.includes("MANAGE_RESOLUTIONS"),
 				);
 
-				const sessionResponse = await fetch("/api/sessions/current", {
+				const sessionResponse = await fetch("/newapp/api/sessions/current", {
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},

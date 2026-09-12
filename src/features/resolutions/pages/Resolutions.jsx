@@ -16,12 +16,12 @@ export default function Resolutions() {
 			try {
 				setLoading(true);
 
-				const sessionsRes = await fetch("/api/sessions");
+				const sessionsRes = await fetch("/newapp/api/sessions");
 				if (!sessionsRes.ok) throw new Error("Nie udało się pobrać posiedzeń");
 				const sessionsData = await sessionsRes.json();
 				setSessions(sessionsData);
 
-				const resolutionsRes = await fetch("/api/resolutions");
+				const resolutionsRes = await fetch("/newapp/api/resolutions");
 				if (!resolutionsRes.ok) throw new Error("Nie udało się pobrać uchwał");
 				const resolutionsData = await resolutionsRes.json();
 				setResolutions(resolutionsData.resolutions);
@@ -45,7 +45,7 @@ export default function Resolutions() {
 
 	const filteredResolutions = resolutions.filter((resolution) => {
 		if (selectedSessionId === "all") return true;
-		return resolution.sessionId === Number(selectedSessionId); 
+		return resolution.sessionId === Number(selectedSessionId);
 	});
 
 	const getSessionName = (sessionId) => {
@@ -114,7 +114,7 @@ export default function Resolutions() {
 											onClick={() => {
 												sessionStorage.setItem(
 													"resolutionsScroll",
-													window.scrollY.toString()
+													window.scrollY.toString(),
 												);
 											}}
 										>

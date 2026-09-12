@@ -88,7 +88,7 @@ export default function VotingPage() {
 	useEffect(() => {
 		async function fetchVote() {
 			try {
-				const response = await fetch(`/api/votings/${id}`, {
+				const response = await fetch(`/newapp/api/votings/${id}`, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},
@@ -111,9 +111,9 @@ export default function VotingPage() {
 
 					let endpoint = "";
 					if (data.linkedItemType === "resolution") {
-						endpoint = `/api/resolutions/${data.linkedItemId}`;
+						endpoint = `/newapp/api/resolutions/${data.linkedItemId}`;
 					} else if (data.linkedItemType === "amendment") {
-						endpoint = `/api/amendments/${data.linkedItemId}`;
+						endpoint = `/newapp/api/amendments/${data.linkedItemId}`;
 					}
 
 					if (endpoint) {
@@ -152,7 +152,7 @@ export default function VotingPage() {
 
 	async function confirmVote() {
 		try {
-			const response = await fetch(`/api/votings/${id}/vote`, {
+			const response = await fetch(`/newapp/api/votings/${id}/vote`, {
 				method: "POST",
 
 				headers: {

@@ -11,7 +11,6 @@ export default function AmendmentsPage() {
 	const [currentUser, setCurrentUser] = useState(null);
 	const [loading, setLoading] = useState(true);
 
-
 	const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 	const [selectedAmendmentId, setSelectedAmendmentId] = useState(null);
 	const [withdrawReason, setWithdrawReason] = useState("");
@@ -20,9 +19,8 @@ export default function AmendmentsPage() {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-
 				try {
-					const userResponse = await fetch("/api/current-user");
+					const userResponse = await fetch("/newapp/api/current-user");
 					if (userResponse.ok) {
 						const userData = await userResponse.json();
 						setCurrentUser(userData.user);
@@ -31,8 +29,7 @@ export default function AmendmentsPage() {
 					console.error("Błąd pobierania użytkownika:", error);
 				}
 
-
-				const response = await fetch(`/api/resolutions/${slug}/amendments`);
+				const response = await fetch(`/newapp/api/resolutions/${slug}/amendments`);
 
 				if (!response.ok) {
 					throw new Error("Nie znaleziono uchwały");
@@ -64,13 +61,11 @@ export default function AmendmentsPage() {
 		return amendment.author === currentUser.name;
 	};
 
-
 	const openWithdrawModal = (amendmentId) => {
 		setSelectedAmendmentId(amendmentId);
 		setWithdrawReason("");
 		setShowWithdrawModal(true);
 	};
-
 
 	const closeWithdrawModal = () => {
 		setShowWithdrawModal(false);
@@ -79,15 +74,13 @@ export default function AmendmentsPage() {
 		setIsSubmitting(false);
 	};
 
-
 	const handleWithdrawConfirm = async () => {
 		if (!selectedAmendmentId) return;
 
 		setIsSubmitting(true);
 
 		try {
-			const response = await fetch(
-				`/api/amendments/${selectedAmendmentId}/withdraw`,
+			const response = await fetch(`/newapp/api/amendments/${selectedAmendmentId}/withdraw`,
 				{
 					method: "POST",
 					headers: {
@@ -103,13 +96,10 @@ export default function AmendmentsPage() {
 				throw new Error("Błąd podczas wycofywania poprawki");
 			}
 
-
-			const updatedResponse = await fetch(
-				`/api/resolutions/${slug}/amendments`,
+			const updatedResponse = await fetch(`/newapp/api/resolutions/${slug}/amendments`,
 			);
 			const data = await updatedResponse.json();
 			setAmendments(data.amendments);
-
 
 			closeWithdrawModal();
 		} catch (error) {
@@ -263,7 +253,6 @@ export default function AmendmentsPage() {
 				</div>
 			</div>
 
-			
 			{showWithdrawModal && (
 				<div className="amendment-modal-overlay" onClick={closeWithdrawModal}>
 					<div

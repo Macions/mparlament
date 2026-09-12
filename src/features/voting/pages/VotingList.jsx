@@ -91,7 +91,7 @@ export default function Votings() {
 	useEffect(() => {
 		async function fetchUser() {
 			try {
-				const response = await fetch("/api/auth/me", {
+				const response = await fetch("/newapp/api/auth/me", {
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},
@@ -123,7 +123,7 @@ export default function Votings() {
 				if (!user && !isAdmin) {
 					console.log("⏳ Brak usera - pobieram...");
 					try {
-						const userResponse = await fetch("/api/auth/me", {
+						const userResponse = await fetch("/newapp/api/auth/me", {
 							headers: { Authorization: `Bearer ${token}` },
 						});
 						if (userResponse.ok) {
@@ -141,9 +141,9 @@ export default function Votings() {
 					}
 				}
 
-				let url = "/api/votings";
+				let url = "/newapp/api/votings";
 				if (!isAdmin && user) {
-					url = `/api/votings?userId=${user.id}&role=${user.role}`;
+					url = `/newapp/api/votings?userId=${user.id}&role=${user.role}`;
 					console.log(`📤 Zapytanie do: ${url}`);
 				} else {
 					console.log("📤 Admin - pobieram wszystkie");
@@ -177,7 +177,7 @@ export default function Votings() {
 
 	const handleArchive = async (voteId) => {
 		try {
-			const response = await fetch(`/api/votings/${voteId}/archive`, {
+			const response = await fetch(`/newapp/api/votings/${voteId}/archive`, {
 				method: "POST",
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -189,9 +189,9 @@ export default function Votings() {
 				throw new Error("Nie udało się zarchiwizować głosowania");
 			}
 
-			let url = "/api/votings";
+			let url = "/newapp/api/votings";
 			if (!isAdmin && user) {
-				url = `/api/votings?userId=${user.id}&role=${user.role}`;
+				url = `/newapp/api/votings?userId=${user.id}&role=${user.role}`;
 			}
 			const updatedResponse = await fetch(url, {
 				headers: { Authorization: `Bearer ${token}` },
@@ -218,7 +218,7 @@ export default function Votings() {
 				startTime.getTime() + activationDuration * 3600000,
 			);
 
-			const response = await fetch(`/api/votings/${voteId}/activate`, {
+			const response = await fetch(`/newapp/api/votings/${voteId}/activate`, {
 				method: "POST",
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -236,9 +236,9 @@ export default function Votings() {
 				throw new Error("Nie udało się aktywować głosowania");
 			}
 
-			let url = "/api/votings";
+			let url = "/newapp/api/votings";
 			if (!isAdmin && user) {
-				url = `/api/votings?userId=${user.id}&role=${user.role}`;
+				url = `/newapp/api/votings?userId=${user.id}&role=${user.role}`;
 			}
 			const updatedResponse = await fetch(url, {
 				headers: { Authorization: `Bearer ${token}` },
