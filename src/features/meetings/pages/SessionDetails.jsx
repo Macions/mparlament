@@ -42,6 +42,7 @@ export default function SessionDetails() {
 	const [currentSpeakerIndex, setCurrentSpeakerIndex] = useState(-1);
 	const [date, setDate] = useState("");
 	const [speakers, setSpeakers] = useState([]);
+	const [parliamentarians, setParliamentarians] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [displaySpeaker, setDisplaySpeaker] = useState(null);
@@ -127,10 +128,20 @@ export default function SessionDetails() {
 		if (customSpeakers && customSpeakers[name]) {
 			return customSpeakers[name];
 		}
-		const found = speakers.find((s) => s.name === name);
+
+		const found = parliamentarians.find(
+			(p) => `${p.firstName} ${p.lastName}`.trim() === name,
+		);
 		if (found) {
-			return { club: found.club || "", role: found.role || "Parlamentarzysta" };
+			return {
+				club: found.clubName || "",
+				role:
+					Array.isArray(found.functions) && found.functions.length > 0
+						? found.functions.join(", ")
+						: "Parlamentarzysta",
+			};
 		}
+
 		return { club: "", role: "Parlamentarzysta" };
 	};
 
@@ -223,15 +234,22 @@ export default function SessionDetails() {
 		}
 	};
 	const allSpeakers = useMemo(() => {
-		const speakersMap = speakers.reduce(
-			(acc, s) => ({
+		const map = parliamentarians.reduce((acc, p) => {
+			const fullName = `${p.firstName} ${p.lastName}`.trim();
+			if (!fullName) return acc;
+			return {
 				...acc,
-				[s.name]: { club: s.club, role: s.role },
-			}),
-			{},
-		);
-		return { ...speakersMap, ...customSpeakers };
-	}, [speakers, customSpeakers]);
+				[fullName]: {
+					club: p.clubName || "",
+					role:
+						Array.isArray(p.functions) && p.functions.length > 0
+							? p.functions.join(", ")
+							: "Parlamentarzysta",
+				},
+			};
+		}, {});
+		return { ...map, ...customSpeakers };
+	}, [parliamentarians, customSpeakers]);
 	useEffect(() => {
 		if (speakers.length > 0 && plannedSpeakers.length === 0) {
 			const history = speakers.map((s, index) => ({
@@ -402,6 +420,16 @@ export default function SessionDetails() {
 				if (!speakersRes.ok) throw new Error("Nie udało się pobrać mówców");
 				const speakersData = await speakersRes.json();
 				setSpeakers(speakersData);
+
+				const parlRes = await fetch("/newapp/api/parliamentarians", {
+					headers: { Authorization: `Bearer ${token}` },
+				});
+				if (!parlRes.ok) throw new Error("Nie udało się pobrać parlamentarzystów");
+				const parlData = await parlRes.json();
+				setParliamentarians([
+					...(parlData.parliamentarians || []),
+					...(parlData.unaffiliated || []),
+				]);
 			} catch (err) {
 				setError(err.message);
 			} finally {
