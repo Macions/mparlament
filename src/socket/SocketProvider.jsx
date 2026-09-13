@@ -30,10 +30,16 @@ export const SocketProvider = ({ children }) => {
 		}
 
 		console.log("SocketProvider: tworzę socket z tokenem");
-		const socket = io("http://localhost:4000", {
-			path: "/socket.io",
+		const socketUrl = import.meta.env.DEV
+			? "http://localhost:4000"
+			: window.location.origin;
+
+		const socketPath = import.meta.env.DEV ? "/socket.io" : "/newapp/socket.io";
+
+		const socket = io(socketUrl, {
+			path: socketPath,
 			auth: { token },
-			transports: ["websocket"],
+			transports: ["websocket", "polling"],
 			reconnection: true,
 			reconnectionDelay: 1000,
 			reconnectionAttempts: 10,
