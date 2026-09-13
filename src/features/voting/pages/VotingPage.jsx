@@ -106,9 +106,9 @@ export default function VotingPage() {
 					data.linkedItemId
 				) {
 					setLinkedItemType(data.linkedItemType);
-					console.log("Dane głosowania:", data);
-					console.log("linkedItemType:", data.linkedItemType);
-					console.log("linkedItemId:", data.linkedItemId);
+					// console.log("Dane głosowania:", data);
+					// console.log("linkedItemType:", data.linkedItemType);
+					// console.log("linkedItemId:", data.linkedItemId);
 
 					let endpoint = "";
 					if (data.linkedItemType === "resolution") {
@@ -126,11 +126,11 @@ export default function VotingPage() {
 							});
 							if (linkedRes.ok) {
 								const linkedData = await linkedRes.json();
-								console.log("Pobrany linkedItem:", linkedData);
+								// console.log("Pobrany linkedItem:", linkedData);
 								setLinkedItem(linkedData.data || linkedData);
 							}
 						} catch (err) {
-							console.error("Nie udało się pobrać powiązanego obiektu:", err);
+							// console.error("Nie udało się pobrać powiązanego obiektu:", err);
 						}
 					}
 				}

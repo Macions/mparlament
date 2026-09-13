@@ -2,7 +2,7 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 
 export const generateDocxWithTags = async (originalFile, data) => {
-	console.log(" Otrzymane dane do podmiany:", data);
+	// console.log(" Otrzymane dane do podmiany:", data);
 
 	const arrayBuffer = await originalFile.arrayBuffer();
 	const zip = await JSZip.loadAsync(arrayBuffer);
@@ -19,7 +19,7 @@ export const generateDocxWithTags = async (originalFile, data) => {
 			: newContent;
 
 		if (isDeleted) {
-			console.log(`️ Usuwam Art. ${num}`);
+			// console.log(`️ Usuwam Art. ${num}`);
 			const searchText = `Art. ${num}.`;
 			const match = xml.match(new RegExp(`${searchText}[^<]*`, "i"));
 			if (match) {
@@ -29,11 +29,11 @@ export const generateDocxWithTags = async (originalFile, data) => {
 				if (startIndex !== -1 && endIndex !== -1) {
 					const fullParagraph = xml.substring(startIndex, endIndex);
 					xml = xml.replace(fullParagraph, "");
-					console.log(`    Usunięto Art. ${num}`);
+					// console.log(`    Usunięto Art. ${num}`);
 				}
 			}
 		} else if (isNew) {
-			console.log(` Dodaję nowy artykuł po Art. ${num}`);
+			// console.log(` Dodaję nowy artykuł po Art. ${num}`);
 			const newArticleText = `Art. ${num}. ${content}`;
 
 			const searchText = `Art. ${num}.`;
@@ -44,23 +44,23 @@ export const generateDocxWithTags = async (originalFile, data) => {
 				if (endIndex !== -1) {
 					const newParagraph = `<w:p><w:r><w:t>${escapeXml(newArticleText)}</w:t></w:r></w:p>`;
 					xml = xml.slice(0, endIndex) + newParagraph + xml.slice(endIndex);
-					console.log(`    Dodano: ${newArticleText}`);
+					// console.log(`    Dodano: ${newArticleText}`);
 				}
 			}
 		} else {
-			console.log(` Podmieniam Art. ${num} na: "${content}"`);
+			// console.log(` Podmieniam Art. ${num} na: "${content}"`);
 			const searchText = `Art. ${num}.`;
 			const match = xml.match(new RegExp(`${searchText}[^<]*`, "i"));
 			if (match) {
 				const oldText = match[0];
 				const newText = `${searchText} ${content}`;
 				xml = xml.replace(oldText, newText);
-				console.log(`    Podmieniono!`);
+				// console.log(`    Podmieniono!`);
 			}
 		}
 	});
 
-	console.log(" Przenumerowuję artykuły...");
+	// console.log(" Przenumerowuję artykuły...");
 	xml = renumberArticles(xml);
 
 	zip.file("word/document.xml", xml);
@@ -70,7 +70,7 @@ export const generateDocxWithTags = async (originalFile, data) => {
 		compression: "DEFLATE",
 	});
 
-	console.log(" DOCX wygenerowany, rozmiar:", blob.size);
+	// console.log(" DOCX wygenerowany, rozmiar:", blob.size);
 	return blob;
 };
 
@@ -88,7 +88,7 @@ function renumberArticles(xml) {
 		});
 	}
 
-	console.log(`   Znaleziono ${articles.length} artykułów`);
+	// console.log(`   Znaleziono ${articles.length} artykułów`);
 
 	let newNumber = 1;
 	let offset = 0;
@@ -120,6 +120,6 @@ function escapeXml(text) {
 }
 
 export const downloadDocx = (blob, fileName = "uchwala-final.docx") => {
-	console.log(` Pobieranie: ${fileName}`);
+	// console.log(` Pobieranie: ${fileName}`);
 	saveAs(blob, fileName);
 };

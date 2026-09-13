@@ -80,7 +80,7 @@ export default function SessionDetails() {
 		if (!socket) return;
 
 		const handleZOUpdate = (newZoContent) => {
-			console.log("📨 Odebrano nową treść ZO:", newZoContent);
+			// console.log("📨 Odebrano nową treść ZO:", newZoContent);
 			setZoContent(newZoContent);
 
 			if (sessionMode === "zo" && displayPoint) {
@@ -203,7 +203,7 @@ export default function SessionDetails() {
 	};
 	const goToNextSpeaker = () => {
 		if (currentSpeakerIndex >= plannedSpeakers.length - 1) {
-			console.log("Brak kolejnego mówcy");
+			// console.log("Brak kolejnego mówcy");
 			return;
 		}
 		const nextIndex = currentSpeakerIndex + 1;
@@ -254,11 +254,11 @@ export default function SessionDetails() {
 				time: getCurrentTime(),
 				status: index === 0 ? "active" : "waiting",
 			}));
-			console.log(
-				"📊 ustawiam planowanych mówców z",
-				history.length,
-				"mówcami",
-			);
+			// console.log(
+			// 	"📊 ustawiam planowanych mówców z",
+			// 	history.length,
+			// 	"mówcami",
+			// );
 			setPlannedSpeakers(history);
 			setCurrentSpeakerIndex(0);
 			setDisplaySpeaker(history[0]);
@@ -807,7 +807,7 @@ export default function SessionDetails() {
 		if (!socket) return;
 
 		const handleScheduleUpdate = (newSchedule) => {
-			console.log("📨 Odebrano nowy harmonogram");
+			// console.log("📨 Odebrano nowy harmonogram");
 			setPointChanging(true);
 			setTimeout(() => {
 				setSchedule(newSchedule);
@@ -816,7 +816,7 @@ export default function SessionDetails() {
 		};
 
 		const handleSpeakerUpdate = (newSpeaker) => {
-			console.log("📨 Odebrano nowego mówcę");
+			// console.log("📨 Odebrano nowego mówcę");
 			setSpeakerChanging(true);
 			setTimeout(() => {
 				setDisplaySpeaker(newSpeaker);
@@ -824,11 +824,12 @@ export default function SessionDetails() {
 			}, 200);
 		};
 		const handleSpeakersUpdate = (newSpeakers) => {
-			console.log("📨 Odebrano zaktualizowaną listę mówców");
+			// console.log("📨 Odebrano zaktualizowaną listę mówców");
 			setPlannedSpeakers(newSpeakers);
 		};
+
 		const handleSessionModeUpdate = (newMode) => {
-			console.log("📨 Odebrano nowy tryb sesji:", newMode);
+			// console.log("📨 Odebrano nowy tryb sesji:", newMode);
 			setSessionMode(newMode);
 			if (newMode === "break") {
 				setDisplaySpeaker(null);

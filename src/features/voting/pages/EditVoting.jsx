@@ -134,7 +134,7 @@ export default function EditVoting() {
 					);
 				}
 			} catch (err) {
-				console.error("Błąd pobierania użytkownika:", err);
+				// console.error("Błąd pobierania użytkownika:", err);
 			}
 		}
 		fetchUser();
@@ -186,7 +186,7 @@ export default function EditVoting() {
 				let resolutionsData = [];
 				if (resolutionsRes.ok) {
 					const rawData = await resolutionsRes.json();
-					console.log(" Surowe dane uchwał:", rawData);
+					// console.log(" Surowe dane uchwał:", rawData);
 
 					if (rawData && typeof rawData === "object") {
 						if (Array.isArray(rawData)) {
@@ -208,7 +208,7 @@ export default function EditVoting() {
 						}
 					}
 
-					console.log(" Przeparsowane uchwały:", resolutionsData);
+					// console.log(" Przeparsowane uchwały:", resolutionsData);
 					setResolutions(resolutionsData);
 				}
 
@@ -218,7 +218,7 @@ export default function EditVoting() {
 				let amendmentsData = [];
 				if (amendmentsRes.ok) {
 					amendmentsData = await amendmentsRes.json();
-					console.log("️ Pobrane poprawki:", amendmentsData);
+					// console.log("️ Pobrane poprawki:", amendmentsData);
 					setAmendments(amendmentsData);
 				}
 
@@ -264,11 +264,11 @@ export default function EditVoting() {
 					setSelectedResolution(String(votingData.linkedItemId));
 				}
 
-				console.log("Otrzymane dane głosowania:", votingData);
-				console.log("recipientsType:", votingData.recipientsType);
-				console.log("selectedGroups:", votingData.selectedGroups);
-				console.log("selectedMembers:", votingData.selectedMembers);
-				console.log("managers:", votingData.managers);
+				// console.log("Otrzymane dane głosowania:", votingData);
+				// console.log("recipientsType:", votingData.recipientsType);
+				// console.log("selectedGroups:", votingData.selectedGroups);
+				// console.log("selectedMembers:", votingData.selectedMembers);
+				// console.log("managers:", votingData.managers);
 			} catch (err) {
 				setFetchError(err.message);
 			} finally {
@@ -497,7 +497,7 @@ export default function EditVoting() {
 			navigate("/glosowania");
 		} catch (err) {
 			setSubmitError(err.message);
-			console.error("Błąd aktualizacji głosowania:", err);
+			// console.error("Błąd aktualizacji głosowania:", err);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -899,16 +899,16 @@ export default function EditVoting() {
 	);
 
 	const renderStep4 = () => {
-		console.log(" renderStep4 - resolutions:", resolutions);
-		console.log(" renderStep4 - amendments:", amendments);
-		console.log(
-			" renderStep4 - resolutionsArray:",
-			Array.isArray(resolutions) ? resolutions : [],
-		);
-		console.log(
-			" renderStep4 - amendmentsArray:",
-			Array.isArray(amendments) ? amendments : [],
-		);
+		// console.log(" renderStep4 - resolutions:", resolutions);
+		// console.log(" renderStep4 - amendments:", amendments);
+		// console.log(
+		// 	" renderStep4 - resolutionsArray:",
+		// 	Array.isArray(resolutions) ? resolutions : [],
+		// );
+		// console.log(
+		// 	" renderStep4 - amendmentsArray:",
+		// 	Array.isArray(amendments) ? amendments : [],
+		// );
 
 		const resolutionsArray = Array.isArray(resolutions) ? resolutions : [];
 		const amendmentsArray = Array.isArray(amendments) ? amendments : [];
@@ -978,7 +978,7 @@ export default function EditVoting() {
 										<p className="no-items">Brak dostępnych uchwał</p>
 									) : (
 										resolutionsArray.map((res) => {
-											console.log(" Uchwała:", res);
+											// console.log(" Uchwała:", res);
 
 											const statusColors = getStatusColor(res.status);
 											const isSelected =

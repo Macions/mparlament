@@ -185,9 +185,9 @@ export default function CreateVoting() {
 				});
 				if (resolutionsRes.ok) {
 					const resolutionsData = await resolutionsRes.json();
-					console.log("RAW resolutions data:", resolutionsData);
-					console.log("Type of resolutions data:", typeof resolutionsData);
-					console.log("Is array?", Array.isArray(resolutionsData));
+					// console.log("RAW resolutions data:", resolutionsData);
+					// console.log("Type of resolutions data:", typeof resolutionsData);
+					// console.log("Is array?", Array.isArray(resolutionsData));
 
 					let resolutionsArray = resolutionsData;
 					if (resolutionsData && typeof resolutionsData === "object") {
@@ -223,12 +223,12 @@ export default function CreateVoting() {
 						resolutionsArray = [];
 					}
 
-					console.log("Final resolutions array:", resolutionsArray);
+					// console.log("Final resolutions array:", resolutionsArray);
 					setResolutions(
 						Array.isArray(resolutionsArray) ? resolutionsArray : [],
 					);
 				} else {
-					console.error("Błąd pobierania uchwał:", await resolutionsRes.text());
+					// console.error("Błąd pobierania uchwał:", await resolutionsRes.text());
 					setResolutions([]);
 				}
 
@@ -237,7 +237,7 @@ export default function CreateVoting() {
 				});
 				if (amendmentsRes.ok) {
 					const amendmentsData = await amendmentsRes.json();
-					console.log("RAW amendments data:", amendmentsData);
+					// console.log("RAW amendments data:", amendmentsData);
 
 					let amendmentsArray = amendmentsData;
 					if (amendmentsData && typeof amendmentsData === "object") {
@@ -273,13 +273,13 @@ export default function CreateVoting() {
 						amendmentsArray = [];
 					}
 
-					console.log("Final amendments array:", amendmentsArray);
+					// console.log("Final amendments array:", amendmentsArray);
 					setAmendments(Array.isArray(amendmentsArray) ? amendmentsArray : []);
 				} else {
-					console.error(
-						"Błąd pobierania poprawek:",
-						await amendmentsRes.text(),
-					);
+					// console.error(
+					// 	"Błąd pobierania poprawek:",
+					// 	await amendmentsRes.text(),
+					// );
 					setAmendments([]);
 				}
 			} catch (err) {
@@ -1645,7 +1645,7 @@ export default function CreateVoting() {
 			navigate("/glosowania");
 		} catch (err) {
 			setSubmitError(err.message);
-			console.error("Błąd tworzenia głosowania:", err);
+			// console.error("Błąd tworzenia głosowania:", err);
 		} finally {
 			setIsSubmitting(false);
 		}

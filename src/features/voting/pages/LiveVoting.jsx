@@ -28,7 +28,7 @@ export default function LiveVoting() {
 		if (!socket) return;
 
 		const handleVoteUpdate = (data) => {
-			console.log("WebSocket: Nowe dane głosowania:", data);
+			// console.log("WebSocket: Nowe dane głosowania:", data);
 			setVotedCount(data.votedCount || 0);
 			setVoting((prev) => ({
 				...prev,
@@ -59,13 +59,13 @@ export default function LiveVoting() {
 				});
 				if (response.ok) {
 					const data = await response.json();
-					console.log("Parliamentarians response:", data);
+					// console.log("Parliamentarians response:", data);
 					const allParliamentarians = data.parliamentarians || data || [];
-					console.log("Parliamentarians:", allParliamentarians);
+					// console.log("Parliamentarians:", allParliamentarians);
 					setParliamentarians(allParliamentarians);
 				}
 			} catch (err) {
-				console.error("Błąd pobierania parlamentarzystów:", err);
+				// console.error("Błąd pobierania parlamentarzystów:", err);
 			}
 		}
 		fetchParliamentarians();
@@ -86,7 +86,7 @@ export default function LiveVoting() {
 					);
 				}
 			} catch (err) {
-				console.error("Błąd pobierania użytkownika:", err);
+				// console.error("Błąd pobierania użytkownika:", err);
 			}
 		}
 		fetchUser();
@@ -150,7 +150,7 @@ export default function LiveVoting() {
 	useEffect(() => {
 		if (isConnected || !isLive || !voting) return;
 
-		console.log("WebSocket nieaktywny - używam polling co 3 sekundy");
+		// console.log("WebSocket nieaktywny - używam polling co 3 sekundy");
 
 		const interval = setInterval(async () => {
 			try {
@@ -174,7 +174,7 @@ export default function LiveVoting() {
 					}
 				}
 			} catch (err) {
-				console.error("Błąd pobierania aktualnych danych:", err);
+				// console.error("Błąd pobierania aktualnych danych:", err);
 			}
 		}, 3000);
 

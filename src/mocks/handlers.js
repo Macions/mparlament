@@ -915,9 +915,9 @@ export const handlers = [
 		const userId = url.searchParams.get("userId");
 		const role = url.searchParams.get("role");
 
-		console.log("🔍 [HANDLER] GET /api/votings");
-		console.log("📌 userId:", userId);
-		console.log("📌 role:", role);
+		// console.log("🔍 [HANDLER] GET /api/votings");
+		// console.log("📌 userId:", userId);
+		// console.log("📌 role:", role);
 
 		let filteredVotings = [...votings];
 
@@ -934,7 +934,7 @@ export const handlers = [
 				return false;
 			});
 		} else {
-			console.log("👑 Admin lub brak userId - zwracam wszystko");
+			// console.log("👑 Admin lub brak userId - zwracam wszystko");
 		}
 
 		const votingsWithResults = filteredVotings.map((voting) => {
@@ -962,9 +962,9 @@ export const handlers = [
 			};
 		});
 
-		console.log(
-			`\n📊 Zwracam ${votingsWithResults.length} głosowań z wynikami`,
-		);
+		// console.log(
+		// 	`\n📊 Zwracam ${votingsWithResults.length} głosowań z wynikami`,
+		// );
 		return HttpResponse.json(votingsWithResults);
 	}),
 

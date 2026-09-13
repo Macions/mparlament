@@ -110,9 +110,9 @@ export default function VotingDetailsPage() {
 				}
 
 				setVote(data);
-				console.log("📊 vote.votedUsers:", data.votedUsers);
-				console.log("📊 vote.eligibleUsers:", data.eligibleUsers);
-				console.log("📊 vote.isAnonymous:", data.isAnonymous);
+				// console.log("📊 vote.votedUsers:", data.votedUsers);
+				// console.log("📊 vote.eligibleUsers:", data.eligibleUsers);
+				// console.log("📊 vote.isAnonymous:", data.isAnonymous);
 
 				if (data.recipientsType === "groups" && data.selectedGroups) {
 					try {

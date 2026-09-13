@@ -22,14 +22,14 @@ export const SocketProvider = ({ children }) => {
 	const socketRef = useRef(null);
 
 	useEffect(() => {
-		console.log("SocketProvider useEffect START");
+		// console.log("SocketProvider useEffect START");
 		const token = localStorage.getItem("token");
 		if (!token) {
-			console.log("SocketProvider: brak tokenu, nie łączę");
+			// console.log("SocketProvider: brak tokenu, nie łączę");
 			return;
 		}
 
-		console.log("SocketProvider: tworzę socket z tokenem");
+		// console.log("SocketProvider: tworzę socket z tokenem");
 		const socketUrl = import.meta.env.DEV
 			? "http://localhost:4000"
 			: window.location.origin;
@@ -48,28 +48,28 @@ export const SocketProvider = ({ children }) => {
 		socketRef.current = socket;
 
 		socket.on("connect", () => {
-			console.log("Socket.IO połączony:", socket.id);
+			// console.log("Socket.IO połączony:", socket.id);
 			setIsConnected(true);
 		});
 
 		socket.on("disconnect", (reason) => {
-			console.log("Socket.IO rozłączony:", reason);
+			// console.log("Socket.IO rozłączony:", reason);
 			setIsConnected(false);
 		});
 
 		socket.on("connect_error", (err) => {
-			console.error("Socket.IO connect_error FULL:", {
-				message: err.message,
-				type: err.type,
-				description: err.description,
-				context: err.context,
-				data: err.data,
-			});
+			// console.error("Socket.IO connect_error FULL:", {
+			// 	message: err.message,
+			// 	type: err.type,
+			// 	description: err.description,
+			// 	context: err.context,
+			// 	data: err.data,
+			// });
 			setIsConnected(false);
 		});
 
 		return () => {
-			console.log("SocketProvider useEffect CLEANUP");
+			// console.log("SocketProvider useEffect CLEANUP");
 			socket.disconnect();
 			socketRef.current = null;
 		};

@@ -64,20 +64,20 @@ export default function FinalizeResolution() {
 		setLoading(true);
 		setError(null);
 		try {
-			console.log(` Pobieram poprawki dla uchwały ID: ${resolutionId}`);
+			// console.log(` Pobieram poprawki dla uchwały ID: ${resolutionId}`);
 			const response = await fetch(`/newapp/api/resolutions/${resolutionId}/amendments`,
 			);
-			console.log(" Odpowiedź z API:", response.status, response.statusText);
+			// console.log(" Odpowiedź z API:", response.status, response.statusText);
 
 			if (!response.ok) throw new Error("Nie udało się pobrać poprawek");
 			const data = await response.json();
-			console.log(" Otrzymane dane poprawek:", data);
-			console.log(" Liczba poprawek:", data.amendments?.length);
+			// console.log(" Otrzymane dane poprawek:", data);
+			// console.log(" Liczba poprawek:", data.amendments?.length);
 
 			setAmendments(data.amendments || []);
 
 			if (selectedFile) {
-				console.log(" Parsuję plik po pobraniu poprawek...");
+				// console.log(" Parsuję plik po pobraniu poprawek...");
 				await parseAndMapFile(selectedFile);
 			}
 		} catch (err) {
@@ -90,11 +90,11 @@ export default function FinalizeResolution() {
 
 	const parseAndMapFile = async (file) => {
 		try {
-			console.log(" Rozpoczynam parsowanie pliku:", file.name);
+			// console.log(" Rozpoczynam parsowanie pliku:", file.name);
 			const parsed = await parseDocx(file);
-			console.log(" Wynik parsowania (pełny):", parsed);
-			console.log(" Struktura chapters:", parsed.chapters);
-			console.log(" Liczba rozdziałów:", parsed.chapters?.length);
+			// console.log(" Wynik parsowania (pełny):", parsed);
+			// console.log(" Struktura chapters:", parsed.chapters);
+			// console.log(" Liczba rozdziałów:", parsed.chapters?.length);
 
 			setParsedContent(parsed);
 
@@ -102,13 +102,13 @@ export default function FinalizeResolution() {
 			let artCounter = 0;
 
 			if (parsed.chapters && Array.isArray(parsed.chapters)) {
-				console.log(" Znaleziono rozdziały:", parsed.chapters.length);
+				// console.log(" Znaleziono rozdziały:", parsed.chapters.length);
 				parsed.chapters.forEach((chapter, chapterIndex) => {
-					console.log(` Rozdział ${chapterIndex + 1}:`, chapter.title);
-					console.log(
-						` Liczba artykułów w rozdziale:`,
-						chapter.articles?.length,
-					);
+					// console.log(` Rozdział ${chapterIndex + 1}:`, chapter.title);
+					// console.log(
+					// ` Liczba artykułów w rozdziale:`,
+					// chapter.articles?.length,
+					// );
 
 					if (chapter.articles && Array.isArray(chapter.articles)) {
 						chapter.articles.forEach((article) => {
@@ -119,21 +119,21 @@ export default function FinalizeResolution() {
 								number: article.number || `Art. ${artCounter}`,
 								content: article.content || "",
 							};
-							console.log(` Artykuł ${artCounter}:`, map[key]);
+							// console.log(` Artykuł ${artCounter}:`, map[key]);
 						});
 					}
 				});
 			} else {
-				console.warn("️ Brak chapters w sparsowanym dokumencie!");
-				console.log(" Struktura parsed:", Object.keys(parsed));
+				// console.warn("️ Brak chapters w sparsowanym dokumencie!");
+				// console.log(" Struktura parsed:", Object.keys(parsed));
 			}
 
 			setArticleMap(map);
-			console.log(" Zmapowane artykuły (łącznie):", map);
-			console.log(" Znaleziono artykułów:", artCounter);
+			// console.log(" Zmapowane artykuły (łącznie):", map);
+			// console.log(" Znaleziono artykułów:", artCounter);
 			return map;
 		} catch (err) {
-			console.error(" Błąd parsowania pliku:", err);
+			// console.error(" Błąd parsowania pliku:", err);
 			setError("Błąd parsowania pliku: " + err.message);
 			return null;
 		}
@@ -146,7 +146,7 @@ export default function FinalizeResolution() {
 		if (
 			!file.name.endsWith(".docx") &&
 			file.type !==
-				"application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+			"application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 		) {
 			setError("Proszę wybrać plik w formacie DOCX");
 			return;
@@ -194,33 +194,33 @@ export default function FinalizeResolution() {
 		try {
 			const data = {};
 			acceptedAmendments.forEach((amendment) => {
-				console.log(
-					` Przetwarzam poprawkę ID: ${amendment.id}, status: ${amendment.status}`,
-				);
+				// console.log(
+				// ` Przetwarzam poprawkę ID: ${amendment.id}, status: ${amendment.status}`,
+				// );
 				if (amendment.changes && Array.isArray(amendment.changes)) {
 					amendment.changes.forEach((change) => {
 						const key = `art_${change.articleId}`;
-						console.log(
-							`   ${key}: before=${change.before}, after=${change.after}`,
-						);
+						// console.log(
+						// 	`   ${key}: before=${change.before}, after=${change.after}`,
+						// );
 
 						if (articleMap[key]) {
 							if (change.after === "(usunięty)") {
-								console.log(`   ️ USUNIĘCIE: ${key}`);
+								// console.log(`   ️ USUNIĘCIE: ${key}`);
 								data[key] = "(usunięty)";
 							} else if (
 								change.before === null ||
 								change.before === undefined ||
 								change.before === "(nowy artykuł)"
 							) {
-								console.log(`    NOWY ARTYKUŁ: ${key} -> ${change.after}`);
+								// console.log(`    NOWY ARTYKUŁ: ${key} -> ${change.after}`);
 								data[key] = `NEW_ARTICLE: ${change.after}`;
 							} else {
-								console.log(`   ️ PODMIANA: ${key} -> ${change.after}`);
+								// console.log(`   ️ PODMIANA: ${key} -> ${change.after}`);
 								data[key] = change.after || "";
 							}
 						} else {
-							console.log(`   ️ ${key} nie znaleziony w mapie artykułów`);
+							// console.log(`   ️ ${key} nie znaleziony w mapie artykułów`);
 						}
 					});
 				}
@@ -234,8 +234,8 @@ export default function FinalizeResolution() {
 				return;
 			}
 
-			console.log(" Dane do podmiany:", data);
-			console.log(" Mapa artykułów:", articleMap);
+			// console.log(" Dane do podmiany:", data);
+			// console.log(" Mapa artykułów:", articleMap);
 
 			const buffer = await generateDocxWithTags(selectedFile, data);
 			const fileName = `${selectedResolution.slug || "uchwala"}-final-${Date.now()}.docx`;
@@ -362,9 +362,8 @@ export default function FinalizeResolution() {
 							<button
 								key={session.id}
 								onClick={() => handleSessionSelect(session.id)}
-								className={`selection-card ${
-									selectedSession?.id === session.id ? "active" : ""
-								}`}
+								className={`selection-card ${selectedSession?.id === session.id ? "active" : ""
+									}`}
 							>
 								<strong>
 									{session.name || `Posiedzenie nr ${session.number}`}
@@ -392,9 +391,8 @@ export default function FinalizeResolution() {
 							<button
 								key={res.id}
 								onClick={() => handleResolutionSelect(res.id)}
-								className={`selection-card ${
-									selectedResolution?.id === res.id ? "active" : ""
-								}`}
+								className={`selection-card ${selectedResolution?.id === res.id ? "active" : ""
+									}`}
 							>
 								<strong>{res.title}</strong>
 								<br />

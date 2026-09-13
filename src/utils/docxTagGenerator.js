@@ -47,7 +47,7 @@ export const generateTaggedDocx = async (templatePath, amendments) => {
                     const newText = `${artNumber} {{${key}}}`;
                     paragraphs[idx] = replaceParagraphContent(paragraph, newText);
                     foundArticles++;
-                    console.log(`Znacznik ${key} dodany dla artykulu ${artNumber}`);
+                    // console.log(`Znacznik ${key} dodany dla artykulu ${artNumber}`);
                 }
             }
         });

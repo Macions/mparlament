@@ -24,4 +24,4 @@ css = css.replace(
 );
 
 fs.writeFileSync(output, css);
-console.log("Zapisano:", output);
+// console.log("Zapisano:", output);

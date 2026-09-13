@@ -100,7 +100,7 @@ export default function Votings() {
 				if (!response.ok) throw new Error();
 
 				const user = await response.json();
-				console.log(" Zalogowany użytkownik:", user);
+				// console.log(" Zalogowany użytkownik:", user);
 				setUserId(user.id);
 				setIsAdmin(
 					user.role === "admin" || user.permissions?.includes("MANAGE_VOTINGS"),
@@ -117,17 +117,17 @@ export default function Votings() {
 
 	const fetchVotings = React.useCallback(async () => {
 		try {
-			console.log("🚀 [FRONTEND] Pobieram głosowania...");
+			// console.log("🚀 [FRONTEND] Pobieram głosowania...");
 
 			if (!user && !isAdmin) {
-				console.log("⏳ Brak usera - pobieram...");
+				// console.log("⏳ Brak usera - pobieram...");
 				try {
 					const userResponse = await fetch("/newapp/api/auth/me", {
 						headers: { Authorization: `Bearer ${token}` },
 					});
 					if (userResponse.ok) {
 						const userData = await userResponse.json();
-						console.log("👤 Pobrano usera:", userData);
+						// console.log("👤 Pobrano usera:", userData);
 						setUser(userData);
 						setIsAdmin(
 							userData.role === "admin" ||
@@ -136,16 +136,16 @@ export default function Votings() {
 						return;
 					}
 				} catch (err) {
-					console.error("❌ Błąd pobierania usera:", err);
+					// console.error("❌ Błąd pobierania usera:", err);
 				}
 			}
 
 			let url = "/newapp/api/votings";
 			if (!isAdmin && user) {
 				url = `/newapp/api/votings?userId=${user.id}&role=${user.role}`;
-				console.log(`📤 Zapytanie do: ${url}`);
+				// console.log(`📤 Zapytanie do: ${url}`);
 			} else {
-				console.log("📤 Admin - pobieram wszystkie");
+				// console.log("📤 Admin - pobieram wszystkie");
 			}
 
 			const response = await fetch(url, {
@@ -154,11 +154,11 @@ export default function Votings() {
 				},
 			});
 			const data = await response.json();
-			console.log("📦 Otrzymane dane:", data);
-			console.log(`📊 Liczba głosowań: ${data.length}`);
-			data.forEach((v) =>
-				console.log(`  - ${v.title} (assignedTo: ${v.assignedTo})`),
-			);
+			// console.log("📦 Otrzymane dane:", data);
+			// console.log(`📊 Liczba głosowań: ${data.length}`);
+			// data.forEach((v) =>
+			// 	console.log(`  - ${v.title} (assignedTo: ${v.assignedTo})`),
+			// );
 
 			setVotes(data);
 
@@ -304,9 +304,9 @@ export default function Votings() {
 
 	const filteredVotes = votes.filter((vote) => {
 		const status = getVoteStatus(vote);
-		console.log(
-			`🔍 Filtruję: ${vote.title}, status: ${status}, filter: ${filter}`,
-		);
+		// console.log(
+		// 	`🔍 Filtruję: ${vote.title}, status: ${status}, filter: ${filter}`,
+		// );
 
 		if (filter === "archived") return status === "archived";
 		if (filter === "all") return status !== "archived";
@@ -317,7 +317,7 @@ export default function Votings() {
 		return true;
 	});
 
-	console.log(`📊 Po filtrowaniu statusem: ${filteredVotes.length} głosowań`);
+	// console.log(`📊 Po filtrowaniu statusem: ${filteredVotes.length} głosowań`);
 
 	return (
 		<>
