@@ -21,6 +21,54 @@ export const SocketProvider = ({ children }) => {
 	const [isConnected, setIsConnected] = useState(false);
 	const socketRef = useRef(null);
 
+	useEffect(() => {
+		console.log("SocketProvider useEffect START");
+		const token = localStorage.getItem("token");
+		if (!token) {
+			console.log("SocketProvider: brak tokenu, nie łączę");
+			return;
+		}
+
+		console.log("SocketProvider: tworzę socket z tokenem");
+		const socket = io("http://localhost:4000", {
+			path: "/socket.io",
+			auth: { token },
+			transports: ["websocket"],
+			reconnection: true,
+			reconnectionDelay: 1000,
+			reconnectionAttempts: 10,
+		});
+
+		socketRef.current = socket;
+
+		socket.on("connect", () => {
+			console.log("Socket.IO połączony:", socket.id);
+			setIsConnected(true);
+		});
+
+		socket.on("disconnect", (reason) => {
+			console.log("Socket.IO rozłączony:", reason);
+			setIsConnected(false);
+		});
+
+		socket.on("connect_error", (err) => {
+			console.error("Socket.IO connect_error FULL:", {
+				message: err.message,
+				type: err.type,
+				description: err.description,
+				context: err.context,
+				data: err.data,
+			});
+			setIsConnected(false);
+		});
+
+		return () => {
+			console.log("SocketProvider useEffect CLEANUP");
+			socket.disconnect();
+			socketRef.current = null;
+		};
+	}, []);
+
 	const value = {
 		socket: socketRef.current,
 		isConnected,

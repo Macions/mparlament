@@ -37,7 +37,6 @@ function formatVote(v) {
 	}
 }
 
-
 const getCategoryLabel = (category) => {
 	const labels = {
 		resolution: "Uchwała",
@@ -45,7 +44,7 @@ const getCategoryLabel = (category) => {
 		law: "Ustawa",
 		budget: "Budżet",
 		committee: "Komisja",
-		other: "Inne"
+		other: "Inne",
 	};
 	return labels[category] || category || "Nieznana";
 };
@@ -54,21 +53,21 @@ const getApplicantLabel = (applicant) => {
 		marshal: "Marszałek Parlamentu",
 		presidium: "Prezydium Parlamentu",
 		group_15: "Grupa 15 posłów",
-		individual: "Pojedynczy poseł"
+		individual: "Pojedynczy poseł",
 	};
 	return labels[applicant] || applicant || "Nieznany";
 };
 const getStatusLabel = (status) => {
 	const statusMap = {
-		pending: 'Oczekująca',
-		accepted: 'Przyjęta',
-		rejected: 'Odrzucona',
-		withdrawn: 'Wycofana',
-		active: 'Aktywna',
-		inactive: 'Nieaktywna',
-		archived: 'Zarchiwizowana'
+		pending: "Oczekująca",
+		accepted: "Przyjęta",
+		rejected: "Odrzucona",
+		withdrawn: "Wycofana",
+		active: "Aktywna",
+		inactive: "Nieaktywna",
+		archived: "Zarchiwizowana",
 	};
-	return statusMap[status] || status || 'Nieznany';
+	return statusMap[status] || status || "Nieznany";
 };
 
 export default function VotingPage() {
@@ -83,7 +82,6 @@ export default function VotingPage() {
 	const [linkedItemType, setLinkedItemType] = useState(null);
 
 	const token = localStorage.getItem("token");
-
 
 	useEffect(() => {
 		async function fetchVote() {
@@ -102,8 +100,11 @@ export default function VotingPage() {
 
 				setVote(data);
 
-
-				if (data.linkedItemType && data.linkedItemType !== "none" && data.linkedItemId) {
+				if (
+					data.linkedItemType &&
+					data.linkedItemType !== "none" &&
+					data.linkedItemId
+				) {
 					setLinkedItemType(data.linkedItemType);
 					console.log("Dane głosowania:", data);
 					console.log("linkedItemType:", data.linkedItemType);
@@ -140,8 +141,40 @@ export default function VotingPage() {
 
 		fetchVote();
 	}, [id, token]);
+	useEffect(() => {
+		if (!id) return;
 
+		const interval = setInterval(async () => {
+			try {
+				const response = await fetch(`/newapp/api/votings/${id}`, {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
+				if (!response.ok) return;
 
+				const data = await response.json();
+
+				setVote((prev) => {
+					if (!prev) return data;
+					return {
+						...data,
+						hasVoted: prev.hasVoted || data.hasVoted,
+						myVote: prev.myVote ?? data.myVote,
+					};
+				});
+
+				// Jeśli głosowanie się zakończyło — zamknij modal i pokaż komunikat
+				if (data.status === "finished" || data.status === "archived") {
+					setPendingVote(null);
+				}
+			} catch (err) {
+				// cicho ignoruj błędy pollingu
+			}
+		}, 1500);
+
+		return () => clearInterval(interval);
+	}, [id, token, pendingVote]);
 	useEffect(() => {
 		const interval = setInterval(() => {
 			setNow(Date.now());
@@ -154,12 +187,10 @@ export default function VotingPage() {
 		try {
 			const response = await fetch(`/newapp/api/votings/${id}/vote`, {
 				method: "POST",
-
 				headers: {
 					Authorization: `Bearer ${token}`,
 					"Content-Type": "application/json",
 				},
-
 				body: JSON.stringify({
 					vote: pendingVote,
 				}),
@@ -168,12 +199,22 @@ export default function VotingPage() {
 			const data = await response.json();
 
 			if (!response.ok) {
+				// 403 (brak uprawnień / zakończone) albo 400 (już głosował) — zamknij modal
+				if (response.status === 403 || response.status === 400) {
+					setPendingVote(null);
+					setError(data.message || "Głosowanie zostało zakończone");
+					// Odśwież dane
+					const refresh = await fetch(`/newapp/api/votings/${id}`, {
+						headers: { Authorization: `Bearer ${token}` },
+					});
+					if (refresh.ok) setVote(await refresh.json());
+					return;
+				}
 				throw new Error(data.message || "Nie udało się oddać głosu");
 			}
 
 			setVote((prev) => ({
 				...prev,
-
 				hasVoted: true,
 				myVote: data.vote,
 			}));
@@ -203,32 +244,28 @@ export default function VotingPage() {
 
 	const canEdit = vote.userRole === "admin" || vote.userRole === "marshal";
 
-
 	const categoryLabel = getCategoryLabel(vote.category);
 	const statusLabel = getStatusLabel(vote.status);
 
 	return (
 		<>
 			<div className="voting-page">
-				<BackButton
-					to="/glosowania"
-					label="Głosowania"
-				/>
+				<BackButton to="/glosowania" label="Głosowania" />
 
 				<div className="voting-container">
 					<div className="voting-header">
 						<span className="voting-type">{categoryLabel}</span>
 
 						<span
-							className={`voting-status ${isActive ? "active" : isFinished ? "finished" : "upcoming"
-								}`}
+							className={`voting-status ${
+								isActive ? "active" : isFinished ? "finished" : "upcoming"
+							}`}
 						>
 							{isActive ? "TRWA" : isFinished ? "ZAKOŃCZONE" : "OCZEKUJE"}
 						</span>
 					</div>
 
 					<h1 className="voting-title">{vote.title}</h1>
-
 
 					<div className="voting-details">
 						{vote.description && (
@@ -237,7 +274,6 @@ export default function VotingPage() {
 								<p>{vote.description}</p>
 							</div>
 						)}
-
 
 						<div className="voting-meta">
 							<div className="meta-item">
@@ -253,19 +289,24 @@ export default function VotingPage() {
 							{vote.applicant && (
 								<div className="meta-item">
 									<span className="meta-label">Wnioskodawca:</span>
-									<span className="meta-value">{getApplicantLabel(vote.applicant)}</span>
+									<span className="meta-value">
+										{getApplicantLabel(vote.applicant)}
+									</span>
 								</div>
 							)}
 							<div className="meta-item">
 								<span className="meta-label">Data rozpoczęcia:</span>
-								<span className="meta-value">{new Date(startTime).toLocaleString()}</span>
+								<span className="meta-value">
+									{new Date(startTime).toLocaleString()}
+								</span>
 							</div>
 							<div className="meta-item">
 								<span className="meta-label">Data zakończenia:</span>
-								<span className="meta-value">{new Date(endTime).toLocaleString()}</span>
+								<span className="meta-value">
+									{new Date(endTime).toLocaleString()}
+								</span>
 							</div>
 						</div>
-
 
 						{linkedItem && (
 							<div className="voting-linked-item">
@@ -286,7 +327,9 @@ export default function VotingPage() {
 										<p className="linked-item-content">{linkedItem.content}</p>
 									)}
 									{linkedItem.description && (
-										<p className="linked-item-content">{linkedItem.description}</p>
+										<p className="linked-item-content">
+											{linkedItem.description}
+										</p>
 									)}
 									{linkedItem.preamble && (
 										<p className="linked-item-content">{linkedItem.preamble}</p>
@@ -296,19 +339,24 @@ export default function VotingPage() {
 											<span>Autor: {linkedItem.author}</span>
 										)}
 										{linkedItem.createdAt && (
-											<span>Data: {new Date(linkedItem.createdAt).toLocaleDateString()}</span>
+											<span>
+												Data:{" "}
+												{new Date(linkedItem.createdAt).toLocaleDateString()}
+											</span>
 										)}
 									</div>
 									<button
 										className="btn-goto-linked"
 										onClick={() => {
-
 											if (linkedItemType === "resolution") {
 												navigate(`/${linkedItem.slug}`);
 											} else if (linkedItemType === "amendment") {
-
-												const resolutionSlug = linkedItem.resolution?.slug || linkedItem.resolutionId;
-												navigate(`/${resolutionSlug}/poprawka/${linkedItem.id}`);
+												const resolutionSlug =
+													linkedItem.resolution?.slug ||
+													linkedItem.resolutionId;
+												navigate(
+													`/${resolutionSlug}/poprawka/${linkedItem.id}`,
+												);
 											}
 										}}
 									>
@@ -318,10 +366,11 @@ export default function VotingPage() {
 							</div>
 						)}
 
-
 						{(!vote.linkedItemType || vote.linkedItemType === "none") && (
 							<div className="voting-linked-item no-link">
-								<p className="no-link-text">Brak powiązania z uchwałą lub poprawką</p>
+								<p className="no-link-text">
+									Brak powiązania z uchwałą lub poprawką
+								</p>
 							</div>
 						)}
 					</div>
@@ -389,7 +438,7 @@ export default function VotingPage() {
 				</div>
 			</div>
 
-			{pendingVote && (
+			{pendingVote && isActive && (
 				<div className="modal-backdrop">
 					<div className="modal">
 						<h3>Potwierdź głos</h3>

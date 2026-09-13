@@ -11,6 +11,12 @@ export default defineConfig(({ mode }) => ({
 				changeOrigin: true,
 				rewrite: (path) => path.replace(/^\/newapp\/api/, "/api"),
 			},
+			"/newapp/socket.io": {
+				target: "http://localhost:4000",
+				changeOrigin: true,
+				ws: true,
+				rewrite: (path) => path.replace(/^\/newapp\/socket\.io/, "/socket.io"),
+			},
 		},
 	},
 }));

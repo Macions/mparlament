@@ -135,37 +135,31 @@ export default function Dashboard() {
 			</section>
 
 			<div className="dashboard__grid">
-				<article className="dashboard__card dashboard__card--session">
-					<h2 className="dashboard__card-title">POSIEDZENIE</h2>
+				{currentSession && currentSession.active && (
+					<article className="dashboard__card dashboard__card--session">
+						<h2 className="dashboard__card-title">POSIEDZENIE</h2>
 
-					{currentSession ? (
-						<>
-							<div className="dashboard__session-info">
-								<span className="dashboard__session-badge">Trwa teraz</span>
+						<div className="dashboard__session-info">
+							<span className="dashboard__session-badge">Trwa teraz</span>
 
-								<h3>{currentSession.title}</h3>
+							<h3>{currentSession.title}</h3>
 
-								<p className="dashboard__session-time">
-									<span className="date">{currentSession.start}</span>
-									<span className="time"> {currentSession.startTime}</span>
-									<span className="separator"> – </span>
-									<span className="time">{currentSession.endTime}</span>
-								</p>
-							</div>
+							<p className="dashboard__session-time">
+								<span className="time">
+									{currentSession.start || currentSession.startTime}
+								</span>
+								<span className="separator"> – </span>
+								<span className="time">
+									{currentSession.end || currentSession.endTime}
+								</span>
+							</p>
+						</div>
 
-							<Link
-								to="/posiedzenie"
-								className="dashboard__card-button--session"
-							>
-								ŚLEDŹ POSIEDZENIE
-							</Link>
-						</>
-					) : (
-						<p className="dashboard__card-text">
-							W tej chwili nie odbywa się żadne posiedzenie.
-						</p>
-					)}
-				</article>
+						<Link to="/posiedzenie" className="dashboard__card-button--session">
+							ŚLEDŹ POSIEDZENIE
+						</Link>
+					</article>
+				)}
 
 				<div className="dashboard__actions">
 					<Link

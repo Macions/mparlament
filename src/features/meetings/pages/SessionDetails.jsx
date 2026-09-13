@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import "./SessionDetails.css";
 import BackButton from "../../../components/PageBack";
 import { useNavigate } from "react-router-dom";
@@ -67,6 +67,15 @@ export default function SessionDetails() {
 	const [isEditingZO, setIsEditingZO] = useState(false);
 	const [adminMode, setAdminMode] = useState(false);
 	const token = localStorage.getItem("token");
+
+	const saveTimer = useRef(null);
+
+	const updateSessionDebounced = (data) => {
+		if (saveTimer.current) clearTimeout(saveTimer.current);
+		saveTimer.current = setTimeout(() => {
+			updateSession(data);
+		}, 800); // zapisz po 800ms bez zmian
+	};
 	useEffect(() => {
 		if (!socket) return;
 
@@ -117,6 +126,7 @@ export default function SessionDetails() {
 			return item;
 		});
 		setSchedule(newSchedule);
+		updateSession({ schedule: newSchedule });
 
 		setDisplayPoint(null);
 		setIsPointDisabled(true);
@@ -156,6 +166,7 @@ export default function SessionDetails() {
 		});
 
 		setSchedule(restoredSchedule);
+		updateSession({ schedule: restoredSchedule });
 		setScheduleBackup(null);
 		setActiveIndexBackup(null);
 		setIsPointDisabled(false);
@@ -171,31 +182,23 @@ export default function SessionDetails() {
 		const prevIndex = currentSpeakerIndex - 1;
 		const prevSpeaker = plannedSpeakers[prevIndex];
 		if (prevSpeaker) {
-			setPlannedSpeakers((prev) => {
-				const updated = prev.map((s, i) => {
-					if (i === currentSpeakerIndex && s.status === "active") {
-						return { ...s, status: "waiting" };
-					}
-					if (i === prevIndex) {
-						return { ...s, status: "active" };
-					}
-					return s;
-				});
-
-				if (socket && isConnected) {
-					socket.emit("speakersUpdated", updated);
+			const updated = plannedSpeakers.map((s, i) => {
+				if (i === currentSpeakerIndex && s.status === "active") {
+					return { ...s, status: "waiting" };
 				}
-
-				return updated;
+				if (i === prevIndex) {
+					return { ...s, status: "active" };
+				}
+				return s;
 			});
+			setPlannedSpeakers(updated);
 
 			setDisplaySpeaker(prevSpeaker);
 			setCurrentSpeakerIndex(prevIndex);
 			setSpeakerChanging(true);
 			setTimeout(() => setSpeakerChanging(false), 400);
-			if (socket && isConnected) {
-				socket.emit("speakerUpdated", prevSpeaker);
-			}
+
+			updateSession({ currentSpeaker: prevSpeaker, speakers: updated });
 		}
 	};
 	const goToNextSpeaker = () => {
@@ -206,31 +209,23 @@ export default function SessionDetails() {
 		const nextIndex = currentSpeakerIndex + 1;
 		const nextSpeaker = plannedSpeakers[nextIndex];
 		if (nextSpeaker) {
-			setPlannedSpeakers((prev) => {
-				const updated = prev.map((s, i) => {
-					if (i === currentSpeakerIndex && s.status === "active") {
-						return { ...s, status: "done" };
-					}
-					if (i === nextIndex) {
-						return { ...s, status: "active" };
-					}
-					return s;
-				});
-
-				if (socket && isConnected) {
-					socket.emit("speakersUpdated", updated);
+			const updated = plannedSpeakers.map((s, i) => {
+				if (i === currentSpeakerIndex && s.status === "active") {
+					return { ...s, status: "done" };
 				}
-
-				return updated;
+				if (i === nextIndex) {
+					return { ...s, status: "active" };
+				}
+				return s;
 			});
+			setPlannedSpeakers(updated);
 
 			setDisplaySpeaker(nextSpeaker);
 			setCurrentSpeakerIndex(nextIndex);
 			setSpeakerChanging(true);
 			setTimeout(() => setSpeakerChanging(false), 400);
-			if (socket && isConnected) {
-				socket.emit("speakerUpdated", nextSpeaker);
-			}
+
+			updateSession({ currentSpeaker: nextSpeaker, speakers: updated });
 		}
 	};
 	const allSpeakers = useMemo(() => {
@@ -274,10 +269,11 @@ export default function SessionDetails() {
 		const updated = [...plannedSpeakers];
 		updated[index].status = "done";
 		setPlannedSpeakers(updated);
-
-		if (socket && isConnected) {
-			socket.emit("speakersUpdated", updated);
-		}
+		const nextActive = updated.find((s) => s.status === "active");
+		updateSession({
+			currentSpeaker: nextActive || null,
+			speakers: updated,
+		});
 	};
 
 	const markSpeakerActive = (index) => {
@@ -289,9 +285,10 @@ export default function SessionDetails() {
 		setPlannedSpeakers(updated);
 		setCurrentSpeakerIndex(index);
 		setDisplaySpeaker(plannedSpeakers[index]);
-		if (socket && isConnected) {
-			socket.emit("speakersUpdated", updated);
-		}
+		updateSession({
+			currentSpeaker: plannedSpeakers[index],
+			speakers: updated,
+		});
 	};
 
 	const removeSpeaker = (index) => {
@@ -305,13 +302,13 @@ export default function SessionDetails() {
 			if (currentSpeakerIndex >= updated.length) {
 				setCurrentSpeakerIndex(updated.length - 1);
 			}
-
-			if (socket && isConnected) {
-				socket.emit("speakersUpdated", updated);
-			}
+			const nextActive = updated.find((s) => s.status === "active");
+			updateSession({
+				currentSpeaker: nextActive || null,
+				speakers: updated,
+			});
 		}
 	};
-
 	const editSpeaker = (index, field, value) => {
 		const updated = [...plannedSpeakers];
 		updated[index][field] = value;
@@ -336,8 +333,11 @@ export default function SessionDetails() {
 				},
 				body: JSON.stringify(updatedSpeakers[speakerIndex]),
 			}).catch((err) => console.error("Błąd aktualizacji mówcy:", err));
-			if (socket && isConnected) {
-				socket.emit("speakersUpdated", updated);
+			if (displaySpeaker?.name === speakerName) {
+				updateSession({
+					currentSpeaker: { ...displaySpeaker, [field]: value },
+					speakers: updated,
+				});
 			}
 		}
 	};
@@ -373,9 +373,14 @@ export default function SessionDetails() {
 			if (session.zoContent) {
 				setZoContent(session.zoContent);
 			}
+			if (session.sessionMode) {
+				setSessionMode(session.sessionMode);
+			}
+			if (session.speakers && session.speakers.length > 0) {
+				setPlannedSpeakers(session.speakers);
+			}
 		}
 	}, [session]);
-
 	useEffect(() => {
 		if (sessionMode !== "normal" || !displayPoint) return;
 		const activeIndex = schedule.findIndex((item) => item.status === "active");
@@ -424,7 +429,8 @@ export default function SessionDetails() {
 				const parlRes = await fetch("/newapp/api/parliamentarians", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
-				if (!parlRes.ok) throw new Error("Nie udało się pobrać parlamentarzystów");
+				if (!parlRes.ok)
+					throw new Error("Nie udało się pobrać parlamentarzystów");
 				const parlData = await parlRes.json();
 				setParliamentarians([
 					...(parlData.parliamentarians || []),
@@ -490,27 +496,15 @@ export default function SessionDetails() {
 			status: "active",
 		};
 
-		setPlannedSpeakers((prev) => {
-			const updated = prev.map((s) => {
-				if (s.status === "active") {
-					return { ...s, status: "done" };
-				}
-				return s;
-			});
-			const result = [...updated, newSpeaker];
-
-			if (socket && isConnected) {
-				socket.emit("speakersUpdated", result);
+		const updated = plannedSpeakers.map((s) => {
+			if (s.status === "active") {
+				return { ...s, status: "done" };
 			}
-
-			return result;
+			return s;
 		});
-
-		setCurrentSpeakerIndex((prev) => {
-			const newIndex = plannedSpeakers.length;
-			return newIndex;
-		});
-
+		const newPlannedSpeakers = [...updated, newSpeaker];
+		setPlannedSpeakers(newPlannedSpeakers);
+		setCurrentSpeakerIndex(plannedSpeakers.length);
 		setDisplaySpeaker(newSpeaker);
 		setSpeakerChanging(true);
 		setTimeout(() => setSpeakerChanging(false), 400);
@@ -518,9 +512,10 @@ export default function SessionDetails() {
 		setDraftSpeakerName("");
 		setShowSuggestions(false);
 
-		if (socket && isConnected) {
-			socket.emit("speakerUpdated", newSpeaker);
-		}
+		updateSession({
+			currentSpeaker: newSpeaker,
+			speakers: newPlannedSpeakers,
+		});
 	};
 
 	const addCustomSpeaker = async (e) => {
@@ -543,11 +538,6 @@ export default function SessionDetails() {
 		setNewSpeakerName("");
 		setNewSpeakerClub("");
 		setNewSpeakerRole("Parlamentarzysta");
-
-		const updatedSpeakers = [...speakers, speakerData];
-		if (socket && isConnected) {
-			socket.emit("speakersUpdated", updatedSpeakers);
-		}
 	};
 
 	const startBreak = () => {
@@ -600,6 +590,12 @@ export default function SessionDetails() {
 
 		setDisplaySpeaker(null);
 		setSessionMode("break");
+
+		updateSession({
+			schedule: updatedSchedule,
+			sessionMode: "break",
+			currentSpeaker: null,
+		});
 	};
 
 	const confirmBreakEnd = () => {
@@ -612,6 +608,7 @@ export default function SessionDetails() {
 			return item;
 		});
 		setSchedule(updatedSchedule);
+		updateSession({ schedule: updatedSchedule });
 
 		setDisplayPoint((prev) => ({
 			...prev,
@@ -622,9 +619,12 @@ export default function SessionDetails() {
 	};
 
 	const cancelBreak = () => {
-		if (sessionMode !== "break" || !scheduleBackup) return;
+		if (sessionMode !== "break") return;
 
-		setSchedule(scheduleBackup);
+		// Zamiast scheduleBackup — użyj schedule z bazy (bez modyfikacji "Przerwa")
+		const restoredSchedule = scheduleBackup || schedule;
+
+		setSchedule(restoredSchedule);
 		setScheduleBackup(null);
 		setActiveIndexBackup(null);
 		setBreakEndTime("");
@@ -638,6 +638,12 @@ export default function SessionDetails() {
 		setTimeout(() => setSpeakerChanging(false), 400);
 		setPointChanging(true);
 		setTimeout(() => setPointChanging(false), 400);
+
+		updateSession({
+			schedule: restoredSchedule,
+			sessionMode: "normal",
+			currentSpeaker: session?.currentSpeaker || null,
+		});
 	};
 
 	const setOrganizationalTeam = () => {
@@ -674,6 +680,12 @@ export default function SessionDetails() {
 		setSpeakerChanging(true);
 		setTimeout(() => setSpeakerChanging(false), 400);
 		setSessionMode("zo");
+
+		updateSession({
+			schedule: neutralSchedule,
+			sessionMode: "zo",
+			currentSpeaker: zoSpeaker,
+		});
 	};
 
 	const cancelZO = () => {
@@ -690,6 +702,12 @@ export default function SessionDetails() {
 		setTimeout(() => setSpeakerChanging(false), 400);
 		setPointChanging(true);
 		setTimeout(() => setPointChanging(false), 400);
+
+		updateSession({
+			schedule: scheduleBackup,
+			sessionMode: "normal",
+			currentSpeaker: session?.currentSpeaker || null,
+		});
 	};
 
 	const addScheduleItem = (time, title) => {
@@ -699,28 +717,31 @@ export default function SessionDetails() {
 			title: title.trim(),
 			status: "waiting",
 		};
-		setSchedule((prev) => {
-			if (!time || time === "Nowy") {
-				return [...prev, newItem];
-			}
+		let newSchedule;
+		if (!time || time === "Nowy") {
+			newSchedule = [...schedule, newItem];
+		} else {
 			const newMinutes = parseTimeToMinutes(time);
-			let insertIndex = prev.length;
-			for (let i = prev.length - 1; i >= 0; i--) {
-				const currentMinutes = parseTimeToMinutes(prev[i].time);
+			let insertIndex = schedule.length;
+			for (let i = schedule.length - 1; i >= 0; i--) {
+				const currentMinutes = parseTimeToMinutes(schedule[i].time);
 				if (currentMinutes <= newMinutes) {
 					insertIndex = i + 1;
 					break;
 				}
 			}
-			const newSchedule = [...prev];
+			newSchedule = [...schedule];
 			newSchedule.splice(insertIndex, 0, newItem);
-			return newSchedule;
-		});
+		}
+		setSchedule(newSchedule);
+		updateSession({ schedule: newSchedule });
 	};
 
 	const removeScheduleItem = (index) => {
 		if (window.confirm("Czy na pewno usunąć ten punkt?")) {
-			setSchedule((prev) => prev.filter((_, i) => i !== index));
+			const newSchedule = schedule.filter((_, i) => i !== index);
+			setSchedule(newSchedule);
+			updateSession({ schedule: newSchedule });
 		}
 	};
 
@@ -733,6 +754,7 @@ export default function SessionDetails() {
 			newSchedule[index],
 		];
 		setSchedule(newSchedule);
+		updateSession({ schedule: newSchedule });
 	};
 
 	const setActiveItem = (index) => {
@@ -743,8 +765,8 @@ export default function SessionDetails() {
 			return { ...item, status: "waiting" };
 		});
 		setSchedule(newSchedule);
+		updateSession({ schedule: newSchedule });
 	};
-
 	const nextItem = () => {
 		if (sessionMode === "zo") return;
 		const activeIndex = schedule.findIndex((item) => item.status === "active");
@@ -778,11 +800,6 @@ export default function SessionDetails() {
 				currentPoint: updatedPoint,
 				zoContent: zoContent,
 			});
-
-			if (socket && isConnected) {
-				socket.emit("zoContentUpdated", zoContent);
-				console.log("📤 Wysłano aktualizację ZO:", zoContent);
-			}
 		}
 	};
 
@@ -791,19 +808,34 @@ export default function SessionDetails() {
 
 		const handleScheduleUpdate = (newSchedule) => {
 			console.log("📨 Odebrano nowy harmonogram");
-			setSchedule(newSchedule);
+			setPointChanging(true);
+			setTimeout(() => {
+				setSchedule(newSchedule);
+				setPointChanging(false);
+			}, 200);
 		};
 
 		const handleSpeakerUpdate = (newSpeaker) => {
 			console.log("📨 Odebrano nowego mówcę");
-			setDisplaySpeaker(newSpeaker);
+			setSpeakerChanging(true);
+			setTimeout(() => {
+				setDisplaySpeaker(newSpeaker);
+				setSpeakerChanging(false);
+			}, 200);
 		};
-
 		const handleSpeakersUpdate = (newSpeakers) => {
 			console.log("📨 Odebrano zaktualizowaną listę mówców");
 			setPlannedSpeakers(newSpeakers);
 		};
+		const handleSessionModeUpdate = (newMode) => {
+			console.log("📨 Odebrano nowy tryb sesji:", newMode);
+			setSessionMode(newMode);
+			if (newMode === "break") {
+				setDisplaySpeaker(null);
+			}
+		};
 
+		socket.on("sessionModeUpdated", handleSessionModeUpdate);
 		socket.on("scheduleUpdated", handleScheduleUpdate);
 		socket.on("speakerUpdated", handleSpeakerUpdate);
 		socket.on("speakersUpdated", handleSpeakersUpdate);
@@ -812,6 +844,7 @@ export default function SessionDetails() {
 			socket.off("scheduleUpdated", handleScheduleUpdate);
 			socket.off("speakerUpdated", handleSpeakerUpdate);
 			socket.off("speakersUpdated", handleSpeakersUpdate);
+			socket.off("sessionModeUpdated", handleSessionModeUpdate);
 		};
 	}, [socket]);
 	const speakerNames = Object.keys(allSpeakers);
@@ -1278,6 +1311,7 @@ export default function SessionDetails() {
 												const newSchedule = [...schedule];
 												newSchedule[index].time = e.target.value;
 												setSchedule(newSchedule);
+												updateSessionDebounced({ schedule: newSchedule });
 											}}
 											className="admin-input time-input"
 										/>
@@ -1296,6 +1330,7 @@ export default function SessionDetails() {
 													const newSchedule = [...schedule];
 													newSchedule[index].time = e.target.value;
 													setSchedule(newSchedule);
+													updateSessionDebounced({ schedule: newSchedule });
 												}}
 												className="admin-input time-input"
 											/>
@@ -1306,6 +1341,7 @@ export default function SessionDetails() {
 													const newSchedule = [...schedule];
 													newSchedule[index].title = e.target.value;
 													setSchedule(newSchedule);
+													updateSessionDebounced({ schedule: newSchedule });
 												}}
 												className={`admin-input title-input ${item.status === "crossed" ? "crossed" : ""}`}
 											/>

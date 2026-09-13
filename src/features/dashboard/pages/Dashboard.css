@@ -35,7 +35,7 @@
 
 .dashboard__grid {
 	display: grid;
-	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
 	gap: 1rem;
 	align-items: stretch;
 }
@@ -273,7 +273,7 @@
 	}
 
 	.dashboard__grid {
-		grid-template-columns: 1fr 1fr 1fr;
+		grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
 		gap: 1rem;
 	}
 

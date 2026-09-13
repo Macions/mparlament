@@ -1011,3 +1011,17 @@
 		font-size: 1rem;
 	}
 }
+
+.finish-vote-btn {
+	background: #dc2626;
+	color: white;
+	padding: 0.5rem 1rem;
+	border-radius: 6px;
+	border: none;
+	cursor: pointer;
+	font-weight: 600;
+	font-size: 0.9rem;
+}
+.finish-vote-btn:hover {
+	background: #b91c1c;
+}

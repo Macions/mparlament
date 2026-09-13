@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { HashRouter } from "react-router-dom";
 import App from "./app/App";
+import { SocketProvider } from "./socket/SocketProvider";
 
 async function enableMocking() {
 	if (import.meta.env.DEV) {
@@ -15,9 +16,17 @@ async function enableMocking() {
 }
 
 // enableMocking().then(() => {
+// ReactDOM.createRoot(document.getElementById("root")).render(
+// 	<HashRouter>
+// 		<App />
+// 	</HashRouter>,
+// );
+// });
+
 ReactDOM.createRoot(document.getElementById("root")).render(
 	<HashRouter>
-		<App />
+		<SocketProvider>
+			<App />
+		</SocketProvider>
 	</HashRouter>,
 );
-// });

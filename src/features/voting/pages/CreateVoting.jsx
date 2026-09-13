@@ -341,7 +341,6 @@ export default function CreateVoting() {
 			if (formData.linkedItemType === "amendment" && !selectedResolution) {
 				newErrors.linkedItem = "Najpierw wybierz uchwałę, a następnie poprawkę";
 			}
-			s;
 
 			if (formData.isAnonymous === undefined || formData.isAnonymous === null) {
 				newErrors.isAnonymous = "Wybierz typ głosowania";

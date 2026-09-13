@@ -115,66 +115,74 @@ export default function Votings() {
 		fetchUser();
 	}, [token]);
 
-	useEffect(() => {
-		async function fetchVotings() {
-			try {
-				console.log("🚀 [FRONTEND] Pobieram głosowania...");
+	const fetchVotings = React.useCallback(async () => {
+		try {
+			console.log("🚀 [FRONTEND] Pobieram głosowania...");
 
-				if (!user && !isAdmin) {
-					console.log("⏳ Brak usera - pobieram...");
-					try {
-						const userResponse = await fetch("/newapp/api/auth/me", {
-							headers: { Authorization: `Bearer ${token}` },
-						});
-						if (userResponse.ok) {
-							const userData = await userResponse.json();
-							console.log("👤 Pobrano usera:", userData);
-							setUser(userData);
-							setIsAdmin(
-								userData.role === "admin" ||
-									userData.permissions?.includes("MANAGE_VOTINGS"),
-							);
-							return;
-						}
-					} catch (err) {
-						console.error("❌ Błąd pobierania usera:", err);
+			if (!user && !isAdmin) {
+				console.log("⏳ Brak usera - pobieram...");
+				try {
+					const userResponse = await fetch("/newapp/api/auth/me", {
+						headers: { Authorization: `Bearer ${token}` },
+					});
+					if (userResponse.ok) {
+						const userData = await userResponse.json();
+						console.log("👤 Pobrano usera:", userData);
+						setUser(userData);
+						setIsAdmin(
+							userData.role === "admin" ||
+								userData.permissions?.includes("MANAGE_VOTINGS"),
+						);
+						return;
 					}
+				} catch (err) {
+					console.error("❌ Błąd pobierania usera:", err);
 				}
-
-				let url = "/newapp/api/votings";
-				if (!isAdmin && user) {
-					url = `/newapp/api/votings?userId=${user.id}&role=${user.role}`;
-					console.log(`📤 Zapytanie do: ${url}`);
-				} else {
-					console.log("📤 Admin - pobieram wszystkie");
-				}
-
-				const response = await fetch(url, {
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				});
-				const data = await response.json();
-				console.log("📦 Otrzymane dane:", data);
-				console.log(`📊 Liczba głosowań: ${data.length}`);
-				data.forEach((v) =>
-					console.log(`  - ${v.title} (assignedTo: ${v.assignedTo})`),
-				);
-
-				setVotes(data);
-
-				if (!response.ok)
-					throw new Error(data.message || "Nie udało się pobrać głosowań");
-			} catch (err) {
-				setError(err.message);
-			} finally {
-				setLoading(false);
 			}
-		}
 
-		fetchVotings();
+			let url = "/newapp/api/votings";
+			if (!isAdmin && user) {
+				url = `/newapp/api/votings?userId=${user.id}&role=${user.role}`;
+				console.log(`📤 Zapytanie do: ${url}`);
+			} else {
+				console.log("📤 Admin - pobieram wszystkie");
+			}
+
+			const response = await fetch(url, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			const data = await response.json();
+			console.log("📦 Otrzymane dane:", data);
+			console.log(`📊 Liczba głosowań: ${data.length}`);
+			data.forEach((v) =>
+				console.log(`  - ${v.title} (assignedTo: ${v.assignedTo})`),
+			);
+
+			setVotes(data);
+
+			if (!response.ok)
+				throw new Error(data.message || "Nie udało się pobrać głosowań");
+		} catch (err) {
+			setError(err.message);
+		} finally {
+			setLoading(false);
+		}
 	}, [token, user, isAdmin]);
 
+	useEffect(() => {
+		fetchVotings();
+	}, [fetchVotings]);
+	useEffect(() => {
+		if (showArchiveModal || showActivateModal) return; // pauza, gdy modal otwarty
+
+		const interval = setInterval(() => {
+			fetchVotings();
+		}, 5000);
+
+		return () => clearInterval(interval);
+	}, [fetchVotings, showArchiveModal, showActivateModal]);
 	const handleArchive = async (voteId) => {
 		try {
 			const response = await fetch(`/newapp/api/votings/${voteId}/archive`, {
@@ -204,7 +212,32 @@ export default function Votings() {
 			setError(err.message);
 		}
 	};
-
+	const handleFinish = async (voteId) => {
+		if (!confirm("Czy na pewno zakończyć to głosowanie przed czasem?")) return;
+		try {
+			const response = await fetch(`/newapp/api/votings/${voteId}/finish`, {
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${token}`,
+					"Content-Type": "application/json",
+				},
+			});
+			if (!response.ok) {
+				throw new Error("Nie udało się zakończyć głosowania");
+			}
+			let url = "/newapp/api/votings";
+			if (!isAdmin && user) {
+				url = `/newapp/api/votings?userId=${user.id}&role=${user.role}`;
+			}
+			const updatedResponse = await fetch(url, {
+				headers: { Authorization: `Bearer ${token}` },
+			});
+			const data = await updatedResponse.json();
+			setVotes(data);
+		} catch (err) {
+			setError(err.message);
+		}
+	};
 	const openArchiveModal = (voteId) => {
 		setArchivingId(voteId);
 		setShowArchiveModal(true);
@@ -481,7 +514,6 @@ export default function Votings() {
 												Edytuj
 											</Link>
 										)}
-
 										{canActivate && (
 											<button
 												onClick={() => openActivateModal(vote.id)}
@@ -517,6 +549,14 @@ export default function Votings() {
 											>
 												Edytuj
 											</Link>
+										)}
+										{canEdit && (
+											<button
+												onClick={() => handleFinish(vote.id)}
+												className="finish-vote-btn"
+											>
+												Zakończ
+											</button>
 										)}
 									</div>
 								)}
