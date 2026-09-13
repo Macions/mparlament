@@ -329,7 +329,7 @@ export default function Parliamentarians() {
 
 				setParliamentarians(membersData.parliamentarians || []);
 				setUnaffiliatedList(membersData.unaffiliated || []);
-				setClubsList(clubsData || []);
+				setClubsList(clubsData.filter((c) => c.name !== "Zespół Organizacyjny") || []);
 			} catch (err) {
 				setError(err.message);
 			} finally {
