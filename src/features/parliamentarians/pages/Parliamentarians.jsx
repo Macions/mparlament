@@ -314,22 +314,36 @@ export default function Parliamentarians() {
 		async function fetchData() {
 			try {
 				setLoading(true);
+				const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
 				const membersRes = await fetch("/newapp/api/parliamentarians", {
-					headers: { Authorization: `Bearer ${token}` },
+					headers,
 				});
+				if (membersRes.status === 401) {
+					// Nie zalogowany – pokaż pustą listę (albo komunikat)
+					setParliamentarians([]);
+					setUnaffiliatedList([]);
+					setLoading(false);
+					return;
+				}
 				if (!membersRes.ok)
 					throw new Error("Nie udało się pobrać parlamentarzystów");
 				const membersData = await membersRes.json();
 
-				const clubsRes = await fetch("/newapp/api/clubs", {
-					headers: { Authorization: `Bearer ${token}` },
-				});
+				const clubsRes = await fetch("/newapp/api/clubs", { headers });
+				if (clubsRes.status === 401) {
+					setClubsList([]);
+					setLoading(false);
+					return;
+				}
 				if (!clubsRes.ok) throw new Error("Nie udało się pobrać klubów");
 				const clubsData = await clubsRes.json();
 
 				setParliamentarians(membersData.parliamentarians || []);
 				setUnaffiliatedList(membersData.unaffiliated || []);
-				setClubsList(clubsData.filter((c) => c.name !== "Zespół Organizacyjny") || []);
+				setClubsList(
+					clubsData.filter((c) => c.name !== "Zespół Organizacyjny") || [],
+				);
 			} catch (err) {
 				setError(err.message);
 			} finally {
@@ -338,6 +352,10 @@ export default function Parliamentarians() {
 		}
 
 		async function fetchUser() {
+			if (!token) {
+				setIsAdmin(false);
+				return;
+			}
 			try {
 				const response = await fetch("/newapp/api/auth/me", {
 					headers: { Authorization: `Bearer ${token}` },
@@ -348,6 +366,8 @@ export default function Parliamentarians() {
 						user.role === "admin" ||
 							user.permissions?.includes("MANAGE_PARLIAMENTARIANS"),
 					);
+				} else {
+					setIsAdmin(false);
 				}
 			} catch {
 				setIsAdmin(false);
@@ -357,7 +377,6 @@ export default function Parliamentarians() {
 		fetchData();
 		fetchUser();
 	}, [token]);
-
 	const getClubMemberCount = (clubId) => {
 		return parliamentarians.filter((p) => p.clubId === clubId).length;
 	};
