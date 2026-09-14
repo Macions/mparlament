@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Dashboard.module.css";
-import BackButton from "../../../components/PageBack";
+
 function CalendarIcon() {
 	return (
 		<svg
@@ -107,75 +107,85 @@ export default function Dashboard() {
 	}
 
 	return (
-		<div className={styles.dashboard}>
-			<section className={styles.dashboardUser}>
-				<BackButton to="/" label="Strona główna" />
-				<div className={styles.dashboardUserInfo}>
-					<p className={styles.dashboardUserName}>
-						Zalogowano jako {user?.name}
-					</p>
+		<div className="dashboard">
+			<section className="dashboard__user">
+				<button className="back-to-home-btn" onClick={() => navigate("/")}>
+					<svg
+						width="18"
+						height="18"
+						viewBox="0 0 24 24"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path
+							d="M15 18L9 12L15 6"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						/>
+					</svg>
+					Strona główna
+				</button>
+				<div className="dashboard__user-info">
+					<p className="dashboard__user-name">Zalogowano jako {user?.name}</p>
 
-					<p className={styles.dashboardUserClub}>{user?.club}</p>
+					<p className="dashboard__user-club">{user?.club}</p>
 				</div>
 			</section>
 
-			<div className={styles.dashboardGrid}>
+			<div className="dashboard__grid">
 				{currentSession && currentSession.active && (
-					<article
-						className={`${styles.dashboardCard} ${styles.dashboardCardSession}`}
-					>
-						<h2 className={styles.dashboardCardTitle}>POSIEDZENIE</h2>
+					<article className="dashboard__card dashboard__card--session">
+						<h2 className="dashboard__card-title">POSIEDZENIE</h2>
 
-						<div className={styles.dashboardSessionInfo}>
-							<span className={styles.dashboardSessionBadge}>Trwa teraz</span>
+						<div className="dashboard__session-info">
+							<span className="dashboard__session-badge">Trwa teraz</span>
 
 							<h3>{currentSession.title}</h3>
 
-							<p className={styles.dashboardSessionTime}>
-								<span className={styles.time}>
+							<p className="dashboard__session-time">
+								<span className="time">
 									{currentSession.start || currentSession.startTime}
 								</span>
-								<span className={styles.separator}> – </span>
-								<span className={styles.time}>
+								<span className="separator"> – </span>
+								<span className="time">
 									{currentSession.end || currentSession.endTime}
 								</span>
 							</p>
 						</div>
 
-						<Link
-							to="/posiedzenie"
-							className={styles.dashboardCardButtonSession}
-						>
+						<Link to="/posiedzenie" className="dashboard__card-button--session">
 							ŚLEDŹ POSIEDZENIE
 						</Link>
 					</article>
 				)}
 
-				<div className={styles.dashboardActions}>
+				<div className="dashboard__actions">
 					<Link
 						to="/uchwaly"
-						className={`${styles.dashboardAction} ${styles.dashboardActionResolutions}`}
+						className="dashboard__action dashboard__action--resolutions"
 					>
 						SPRAWDŹ UCHWAŁY
 					</Link>
 
 					<Link
 						to="/zloz-uchwale"
-						className={`${styles.dashboardAction} ${styles.dashboardActionSubmit}`}
+						className="dashboard__action dashboard__action--submit"
 					>
 						ZŁÓŻ UCHWAŁĘ
 					</Link>
 
 					<Link
 						to="/glosowania"
-						className={`${styles.dashboardAction} ${styles.dashboardActionVoting}`}
+						className="dashboard__action dashboard__action--voting"
 					>
 						GŁOSOWANIA
 					</Link>
 					{isAdmin && (
 						<Link
 							to="/finalizuj-uchwale"
-							className={`${styles.dashboardAction} ${styles.dashboardActionFinalize}`}
+							className="dashboard__action dashboard__action--finalize"
 						>
 							FINALIZUJ UCHWAŁĘ
 						</Link>
@@ -183,12 +193,12 @@ export default function Dashboard() {
 				</div>
 
 				<article
-					className={`${styles.dashboardCard} ${styles.dashboardCardCalendar}`}
+					className="dashboard__card dashboard__card--calendar"
 					title="W budowie..."
 				>
-					<h2 className={styles.dashboardCardTitle}>KALENDARZ</h2>
+					<h2 className="dashboard__card-title">KALENDARZ</h2>
 
-					<div className={styles.dashboardCalendarWrap}>
+					<div className="dashboard__calendar-wrap">
 						<CalendarIcon />
 					</div>
 				</article>
