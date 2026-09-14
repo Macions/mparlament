@@ -509,23 +509,50 @@ export default function CreateVoting() {
 						className="search-input"
 					/>
 					<div className="groups-list">
-						{getFilteredGroups().map((group) => (
-							<div
-								key={group.id}
-								className={`group-item ${formData.selectedGroups.includes(group.id) ? "selected" : ""}`}
-								onClick={() => handleGroupToggle(group.id)}
-							>
-								<input
-									type="checkbox"
-									checked={formData.selectedGroups.includes(group.id)}
-									onChange={() => {}}
-								/>
-								<span>{group.name}</span>
-								<span className="member-count">
-									({group.memberCount || 0} członków)
-								</span>
-							</div>
-						))}
+						{getFilteredGroups().map((group) => {
+							const isSelected = formData.selectedGroups.includes(group.id);
+							const groupMembers = members.filter(
+								(m) => m.group === group.name,
+							);
+							return (
+								<div
+									key={group.id}
+									className={`group-item ${isSelected ? "selected" : ""}`}
+									onClick={() => handleGroupToggle(group.id)}
+								>
+									<div
+										style={{
+											display: "flex",
+											alignItems: "center",
+											gap: "8px",
+										}}
+									>
+										<input
+											type="checkbox"
+											checked={isSelected}
+											onChange={() => {}}
+										/>
+										<span>{group.name}</span>
+										<span className="member-count">
+											({group.memberCount || groupMembers.length || 0} członków)
+										</span>
+									</div>
+									{isSelected && groupMembers.length > 0 && (
+										<div
+											style={{
+												marginLeft: "28px",
+												marginTop: "6px",
+												fontSize: "12px",
+												color: "#6c757d",
+												lineHeight: "1.5",
+											}}
+										>
+											{groupMembers.map((m) => m.name).join(", ")}
+										</div>
+									)}
+								</div>
+							);
+						})}
 					</div>
 				</div>
 			)}
