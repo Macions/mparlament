@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { HashRouter } from "react-router-dom";
 import App from "./app/App";
+import "./components/backButton.css";
 import { SocketProvider } from "./socket/SocketProvider";
 
 async function enableMocking() {
@@ -15,18 +16,18 @@ async function enableMocking() {
 	return Promise.resolve();
 }
 
-// enableMocking().then(() => {
+enableMocking().then(() => {
+	ReactDOM.createRoot(document.getElementById("root")).render(
+		<HashRouter>
+			<App />
+		</HashRouter>,
+	);
+});
+
 // ReactDOM.createRoot(document.getElementById("root")).render(
 // 	<HashRouter>
-// 		<App />
+// 		<SocketProvider>
+// 			<App />
+// 		</SocketProvider>
 // 	</HashRouter>,
 // );
-// });
-
-ReactDOM.createRoot(document.getElementById("root")).render(
-	<HashRouter>
-		<SocketProvider>
-			<App />
-		</SocketProvider>
-	</HashRouter>,
-);

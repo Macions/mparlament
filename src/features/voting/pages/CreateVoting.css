@@ -86,7 +86,6 @@
 	border-color: var(--color-border-strong);
 }
 
-
 .step-indicator {
 	display: flex;
 	justify-content: space-between;
@@ -170,7 +169,6 @@
 .step.completed .step-label {
 	color: var(--color-ink-700);
 }
-
 
 .form-container {
 	background: var(--color-surface);
@@ -272,7 +270,6 @@
 	text-align: right;
 }
 
-
 .tags-input-container {
 	border: 1px solid var(--color-border);
 	border-radius: var(--radius-sm);
@@ -330,7 +327,6 @@
 	background: transparent;
 }
 
-
 .recipients-type-selector {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
@@ -381,7 +377,6 @@
 	color: var(--color-ink-500);
 	line-height: 1.4;
 }
-
 
 .recipients-selection {
 	margin-top: 2rem;
@@ -496,7 +491,6 @@
 	flex-shrink: 0;
 }
 
-
 .duration-type-selector {
 	margin-bottom: 1.5rem;
 }
@@ -530,7 +524,7 @@
 	border-color: var(--color-primary-border);
 }
 
-.radio-card input[type="radio"]:checked+.radio-content {
+.radio-card input[type="radio"]:checked + .radio-content {
 	color: var(--color-primary);
 }
 
@@ -561,7 +555,6 @@
 	grid-template-columns: repeat(3, 1fr);
 	gap: 1rem;
 }
-
 
 .time-preview {
 	background: var(--color-surface-muted);
@@ -598,7 +591,6 @@
 	color: var(--color-ink-900);
 	font-weight: 600;
 }
-
 
 .settings-section {
 	margin-bottom: 2rem;
@@ -662,7 +654,6 @@
 	min-width: 3rem;
 	text-align: right;
 }
-
 
 .toggle-card {
 	display: flex;
@@ -735,14 +726,13 @@
 	border-radius: 50%;
 }
 
-.toggle-switch input:checked+.toggle-slider {
+.toggle-switch input:checked + .toggle-slider {
 	background-color: var(--color-primary);
 }
 
-.toggle-switch input:checked+.toggle-slider:before {
+.toggle-switch input:checked + .toggle-slider:before {
 	transform: translateX(20px);
 }
-
 
 .form-actions {
 	display: flex;
@@ -788,7 +778,6 @@
 	border-color: var(--color-success-hover);
 }
 
-
 @media (max-width: 768px) {
 	.create-voting-page {
 		padding: 1.5rem 1rem;
@@ -823,7 +812,6 @@
 		display: none;
 	}
 }
-
 
 .statutory-rules {
 	background: var(--color-success-light);
@@ -951,13 +939,11 @@
 	font-size: 0.9375rem;
 }
 
-
 .selection-actions {
 	display: flex;
 	align-items: center;
 	gap: 1rem;
 }
-
 
 @media (max-width: 768px) {
 	.selection-header {
@@ -1118,7 +1104,6 @@
 	color: var(--color-ink-900);
 }
 
-
 .summary-edit-actions {
 	display: flex;
 	flex-wrap: wrap;
@@ -1133,11 +1118,9 @@
 	font-size: 0.8125rem;
 }
 
-
 .attachments-list .summary-list {
 	margin-top: 0.25rem;
 }
-
 
 @media (max-width: 768px) {
 	.summary-grid {
@@ -1171,7 +1154,6 @@
 	margin-bottom: 1.75rem;
 	font-size: 0.9375rem;
 }
-
 
 .linked-item-selector {
 	display: flex;
@@ -1249,7 +1231,6 @@
 	box-shadow: var(--shadow-focus);
 	background: var(--color-surface);
 }
-
 
 .attachments-area {
 	display: flex;
@@ -1408,7 +1389,6 @@
 	color: var(--color-border);
 }
 
-
 @media (max-width: 768px) {
 	.radio-group.horizontal {
 		grid-template-columns: 1fr;
@@ -1447,7 +1427,6 @@
 		display: none;
 	}
 }
-
 
 .field-hint {
 	font-size: 0.9rem;
@@ -1519,7 +1498,6 @@
    POPRAWKI DLA EDITVOTING
    ============================================ */
 
-
 .checkbox-item {
 	display: flex;
 	align-items: center;
@@ -1552,7 +1530,6 @@
 	background: var(--color-primary-light);
 }
 
-
 .info-box {
 	padding: 0.875rem 1.125rem;
 	background: var(--color-primary-light);
@@ -1565,7 +1542,6 @@
 .info-box p {
 	margin: 0;
 }
-
 
 .form-actions {
 	display: flex;
@@ -1638,7 +1614,6 @@
 	cursor: not-allowed;
 	transform: none !important;
 }
-
 
 .step-indicator {
 	display: flex;
@@ -1731,7 +1706,6 @@
 	color: var(--color-ink-700);
 }
 
-
 .form-group {
 	background: transparent;
 	margin-bottom: 1.5rem;
@@ -1772,7 +1746,6 @@
 	background: var(--color-surface);
 }
 
-
 .checkbox-grid {
 	display: grid;
 	grid-template-columns: 1fr;
@@ -1784,7 +1757,6 @@
 	border: none;
 	border-radius: 0;
 }
-
 
 .search-input {
 	width: 100%;
@@ -1809,7 +1781,6 @@
 .search-input::placeholder {
 	color: var(--color-ink-400);
 }
-
 
 .recipients-options {
 	display: grid;
@@ -1843,7 +1814,6 @@
 	box-shadow: var(--shadow-focus);
 }
 
-
 .duration-options {
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
@@ -1876,14 +1846,13 @@
 	box-shadow: var(--shadow-focus);
 }
 
-
 .duration-inputs {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	gap: 1rem;
 }
 
-.duration-inputs>div label {
+.duration-inputs > div label {
 	display: block;
 	font-size: 0.75rem;
 	color: var(--color-ink-500);
@@ -1893,7 +1862,7 @@
 	letter-spacing: 0.5px;
 }
 
-.duration-inputs>div input {
+.duration-inputs > div input {
 	width: 100%;
 	padding: 0.625rem 0.75rem;
 	border: 1px solid var(--color-border);
@@ -1906,13 +1875,12 @@
 	box-sizing: border-box;
 }
 
-.duration-inputs>div input:focus {
+.duration-inputs > div input:focus {
 	outline: none;
 	border-color: var(--color-primary);
 	box-shadow: var(--shadow-focus);
 	background: var(--color-surface);
 }
-
 
 .submit-error {
 	padding: 1rem 1.25rem;
@@ -1923,7 +1891,6 @@
 	font-weight: 500;
 	margin-bottom: 1.5rem;
 }
-
 
 .tags-input {
 	display: flex;
@@ -1985,7 +1952,6 @@
 	background: transparent;
 }
 
-
 .file-upload-area {
 	display: flex;
 	flex-direction: column;
@@ -2008,7 +1974,6 @@
 	color: var(--color-ink-400);
 	margin: 0;
 }
-
 
 .attachments-list {
 	display: flex;
@@ -2062,7 +2027,6 @@
 	background: var(--color-danger-light);
 	color: var(--color-danger);
 }
-
 
 @media (max-width: 768px) {
 	.step-indicator {
@@ -2155,7 +2119,6 @@
 	}
 }
 
-
 .checkbox-item {
 	display: flex;
 	align-items: center;
@@ -2185,7 +2148,6 @@
 	background: var(--color-primary-light);
 }
 
-
 .checkbox-grid .checkbox-item {
 	display: flex;
 	align-items: center !important;
@@ -2208,7 +2170,6 @@
 	margin: 0;
 	line-height: 1.4;
 }
-
 
 @media (max-width: 480px) {
 	.checkbox-item {
@@ -2245,7 +2206,6 @@
 	margin-bottom: 2rem;
 }
 
-
 .summary-section {
 	display: flex;
 	flex-direction: column;
@@ -2262,7 +2222,6 @@
 	box-shadow: var(--shadow-sm);
 }
 
-
 .summary-item {
 	display: flex;
 	align-items: flex-start;
@@ -2275,7 +2234,6 @@
 	border-bottom: none;
 }
 
-
 .summary-label {
 	min-width: 160px;
 	font-weight: 600;
@@ -2285,7 +2243,6 @@
 	padding-top: 0.0625rem;
 }
 
-
 .summary-value {
 	flex: 1;
 	font-size: 0.9375rem;
@@ -2294,7 +2251,6 @@
 	line-height: 1.5;
 	word-break: break-word;
 }
-
 
 .summary-value.highlight {
 	color: var(--color-primary);
@@ -2307,7 +2263,6 @@
 	font-weight: 400;
 }
 
-
 .category-badge {
 	display: inline-block;
 	padding: 0.1875rem 0.875rem;
@@ -2318,7 +2273,6 @@
 	font-weight: 600;
 	border: 1px solid var(--color-primary-border);
 }
-
 
 .summary-tags {
 	display: flex;
@@ -2336,7 +2290,6 @@
 	color: var(--color-ink-700);
 }
 
-
 .summary-list {
 	display: flex;
 	flex-wrap: wrap;
@@ -2352,7 +2305,6 @@
 	font-size: 0.8125rem;
 	color: var(--color-ink-900);
 }
-
 
 .attachment-item-summary {
 	display: flex;
@@ -2431,7 +2383,6 @@
    POPRAWKI DLA LISTY ODBIORCÓW - PEŁNA SZEROKOŚĆ
    ============================================ */
 
-
 .checkbox-grid {
 	display: grid;
 	grid-template-columns: 1fr;
@@ -2445,7 +2396,6 @@
 	width: 100%;
 	box-sizing: border-box;
 }
-
 
 .checkbox-item {
 	display: flex;
@@ -2483,12 +2433,10 @@
 	background: var(--color-primary-light);
 }
 
-
 .form-group .checkbox-grid {
 	width: 100%;
 	max-width: 100%;
 }
-
 
 .search-input {
 	width: 100%;
@@ -2504,20 +2452,17 @@
 	box-sizing: border-box;
 }
 
-
 .form-step {
 	width: 100%;
 	max-width: 100%;
 	box-sizing: border-box;
 }
 
-
 .form-group {
 	width: 100%;
 	max-width: 100%;
 	box-sizing: border-box;
 }
-
 
 .recipients-options {
 	display: grid;
@@ -2541,7 +2486,6 @@
 	width: 100%;
 	box-sizing: border-box;
 }
-
 
 @media (max-width: 768px) {
 	.recipients-options {
@@ -2569,7 +2513,6 @@
 		font-size: 0.875rem;
 	}
 }
-
 
 .linked-item-selector {
 	display: grid;
@@ -2611,7 +2554,6 @@
 	color: #666;
 	font-size: 12px;
 }
-
 
 .items-list {
 	max-height: 300px;
@@ -2670,7 +2612,6 @@
 	display: flex;
 	gap: 12px;
 }
-
 
 .linked-preview {
 	margin-top: 20px;
@@ -2742,7 +2683,6 @@
 	color: #666;
 }
 
-
 .step-content {
 	padding: 20px 0;
 }
@@ -2789,7 +2729,6 @@
 	display: block;
 }
 
-
 .recipients-options {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
@@ -2815,7 +2754,6 @@
 	border-color: #007bff;
 	background: #e7f0ff;
 }
-
 
 .groups-list,
 .members-list {
@@ -2853,7 +2791,6 @@
 	color: #666;
 	margin-left: auto;
 }
-
 
 .duration-type-options {
 	display: grid;
@@ -2906,7 +2843,6 @@
 	border-radius: 6px;
 	border-left: 3px solid #007bff;
 }
-
 
 .summary-grid {
 	display: grid;
@@ -2963,9 +2899,7 @@
 	margin-bottom: 4px;
 }
 
-
 @media (max-width: 768px) {
-
 	.recipients-options,
 	.duration-type-options {
 		grid-template-columns: 1fr;
@@ -2979,7 +2913,6 @@
 		grid-template-columns: 1fr;
 	}
 }
-
 
 .amendments-count-info {
 	padding: 8px 12px;
@@ -3016,7 +2949,6 @@
 	color: #721c24;
 }
 
-
 .preview-changes {
 	margin: 12px 0;
 	padding: 12px;
@@ -3040,7 +2972,6 @@
 .change-item p strong {
 	color: #495057;
 }
-
 
 .btn-upload {
 	display: inline-flex;
@@ -3070,7 +3001,6 @@
 	color: #6c757d;
 	margin-top: 4px;
 }
-
 
 .attachments-list {
 	margin-top: 8px;
@@ -3234,4 +3164,114 @@
 	.voting-type-options {
 		flex-direction: column;
 	}
+}
+/* Nadpisanie dla group-item – lista osób pod nazwą */
+.group-item {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 4px;
+	padding: 10px 14px;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: background 0.15s;
+	border: 1px solid transparent;
+}
+
+.group-item:hover {
+	background: #f8f9fa;
+}
+
+.group-item.selected {
+	background: #e7f0ff;
+	border-color: #bfdbfe;
+}
+
+.group-item-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+}
+
+.group-item-header input[type="checkbox"] {
+	width: 18px;
+	height: 18px;
+	margin: 0;
+	accent-color: #1e40af;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+.group-item-name {
+	font-weight: 600;
+	font-size: 0.9375rem;
+	color: #0f172a;
+}
+
+.group-item-count {
+	margin-left: auto;
+	font-size: 0.8125rem;
+	color: #64748b;
+	font-weight: 500;
+}
+
+.group-item-members {
+	margin-left: 28px;
+	font-size: 0.8125rem;
+	color: #64748b;
+	line-height: 1.5;
+	padding: 4px 0;
+	border-top: 1px dashed #e2e8f0;
+	margin-top: 4px;
+	padding-top: 6px;
+}
+
+/* Lista członków – poprawka */
+.member-item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 12px;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background 0.15s;
+}
+
+.member-item:hover {
+	background: #f8f9fa;
+}
+
+.member-item.selected {
+	background: #e7f0ff;
+}
+
+.member-item input[type="checkbox"] {
+	width: 18px;
+	height: 18px;
+	margin: 0;
+	accent-color: #1e40af;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+.member-item .member-group {
+	margin-left: auto;
+	font-size: 0.75rem;
+	color: #94a3b8;
+	background: #f1f5f9;
+	padding: 2px 8px;
+	border-radius: 10px;
+}
+
+/* Licznik wybranych */
+.selected-members-info {
+	margin-bottom: 10px;
+	padding: 6px 12px;
+	background: #eff6ff;
+	border: 1px solid #bfdbfe;
+	border-radius: 6px;
+	font-size: 0.8125rem;
+	color: #1e40af;
+	font-weight: 500;
 }

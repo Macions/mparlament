@@ -1,0 +1,398 @@
+@import "./uchwalyBar.css";
+
+.resolutionsPage {
+	font-family: "Arial", "Helvetica", sans-serif;
+	color: #1a1a1a;
+	min-width: 60%;
+	max-width: 1800px;
+}
+
+.mainHeader {
+	background: #0a1f3d;
+	padding: 28px 0;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.headerContent {
+	max-width: 1450px;
+	margin: 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 40px;
+}
+
+.logoSection {
+	display: flex;
+	align-items: center;
+	gap: 20px;
+}
+
+.logoText {
+	font-size: 19px;
+	line-height: 1.2;
+	font-weight: 700;
+	color: white;
+	text-transform: uppercase;
+}
+
+.mparlamentLogo img {
+	height: 85px;
+}
+
+.submitBtn {
+	background: #e63946;
+	color: white;
+	font-weight: 700;
+	font-size: 26px;
+	padding: 22px 52px;
+	border: none;
+	border-radius: 50px;
+	cursor: pointer;
+	box-shadow: 0 8px 16px rgba(230, 57, 70, 0.35);
+	transition: all 0.2s;
+}
+
+.submitBtn:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 10px 22px rgba(230, 57, 70, 0.45);
+}
+
+.resolutionsList {
+	max-width: 1360px;
+	margin: 0 auto;
+	padding: 0 30px 60px;
+}
+
+.uchwalyTitle {
+	display: flex;
+	align-items: center;
+	gap: 20px !important;
+}
+
+.homeIcon {
+	color: white;
+	display: inline-block;
+	line-height: 1;
+}
+
+.faSolid,
+.fas {
+	font-size: 45px;
+	color: white;
+	transition: opacity 0.2s;
+}
+
+.faSolid,
+.fas:hover {
+	opacity: 0.8;
+}
+
+.homeLink {
+	display: flex;
+	align-items: center;
+	text-decoration: none;
+	gap: 18px;
+	color: inherit;
+	transition: all 0.2s;
+}
+
+.homeLink:hover {
+	transform: scale(1.1);
+}
+
+.homeLink:hover .homeIcon {
+	opacity: 0.8;
+}
+
+.resolutionsPage .resolutionItem {
+	background: #f1f3f5;
+	border-radius: 16px;
+	padding: 32px 44px;
+	margin-bottom: 24px;
+	display: flex;
+	gap: 20px;
+	align-items: center;
+	justify-content: space-between;
+	box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+	transition: all 0.2s ease;
+}
+
+.resolutionsPage .resolutionItem:hover {
+	transform: translateX(10px);
+	box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+}
+
+.resolutionsPage .resolutionTitle {
+	font-size: 28px;
+	font-weight: 700;
+	margin: 0;
+	color: #1a1a1a;
+}
+
+.resolutionsPage .readBtn {
+	background: #0a1f3d;
+	color: white;
+	border: none;
+	padding: 18px 48px;
+	border-radius: 50px;
+	font-size: 20px;
+	font-weight: 700;
+	cursor: pointer;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+	transition: all 0.2s;
+}
+
+.resolutionsPage .readBtn:hover {
+	background: #e63946;
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+	transform: translateY(-2px);
+}
+
+.sessionSelector {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-left: auto;
+}
+
+.sessionSelector label {
+	color: white;
+	font-weight: 600;
+	font-size: 27px;
+}
+
+.sessionSelect {
+	padding: 18px 6px;
+	border-radius: 8px;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	background: rgba(255, 255, 255, 0.1);
+	color: white;
+	font-size: 21px;
+	font-weight: 500;
+	cursor: pointer;
+	outline: none;
+	min-width: 140px;
+}
+
+.sessionSelect option {
+	background: #1a1a2e;
+	color: white;
+}
+
+.sessionSelect:hover {
+	border-color: rgba(255, 255, 255, 0.5);
+}
+
+.sessionSelect:focus {
+	border-color: #4a9eff;
+}
+
+.resolutionsCount {
+	padding: 16px 0;
+	color: #666;
+	font-size: 14px;
+	border-bottom: 1px solid #e0e0e0;
+	margin-bottom: 20px;
+}
+
+.loadingText {
+	text-align: center;
+	padding: 40px;
+	color: #666;
+	font-size: 18px;
+}
+
+.noResolutions {
+	text-align: center;
+	padding: 40px;
+	color: #999;
+	font-size: 16px;
+}
+
+@media (max-width: 768px) {
+	.resolutionsPage {
+		min-width: 100%;
+		padding: 0 0.5rem;
+	}
+
+	.mainHeader {
+		padding: 16px 0;
+	}
+
+	.headerContent {
+		flex-direction: column;
+		align-items: center;
+		gap: 16px;
+		padding: 0 16px;
+	}
+
+	.logoSection {
+		flex-direction: column;
+		gap: 10px;
+		text-align: center;
+	}
+
+	.logoText {
+		font-size: 14px;
+	}
+
+	.mparlamentLogo img {
+		height: 55px;
+	}
+
+	.submitBtn {
+		font-size: 16px;
+		padding: 14px 28px;
+		width: 100%;
+		max-width: 280px;
+	}
+
+	.resolutionsList {
+		padding: 0 10px 30px;
+	}
+
+	.uchwalyTitle {
+		gap: 12px !important;
+	}
+
+	.faSolid,
+	.fas {
+		font-size: 28px;
+	}
+
+	.homeLink {
+		gap: 10px;
+	}
+
+	.resolutionsPage .resolutionItem {
+		flex-direction: column;
+		align-items: stretch;
+		padding: 20px 16px;
+		margin-bottom: 16px;
+		gap: 14px;
+		text-align: center;
+	}
+
+	.resolutionsPage .resolutionItem:hover {
+		transform: translateX(0);
+	}
+
+	.resolutionsPage .resolutionTitle {
+		font-size: 20px;
+	}
+
+	.resolutionsPage .readBtn {
+		padding: 14px 24px;
+		font-size: 16px;
+		width: 100%;
+	}
+
+	.sessionSelector {
+		flex-direction: column;
+		margin-left: 0;
+		width: 100%;
+		gap: 8px;
+	}
+
+	.sessionSelector label {
+		font-size: 18px;
+	}
+
+	.sessionSelect {
+		padding: 12px 6px;
+		font-size: 16px;
+		min-width: 100%;
+		width: 100%;
+	}
+
+	.resolutionsCount {
+		font-size: 12px;
+		padding: 12px 0;
+	}
+
+	.loadingText {
+		font-size: 16px;
+		padding: 30px 10px;
+	}
+
+	.noResolutions {
+		font-size: 14px;
+		padding: 30px 10px;
+	}
+}
+
+@media (max-width: 480px) {
+	.resolutionsPage .resolutionItem {
+		padding: 16px 12px;
+	}
+
+	.resolutionsPage .resolutionTitle {
+		font-size: 17px;
+	}
+
+	.resolutionsPage .readBtn {
+		font-size: 14px;
+		padding: 12px 20px;
+	}
+
+	.submitBtn {
+		font-size: 14px;
+		padding: 12px 20px;
+	}
+
+	.logoText {
+		font-size: 12px;
+	}
+
+	.mparlamentLogo img {
+		height: 45px;
+	}
+
+	.sessionSelector label {
+		font-size: 16px;
+	}
+
+	.sessionSelect {
+		font-size: 14px;
+		padding: 10px 6px;
+	}
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+	.headerContent {
+		padding: 0 24px;
+	}
+
+	.resolutionsList {
+		padding: 0 20px 40px;
+	}
+
+	.resolutionsPage .resolutionItem {
+		padding: 24px 28px;
+	}
+
+	.resolutionsPage .resolutionTitle {
+		font-size: 22px;
+	}
+
+	.resolutionsPage .readBtn {
+		padding: 14px 32px;
+		font-size: 17px;
+	}
+
+	.submitBtn {
+		font-size: 20px;
+		padding: 18px 36px;
+	}
+
+	.sessionSelector label {
+		font-size: 20px;
+	}
+
+	.sessionSelect {
+		font-size: 17px;
+		padding: 14px 6px;
+		min-width: 120px;
+	}
+}
