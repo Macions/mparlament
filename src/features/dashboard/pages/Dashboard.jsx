@@ -73,11 +73,11 @@ export default function Dashboard() {
 
 				setIsAdmin(
 					userData.role === "admin" ||
-						userData.permissions?.includes("MANAGE_RESOLUTIONS"),
+					userData.permissions?.includes("MANAGE_RESOLUTIONS"),
 				);
 				setIsAdmin(
 					userData.role === "admin" ||
-						userData.permissions?.includes("MANAGE_RESOLUTIONS"),
+					userData.permissions?.includes("MANAGE_RESOLUTIONS"),
 				);
 
 				const sessionResponse = await fetch("/newapp/api/sessions/current", {
@@ -154,14 +154,16 @@ export default function Dashboard() {
 				<div className={styles.dashboardActions}>
 					<Link
 						to="/uchwaly"
-						className={`${styles.dashboardAction} ${styles.dashboardActionResolutions}`}
+						className={`${styles.dashboardAction} ${styles.dashboardActionResolutions} ${styles.dashboardActionDisabled}`}
+						title="W budowie..."
 					>
 						SPRAWDŹ UCHWAŁY
 					</Link>
 
 					<Link
 						to="/zloz-uchwale"
-						className={`${styles.dashboardAction} ${styles.dashboardActionSubmit}`}
+						className={`${styles.dashboardAction} ${styles.dashboardActionSubmit} ${styles.dashboardActionDisabled}`}
+						title="W budowie..."
 					>
 						ZŁÓŻ UCHWAŁĘ
 					</Link>
