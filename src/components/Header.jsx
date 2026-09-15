@@ -15,9 +15,8 @@ export default function Header() {
 		localStorage.removeItem("token");
 		localStorage.removeItem("user");
 		setIsLoggedIn(false);
-		window.location.href = "/";
+		window.location.href = "/newapp/";
 	};
-
 	return (
 		<header className="header">
 			<div className="header__top">
