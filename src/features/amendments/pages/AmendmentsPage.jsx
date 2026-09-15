@@ -20,7 +20,18 @@ export default function AmendmentsPage() {
 		const fetchData = async () => {
 			try {
 				try {
-					const userResponse = await fetch("/newapp/api/current-user");
+					const tokenData = localStorage.getItem("token");
+					let token = null;
+					try {
+						const parsed = JSON.parse(tokenData);
+						token = parsed?.token;
+					} catch {
+						token = tokenData;
+					}
+
+					const userResponse = await fetch("/newapp/api/auth/me", {
+						headers: token ? { Authorization: `Bearer ${token}` } : {},
+					});
 					if (userResponse.ok) {
 						const userData = await userResponse.json();
 						setCurrentUser(userData.user);
