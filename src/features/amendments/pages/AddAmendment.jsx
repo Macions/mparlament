@@ -15,6 +15,28 @@ import {
 } from "lucide-react";
 import "./AddAmendment.css";
 
+
+function getAuthHeaders() {
+	try {
+		const raw = localStorage.getItem("token");
+		if (!raw) return {};
+		const parsed = JSON.parse(raw);
+		const jwt = parsed?.token;
+		return jwt ? { Authorization: `Bearer ${jwt}` } : {};
+	} catch {
+		return {};
+	}
+}
+
+function getCachedUser() {
+	try {
+		const raw = localStorage.getItem("user");
+		return raw ? JSON.parse(raw) : null;
+	} catch {
+		return null;
+	}
+}
+
 export default function AddAmendment() {
 	const { slug } = useParams();
 	const navigate = useNavigate();
@@ -59,18 +81,19 @@ export default function AddAmendment() {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const [resRes, amdRes, userRes] = await Promise.all([
-					fetch(`/newapp/api/resolutions/${slug}`),
-					fetch(`/newapp/api/resolutions/${slug}/amendments`),
-					fetch("/newapp/api/current-user"),
+				const authHeaders = getAuthHeaders();
+
+				const [resRes, amdRes] = await Promise.all([
+					fetch(`/newapp/api/resolutions/${slug}`, { headers: authHeaders }),
+					fetch(`/newapp/api/resolutions/${slug}/amendments`, {
+						headers: authHeaders,
+					}),
 				]);
 
 				if (!resRes.ok) throw new Error("Nie znaleziono uchwały");
-				if (!userRes.ok) throw new Error("Nie znaleziono użytkownika");
 
 				const resolutionData = await resRes.json();
 				const amendmentsData = await amdRes.json();
-				const userData = await userRes.json();
 
 				let amendmentsList = [];
 				if (Array.isArray(amendmentsData)) {
@@ -92,7 +115,7 @@ export default function AddAmendment() {
 					(a) => a && (a.status === "pending" || a.status === "accepted"),
 				);
 				setExistingAmendments(activeAmendments);
-				setCurrentUser(userData);
+				setCurrentUser(getCachedUser());
 				setError(null);
 			} catch (err) {
 				console.error("Błąd:", err);
@@ -467,7 +490,7 @@ export default function AddAmendment() {
 	}
 
 	if (error || !resolution) {
-		return <div className="not-found">Nie znaleziono uchwały: {slug}</div>;
+		return <div className="not-found">{error || `Nie znaleziono uchwały: ${slug}`}</div>;
 	}
 
 	const handleChangeUpdate = (changeId, field, value) => {
@@ -483,11 +506,11 @@ export default function AddAmendment() {
 			prev.map((c) =>
 				c.id === changeId
 					? {
-							...c,
-							articleId,
-							from: article ? article.content : "",
-							to: c.type === "modify" ? article?.content || "" : c.to,
-						}
+						...c,
+						articleId,
+						from: article ? article.content : "",
+						to: c.type === "modify" ? article?.content || "" : c.to,
+					}
 					: c,
 			),
 		);
@@ -499,12 +522,12 @@ export default function AddAmendment() {
 			prev.map((c) =>
 				c.id === changeId
 					? {
-							...c,
-							type,
-							to: "",
-							articleId: type === "add" ? "new" : "",
-							from: "",
-						}
+						...c,
+						type,
+						to: "",
+						articleId: type === "add" ? "new" : "",
+						from: "",
+					}
 					: c,
 			),
 		);
@@ -564,7 +587,10 @@ export default function AddAmendment() {
 
 			const response = await fetch(`/newapp/api/resolutions/${slug}/amendments`, {
 				method: "POST",
-				headers: { "Content-Type": "application/json" },
+				headers: {
+					"Content-Type": "application/json",
+					...getAuthHeaders(),
+				},
 				body: JSON.stringify(amendmentData),
 			});
 
