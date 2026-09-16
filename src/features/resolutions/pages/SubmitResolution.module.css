@@ -663,3 +663,41 @@
 	background: rgba(0, 191, 255, 0.08);
 	transform: scale(1.01);
 }
+
+.articleLines {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.articleLine {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+.articleLine .textarea {
+	flex: 1;
+	min-height: 44px;
+	resize: vertical;
+}
+
+.articleLine .btn {
+	flex-shrink: 0;
+	align-self: flex-start;
+}
+
+.articleLine[data-level="2"] .textarea {
+	padding-left: 20px;
+	font-weight: 400;
+}
+
+.articleLine[data-level="3"] .textarea {
+	padding-left: 40px;
+	font-size: 0.95em;
+	font-weight: 400;
+}
+
+.articleLine[data-level="1"] .textarea {
+	font-weight: 500;
+}

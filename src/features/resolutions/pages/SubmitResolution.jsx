@@ -4,6 +4,27 @@ import { parseDocx } from "../../../utils/docxParser";
 import styles from "./SubmitResolution.module.css";
 import SuccessModal from "../../../components/SuccessModal";
 
+function parseLineBack(raw) {
+	// Dopasuj: opcjonalne wcięcie + marker (1., 1), a), a., i., I., –) + treść
+	const match = raw.match(
+		/^(\s*)(\d+\.|\d+\)|[a-z]\)|[a-z]\.|[IVXLCDM]+\.|–)\s+(.*)$/i,
+	);
+	if (match) {
+		const level = Math.floor(match[1].length / 2) + 1;
+		return {
+			marker: match[2],
+			text: match[3],
+			level,
+			type: "list-item",
+		};
+	}
+	return {
+		marker: null,
+		text: raw,
+		level: 1,
+		type: "paragraph",
+	};
+}
 export default function SubmitResolution() {
 	const location = useLocation();
 	const [file, setFile] = useState(null);
@@ -85,6 +106,13 @@ export default function SubmitResolution() {
 		setError("");
 
 		try {
+			const arrayBuffer = await file.arrayBuffer();
+			const mammoth = await import("mammoth");
+			const result = await mammoth.default.convertToHtml({ arrayBuffer });
+			console.log("=== SUROWY HTML ===");
+			console.log(result.value);
+			console.log("=== KONIEC HTML ===");
+
 			const data = await parseDocx(file);
 			setParsed(data);
 			setEditedData(JSON.parse(JSON.stringify(data)));
@@ -98,7 +126,7 @@ export default function SubmitResolution() {
 
 	const updateField = (path, value) => {
 		setEditedData((prev) => {
-			const newData = { ...prev };
+			const newData = structuredClone(prev);
 			let target = newData;
 			for (let i = 0; i < path.length - 1; i++) {
 				target = target[path[i]];
@@ -109,41 +137,40 @@ export default function SubmitResolution() {
 	};
 
 	const addChapter = () => {
-		setEditedData((prev) => ({
-			...prev,
-			chapters: [
-				...prev.chapters,
-				{
-					id: Date.now(),
-					title: "Nowy rozdział",
-					articles: [],
-				},
-			],
-		}));
-	};
-
-	const removeChapter = (chIndex) => {
-		setEditedData((prev) => ({
-			...prev,
-			chapters: prev.chapters.filter((_, i) => i !== chIndex),
-		}));
-	};
-
-	const addArticle = (chIndex) => {
 		setEditedData((prev) => {
-			const newData = { ...prev };
-			newData.chapters[chIndex].articles.push({
+			const newData = structuredClone(prev);
+			newData.chapters.push({
 				id: Date.now(),
-				number: (newData.chapters[chIndex].articles.length + 1).toString(),
-				content: "",
+				title: "Nowy rozdział",
+				articles: [],
 			});
 			return newData;
 		});
 	};
 
+	const removeChapter = (chIndex) => {
+		setEditedData((prev) => {
+			const newData = structuredClone(prev);
+			newData.chapters.splice(chIndex, 1);
+			return newData;
+		});
+	};
+
+	const addArticle = (chIndex) => {
+		setEditedData((prev) => {
+			const newData = structuredClone(prev);
+			newData.chapters[chIndex].articles.push({
+				id: Date.now(),
+				number: (newData.chapters[chIndex].articles.length + 1).toString(),
+				content: "",
+				contentLines: [{ marker: null, text: "", level: 1, type: "paragraph" }],
+			});
+			return newData;
+		});
+	};
 	const removeArticle = (chIndex, artIndex) => {
 		setEditedData((prev) => {
-			const newData = { ...prev };
+			const newData = structuredClone(prev);
 			newData.chapters[chIndex].articles.splice(artIndex, 1);
 			return newData;
 		});
@@ -458,24 +485,179 @@ export default function SubmitResolution() {
 														</button>
 													</div>
 
-													<textarea
-														className={styles.textarea}
-														value={article.content}
-														onChange={(e) =>
-															updateField(
-																[
-																	"chapters",
-																	chIndex,
-																	"articles",
-																	artIndex,
-																	"content",
-																],
-																e.target.value,
-															)
-														}
-														placeholder="Treść artykułu..."
-														rows={4}
-													/>
+													<div className={styles.articleLines}>
+														{(
+															article.contentLines || [
+																{
+																	marker: null,
+																	text: "",
+																	level: 1,
+																	type: "paragraph",
+																},
+															]
+														).map((line, lineIndex) => {
+															const normalizedLine =
+																typeof line === "string"
+																	? {
+																			marker: null,
+																			text: line,
+																			level: 1,
+																			type: "paragraph",
+																		}
+																	: line;
+
+															const indent = "  ".repeat(
+																(normalizedLine.level || 1) - 1,
+															);
+															const displayValue = normalizedLine.marker
+																? `${indent}${normalizedLine.marker} ${normalizedLine.text}`
+																: normalizedLine.text || "";
+
+															return (
+																<div
+																	key={lineIndex}
+																	className={styles.articleLine}
+																	data-level={normalizedLine.level || 1}
+																>
+																	<textarea
+																		className={styles.textarea}
+																		value={displayValue}
+																		onChange={(e) => {
+																			const raw = e.target.value;
+																			const parsedLine = parseLineBack(raw);
+																			const newLines = structuredClone(
+																				article.contentLines || [],
+																			);
+																			newLines[lineIndex] = parsedLine;
+
+																			updateField(
+																				[
+																					"chapters",
+																					chIndex,
+																					"articles",
+																					artIndex,
+																					"contentLines",
+																				],
+																				newLines,
+																			);
+																			updateField(
+																				[
+																					"chapters",
+																					chIndex,
+																					"articles",
+																					artIndex,
+																					"content",
+																				],
+																				newLines
+																					.map((l) =>
+																						l.marker
+																							? `${l.marker} ${l.text}`
+																							: l.text,
+																					)
+																					.join("\n"),
+																			);
+																		}}
+																		placeholder={`Punkt ${lineIndex + 1}...`}
+																		rows={Math.max(
+																			2,
+																			Math.ceil(displayValue.length / 80),
+																		)}
+																	/>
+																	<button
+																		type="button"
+																		onClick={() => {
+																			const newLines = structuredClone(
+																				article.contentLines || [],
+																			);
+																			newLines.splice(lineIndex, 1);
+																			if (newLines.length === 0) {
+																				newLines.push({
+																					marker: null,
+																					text: "",
+																					level: 1,
+																					type: "paragraph",
+																				});
+																			}
+																			updateField(
+																				[
+																					"chapters",
+																					chIndex,
+																					"articles",
+																					artIndex,
+																					"contentLines",
+																				],
+																				newLines,
+																			);
+																			updateField(
+																				[
+																					"chapters",
+																					chIndex,
+																					"articles",
+																					artIndex,
+																					"content",
+																				],
+																				newLines
+																					.map((l) =>
+																						l.marker
+																							? `${l.marker} ${l.text}`
+																							: l.text,
+																					)
+																					.join("\n"),
+																			);
+																		}}
+																		className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
+																		title="Usuń linię"
+																	>
+																		×
+																	</button>
+																</div>
+															);
+														})}
+
+														<button
+															type="button"
+															onClick={() => {
+																const newLines = structuredClone(
+																	article.contentLines || [],
+																);
+																newLines.push({
+																	marker: null,
+																	text: "",
+																	level: 1,
+																	type: "paragraph",
+																});
+																updateField(
+																	[
+																		"chapters",
+																		chIndex,
+																		"articles",
+																		artIndex,
+																		"contentLines",
+																	],
+																	newLines,
+																);
+																updateField(
+																	[
+																		"chapters",
+																		chIndex,
+																		"articles",
+																		artIndex,
+																		"content",
+																	],
+																	newLines
+																		.map((l) =>
+																			l.marker
+																				? `${l.marker} ${l.text}`
+																				: l.text,
+																		)
+																		.join("\n"),
+																);
+															}}
+															className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
+														>
+															+ Dodaj linię
+														</button>
+													</div>
 												</div>
 											))}
 
