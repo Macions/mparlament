@@ -1,398 +1,367 @@
-@import "./uchwalyBar.css";
-
-.resolutionsPage {
-	font-family: "Arial", "Helvetica", sans-serif;
-	color: #1a1a1a;
-	min-width: 60%;
-	max-width: 1800px;
-}
-
-.mainHeader {
-	background: #0a1f3d;
-	padding: 28px 0;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.headerContent {
-	max-width: 1450px;
-	margin: 0 auto;
+.page {
+	min-height: 100vh;
+	width: 100%;
 	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 0 40px;
+	flex-direction: column;
+	background: #ffffff;
+	color: #111111;
+	font-family: inherit;
+	padding: 24px 24px 64px;
+	box-sizing: border-box;
+	-webkit-tap-highlight-color: transparent;
 }
 
-.logoSection {
+.page * {
+	box-sizing: border-box;
+}
+
+.topbar {
+	width: 100%;
+	margin: 0 0 32px;
+}
+
+.content {
+	width: 100%;
 	display: flex;
-	align-items: center;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.head {
+	display: flex;
+	flex-direction: column;
 	gap: 20px;
+	padding-bottom: 24px;
+	border-bottom: 1px solid #e5e7eb;
 }
 
-.logoText {
-	font-size: 19px;
-	line-height: 1.2;
-	font-weight: 700;
-	color: white;
+.headText {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-width: 0;
+}
+
+.eyebrow {
+	font-size: 0.8rem;
+	letter-spacing: 0.12em;
 	text-transform: uppercase;
+	color: #6b7280;
 }
 
-.mparlamentLogo img {
-	height: 85px;
-}
-
-.submitBtn {
-	background: #e63946;
-	color: white;
-	font-weight: 700;
-	font-size: 26px;
-	padding: 22px 52px;
-	border: none;
-	border-radius: 50px;
-	cursor: pointer;
-	box-shadow: 0 8px 16px rgba(230, 57, 70, 0.35);
-	transition: all 0.2s;
-}
-
-.submitBtn:hover {
-	transform: translateY(-3px);
-	box-shadow: 0 10px 22px rgba(230, 57, 70, 0.45);
-}
-
-.resolutionsList {
-	max-width: 1360px;
-	margin: 0 auto;
-	padding: 0 30px 60px;
-}
-
-.uchwalyTitle {
-	display: flex;
-	align-items: center;
-	gap: 20px !important;
-}
-
-.homeIcon {
-	color: white;
-	display: inline-block;
-	line-height: 1;
-}
-
-.faSolid,
-.fas {
-	font-size: 45px;
-	color: white;
-	transition: opacity 0.2s;
-}
-
-.faSolid,
-.fas:hover {
-	opacity: 0.8;
-}
-
-.homeLink {
-	display: flex;
-	align-items: center;
-	text-decoration: none;
-	gap: 18px;
-	color: inherit;
-	transition: all 0.2s;
-}
-
-.homeLink:hover {
-	transform: scale(1.1);
-}
-
-.homeLink:hover .homeIcon {
-	opacity: 0.8;
-}
-
-.resolutionsPage .resolutionItem {
-	background: #f1f3f5;
-	border-radius: 16px;
-	padding: 32px 44px;
-	margin-bottom: 24px;
-	display: flex;
-	gap: 20px;
-	align-items: center;
-	justify-content: space-between;
-	box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
-	transition: all 0.2s ease;
-}
-
-.resolutionsPage .resolutionItem:hover {
-	transform: translateX(10px);
-	box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
-}
-
-.resolutionsPage .resolutionTitle {
-	font-size: 28px;
-	font-weight: 700;
+.title {
 	margin: 0;
-	color: #1a1a1a;
-}
-
-.resolutionsPage .readBtn {
-	background: #0a1f3d;
-	color: white;
-	border: none;
-	padding: 18px 48px;
-	border-radius: 50px;
-	font-size: 20px;
+	font-size: 2.25rem;
+	line-height: 1.1;
 	font-weight: 700;
-	cursor: pointer;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-	transition: all 0.2s;
+	color: #111111;
+	letter-spacing: -0.01em;
 }
 
-.resolutionsPage .readBtn:hover {
-	background: #e63946;
-	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-	transform: translateY(-2px);
+.subtitle {
+	margin: 0;
+	font-size: 1rem;
+	color: #6b7280;
 }
 
-.sessionSelector {
+.filter {
 	display: flex;
-	align-items: center;
-	gap: 12px;
-	margin-left: auto;
+	flex-direction: column;
+	gap: 8px;
 }
 
-.sessionSelector label {
-	color: white;
-	font-weight: 600;
-	font-size: 27px;
+.filterLabel {
+	font-size: 0.8rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: #6b7280;
 }
 
-.sessionSelect {
-	padding: 18px 6px;
-	border-radius: 8px;
-	border: 2px solid rgba(255, 255, 255, 0.3);
-	background: rgba(255, 255, 255, 0.1);
-	color: white;
-	font-size: 21px;
-	font-weight: 500;
-	cursor: pointer;
+.select {
+	width: 100%;
+	padding: 14px 16px;
+	font-size: 1rem;
+	font-family: inherit;
+	color: #111111;
+	background: #ffffff;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	appearance: none;
+	-webkit-appearance: none;
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23111111' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+	background-repeat: no-repeat;
+	background-position: right 16px center;
+	background-size: 16px;
+	padding-right: 44px;
+	transition: border-color 0.15s ease;
+}
+
+.select:hover {
+	border-color: #111111;
+}
+
+.select:focus {
 	outline: none;
-	min-width: 140px;
+	border-color: #111111;
+	box-shadow: 0 0 0 3px #11111115;
 }
 
-.sessionSelect option {
-	background: #1a1a2e;
-	color: white;
+.list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 }
 
-.sessionSelect:hover {
-	border-color: rgba(255, 255, 255, 0.5);
+.item {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 22px;
+	border: 1px solid #e5e7eb;
+	border-radius: 14px;
+	background: #ffffff;
+	transition:
+		border-color 0.15s ease,
+		background 0.15s ease;
 }
 
-.sessionSelect:focus {
-	border-color: #4a9eff;
+.item:hover {
+	border-color: #111111;
+	background: #fafafa;
 }
 
-.resolutionsCount {
-	padding: 16px 0;
-	color: #666;
-	font-size: 14px;
-	border-bottom: 1px solid #e0e0e0;
-	margin-bottom: 20px;
+.itemMain {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-width: 0;
 }
 
-.loadingText {
+.itemEyebrow {
+	font-size: 0.75rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: #6b7280;
+}
+
+.itemTitle {
+	margin: 0;
+	font-size: 1.15rem;
+	font-weight: 600;
+	color: #111111;
+	line-height: 1.35;
+	overflow-wrap: anywhere;
+}
+
+.itemBtn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	align-self: flex-start;
+	padding: 12px 22px;
+	border-radius: 10px;
+	background: #111111;
+	color: #ffffff;
+	font-size: 0.9rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	text-decoration: none;
+	transition: background 0.15s ease;
+}
+
+.itemBtn:hover,
+.itemBtn:focus-visible {
+	background: #333333;
+	outline: none;
+}
+
+.itemBtn svg {
+	transition: transform 0.15s ease;
+}
+
+.itemBtn:hover svg {
+	transform: translateX(3px);
+}
+
+.empty {
+	padding: 48px 24px;
+	border: 1px dashed #e5e7eb;
+	border-radius: 14px;
 	text-align: center;
-	padding: 40px;
-	color: #666;
-	font-size: 18px;
 }
 
-.noResolutions {
-	text-align: center;
-	padding: 40px;
-	color: #999;
-	font-size: 16px;
+.emptyTitle {
+	margin: 0 0 6px;
+	font-size: 1.2rem;
+	font-weight: 700;
+	color: #111111;
 }
 
-@media (max-width: 768px) {
-	.resolutionsPage {
-		min-width: 100%;
-		padding: 0 0.5rem;
+.emptyText {
+	margin: 0;
+	color: #6b7280;
+	font-size: 0.95rem;
+}
+
+.skeletons {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.skeleton {
+	height: 96px;
+	border-radius: 14px;
+	background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+	background-size: 200% 100%;
+	animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+	0% {
+		background-position: 200% 0;
+	}
+	100% {
+		background-position: -200% 0;
+	}
+}
+
+@media (min-width: 640px) {
+	.page {
+		padding: 32px 40px 72px;
 	}
 
-	.mainHeader {
-		padding: 16px 0;
+	.head {
+		flex-direction: row;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 32px;
 	}
 
-	.headerContent {
-		flex-direction: column;
+	.filter {
+		flex-shrink: 0;
+		min-width: 320px;
+	}
+
+	.item {
+		flex-direction: row;
 		align-items: center;
-		gap: 16px;
-		padding: 0 16px;
+		justify-content: space-between;
+		gap: 24px;
+		padding: 24px 28px;
 	}
 
-	.logoSection {
-		flex-direction: column;
-		gap: 10px;
-		text-align: center;
+	.itemBtn {
+		flex-shrink: 0;
+	}
+}
+
+@media (min-width: 1024px) {
+	.page {
+		padding: 40px 56px 96px;
 	}
 
-	.logoText {
-		font-size: 14px;
+	.title {
+		font-size: 3rem;
 	}
 
-	.mparlamentLogo img {
-		height: 55px;
+	.item {
+		padding: 28px 32px;
 	}
 
-	.submitBtn {
-		font-size: 16px;
-		padding: 14px 28px;
-		width: 100%;
-		max-width: 280px;
+	.itemTitle {
+		font-size: 1.35rem;
 	}
 
-	.resolutionsList {
-		padding: 0 10px 30px;
+	.itemBtn {
+		padding: 14px 26px;
+		font-size: 0.95rem;
+	}
+}
+
+@media (min-width: 1600px) {
+	.page {
+		padding: 56px 80px 120px;
 	}
 
-	.uchwalyTitle {
-		gap: 12px !important;
+	.title {
+		font-size: 3.5rem;
 	}
 
-	.faSolid,
-	.fas {
-		font-size: 28px;
-	}
-
-	.homeLink {
-		gap: 10px;
-	}
-
-	.resolutionsPage .resolutionItem {
-		flex-direction: column;
-		align-items: stretch;
-		padding: 20px 16px;
-		margin-bottom: 16px;
-		gap: 14px;
-		text-align: center;
-	}
-
-	.resolutionsPage .resolutionItem:hover {
-		transform: translateX(0);
-	}
-
-	.resolutionsPage .resolutionTitle {
-		font-size: 20px;
-	}
-
-	.resolutionsPage .readBtn {
-		padding: 14px 24px;
-		font-size: 16px;
-		width: 100%;
-	}
-
-	.sessionSelector {
-		flex-direction: column;
-		margin-left: 0;
-		width: 100%;
-		gap: 8px;
-	}
-
-	.sessionSelector label {
-		font-size: 18px;
-	}
-
-	.sessionSelect {
-		padding: 12px 6px;
-		font-size: 16px;
-		min-width: 100%;
-		width: 100%;
-	}
-
-	.resolutionsCount {
-		font-size: 12px;
-		padding: 12px 0;
-	}
-
-	.loadingText {
-		font-size: 16px;
-		padding: 30px 10px;
-	}
-
-	.noResolutions {
-		font-size: 14px;
-		padding: 30px 10px;
+	.itemTitle {
+		font-size: 1.5rem;
 	}
 }
 
 @media (max-width: 480px) {
-	.resolutionsPage .resolutionItem {
-		padding: 16px 12px;
+	.page {
+		padding: 18px 18px 48px;
 	}
 
-	.resolutionsPage .resolutionTitle {
-		font-size: 17px;
+	.topbar {
+		margin-bottom: 24px;
 	}
 
-	.resolutionsPage .readBtn {
-		font-size: 14px;
-		padding: 12px 20px;
+	.content {
+		gap: 20px;
 	}
 
-	.submitBtn {
-		font-size: 14px;
-		padding: 12px 20px;
+	.head {
+		gap: 18px;
+		padding-bottom: 20px;
 	}
 
-	.logoText {
-		font-size: 12px;
+	.title {
+		font-size: 1.75rem;
 	}
 
-	.mparlamentLogo img {
-		height: 45px;
+	.subtitle {
+		font-size: 0.92rem;
 	}
 
-	.sessionSelector label {
-		font-size: 16px;
+	.select {
+		padding: 13px 14px;
+		font-size: 0.95rem;
+		border-radius: 10px;
+		background-position: right 14px center;
+		padding-right: 40px;
 	}
 
-	.sessionSelect {
-		font-size: 14px;
-		padding: 10px 6px;
+	.item {
+		padding: 18px;
+		gap: 14px;
+		border-radius: 12px;
+	}
+
+	.itemTitle {
+		font-size: 1.05rem;
+	}
+
+	.itemBtn {
+		width: 100%;
+		justify-content: center;
+		padding: 13px 18px;
+		font-size: 0.85rem;
+	}
+
+	.empty {
+		padding: 36px 18px;
 	}
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
-	.headerContent {
-		padding: 0 24px;
+@media (prefers-reduced-motion: reduce) {
+	.item,
+	.itemBtn,
+	.itemBtn svg {
+		transition: none;
 	}
 
-	.resolutionsList {
-		padding: 0 20px 40px;
-	}
-
-	.resolutionsPage .resolutionItem {
-		padding: 24px 28px;
-	}
-
-	.resolutionsPage .resolutionTitle {
-		font-size: 22px;
-	}
-
-	.resolutionsPage .readBtn {
-		padding: 14px 32px;
-		font-size: 17px;
-	}
-
-	.submitBtn {
-		font-size: 20px;
-		padding: 18px 36px;
-	}
-
-	.sessionSelector label {
-		font-size: 20px;
-	}
-
-	.sessionSelect {
-		font-size: 17px;
-		padding: 14px 6px;
-		min-width: 120px;
+	.skeleton {
+		animation: none;
 	}
 }

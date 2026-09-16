@@ -1,0 +1,671 @@
+.page {
+	min-height: 100vh;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	background: #ffffff;
+	color: #111111;
+	font-family: inherit;
+	padding: 24px 24px 64px;
+	box-sizing: border-box;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.page * {
+	box-sizing: border-box;
+}
+
+.topbar {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	margin-bottom: 32px;
+}
+
+.back {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	align-self: flex-start;
+	padding: 10px 16px;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	background: #ffffff;
+	color: #111111;
+	font-size: 0.9rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	text-decoration: none;
+	transition:
+		border-color 0.15s ease,
+		background 0.15s ease;
+}
+
+.back:hover,
+.back:focus-visible {
+	border-color: #111111;
+	background: #fafafa;
+	outline: none;
+}
+
+.session {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 12px 16px;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	background: #fafafa;
+}
+
+.sessionLabel {
+	font-size: 0.72rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: #6b7280;
+}
+
+.sessionCity {
+	font-size: 1rem;
+	font-weight: 600;
+	color: #111111;
+}
+
+.sessionDate {
+	font-size: 0.9rem;
+	color: #6b7280;
+}
+
+.main {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 28px;
+}
+
+.head {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding-bottom: 24px;
+	border-bottom: 1px solid #e5e7eb;
+}
+
+.eyebrow {
+	font-size: 0.8rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: #6b7280;
+}
+
+.title {
+	margin: 0;
+	font-size: 2rem;
+	line-height: 1.2;
+	font-weight: 700;
+	color: #111111;
+	letter-spacing: -0.01em;
+	overflow-wrap: anywhere;
+}
+
+.author {
+	margin: 0;
+	font-size: 1rem;
+	color: #6b7280;
+}
+
+.author strong {
+	color: #111111;
+	font-weight: 600;
+}
+
+.authorParty {
+	color: #6b7280;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 16px;
+}
+
+.card {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 24px;
+	border: 1px solid #e5e7eb;
+	border-radius: 14px;
+	background: #ffffff;
+}
+
+.cardTitle {
+	margin: 0;
+	font-size: 0.8rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: #6b7280;
+	font-weight: 600;
+}
+
+.file {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	padding: 14px 18px;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	background: #ffffff;
+	color: #111111;
+	font-size: 0.95rem;
+	font-weight: 600;
+	text-decoration: none;
+	word-break: break-all;
+	transition:
+		border-color 0.15s ease,
+		background 0.15s ease;
+}
+
+.file:hover,
+.file:focus-visible {
+	border-color: #111111;
+	background: #fafafa;
+	outline: none;
+}
+
+.fileDisabled {
+	color: #9ca3af;
+	cursor: not-allowed;
+}
+
+.fileDisabled:hover {
+	border-color: #e5e7eb;
+	background: #ffffff;
+}
+
+.signatures {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.signaturesCount {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+}
+
+.signaturesNumber {
+	font-size: 2.5rem;
+	font-weight: 700;
+	color: #111111;
+	line-height: 1;
+}
+
+.signaturesLabel {
+	font-size: 0.95rem;
+	color: #6b7280;
+}
+
+.actions {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 14px 22px;
+	border: 1px solid transparent;
+	border-radius: 10px;
+	font-family: inherit;
+	font-size: 0.95rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	text-decoration: none;
+	cursor: pointer;
+	transition:
+		background 0.15s ease,
+		border-color 0.15s ease,
+		color 0.15s ease;
+}
+
+.btnBlock {
+	width: 100%;
+}
+
+.btnPrimary {
+	background: #111111;
+	color: #ffffff;
+	border-color: #111111;
+}
+
+.btnPrimary:hover,
+.btnPrimary:focus-visible {
+	background: #333333;
+	border-color: #333333;
+	outline: none;
+}
+
+.btnOutline {
+	background: #ffffff;
+	color: #111111;
+	border-color: #111111;
+}
+
+.btnOutline:hover,
+.btnOutline:focus-visible {
+	background: #fafafa;
+	outline: none;
+}
+
+.btnGhost {
+	background: #ffffff;
+	color: #111111;
+	border-color: #e5e7eb;
+}
+
+.btnGhost:hover,
+.btnGhost:focus-visible {
+	border-color: #111111;
+	background: #fafafa;
+	outline: none;
+}
+
+.btnMuted {
+	background: #f3f4f6;
+	color: #6b7280;
+	border-color: #f3f4f6;
+	cursor: not-allowed;
+}
+
+.btnDanger {
+	background: #ffffff;
+	color: #b91c1c;
+	border-color: #fecaca;
+}
+
+.btnDanger:hover,
+.btnDanger:focus-visible {
+	background: #fef2f2;
+	border-color: #b91c1c;
+	outline: none;
+}
+
+.skeleton {
+	border-radius: 14px;
+	background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+	background-size: 200% 100%;
+	animation: shimmer 1.4s infinite;
+}
+
+.skeletonHead {
+	height: 140px;
+	margin-bottom: 24px;
+}
+
+.skeletonBody {
+	height: 240px;
+}
+
+@keyframes shimmer {
+	0% {
+		background-position: 200% 0;
+	}
+	100% {
+		background-position: -200% 0;
+	}
+}
+
+.empty {
+	padding: 48px 24px;
+	border: 1px dashed #e5e7eb;
+	border-radius: 14px;
+	text-align: center;
+	margin-top: 24px;
+}
+
+.emptyTitle {
+	margin: 0 0 6px;
+	font-size: 1.2rem;
+	font-weight: 700;
+	color: #111111;
+}
+
+.emptyText {
+	margin: 0;
+	color: #6b7280;
+	font-size: 0.95rem;
+}
+
+.overlay {
+	position: fixed;
+	inset: 0;
+	background: #11111155;
+	z-index: 900;
+}
+
+.panel {
+	position: fixed;
+	top: 0;
+	right: 0;
+	width: min(440px, 100%);
+	height: 100vh;
+	background: #ffffff;
+	border-left: 1px solid #e5e7eb;
+	z-index: 901;
+	display: flex;
+	flex-direction: column;
+	padding: 24px;
+	overflow-y: auto;
+	box-shadow: -12px 0 32px -16px #11111122;
+}
+
+.panelHead {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 16px;
+}
+
+.panelTitle {
+	margin: 0;
+	font-size: 1.4rem;
+	font-weight: 700;
+	color: #111111;
+}
+
+.panelClose {
+	width: 36px;
+	height: 36px;
+	border-radius: 10px;
+	border: 1px solid #e5e7eb;
+	background: #ffffff;
+	color: #111111;
+	font-size: 1rem;
+	cursor: pointer;
+	display: grid;
+	place-items: center;
+	transition:
+		border-color 0.15s ease,
+		background 0.15s ease;
+}
+
+.panelClose:hover {
+	border-color: #111111;
+	background: #fafafa;
+}
+
+.panelTotal {
+	margin: 0 0 20px;
+	font-size: 0.95rem;
+	color: #6b7280;
+}
+
+.panelTotal strong {
+	color: #111111;
+}
+
+.panelList {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.signature {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 14px;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+}
+
+.signatureAvatar {
+	width: 42px;
+	height: 42px;
+	flex-shrink: 0;
+	border-radius: 10px;
+	display: grid;
+	place-items: center;
+	font-weight: 700;
+	font-size: 1rem;
+	color: #ffffff;
+	background: #111111;
+}
+
+.signatureInfo {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.signatureInfo strong {
+	font-size: 0.98rem;
+	color: #111111;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.signatureClub {
+	font-size: 0.82rem;
+	color: #6b7280;
+}
+
+.signatureTime {
+	font-size: 0.78rem;
+	color: #9ca3af;
+}
+
+.modalOverlay {
+	position: fixed;
+	inset: 0;
+	background: #11111166;
+	display: grid;
+	place-items: center;
+	z-index: 1000;
+	padding: 20px;
+}
+
+.modal {
+	width: min(460px, 100%);
+	background: #ffffff;
+	border-radius: 16px;
+	padding: 28px;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	box-shadow: 0 30px 60px -30px #11111166;
+}
+
+.modalDanger {
+	border: 1px solid #fecaca;
+}
+
+.modalTitle {
+	margin: 0;
+	font-size: 1.35rem;
+	font-weight: 700;
+	color: #111111;
+}
+
+.modalText {
+	margin: 0;
+	font-size: 0.98rem;
+	color: #4b5563;
+	line-height: 1.5;
+}
+
+.modalText strong {
+	color: #111111;
+}
+
+.modalWarning {
+	margin: 0;
+	font-size: 0.9rem;
+	color: #b91c1c;
+	font-weight: 600;
+}
+
+.modalError {
+	margin: 0;
+	padding: 10px 14px;
+	border-radius: 10px;
+	background: #fef2f2;
+	border: 1px solid #fecaca;
+	color: #b91c1c;
+	font-size: 0.9rem;
+}
+
+.modalActions {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-top: 6px;
+}
+
+@media (min-width: 640px) {
+	.page {
+		padding: 32px 40px 72px;
+	}
+
+	.topbar {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.session {
+		flex-direction: row;
+		align-items: center;
+		gap: 14px;
+		padding: 10px 18px;
+	}
+
+	.sessionLabel {
+		margin-right: 4px;
+	}
+
+	.grid {
+		grid-template-columns: 1fr 1fr;
+		gap: 20px;
+	}
+
+	.actions {
+		gap: 14px;
+	}
+
+	.modalActions {
+		flex-direction: row;
+		justify-content: flex-end;
+	}
+}
+
+@media (min-width: 1024px) {
+	.page {
+		padding: 40px 56px 96px;
+	}
+
+	.title {
+		font-size: 2.5rem;
+	}
+
+	.card {
+		padding: 28px;
+	}
+
+	.signaturesNumber {
+		font-size: 3rem;
+	}
+}
+
+@media (min-width: 1600px) {
+	.page {
+		padding: 56px 80px 120px;
+	}
+
+	.title {
+		font-size: 3rem;
+	}
+
+	.signaturesNumber {
+		font-size: 3.5rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.page {
+		padding: 18px 18px 48px;
+	}
+
+	.topbar {
+		margin-bottom: 24px;
+	}
+
+	.title {
+		font-size: 1.6rem;
+	}
+
+	.main {
+		gap: 22px;
+	}
+
+	.head {
+		padding-bottom: 18px;
+	}
+
+	.card {
+		padding: 18px;
+		border-radius: 12px;
+	}
+
+	.signaturesNumber {
+		font-size: 2rem;
+	}
+
+	.btn {
+		padding: 13px 18px;
+		font-size: 0.9rem;
+	}
+
+	.panel {
+		padding: 20px;
+	}
+
+	.panelTitle {
+		font-size: 1.2rem;
+	}
+
+	.modal {
+		padding: 22px;
+		border-radius: 14px;
+	}
+
+	.modalTitle {
+		font-size: 1.2rem;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.btn,
+	.file,
+	.back,
+	.panelClose {
+		transition: none;
+	}
+
+	.skeleton {
+		animation: none;
+	}
+}

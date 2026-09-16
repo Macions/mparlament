@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { parseDocx } from "../../../utils/docxParser";
-import "./submitResolution.css";
+import styles from "./SubmitResolution.module.css";
 import SuccessModal from "../../../components/SuccessModal";
 
 export default function SubmitResolution() {
@@ -19,6 +19,7 @@ export default function SubmitResolution() {
 	const navigate = useNavigate();
 	const [sessions, setSessions] = useState([]);
 	const [selectedSessionId, setSelectedSessionId] = useState("");
+
 	useEffect(() => {
 		async function fetchSessions() {
 			try {
@@ -210,127 +211,173 @@ export default function SubmitResolution() {
 	};
 
 	return (
-		<div className="submit-page">
-			<button className="back-to-home-btn" onClick={() => navigate("/panel")}>
-				<svg
-					width="18"
-					height="18"
-					viewBox="0 0 24 24"
-					fill="none"
-					xmlns="http://www.w3.org/2000/svg"
+		<div className={styles.page}>
+			<header className={styles.topbar}>
+				<button
+					type="button"
+					className={styles.back}
+					onClick={() => navigate("/panel")}
 				>
-					<path
-						d="M15 18L9 12L15 6"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-					/>
-				</svg>
-				Panel
-			</button>
-			<div className="uchwaly-bar">
-				<h1 className="uchwaly-title">ZŁÓŻ UCHWAŁĘ</h1>
-				<div className="session-selector">
-					<label htmlFor="session-select">Posiedzenie:</label>
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						aria-hidden="true"
+					>
+						<path
+							d="M15 18L9 12L15 6"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						/>
+					</svg>
+					Panel
+				</button>
+
+				<div className={styles.session}>
+					<label htmlFor="session-select" className={styles.sessionLabel}>
+						Posiedzenie
+					</label>
 					<select
 						id="session-select"
 						value={selectedSessionId}
 						onChange={(e) => setSelectedSessionId(e.target.value)}
-						className="session-select"
+						className={styles.select}
 					>
 						<option value="all">Wybierz posiedzenie</option>
 						{sessions.map((session) => (
 							<option key={session.id} value={session.id}>
-								{session.name} - {session.date}
+								{session.name} — {session.date}
 							</option>
 						))}
 					</select>
 				</div>
-			</div>
+			</header>
 
-			<div className="submit-container">
-				<div className="form-card">
-					<div
-						className={`form-content ${!selectedSessionId ? "disabled" : ""}`}
-					>
-						<div className="form-group">
-							<label className="label">Nazwa uchwały</label>
+			<main className={styles.main}>
+				<div className={styles.head}>
+					<span className={styles.eyebrow}>Nowa uchwała</span>
+					<h1 className={styles.title}>Złóż uchwałę</h1>
+					<p className={styles.subtitle}>
+						Wgraj plik DOCX, uzupełnij treść i złóż uchwałę na wybrane
+						posiedzenie.
+					</p>
+				</div>
+
+				<form
+					className={`${styles.form} ${
+						!selectedSessionId ? styles.formDisabled : ""
+					}`}
+					onSubmit={(e) => e.preventDefault()}
+				>
+					<div className={styles.field}>
+						<label className={styles.label} htmlFor="resolution-title">
+							Nazwa uchwały
+						</label>
+						<input
+							id="resolution-title"
+							type="text"
+							className={styles.input}
+							value={editedData?.title || ""}
+							onChange={(e) => updateField(["title"], e.target.value)}
+							placeholder="Wpisz nazwę uchwały..."
+							disabled={!selectedSessionId}
+						/>
+					</div>
+
+					<div className={styles.field}>
+						<label className={styles.label}>Plik DOCX</label>
+
+						<label
+							className={`${styles.fileDrop} ${
+								fileName ? styles.fileDropActive : ""
+							}`}
+						>
 							<input
-								type="text"
-								className="text-input"
-								value={editedData?.title || ""}
-								onChange={(e) => updateField(["title"], e.target.value)}
-								placeholder="Wpisz nazwę uchwały..."
+								type="file"
+								accept=".docx"
+								hidden
+								onChange={handleFileChange}
 								disabled={!selectedSessionId}
 							/>
-						</div>
-
-						<div className="form-group">
-							<label className="label">Dodaj plik DOCX</label>
-							<div className="file-upload-area">
-								<label className="file-button">
-									Wybierz plik
-									<input
-										type="file"
-										accept=".docx"
-										hidden
-										onChange={handleFileChange}
+							<span className={styles.fileDropIcon} aria-hidden="true">
+								<svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+									<path
+										d="M12 16V4m0 0l-4 4m4-4l4 4M5 20h14"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
 									/>
-								</label>
-								<div className="selected-file">
-									{fileName || "Nie wybrano pliku"}
-								</div>
-							</div>
-							{file && (
-								<div className="file-info">
-									{file.name} ({(file.size / 1024).toFixed(1)} KB)
-								</div>
-							)}
-						</div>
+								</svg>
+							</span>
 
-						{error && <p className="error">{error}</p>}
+							<span className={styles.fileDropTitle}>
+								{fileName ? "Zmień plik" : "Wybierz plik"}
+							</span>
+							<span className={styles.fileDropHint}>
+								{fileName ? fileName : "Kliknij, aby wybrać plik .docx"}
+							</span>
+						</label>
 
-						<button
-							onClick={handleParse}
-							disabled={!file || loading || !selectedSessionId}
-							className="parse-btn"
-						>
-							{loading
-								? "Analizowanie..."
-								: analyzed
-									? "Przeanalizowano"
-									: "Analizuj ustawę"}
-						</button>
-						{submitting && uploadProgress > 0 && uploadProgress < 100 && (
-							<div className="progress-container">
-								<div className="progress-bar">
-									<div
-										className="progress-fill"
-										style={{ width: `${Math.round(uploadProgress)}%` }}
-									/>
-								</div>
-								<span className="progress-text">
-									Wysyłanie pliku: {Math.round(uploadProgress)}%
-								</span>
-							</div>
+						{file && (
+							<p className={styles.fileMeta}>
+								{file.name} · {(file.size / 1024).toFixed(1)} KB
+							</p>
 						)}
+					</div>
 
-						{editedData?.chapters && editedData.chapters.length > 0 && (
-							<div className="editor-section">
-								<div className="editor-header">
-									<h2>Edytuj treść uchwały</h2>
-									<button onClick={addChapter} className="add-chapter-btn">
-										+ Dodaj rozdział
-									</button>
-								</div>
+					{error && <div className={styles.error}>{error}</div>}
 
+					<button
+						type="button"
+						onClick={handleParse}
+						disabled={!file || loading || !selectedSessionId}
+						className={`${styles.btn} ${styles.btnOutline} ${styles.btnBlock}`}
+					>
+						{loading
+							? "Analizowanie..."
+							: analyzed
+								? "Przeanalizowano"
+								: "Analizuj ustawę"}
+					</button>
+
+					{submitting && uploadProgress > 0 && uploadProgress < 100 && (
+						<div className={styles.progress}>
+							<div className={styles.progressTrack}>
+								<div
+									className={styles.progressFill}
+									style={{ width: `${Math.round(uploadProgress)}%` }}
+								/>
+							</div>
+							<span className={styles.progressText}>
+								Wysyłanie pliku: {Math.round(uploadProgress)}%
+							</span>
+						</div>
+					)}
+
+					{editedData?.chapters && editedData.chapters.length > 0 && (
+						<section className={styles.editor}>
+							<div className={styles.editorHead}>
+								<h2 className={styles.editorTitle}>Edytuj treść uchwały</h2>
+								<button
+									type="button"
+									onClick={addChapter}
+									className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
+								>
+									+ Dodaj rozdział
+								</button>
+							</div>
+
+							<div className={styles.chapters}>
 								{editedData.chapters.map((chapter, chIndex) => (
-									<div key={chapter.id} className="chapter-edit-block">
-										<div className="chapter-header">
+									<article key={chapter.id} className={styles.chapter}>
+										<header className={styles.chapterHead}>
 											<input
 												type="text"
-												className="chapter-title-input"
+												className={styles.chapterTitle}
 												value={chapter.title}
 												onChange={(e) =>
 													updateField(
@@ -341,20 +388,21 @@ export default function SubmitResolution() {
 												placeholder="Nazwa rozdziału"
 											/>
 											<button
+												type="button"
 												onClick={() => removeChapter(chIndex)}
-												className="remove-btn"
+												className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
 											>
 												Usuń rozdział
 											</button>
-										</div>
+										</header>
 
-										<div className="articles-container">
+										<div className={styles.articles}>
 											{chapter.articles.map((article, artIndex) => (
-												<div key={article.id} className="article-edit">
-													<div className="article-number-row">
+												<div key={article.id} className={styles.article}>
+													<div className={styles.articleHead}>
 														<input
 															type="text"
-															className="article-number-input"
+															className={styles.articleNumber}
 															value={article.number}
 															onChange={(e) =>
 																updateField(
@@ -370,15 +418,16 @@ export default function SubmitResolution() {
 															}
 														/>
 														<button
+															type="button"
 															onClick={() => removeArticle(chIndex, artIndex)}
-															className="remove-article-btn"
+															className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
 														>
 															Usuń
 														</button>
 													</div>
 
 													<textarea
-														className="article-textarea"
+														className={styles.textarea}
 														value={article.content}
 														onChange={(e) =>
 															updateField(
@@ -399,32 +448,35 @@ export default function SubmitResolution() {
 											))}
 
 											<button
+												type="button"
 												onClick={() => addArticle(chIndex)}
-												className="add-article-btn"
+												className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
 											>
 												+ Dodaj artykuł
 											</button>
 										</div>
-									</div>
+									</article>
 								))}
 							</div>
-						)}
+						</section>
+					)}
 
-						<button
-							className="submit-res-btn"
-							onClick={handleSubmit}
-							disabled={!selectedSessionId}
-						>
-							{submitting ? "Wysyłanie..." : "Złóż uchwałę"}
-						</button>
-						{!selectedSessionId && (
-							<div className="form-overlay">
-								<p>Wybierz posiedzenie aby rozpocząć</p>
-							</div>
-						)}
-					</div>
-				</div>
-			</div>
+					<button
+						type="button"
+						className={`${styles.btn} ${styles.btnPrimary} ${styles.btnBlock}`}
+						onClick={handleSubmit}
+						disabled={!selectedSessionId || submitting}
+					>
+						{submitting ? "Wysyłanie..." : "Złóż uchwałę"}
+					</button>
+
+					{!selectedSessionId && (
+						<div className={styles.overlay}>
+							<p>Wybierz posiedzenie, aby rozpocząć</p>
+						</div>
+					)}
+				</form>
+			</main>
 
 			{showSuccess && (
 				<SuccessModal

@@ -5,7 +5,6 @@ import Toast from "../../../components/Toast";
 import {
 	X,
 	Plus,
-	ArrowLeft,
 	AlertTriangle,
 	Info,
 	Search,
@@ -13,8 +12,7 @@ import {
 	Trash2,
 	FileWarning,
 } from "lucide-react";
-import "./AddAmendment.css";
-
+import styles from "./AddAmendment.module.css";
 
 function getAuthHeaders() {
 	try {
@@ -486,11 +484,28 @@ export default function AddAmendment() {
 	}, [target.article, target.fragment, changes, existingAmendments]);
 
 	if (loading) {
-		return <div className="loading">Ładowanie...</div>;
+		return (
+			<div className={styles.page}>
+				<div className={`${styles.skeleton} ${styles.skeletonHead}`} />
+				<div className={`${styles.skeleton} ${styles.skeletonBody}`} />
+			</div>
+		);
 	}
 
 	if (error || !resolution) {
-		return <div className="not-found">{error || `Nie znaleziono uchwały: ${slug}`}</div>;
+		return (
+			<div className={styles.page}>
+				<Link to={`/${slug}`} className={styles.back}>
+					← Wróć do uchwały
+				</Link>
+				<div className={styles.empty}>
+					<p className={styles.emptyTitle}>Nie znaleziono uchwały</p>
+					<p className={styles.emptyText}>
+						{error || `Nie znaleziono uchwały: ${slug}`}
+					</p>
+				</div>
+			</div>
+		);
 	}
 
 	const handleChangeUpdate = (changeId, field, value) => {
@@ -506,11 +521,11 @@ export default function AddAmendment() {
 			prev.map((c) =>
 				c.id === changeId
 					? {
-						...c,
-						articleId,
-						from: article ? article.content : "",
-						to: c.type === "modify" ? article?.content || "" : c.to,
-					}
+							...c,
+							articleId,
+							from: article ? article.content : "",
+							to: c.type === "modify" ? article?.content || "" : c.to,
+						}
 					: c,
 			),
 		);
@@ -522,12 +537,12 @@ export default function AddAmendment() {
 			prev.map((c) =>
 				c.id === changeId
 					? {
-						...c,
-						type,
-						to: "",
-						articleId: type === "add" ? "new" : "",
-						from: "",
-					}
+							...c,
+							type,
+							to: "",
+							articleId: type === "add" ? "new" : "",
+							from: "",
+						}
 					: c,
 			),
 		);
@@ -585,14 +600,17 @@ export default function AddAmendment() {
 				withdrawnReason: null,
 			};
 
-			const response = await fetch(`/newapp/api/resolutions/${slug}/amendments`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					...getAuthHeaders(),
+			const response = await fetch(
+				`/newapp/api/resolutions/${slug}/amendments`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						...getAuthHeaders(),
+					},
+					body: JSON.stringify(amendmentData),
 				},
-				body: JSON.stringify(amendmentData),
-			});
+			);
 
 			if (!response.ok) {
 				const data = await response.json();
@@ -686,73 +704,85 @@ export default function AddAmendment() {
 	const getConflictClass = (level) => {
 		switch (level) {
 			case "blocking":
-				return "conflict-item--blocking";
+				return styles.conflictBlocking;
 			case "conflict":
-				return "conflict-item--conflict";
+				return styles.conflictConflict;
 			case "warning":
-				return "conflict-item--warning";
+				return styles.conflictWarning;
 			default:
-				return "conflict-item--info";
+				return styles.conflictInfo;
 		}
 	};
 
 	const hasAnyConflict = blockingConflicts.length > 0 || conflicts.length > 0;
 
 	return (
-		<div className="add-amendment">
-			<div className="uchwaly-bar">
-				<Link to={`/${slug}`} className="uchwaly-title">
+		<div className={styles.page}>
+			<header className={styles.topbar}>
+				<Link to={`/${slug}`} className={styles.back}>
 					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="50"
-						height="50"
-						fill="currentColor"
-						className="bi bi-arrow-left"
-						viewBox="0 0 16 16"
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						aria-hidden="true"
 					>
 						<path
-							fillRule="evenodd"
-							d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"
+							d="M19 12H5M11 6l-6 6 6 6"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
 						/>
 					</svg>
-					WRÓĆ
+					Wróć do uchwały
 				</Link>
-				<div className="session-info">
-					Posiedzenie: Warszawa
-					<br />
-					<span>20.05</span>
+
+				<div className={styles.session}>
+					<span className={styles.sessionLabel}>Posiedzenie</span>
+					<span className={styles.sessionCity}>Warszawa</span>
+					<span className={styles.sessionDate}>20.05</span>
 				</div>
-			</div>
+			</header>
 
-			<div className="main-content">
-				<h1 className="page-title">Dodaj poprawkę</h1>
-				<p className="page-subtitle">{resolution.title}</p>
+			<main className={styles.main}>
+				<div className={styles.head}>
+					<span className={styles.eyebrow}>Nowa poprawka</span>
+					<h1 className={styles.title}>Dodaj poprawkę</h1>
+					<p className={styles.subtitle}>{resolution.title}</p>
 
-				{currentUser && (
-					<div className="author-badge">
-						{currentUser.name} – {currentUser.club || "Niezrzeszony"}
-					</div>
-				)}
+					{currentUser && (
+						<div className={styles.authorBadge}>
+							<span className={styles.authorBadgeDot} />
+							{currentUser.name} — {currentUser.club || "Niezrzeszony"}
+						</div>
+					)}
+				</div>
 
-				{error && <div className="error-message">{error}</div>}
+				{error && <div className={styles.error}>{error}</div>}
 
-				<form onSubmit={handleSubmit}>
-					<div className="form-section">
-						<h3>Cel zmiany</h3>
-						<p className="field-hint">
-							Określ czego dotyczy Twoja poprawka – pomoże to w wykrywaniu
-							konfliktów
-						</p>
+				<form onSubmit={handleSubmit} className={styles.form}>
+					<section className={styles.section}>
+						<div className={styles.sectionHead}>
+							<h2 className={styles.sectionTitle}>Cel zmiany</h2>
+							<p className={styles.sectionHint}>
+								Określ czego dotyczy Twoja poprawka — pomoże to w wykrywaniu
+								konfliktów
+							</p>
+						</div>
 
-						<div className="form-group">
-							<label>Artykuł/paragraf</label>
+						<div className={styles.field}>
+							<label className={styles.label} htmlFor="target-article">
+								Artykuł / paragraf
+							</label>
 							<select
+								id="target-article"
 								value={target.article}
 								onChange={(e) => handleArticleChange(e.target.value)}
-								className="form-select"
+								className={styles.select}
 								required
 							>
-								<option value="">-- wybierz artykuł --</option>
+								<option value="">— wybierz artykuł —</option>
 								{allArticles.map((art, idx) => {
 									const hasAmendments = existingAmendments.some(
 										(a) =>
@@ -762,22 +792,25 @@ export default function AddAmendment() {
 									return (
 										<option key={art.id || idx} value={art.id}>
 											{art.number || `Art. ${idx + 1}`}:{" "}
-											{art.content?.substring(0, 40)}...
-											{hasAmendments ? " ⚠️" : ""}
+											{art.content?.substring(0, 40)}…
+											{hasAmendments ? " ⚠" : ""}
 										</option>
 									);
 								})}
 							</select>
 						</div>
 
-						<div className="form-group">
-							<label>Obszar zmiany</label>
+						<div className={styles.field}>
+							<label className={styles.label} htmlFor="target-section">
+								Obszar zmiany
+							</label>
 							<select
+								id="target-section"
 								value={target.section}
 								onChange={(e) =>
 									setTarget({ ...target, section: e.target.value })
 								}
-								className="form-select"
+								className={styles.select}
 							>
 								<option value="other">Inne</option>
 								<option value="budget">Budżet / Finanse</option>
@@ -788,44 +821,48 @@ export default function AddAmendment() {
 						</div>
 
 						{target.article && target.fragment && (
-							<div className="form-group">
-								<small className="field-hint" style={{ color: "#059669" }}>
-									Automatycznie pobrano fragment do porównania
-								</small>
-							</div>
+							<p className={styles.fragmentHint}>
+								Automatycznie pobrano fragment do porównania.
+							</p>
 						)}
 
 						{showConflicts && hasAnyConflict && (
-							<div className="conflicts-section">
+							<div className={styles.conflicts}>
 								{blockingConflicts.length > 0 && (
 									<>
-										<h4 className="conflicts-title conflicts-title--blocking">
+										<h3
+											className={`${styles.conflictsTitle} ${styles.conflictsTitleBlocking}`}
+										>
 											<ShieldAlert size={20} />
 											Kolizje z innymi poprawkami ({blockingConflicts.length})
-										</h4>
-										<div className="conflicts-list">
+										</h3>
+										<div className={styles.conflictsList}>
 											{blockingConflicts.map((conflict, index) => (
 												<div
 													key={`blocking-${index}`}
-													className={`conflict-item ${getConflictClass(conflict.level)}`}
+													className={`${styles.conflictItem} ${getConflictClass(
+														conflict.level,
+													)}`}
 												>
-													<div className="conflict-item-icon">
+													<div className={styles.conflictIcon}>
 														{getConflictIcon(conflict.level)}
 													</div>
-													<div className="conflict-item-content">
-														<p className="conflict-item-message">
+													<div className={styles.conflictContent}>
+														<p className={styles.conflictMessage}>
 															{conflict.message}
 														</p>
 														{conflict.amendment && (
-															<div className="conflict-item-amendments">
-																<span className="amendment-tag amendment-tag--blocking">
-																	Poprawka #{conflict.amendment.id} –{" "}
+															<div className={styles.conflictTags}>
+																<span
+																	className={`${styles.tag} ${styles.tagBlocking}`}
+																>
+																	Poprawka #{conflict.amendment.id} —{" "}
 																	{conflict.amendment.author}
 																</span>
 															</div>
 														)}
 														{conflict.similarity && (
-															<div className="conflict-item-similarity">
+															<div className={styles.conflictSimilarity}>
 																Podobieństwo: {conflict.similarity}%
 															</div>
 														)}
@@ -838,21 +875,23 @@ export default function AddAmendment() {
 
 								{conflicts.length > 0 && (
 									<>
-										<h4 className="conflicts-title">
+										<h3 className={styles.conflictsTitle}>
 											<Info size={20} />
 											Ostrzeżenia ({conflicts.length})
-										</h4>
-										<div className="conflicts-list">
+										</h3>
+										<div className={styles.conflictsList}>
 											{conflicts.map((conflict, index) => (
 												<div
 													key={`warning-${index}`}
-													className={`conflict-item ${getConflictClass(conflict.level)}`}
+													className={`${styles.conflictItem} ${getConflictClass(
+														conflict.level,
+													)}`}
 												>
-													<div className="conflict-item-icon">
+													<div className={styles.conflictIcon}>
 														{getConflictIcon(conflict.level)}
 													</div>
-													<div className="conflict-item-content">
-														<p className="conflict-item-message">
+													<div className={styles.conflictContent}>
+														<p className={styles.conflictMessage}>
 															{conflict.message}
 														</p>
 													</div>
@@ -862,7 +901,7 @@ export default function AddAmendment() {
 									</>
 								)}
 
-								<div className="conflicts-note conflicts-note--info">
+								<div className={styles.conflictsNote}>
 									<FileWarning size={16} />
 									<span>
 										Możesz dodać tę poprawkę mimo kolizji. Pamiętaj jednak, że
@@ -872,110 +911,116 @@ export default function AddAmendment() {
 								</div>
 							</div>
 						)}
-					</div>
+					</section>
 
-					<div className="changes-section">
-						<div className="changes-header">
-							<h2>Zmiany w artykułach</h2>
+					<section className={styles.section}>
+						<div className={styles.sectionHead}>
+							<h2 className={styles.sectionTitle}>Zmiany w artykułach</h2>
 							<button
 								type="button"
 								onClick={addNewChange}
-								className="add-change-btn"
+								className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
 							>
 								<Plus size={16} /> Dodaj kolejną zmianę
 							</button>
 						</div>
 
-						{changes.map((change, index) => (
-							<div key={change.id} className="change-card">
-								<div className="change-card-header">
-									<span>Zmiana {index + 1}</span>
-									{changes.length > 1 && (
-										<button
-											type="button"
-											onClick={() => removeChange(change.id)}
-											className="remove-change-btn"
-										>
-											<X size={16} />
-										</button>
-									)}
-								</div>
-
-								<div className="form-group">
-									<label>Rodzaj zmiany</label>
-									<div className="change-types">
-										{CHANGE_TYPES.map((ct) => (
+						<div className={styles.changes}>
+							{changes.map((change, index) => (
+								<article key={change.id} className={styles.change}>
+									<header className={styles.changeHead}>
+										<span className={styles.changeNumber}>
+											Zmiana {index + 1}
+										</span>
+										{changes.length > 1 && (
 											<button
-												key={ct.value}
 												type="button"
-												className={`type-btn ${change.type === ct.value ? "active" : ""}`}
-												onClick={() => handleTypeChange(change.id, ct.value)}
+												onClick={() => removeChange(change.id)}
+												className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
 											>
-												{ct.label}
+												<X size={16} />
 											</button>
-										))}
-									</div>
-								</div>
+										)}
+									</header>
 
-								{(change.type === "modify" || change.type === "delete") && (
-									<div className="form-group">
-										<label>Wybierz artykuł</label>
-										<select
-											value={change.articleId}
-											onChange={(e) =>
-												handleArticleSelect(change.id, e.target.value)
-											}
-											className="form-select"
-										>
-											<option value="">-- wybierz artykuł --</option>
-											{allArticles.map((art, idx) => (
-												<option key={art.id || idx} value={art.id}>
-													{art.number || `Art. ${idx + 1}`}:{" "}
-													{art.content?.substring(0, 50)}...
-												</option>
+									<div className={styles.field}>
+										<label className={styles.label}>Rodzaj zmiany</label>
+										<div className={styles.types}>
+											{CHANGE_TYPES.map((ct) => (
+												<button
+													key={ct.value}
+													type="button"
+													className={`${styles.typeBtn} ${
+														change.type === ct.value ? styles.typeBtnActive : ""
+													}`}
+													onClick={() => handleTypeChange(change.id, ct.value)}
+												>
+													{ct.label}
+												</button>
 											))}
-										</select>
+										</div>
 									</div>
-								)}
 
-								{(change.type === "modify" || change.type === "add") && (
-									<div className="form-group">
-										<label>
-											{change.type === "add"
-												? "Treść nowego artykułu"
-												: "Nowa treść artykułu"}
-										</label>
-										<textarea
-											value={change.to}
-											onChange={(e) =>
-												handleChangeUpdate(change.id, "to", e.target.value)
-											}
-											placeholder={
-												change.type === "add"
-													? "np. Art. 1a: Wprowadza się nowy przepis..."
-													: "Wpisz nową treść artykułu..."
-											}
-											className="form-textarea"
-											rows={4}
-										/>
-									</div>
-								)}
+									{(change.type === "modify" || change.type === "delete") && (
+										<div className={styles.field}>
+											<label className={styles.label}>Wybierz artykuł</label>
+											<select
+												value={change.articleId}
+												onChange={(e) =>
+													handleArticleSelect(change.id, e.target.value)
+												}
+												className={styles.select}
+											>
+												<option value="">— wybierz artykuł —</option>
+												{allArticles.map((art, idx) => (
+													<option key={art.id || idx} value={art.id}>
+														{art.number || `Art. ${idx + 1}`}:{" "}
+														{art.content?.substring(0, 50)}…
+													</option>
+												))}
+											</select>
+										</div>
+									)}
 
-								{change.type === "delete" && change.articleId && (
-									<div className="delete-info">
-										<Trash2 size={16} /> Ten artykuł zostanie{" "}
-										<strong>usunięty</strong> z uchwały.
-									</div>
-								)}
-							</div>
-						))}
-					</div>
+									{(change.type === "modify" || change.type === "add") && (
+										<div className={styles.field}>
+											<label className={styles.label}>
+												{change.type === "add"
+													? "Treść nowego artykułu"
+													: "Nowa treść artykułu"}
+											</label>
+											<textarea
+												value={change.to}
+												onChange={(e) =>
+													handleChangeUpdate(change.id, "to", e.target.value)
+												}
+												placeholder={
+													change.type === "add"
+														? "np. Art. 1a: Wprowadza się nowy przepis…"
+														: "Wpisz nową treść artykułu…"
+												}
+												className={styles.textarea}
+												rows={4}
+											/>
+										</div>
+									)}
 
-					<div className="form-actions">
+									{change.type === "delete" && change.articleId && (
+										<div className={styles.deleteInfo}>
+											<Trash2 size={16} /> Ten artykuł zostanie{" "}
+											<strong>usunięty</strong> z uchwały.
+										</div>
+									)}
+								</article>
+							))}
+						</div>
+					</section>
+
+					<div className={styles.actions}>
 						<button
 							type="button"
 							onClick={handleCheckConflicts}
-							className="check-conflicts-btn"
+							className={`${styles.btn} ${styles.btnOutline}`}
 							disabled={submitting}
 						>
 							<Search size={16} /> Sprawdź kolizje
@@ -983,7 +1028,9 @@ export default function AddAmendment() {
 
 						<button
 							type="submit"
-							className={`submit-btn ${blockingConflicts.length > 0 ? "has-blocking-conflicts" : ""} ${conflicts.length > 0 ? "has-warnings" : ""}`}
+							className={`${styles.btn} ${styles.btnPrimary} ${
+								blockingConflicts.length > 0 ? styles.btnHasBlocking : ""
+							} ${conflicts.length > 0 ? styles.btnHasWarnings : ""}`}
 							disabled={submitting || !hasCheckedConflicts}
 							title={!hasCheckedConflicts ? "Najpierw sprawdź kolizje" : ""}
 						>
@@ -997,12 +1044,15 @@ export default function AddAmendment() {
 							)}
 						</button>
 
-						<Link to={`/${slug}/poprawki`} className="cancel-btn">
+						<Link
+							to={`/${slug}/poprawki`}
+							className={`${styles.btn} ${styles.btnGhost}`}
+						>
 							Anuluj
 						</Link>
 					</div>
 				</form>
-			</div>
+			</main>
 
 			<Toast toast={toast} onClose={closeToast} />
 

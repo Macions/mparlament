@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import "./AmendmentDetails.css";
+import styles from "./AmendmentDetails.module.css";
 
 export default function AmendmentDetails() {
 	const { slug, amendmentId } = useParams();
@@ -32,11 +32,29 @@ export default function AmendmentDetails() {
 	}, [slug, amendmentId]);
 
 	if (loading) {
-		return <div className="loading">Ładowanie poprawki...</div>;
+		return (
+			<div className={styles.page}>
+				<div className={`${styles.skeleton} ${styles.skeletonHead}`} />
+				<div className={`${styles.skeleton} ${styles.skeletonMeta}`} />
+				<div className={`${styles.skeleton} ${styles.skeletonBody}`} />
+			</div>
+		);
 	}
 
 	if (error || !amendment) {
-		return <div className="error">Nie znaleziono poprawki</div>;
+		return (
+			<div className={styles.page}>
+				<Link to={`/${slug}/poprawki`} className={styles.back}>
+					← Wróć do poprawek
+				</Link>
+				<div className={styles.empty}>
+					<p className={styles.emptyTitle}>Nie znaleziono poprawki</p>
+					<p className={styles.emptyText}>
+						{error || "Poprawka mogła zostać usunięta lub zmienił się link."}
+					</p>
+				</div>
+			</div>
+		);
 	}
 
 	const getStatusLabel = (status) => {
@@ -49,84 +67,112 @@ export default function AmendmentDetails() {
 		return statusMap[status] || status;
 	};
 
+	const statusClassMap = {
+		accepted: styles.statusAccepted,
+		pending: styles.statusPending,
+		rejected: styles.statusRejected,
+		withdrawn: styles.statusWithdrawn,
+	};
+	const statusClass = statusClassMap[amendment.status] || "";
+
 	return (
-		<div className="amendments-details">
-			<div className="uchwaly-bar">
-				<Link to={`/${slug}/poprawki`} className="uchwaly-title">
+		<div className={styles.page}>
+			<header className={styles.topbar}>
+				<Link to={`/${slug}/poprawki`} className={styles.back}>
 					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="50"
-						height="50"
-						fill="currentColor"
-						className="bi bi-arrow-left"
-						viewBox="0 0 16 16"
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						aria-hidden="true"
 					>
 						<path
-							fillRule="evenodd"
-							d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"
+							d="M19 12H5M11 6l-6 6 6 6"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
 						/>
 					</svg>
-					WRÓĆ
+					Wróć do poprawek
 				</Link>
 
-				<div className="session-info">
-					Posiedzenie: Warszawa
-					<br />
-					<span>20.05</span>
+				<div className={styles.session}>
+					<span className={styles.sessionLabel}>Posiedzenie</span>
+					<span className={styles.sessionCity}>Warszawa</span>
+					<span className={styles.sessionDate}>20.05</span>
 				</div>
-			</div>
+			</header>
 
-			<div className="main-content">
-				<h1 className="page-title">
-					Poprawka do uchwały
-					<br />
-					<span className="resolution-title">„{resolution?.title}”</span>
-				</h1>
+			<main className={styles.main}>
+				<div className={styles.head}>
+					<span className={styles.eyebrow}>Poprawka</span>
+					<h1 className={styles.title}>
+						Poprawka do uchwały
+						<span className={styles.titleQuote}>„{resolution?.title}”</span>
+					</h1>
+				</div>
 
-				<div className="amendment-meta">
-					<div className="amendment-author">
-						Autor: <strong>{amendment.author}</strong>
+				<section className={styles.meta}>
+					<div className={styles.metaRow}>
+						<span className={styles.metaLabel}>Autor</span>
+						<span className={styles.metaValue}>{amendment.author}</span>
 					</div>
 
-					<div className={`status-badge ${amendment.status}`}>
-						{getStatusLabel(amendment.status)}
+					<div className={styles.metaRow}>
+						<span className={styles.metaLabel}>Status</span>
+						<span className={`${styles.statusBadge} ${statusClass}`}>
+							{getStatusLabel(amendment.status)}
+						</span>
 					</div>
-				</div>
+				</section>
 
 				{amendment.withdrawnReason && (
-					<div className="withdrawn-reason">
-						Powód wycofania: {amendment.withdrawnReason}
+					<div className={styles.withdrawnReason}>
+						<strong>Powód wycofania</strong>
+						<p>{amendment.withdrawnReason}</p>
 					</div>
 				)}
 
-				<div className="amendment-content">
-					<h2>Treść poprawki</h2>
-					<div className="content-box">
-						{amendment.content}
-					</div>
-				</div>
+				<section className={styles.card}>
+					<h2 className={styles.cardTitle}>Treść poprawki</h2>
+					<div className={styles.contentBox}>{amendment.content}</div>
+				</section>
 
 				{amendment.changes && amendment.changes.length > 0 && (
-					<div className="changes-section">
-						<h2>Zmiany w uchwale</h2>
-						{amendment.changes.map((change, index) => (
-							<div key={index} className="change-item">
-								<h3>Zmiana {index + 1}</h3>
-								<div className="diff-section">
-									<div className="old-section">
-										<h4>Przed poprawką</h4>
-										<p>{change.before || "(nowy artykuł)"}</p>
+					<section className={styles.changes}>
+						<h2 className={styles.cardTitle}>Zmiany w uchwale</h2>
+
+						<ul className={styles.changesList}>
+							{amendment.changes.map((change, index) => (
+								<li key={index} className={styles.change}>
+									<div className={styles.changeHead}>
+										<span className={styles.changeNumber}>
+											Zmiana {index + 1}
+										</span>
 									</div>
-									<div className="new-section">
-										<h4>Po poprawce</h4>
-										<p>{change.after || "(usunięcie artykułu)"}</p>
+
+									<div className={styles.diff}>
+										<div className={`${styles.diffCol} ${styles.diffOld}`}>
+											<span className={styles.diffLabel}>Przed poprawką</span>
+											<p className={styles.diffText}>
+												{change.before || "(nowy artykuł)"}
+											</p>
+										</div>
+
+										<div className={`${styles.diffCol} ${styles.diffNew}`}>
+											<span className={styles.diffLabel}>Po poprawce</span>
+											<p className={styles.diffText}>
+												{change.after || "(usunięcie artykułu)"}
+											</p>
+										</div>
 									</div>
-								</div>
-							</div>
-						))}
-					</div>
+								</li>
+							))}
+						</ul>
+					</section>
 				)}
-			</div>
+			</main>
 		</div>
 	);
 }

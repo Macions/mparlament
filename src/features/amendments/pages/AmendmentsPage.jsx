@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import "./AmendmentsPage.css";
+import styles from "./AmendmentsPage.module.css";
 
 export default function AmendmentsPage() {
 	const { slug } = useParams();
@@ -40,7 +40,9 @@ export default function AmendmentsPage() {
 					console.error("Błąd pobierania użytkownika:", error);
 				}
 
-				const response = await fetch(`/newapp/api/resolutions/${slug}/amendments`);
+				const response = await fetch(
+					`/newapp/api/resolutions/${slug}/amendments`,
+				);
 
 				if (!response.ok) {
 					throw new Error("Nie znaleziono uchwały");
@@ -91,7 +93,8 @@ export default function AmendmentsPage() {
 		setIsSubmitting(true);
 
 		try {
-			const response = await fetch(`/newapp/api/amendments/${selectedAmendmentId}/withdraw`,
+			const response = await fetch(
+				`/newapp/api/amendments/${selectedAmendmentId}/withdraw`,
 				{
 					method: "POST",
 					headers: {
@@ -107,7 +110,8 @@ export default function AmendmentsPage() {
 				throw new Error("Błąd podczas wycofywania poprawki");
 			}
 
-			const updatedResponse = await fetch(`/newapp/api/resolutions/${slug}/amendments`,
+			const updatedResponse = await fetch(
+				`/newapp/api/resolutions/${slug}/amendments`,
 			);
 			const data = await updatedResponse.json();
 			setAmendments(data.amendments);
@@ -132,114 +136,149 @@ export default function AmendmentsPage() {
 
 	const getStatusClass = (status) => {
 		const classMap = {
-			accepted: "status-accepted",
-			pending: "status-pending",
-			rejected: "status-rejected",
-			withdrawn: "status-withdrawn",
+			accepted: styles.statusAccepted,
+			pending: styles.statusPending,
+			rejected: styles.statusRejected,
+			withdrawn: styles.statusWithdrawn,
 		};
 		return classMap[status] || "";
 	};
 
 	if (loading) {
-		return <div>Ładowanie poprawek...</div>;
+		return (
+			<div className={styles.page}>
+				<div className={`${styles.skeleton} ${styles.skeletonHead}`} />
+				<div className={`${styles.skeleton} ${styles.skeletonRow}`} />
+				<div className={`${styles.skeleton} ${styles.skeletonRow}`} />
+				<div className={`${styles.skeleton} ${styles.skeletonRow}`} />
+			</div>
+		);
 	}
 
 	if (!resolution) {
-		return <div>Nie znaleziono uchwały #{slug}</div>;
+		return (
+			<div className={styles.page}>
+				<Link to={`/${slug}`} className={styles.back}>
+					← Wróć do uchwały
+				</Link>
+				<div className={styles.empty}>
+					<p className={styles.emptyTitle}>Nie znaleziono uchwały</p>
+					<p className={styles.emptyText}>
+						Uchwała #{slug} mogła zostać usunięta lub zmienił się link.
+					</p>
+				</div>
+			</div>
+		);
 	}
 
 	return (
 		<>
-			<div className="amendments-page">
-				<div className="uchwaly-bar">
-					<Link to={`/${slug}`} className="uchwaly-title">
+			<div className={styles.page}>
+				<header className={styles.topbar}>
+					<Link to={`/${slug}`} className={styles.back}>
 						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="50"
-							height="50"
-							fill="currentColor"
-							className="bi bi-arrow-left"
-							viewBox="0 0 16 16"
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							aria-hidden="true"
 						>
 							<path
-								fillRule="evenodd"
-								d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"
+								d="M19 12H5M11 6l-6 6 6 6"
+								stroke="currentColor"
+								strokeWidth="2"
+								strokeLinecap="round"
+								strokeLinejoin="round"
 							/>
 						</svg>
-						WRÓĆ
+						Wróć do uchwały
 					</Link>
 
-					<div className="session-info">
-						Posiedzenie: {session?.city}
-						<br />
-						<span>{session?.date}</span>
+					{session && (
+						<div className={styles.session}>
+							<span className={styles.sessionLabel}>Posiedzenie</span>
+							<span className={styles.sessionCity}>{session.city}</span>
+							<span className={styles.sessionDate}>{session.date}</span>
+						</div>
+					)}
+				</header>
+
+				<main className={styles.main}>
+					<div className={styles.head}>
+						<span className={styles.eyebrow}>Poprawki</span>
+						<h1 className={styles.title}>Poprawki do uchwały</h1>
+						<p className={styles.subtitle}>„{resolution.title}”</p>
 					</div>
-				</div>
 
-				<div className="amendments-container">
-					<h1 className="page-title">
-						Poprawki do uchwały
-						<br />
-						<blockquote>„{resolution.title}”</blockquote>
-					</h1>
-
-					<div className="addAmendment">
-						<Link to={`/${slug}/dodaj-poprawke`} className="AddBtn">
+					<div className={styles.headActions}>
+						<Link
+							to={`/${slug}/dodaj-poprawke`}
+							className={`${styles.btn} ${styles.btnPrimary}`}
+						>
 							Dodaj poprawkę
 						</Link>
+
+						<span className={styles.count}>
+							{amendments.length}{" "}
+							{amendments.length === 1 ? "poprawka" : "poprawek"}
+						</span>
 					</div>
 
-					<div className="amendments-list">
-						{amendments.length > 0 ? (
-							amendments.map((amendment) => {
+					{amendments.length > 0 ? (
+						<ul className={styles.list}>
+							{amendments.map((amendment) => {
 								const isWithdrawn = isAmendmentWithdrawn(amendment);
 								const isAuthor = isCurrentUserAuthor(amendment);
 								const canWithdraw = isAuthor && !isWithdrawn;
 
 								return (
-									<div
+									<li
 										key={amendment.id}
-										className={`amendment-card ${isWithdrawn ? "withdrawn" : ""}`}
+										className={`${styles.item} ${
+											isWithdrawn ? styles.itemWithdrawn : ""
+										}`}
 									>
-										<div className="amendment-main">
-											<div className="amendment-title">
-												Poprawka nr {amendment.id}
-												{isWithdrawn && (
-													<span className="withdrawn-badge">WYCOFANA</span>
-												)}
+										<div className={styles.itemMain}>
+											<div className={styles.itemHead}>
+												<span className={styles.itemNumber}>
+													Poprawka nr {amendment.id}
+												</span>
+
+												<span
+													className={`${styles.statusBadge} ${getStatusClass(
+														amendment.status,
+													)}`}
+												>
+													{getStatusLabel(amendment.status)}
+												</span>
 											</div>
 
-											<div className="amendment-author">
-												Autor: {amendment.author}
-											</div>
+											<p className={styles.itemAuthor}>
+												Autor: <strong>{amendment.author}</strong>
+											</p>
 
 											{isWithdrawn && amendment.withdrawnReason && (
-												<div className="withdrawn-reason">
+												<p className={styles.itemReason}>
 													Powód wycofania: {amendment.withdrawnReason}
-												</div>
+												</p>
 											)}
 										</div>
 
-										<div className="amendment-status">
-											<div
-												className={`status-badge ${getStatusClass(amendment.status)}`}
-											>
-												{getStatusLabel(amendment.status)}
-											</div>
-
+										<div className={styles.itemActions}>
 											{!isWithdrawn ? (
 												<>
 													<Link
 														to={`/${slug}/poprawka/${amendment.id}`}
-														className="read-more"
+														className={`${styles.btn} ${styles.btnOutline}`}
 													>
 														Wyświetl szczegóły
 													</Link>
 
 													{canWithdraw && (
 														<button
+															type="button"
 															onClick={() => openWithdrawModal(amendment.id)}
-															className="withdraw-btn"
+															className={`${styles.btn} ${styles.btnDanger}`}
 														>
 															Wycofaj poprawkę
 														</button>
@@ -247,33 +286,35 @@ export default function AmendmentsPage() {
 												</>
 											) : (
 												<span
-													className="read-more-disabled"
+													className={styles.disabledHint}
 													title="Ta poprawka została wycofana"
 												>
 													Szczegóły niedostępne
 												</span>
 											)}
 										</div>
-									</div>
+									</li>
 								);
-							})
-						) : (
-							<p>Nie ma jeszcze żadnych poprawek do tej uchwały.</p>
-						)}
-					</div>
-				</div>
+							})}
+						</ul>
+					) : (
+						<div className={styles.empty}>
+							<p className={styles.emptyTitle}>Brak poprawek</p>
+							<p className={styles.emptyText}>
+								Nie ma jeszcze żadnych poprawek do tej uchwały.
+							</p>
+						</div>
+					)}
+				</main>
 			</div>
 
 			{showWithdrawModal && (
-				<div className="amendment-modal-overlay" onClick={closeWithdrawModal}>
-					<div
-						className="amendment-modal-content"
-						onClick={(e) => e.stopPropagation()}
-					>
-						<h2 className="amendment-modal-title">Wycofanie poprawki</h2>
+				<div className={styles.modalOverlay} onClick={closeWithdrawModal}>
+					<div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+						<h2 className={styles.modalTitle}>Wycofanie poprawki</h2>
 
-						<div className="amendment-modal-warning">
-							<strong>️ UWAGA!</strong>
+						<div className={styles.modalWarning}>
+							<strong>UWAGA!</strong>
 							<p>
 								Poprawka nie zniknie z listy poprawek. Wycofanie jej spowoduje,
 								że nie będzie można wejść w jej szczegóły, natomiast informacja
@@ -281,14 +322,14 @@ export default function AmendmentsPage() {
 							</p>
 						</div>
 
-						<div className="amendment-modal-field">
-							<label htmlFor="withdrawReason" className="amendment-modal-label">
+						<div className={styles.modalField}>
+							<label htmlFor="withdrawReason" className={styles.modalLabel}>
 								Powód wycofania{" "}
-								<span className="amendment-modal-optional">(opcjonalnie)</span>
+								<span className={styles.modalOptional}>(opcjonalnie)</span>
 							</label>
 							<textarea
 								id="withdrawReason"
-								className="amendment-modal-textarea"
+								className={styles.modalTextarea}
 								value={withdrawReason}
 								onChange={(e) => setWithdrawReason(e.target.value)}
 								placeholder="Podaj powód wycofania (opcjonalnie)..."
@@ -297,16 +338,18 @@ export default function AmendmentsPage() {
 							/>
 						</div>
 
-						<div className="amendment-modal-actions">
+						<div className={styles.modalActions}>
 							<button
-								className="amendment-modal-btn-cancel"
+								type="button"
+								className={`${styles.btn} ${styles.btnGhost}`}
 								onClick={closeWithdrawModal}
 								disabled={isSubmitting}
 							>
 								Anuluj
 							</button>
 							<button
-								className="amendment-modal-btn-confirm"
+								type="button"
+								className={`${styles.btn} ${styles.btnPrimary}`}
 								onClick={handleWithdrawConfirm}
 								disabled={isSubmitting}
 							>

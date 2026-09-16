@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import "./ResolutionDetails.css";
+import styles from "./ResolutionDetails.module.css";
 import { createPortal } from "react-dom";
 import { Trash2 } from "lucide-react";
 
@@ -111,11 +111,29 @@ export default function ResolutionDetails() {
 	};
 
 	if (loading) {
-		return <h2>Ładowanie uchwały...</h2>;
+		return (
+			<div className={styles.page}>
+				<div className={`${styles.skeleton} ${styles.skeletonHead}`} />
+				<div className={`${styles.skeleton} ${styles.skeletonBody}`} />
+			</div>
+		);
 	}
 
 	if (!resolution) {
-		return <h2>Nie znaleziono uchwały</h2>;
+		return (
+			<div className={styles.page}>
+				<Link to="/uchwaly" className={styles.back}>
+					← Wróć do uchwał
+				</Link>
+				<div className={styles.empty}>
+					<p className={styles.emptyTitle}>Nie znaleziono uchwały</p>
+					<p className={styles.emptyText}>
+						{errorMessage ||
+							"Uchwała mogła zostać usunięta lub zmienił się link."}
+					</p>
+				</div>
+			</div>
+		);
 	}
 
 	const userRole = getUserRole(currentUser);
@@ -123,181 +141,253 @@ export default function ResolutionDetails() {
 		userRole === "admin" || userRole === "coordinator";
 
 	return (
-		<div className="mparlament-page">
-			<div className="uchwaly-bar">
-				<Link className="uchwaly-title" to="/uchwaly">
+		<div className={styles.page}>
+			<header className={styles.topbar}>
+				<Link to="/uchwaly" className={styles.back}>
 					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="50"
-						height="50"
-						fill="currentColor"
-						className="bi bi-arrow-left"
-						viewBox="0 0 16 16"
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						aria-hidden="true"
 					>
 						<path
-							fillRule="evenodd"
-							d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"
+							d="M19 12H5M11 6l-6 6 6 6"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
 						/>
 					</svg>
-					WRÓĆ
+					Wróć do uchwał
 				</Link>
 
-				<div className="session-info">
-					Posiedzenie: {session?.city}
-					<br />
-					<span>{session?.date}</span>
-				</div>
-			</div>
-
-			<main className="resolution-card">
-				<h1 className="resolution-title">{resolution.title}</h1>
-
-				<div className="resolution-grid">
-					<div className="resolution-left">
-						<div className="file-box">
-							{resolution.filePath ? (
-								<a
-									href={resolution.filePath}
-									className="file-link"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									{resolution.fileName || "Pobierz plik"}
-								</a>
-							) : resolution.fileName ? (
-								<a
-									href={`/uploads/resolutions/${resolution.fileName}`}
-									className="file-link"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									{resolution.fileName}
-								</a>
-							) : (
-								<span className="file-link disabled">Brak załącznika</span>
-							)}
-						</div>
-
-						<div className="signatures-row">
-							<div className="signatures-count">
-								<div>Podpisy: {resolution.signatures}</div>
-
-								<button
-									className="btn btn-pill btn-cyan btn-small check-signatures-btn"
-									onClick={() => setShowSignatures(true)}
-								>
-									Sprawdź kto podpisał
-								</button>
-							</div>
-						</div>
+				{session && (
+					<div className={styles.session}>
+						<span className={styles.sessionLabel}>Posiedzenie</span>
+						<span className={styles.sessionCity}>{session.city}</span>
+						<span className={styles.sessionDate}>{session.date}</span>
 					</div>
+				)}
+			</header>
 
-					<div className="resolution-right">
-						<p className="resolution-author">
-							Autor: <strong>{resolution.author}</strong> ({resolution.party})
-						</p>
+			<main className={styles.main}>
+				<div className={styles.head}>
+					<span className={styles.eyebrow}>Uchwała</span>
+					<h1 className={styles.title}>{resolution.title}</h1>
 
-						{currentUser?.isAuthor ? (
-							<button className="btn btn-pill btn-gray btn-wide" disabled>
-								AUTOR - PODPIS AUTOMATYCZNY
-							</button>
+					<p className={styles.author}>
+						Autor: <strong>{resolution.author}</strong>
+						{resolution.party && (
+							<span className={styles.authorParty}> ({resolution.party})</span>
+						)}
+					</p>
+				</div>
+
+				<div className={styles.grid}>
+					<section className={styles.card}>
+						<h2 className={styles.cardTitle}>Załącznik</h2>
+
+						{resolution.filePath ? (
+							<a
+								href={resolution.filePath}
+								className={styles.file}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								<svg
+									width="18"
+									height="18"
+									viewBox="0 0 24 24"
+									fill="none"
+									aria-hidden="true"
+								>
+									<path
+										d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									/>
+								</svg>
+								{resolution.fileName || "Pobierz plik"}
+							</a>
+						) : resolution.fileName ? (
+							<a
+								href={`/uploads/resolutions/${resolution.fileName}`}
+								className={styles.file}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								<svg
+									width="18"
+									height="18"
+									viewBox="0 0 24 24"
+									fill="none"
+									aria-hidden="true"
+								>
+									<path
+										d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									/>
+								</svg>
+								{resolution.fileName}
+							</a>
 						) : (
-							<button
-								className="btn btn-pill btn-cyan btn-wide sign-btn"
-								onClick={() => {
-									setActionType(currentUser?.hasSigned ? "remove" : "sign");
-									setShowConfirm(true);
-								}}
-							>
-								{currentUser?.hasSigned ? "USUŃ PODPIS" : "PODPISZ UCHWAŁĘ"}
-							</button>
+							<span className={`${styles.file} ${styles.fileDisabled}`}>
+								Brak załącznika
+							</span>
 						)}
+					</section>
 
-						<Link
-							to={`/${resolution.slug}/poprawki`}
-							className="btn btn-pill btn-red btn-wide amend-btn"
-						>
-							WYŚWIETL POPRAWKI
-						</Link>
+					<section className={styles.card}>
+						<h2 className={styles.cardTitle}>Podpisy</h2>
 
-						{isAdminOrCoordinator && (
+						<div className={styles.signatures}>
+							<div className={styles.signaturesCount}>
+								<span className={styles.signaturesNumber}>
+									{resolution.signatures}
+								</span>
+								<span className={styles.signaturesLabel}>
+									{resolution.signatures === 1 ? "podpis" : "podpisów"}
+								</span>
+							</div>
+
 							<button
-								className="btn btn-pill btn-red btn-wide delete-btn"
-								onClick={() => setShowDeleteConfirm(true)}
-								style={{ marginTop: "10px" }}
+								type="button"
+								className={`${styles.btn} ${styles.btnGhost}`}
+								onClick={() => setShowSignatures(true)}
 							>
-								<Trash2
-									size={18}
-									style={{ marginRight: "8px", verticalAlign: "middle" }}
-								/>
-								USUŃ UCHWAŁĘ
+								Sprawdź kto podpisał
 							</button>
-						)}
-					</div>
+						</div>
+					</section>
 				</div>
+
+				<section className={styles.actions}>
+					{currentUser?.isAuthor ? (
+						<button
+							type="button"
+							className={`${styles.btn} ${styles.btnMuted} ${styles.btnBlock}`}
+							disabled
+						>
+							Autor — podpis automatyczny
+						</button>
+					) : (
+						<button
+							type="button"
+							className={`${styles.btn} ${styles.btnPrimary} ${styles.btnBlock}`}
+							onClick={() => {
+								setActionType(currentUser?.hasSigned ? "remove" : "sign");
+								setShowConfirm(true);
+							}}
+						>
+							{currentUser?.hasSigned ? "Usuń podpis" : "Podpisz uchwałę"}
+						</button>
+					)}
+
+					<Link
+						to={`/${resolution.slug}/poprawki`}
+						className={`${styles.btn} ${styles.btnOutline} ${styles.btnBlock}`}
+					>
+						Wyświetl poprawki
+					</Link>
+
+					{isAdminOrCoordinator && (
+						<button
+							type="button"
+							className={`${styles.btn} ${styles.btnDanger} ${styles.btnBlock}`}
+							onClick={() => setShowDeleteConfirm(true)}
+						>
+							<Trash2 size={16} />
+							Usuń uchwałę
+						</button>
+					)}
+				</section>
 			</main>
 
 			{showSignatures &&
 				createPortal(
 					<>
 						<div
-							className="signatures-overlay"
+							className={styles.overlay}
 							onClick={() => setShowSignatures(false)}
 						/>
-						<div className="signatures-panel">
-							<div className="signatures-header">
-								<h2>Kto podpisał?</h2>
+						<aside className={styles.panel}>
+							<div className={styles.panelHead}>
+								<h2 className={styles.panelTitle}>Kto podpisał?</h2>
 								<button
-									className="close-panel"
+									type="button"
+									className={styles.panelClose}
 									onClick={() => setShowSignatures(false)}
+									aria-label="Zamknij"
 								>
 									✕
 								</button>
 							</div>
-							<div className="signatures-total">
+
+							<p className={styles.panelTotal}>
 								Liczba podpisów: <strong>{signedUsers.length}</strong>
-							</div>
-							<div className="signatures-list">
+							</p>
+
+							<ul className={styles.panelList}>
 								{signedUsers.map((user, index) => (
-									<div className="signature-item" key={index}>
-										<div
-											className="signature-avatar"
-											style={{
-												background: `hsl(${(index * 45) % 360}, 70%, 90%)`,
-											}}
-										>
+									<li className={styles.signature} key={index}>
+										<div className={styles.signatureAvatar}>
 											{user.name.charAt(0).toUpperCase()}
 										</div>
-										<div className="signature-info">
+										<div className={styles.signatureInfo}>
 											<strong>{user.name}</strong>
-											<p>{user.club}</p>
-											<span>
+											<span className={styles.signatureClub}>{user.club}</span>
+											<time className={styles.signatureTime}>
 												{new Date(user.timestamp).toLocaleString("pl-PL")}
-											</span>
+											</time>
 										</div>
-									</div>
+									</li>
 								))}
-							</div>
-						</div>
+							</ul>
+						</aside>
 					</>,
 					document.body,
 				)}
 
 			{showConfirm &&
 				createPortal(
-					<div className="modal-overlay">
-						<div className="modal">
-							<h2>
+					<div className={styles.modalOverlay}>
+						<div className={styles.modal}>
+							<h2 className={styles.modalTitle}>
 								{actionType === "sign" ? "Podpisać uchwałę?" : "Usunąć podpis?"}
 							</h2>
-							{errorMessage && <p className="modal-error">{errorMessage}</p>}
-							<p>
+
+							{errorMessage && (
+								<p className={styles.modalError}>{errorMessage}</p>
+							)}
+
+							<p className={styles.modalText}>
 								{actionType === "sign"
 									? "Czy na pewno chcesz podpisać tę uchwałę?"
 									: "Czy na pewno chcesz usunąć swój podpis?"}
 							</p>
-							<button onClick={handleSignatureAction}>Potwierdź</button>
-							<button onClick={() => setShowConfirm(false)}>Anuluj</button>
+
+							<div className={styles.modalActions}>
+								<button
+									type="button"
+									className={`${styles.btn} ${styles.btnPrimary}`}
+									onClick={handleSignatureAction}
+								>
+									Potwierdź
+								</button>
+								<button
+									type="button"
+									className={`${styles.btn} ${styles.btnGhost}`}
+									onClick={() => setShowConfirm(false)}
+								>
+									Anuluj
+								</button>
+							</div>
 						</div>
 					</div>,
 					document.body,
@@ -305,27 +395,34 @@ export default function ResolutionDetails() {
 
 			{showDeleteConfirm &&
 				createPortal(
-					<div className="modal-overlay">
-						<div className="modal modal-danger">
-							<h2>Usunąć uchwałę?</h2>
-							{errorMessage && <p className="modal-error">{errorMessage}</p>}
-							<p>
+					<div className={styles.modalOverlay}>
+						<div className={`${styles.modal} ${styles.modalDanger}`}>
+							<h2 className={styles.modalTitle}>Usunąć uchwałę?</h2>
+
+							{errorMessage && (
+								<p className={styles.modalError}>{errorMessage}</p>
+							)}
+
+							<p className={styles.modalText}>
 								Czy na pewno chcesz usunąć uchwałę{" "}
-								<strong>"{resolution.title}"</strong>?
-								<br />
-								<span style={{ color: "red", fontSize: "0.9rem" }}>
-									Tej operacji nie można cofnąć!
-								</span>
+								<strong>„{resolution.title}”</strong>?
 							</p>
-							<div className="modal-buttons">
+
+							<p className={styles.modalWarning}>
+								Tej operacji nie można cofnąć.
+							</p>
+
+							<div className={styles.modalActions}>
 								<button
-									className="btn btn-danger"
+									type="button"
+									className={`${styles.btn} ${styles.btnDanger}`}
 									onClick={handleDeleteResolution}
 								>
 									Tak, usuń
 								</button>
 								<button
-									className="btn btn-gray"
+									type="button"
+									className={`${styles.btn} ${styles.btnGhost}`}
 									onClick={() => setShowDeleteConfirm(false)}
 								>
 									Anuluj

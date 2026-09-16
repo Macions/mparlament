@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import BackButton from "../../../components/PageBack";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import "./VotingDetailsPage.css";
-import { Eye, Lock, Check, X, Minus } from "lucide-react";
+import styles from "./VotingDetailsPage.module.css";
+import { Lock, Check, X, Minus } from "lucide-react";
 
 function formatVote(v) {
 	switch (v) {
@@ -110,9 +110,6 @@ export default function VotingDetailsPage() {
 				}
 
 				setVote(data);
-				// console.log("📊 vote.votedUsers:", data.votedUsers);
-				// console.log("📊 vote.eligibleUsers:", data.eligibleUsers);
-				// console.log("📊 vote.isAnonymous:", data.isAnonymous);
 
 				if (data.recipientsType === "groups" && data.selectedGroups) {
 					try {
@@ -182,26 +179,32 @@ export default function VotingDetailsPage() {
 
 	if (loading) {
 		return (
-			<div className="voting-details-loading">
-				<h2>Ładowanie szczegółów głosowania...</h2>
+			<div className={styles.page}>
+				<div className={`${styles.skeleton} ${styles.skeletonHead}`} />
+				<div className={`${styles.skeleton} ${styles.skeletonBody}`} />
 			</div>
 		);
 	}
 
 	if (error) {
 		return (
-			<div className="voting-details-error">
-				<h2>{error}</h2>
+			<div className={styles.page}>
 				<BackButton to="/glosowania" label="Głosowania" />
+				<div className={styles.errorBanner}>{error}</div>
 			</div>
 		);
 	}
 
 	if (!vote) {
 		return (
-			<div className="voting-details-notfound">
-				<h2>Nie znaleziono głosowania</h2>
+			<div className={styles.page}>
 				<BackButton to="/glosowania" label="Głosowania" />
+				<div className={styles.empty}>
+					<p className={styles.emptyTitle}>Nie znaleziono głosowania</p>
+					<p className={styles.emptyText}>
+						Głosowanie mogło zostać usunięte lub zmienił się link.
+					</p>
+				</div>
 			</div>
 		);
 	}
@@ -240,17 +243,18 @@ export default function VotingDetailsPage() {
 
 			if (voters.length === 0) {
 				return (
-					<div className="voters-list-empty">
+					<div className={styles.votersEmpty}>
 						<p>Brak danych o głosujących</p>
 					</div>
 				);
 			}
 
 			return (
-				<div className="voters-list-section">
-					<h3>Lista głosujących</h3>
-					<div className="voters-table-wrapper">
-						<table className="voters-table">
+				<div className={styles.votersSection}>
+					<h3 className={styles.votersTitle}>Lista głosujących</h3>
+
+					<div className={styles.votersTableWrap}>
+						<table className={styles.votersTable}>
 							<thead>
 								<tr>
 									<th>Lp.</th>
@@ -263,30 +267,19 @@ export default function VotingDetailsPage() {
 								{voters.map((voter, index) => {
 									const voteValue = voter.vote || "abstain";
 									return (
-										<tr key={voter.id || index} className={`vote-${voteValue}`}>
-											<td>{index + 1}</td>
+										<tr key={voter.id || index}>
+											<td className={styles.voterIndex}>{index + 1}</td>
 											<td>{voter.name || `Użytkownik ${voter.id}`}</td>
 											<td>{voter.club || "—"}</td>
 											<td>
-												<span className={`vote-badge ${voteValue}`}>
-													{voteValue === "for" && (
-														<Check
-															size={14}
-															style={{ display: "inline", marginRight: "4px" }}
-														/>
-													)}
-													{voteValue === "against" && (
-														<X
-															size={14}
-															style={{ display: "inline", marginRight: "4px" }}
-														/>
-													)}
-													{voteValue === "abstain" && (
-														<Minus
-															size={14}
-															style={{ display: "inline", marginRight: "4px" }}
-														/>
-													)}
+												<span
+													className={`${styles.voteBadge} ${
+														styles[`vote_${voteValue}`] || ""
+													}`}
+												>
+													{voteValue === "for" && <Check size={14} />}
+													{voteValue === "against" && <X size={14} />}
+													{voteValue === "abstain" && <Minus size={14} />}
 													{formatVote(voter.vote)}
 												</span>
 											</td>
@@ -302,42 +295,49 @@ export default function VotingDetailsPage() {
 
 		if (vote.isAnonymous) {
 			return (
-				<div className="voters-list-anonymous">
-					<p>
-						<Lock size={18} style={{ display: "inline", marginRight: "8px" }} />{" "}
-						Głosowanie jest niejawne - lista głosujących nie jest dostępna
-					</p>
+				<div className={styles.anonymousBox}>
+					<Lock size={18} />
+					<span>
+						Głosowanie jest niejawne — lista głosujących nie jest dostępna.
+					</span>
 				</div>
 			);
 		}
 
 		return null;
 	};
-	return (
-		<div className="voting-details-page">
-			<div className="voting-details-header">
-				<BackButton to="/glosowania" label="Głosowania" />
-			</div>
 
-			<div className="voting-details-container">
-				<div className="voting-details-top">
-					<div className="voting-details-meta">
-						<span className="voting-details-type">
+	return (
+		<div className={styles.page}>
+			<header className={styles.topbar}>
+				<BackButton to="/glosowania" label="Głosowania" />
+			</header>
+
+			<main className={styles.main}>
+				<div className={styles.head}>
+					<div className={styles.meta}>
+						<span className={styles.category}>
 							{categoryTranslations[vote.category] || vote.category}
 						</span>
-						<span className={`voting-details-status ${statusClass}`}>
+						<span
+							className={`${styles.statusBadge} ${
+								styles[`status_${statusClass}`] || ""
+							}`}
+						>
 							{statusLabel}
 						</span>
 					</div>
 
-					<h1 className="voting-details-title">{vote.title}</h1>
-					<p className="voting-details-description">{vote.description}</p>
+					<h1 className={styles.title}>{vote.title}</h1>
+					{vote.description && (
+						<p className={styles.description}>{vote.description}</p>
+					)}
 				</div>
 
-				<div className="voting-details-info-grid">
-					<div className="info-item">
-						<span className="info-label">Start głosowania</span>
-						<span className="info-value">
+				<section className={styles.infoGrid}>
+					<div className={styles.infoItem}>
+						<span className={styles.infoLabel}>Start głosowania</span>
+						<span className={styles.infoValue}>
 							{new Date(vote.startTime).toLocaleString("pl-PL", {
 								day: "2-digit",
 								month: "2-digit",
@@ -348,9 +348,9 @@ export default function VotingDetailsPage() {
 						</span>
 					</div>
 
-					<div className="info-item">
-						<span className="info-label">Koniec głosowania</span>
-						<span className="info-value">
+					<div className={styles.infoItem}>
+						<span className={styles.infoLabel}>Koniec głosowania</span>
+						<span className={styles.infoValue}>
 							{new Date(vote.endTime).toLocaleString("pl-PL", {
 								day: "2-digit",
 								month: "2-digit",
@@ -361,167 +361,163 @@ export default function VotingDetailsPage() {
 						</span>
 					</div>
 
-					<div className="info-item">
-						<span className="info-label">Autor</span>
-						<span className="info-value">{vote.createdBy || "Nieznany"}</span>
+					<div className={styles.infoItem}>
+						<span className={styles.infoLabel}>Autor</span>
+						<span className={styles.infoValue}>
+							{vote.createdBy || "Nieznany"}
+						</span>
 					</div>
 
-					<div className="info-item">
-						<span className="info-label">Łączna liczba głosów</span>
-						<span className="info-value">{totalVotes}</span>
+					<div className={styles.infoItem}>
+						<span className={styles.infoLabel}>Łączna liczba głosów</span>
+						<span className={styles.infoValue}>{totalVotes}</span>
 					</div>
-				</div>
+				</section>
 
-				<div className="voting-details-recipients">
-					<h3 className="recipients-title">Uprawnieni do głosowania</h3>
+				<section className={styles.section}>
+					<h2 className={styles.sectionTitle}>Uprawnieni do głosowania</h2>
 
-					<div className="recipients-info">
-						<span className="recipients-type">{recipientsLabel}</span>
+					<div className={styles.recipients}>
+						<span className={styles.recipientsType}>{recipientsLabel}</span>
 
 						{recipientsDetails?.type === "all" && (
-							<p className="recipients-description">
+							<p className={styles.recipientsText}>
 								Wszyscy członkowie Parlamentu Młodych RP są uprawnieni do
 								głosowania.
 							</p>
 						)}
 
 						{recipientsDetails?.type === "groups" && recipientsDetails.data && (
-							<div className="recipients-list">
-								<div className="recipients-tags">
-									{recipientsDetails.data.map((group, index) => (
-										<span key={index} className="recipient-tag group">
-											{group.name || `Grupa ${group.id}`}
-										</span>
-									))}
-								</div>
+							<div className={styles.tags}>
+								{recipientsDetails.data.map((group, index) => (
+									<span key={index} className={styles.tag}>
+										{group.name || `Grupa ${group.id}`}
+									</span>
+								))}
 							</div>
 						)}
 
 						{recipientsDetails?.type === "members" &&
 							recipientsDetails.data && (
-								<div className="recipients-list">
-									<div className="recipients-tags">
-										{recipientsDetails.data.map((member, index) => (
-											<span key={index} className="recipient-tag member">
-												{member.name || `Członek ${member.id}`}
-											</span>
-										))}
-									</div>
+								<div className={styles.tags}>
+									{recipientsDetails.data.map((member, index) => (
+										<span key={index} className={styles.tag}>
+											{member.name || `Członek ${member.id}`}
+										</span>
+									))}
 								</div>
 							)}
 					</div>
-				</div>
+				</section>
 
 				{(statusClass === "finished" || statusClass === "archived") && (
-					<div className="voting-details-results">
-						<h2>Wyniki głosowania</h2>
+					<section className={styles.section}>
+						<h2 className={styles.sectionTitle}>Wyniki głosowania</h2>
 
-						<div className="results-bars">
-							<div className="result-bar-item for">
-								<div className="result-bar-label">
-									<span>
-										<Check
-											size={16}
-											style={{ display: "inline", marginRight: "4px" }}
-										/>{" "}
-										ZA
+						<div className={styles.resultsBars}>
+							<div className={styles.resultRow}>
+								<div className={styles.resultLabel}>
+									<span className={styles.resultLabelText}>
+										<Check size={14} /> ZA
 									</span>
-									<span className="result-bar-count">{vote.votesFor}</span>
+									<span className={styles.resultCount}>{vote.votesFor}</span>
 								</div>
-								<div className="result-bar-track">
+								<div className={styles.resultTrack}>
 									<div
-										className="result-bar-fill for"
+										className={`${styles.resultFill} ${styles.resultFor}`}
 										style={{ width: `${forPercentage}%` }}
 									/>
 								</div>
-								<span className="result-bar-percentage">{forPercentage}%</span>
+								<span className={styles.resultPercentage}>
+									{forPercentage}%
+								</span>
 							</div>
 
-							<div className="result-bar-item against">
-								<div className="result-bar-label">
-									<span>
-										<X
-											size={16}
-											style={{ display: "inline", marginRight: "4px" }}
-										/>{" "}
-										PRZECIW
+							<div className={styles.resultRow}>
+								<div className={styles.resultLabel}>
+									<span className={styles.resultLabelText}>
+										<X size={14} /> PRZECIW
 									</span>
-									<span className="result-bar-count">{vote.votesAgainst}</span>
+									<span className={styles.resultCount}>
+										{vote.votesAgainst}
+									</span>
 								</div>
-								<div className="result-bar-track">
+								<div className={styles.resultTrack}>
 									<div
-										className="result-bar-fill against"
+										className={`${styles.resultFill} ${styles.resultAgainst}`}
 										style={{ width: `${againstPercentage}%` }}
 									/>
 								</div>
-								<span className="result-bar-percentage">
+								<span className={styles.resultPercentage}>
 									{againstPercentage}%
 								</span>
 							</div>
 
-							<div className="result-bar-item abstain">
-								<div className="result-bar-label">
-									<span>
-										<Minus
-											size={16}
-											style={{ display: "inline", marginRight: "4px" }}
-										/>{" "}
-										WSTRZYMANIE
+							<div className={styles.resultRow}>
+								<div className={styles.resultLabel}>
+									<span className={styles.resultLabelText}>
+										<Minus size={14} /> WSTRZYMANIE
 									</span>
-									<span className="result-bar-count">{vote.abstained}</span>
+									<span className={styles.resultCount}>{vote.abstained}</span>
 								</div>
-								<div className="result-bar-track">
+								<div className={styles.resultTrack}>
 									<div
-										className="result-bar-fill abstain"
+										className={`${styles.resultFill} ${styles.resultAbstained}`}
 										style={{ width: `${abstainPercentage}%` }}
 									/>
 								</div>
-								<span className="result-bar-percentage">
+								<span className={styles.resultPercentage}>
 									{abstainPercentage}%
 								</span>
 							</div>
 						</div>
 
-						<div className="results-summary">
-							<div className={`result-badge ${result}`}>
-								{result === "passed" && "Uchwała przyjęta"}
-								{result === "rejected" && "Uchwała odrzucona"}
-								{result === "tie" && "Remis"}
-							</div>
+						<div
+							className={`${styles.finalResult} ${
+								styles[`finalResult_${result}`] || ""
+							}`}
+						>
+							{result === "passed" && "Uchwała przyjęta"}
+							{result === "rejected" && "Uchwała odrzucona"}
+							{result === "tie" && "Remis"}
 						</div>
-						<div className="results-stats">
-							<div className="stat-item">
-								<span className="stat-label">Frekwencja</span>
-								<span className="stat-value">
+
+						<div className={styles.stats}>
+							<div className={styles.stat}>
+								<span className={styles.statLabel}>Frekwencja</span>
+								<span className={styles.statValue}>
 									{totalVotes > 0 ? Math.round((totalVotes / 300) * 100) : 0}%
 								</span>
 							</div>
-							<div className="stat-item">
-								<span className="stat-label">Twój głos</span>
-								<span className="stat-value">
+							<div className={styles.stat}>
+								<span className={styles.statLabel}>Twój głos</span>
+								<span className={styles.statValue}>
 									{vote.hasVoted ? formatVote(vote.myVote) : "Nie głosowałeś"}
 								</span>
 							</div>
 						</div>
-						<div className="voting-details-voters">{renderVotersList()}</div>
-					</div>
+
+						{renderVotersList()}
+					</section>
 				)}
 
 				{statusClass === "upcoming" && (
-					<div className="voting-details-upcoming">
-						<p>Głosowanie jeszcze się nie rozpoczęło</p>
-						<p className="upcoming-info">
+					<section className={styles.upcoming}>
+						<p className={styles.upcomingTitle}>
+							Głosowanie jeszcze się nie rozpoczęło
+						</p>
+						<p className={styles.upcomingText}>
 							Rozpocznie się: {new Date(vote.startTime).toLocaleString("pl-PL")}
 						</p>
-					</div>
+					</section>
 				)}
 
 				{statusClass === "archived" && (
-					<div className="voting-details-archived">
-						<p>To głosowanie zostało zarchiwizowane</p>
-					</div>
+					<section className={styles.archived}>
+						<p>To głosowanie zostało zarchiwizowane.</p>
+					</section>
 				)}
-			</div>
+			</main>
 		</div>
 	);
 }

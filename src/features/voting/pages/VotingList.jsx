@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import "./VotingList.css";
+import styles from "./VotingList.module.css";
 import BackButton from "../../../components/PageBack";
 
 function getVoteStatus(vote) {
@@ -100,7 +100,6 @@ export default function Votings() {
 				if (!response.ok) throw new Error();
 
 				const user = await response.json();
-				// console.log(" Zalogowany użytkownik:", user);
 				setUserId(user.id);
 				setIsAdmin(
 					user.role === "admin" || user.permissions?.includes("MANAGE_VOTINGS"),
@@ -117,17 +116,13 @@ export default function Votings() {
 
 	const fetchVotings = React.useCallback(async () => {
 		try {
-			// console.log("🚀 [FRONTEND] Pobieram głosowania...");
-
 			if (!user && !isAdmin) {
-				// console.log("⏳ Brak usera - pobieram...");
 				try {
 					const userResponse = await fetch("/newapp/api/auth/me", {
 						headers: { Authorization: `Bearer ${token}` },
 					});
 					if (userResponse.ok) {
 						const userData = await userResponse.json();
-						// console.log("👤 Pobrano usera:", userData);
 						setUser(userData);
 						setIsAdmin(
 							userData.role === "admin" ||
@@ -136,16 +131,13 @@ export default function Votings() {
 						return;
 					}
 				} catch (err) {
-					// console.error("❌ Błąd pobierania usera:", err);
+					// ignore
 				}
 			}
 
 			let url = "/newapp/api/votings";
 			if (!isAdmin && user) {
 				url = `/newapp/api/votings?userId=${user.id}&role=${user.role}`;
-				// console.log(`📤 Zapytanie do: ${url}`);
-			} else {
-				// console.log("📤 Admin - pobieram wszystkie");
 			}
 
 			const response = await fetch(url, {
@@ -154,11 +146,6 @@ export default function Votings() {
 				},
 			});
 			const data = await response.json();
-			// console.log("📦 Otrzymane dane:", data);
-			// console.log(`📊 Liczba głosowań: ${data.length}`);
-			// data.forEach((v) =>
-			// 	console.log(`  - ${v.title} (assignedTo: ${v.assignedTo})`),
-			// );
 
 			setVotes(data);
 
@@ -175,7 +162,7 @@ export default function Votings() {
 		fetchVotings();
 	}, [fetchVotings]);
 	useEffect(() => {
-		if (showArchiveModal || showActivateModal) return; // pauza, gdy modal otwarty
+		if (showArchiveModal || showActivateModal) return;
 
 		const interval = setInterval(() => {
 			fetchVotings();
@@ -295,18 +282,30 @@ export default function Votings() {
 	};
 
 	if (loading) {
-		return <h2>Ładowanie głosowań...</h2>;
+		return (
+			<div className={styles.page}>
+				<div className={`${styles.skeleton} ${styles.skeletonHead}`} />
+				<div className={styles.skeletonGrid}>
+					<div className={styles.skeleton} />
+					<div className={styles.skeleton} />
+					<div className={styles.skeleton} />
+					<div className={styles.skeleton} />
+				</div>
+			</div>
+		);
 	}
 
 	if (error) {
-		return <h2>{error}</h2>;
+		return (
+			<div className={styles.page}>
+				<BackButton to="/panel" label="Panel" />
+				<div className={styles.errorBanner}>{error}</div>
+			</div>
+		);
 	}
 
 	const filteredVotes = votes.filter((vote) => {
 		const status = getVoteStatus(vote);
-		// console.log(
-		// 	`🔍 Filtruję: ${vote.title}, status: ${status}, filter: ${filter}`,
-		// );
 
 		if (filter === "archived") return status === "archived";
 		if (filter === "all") return status !== "archived";
@@ -317,307 +316,356 @@ export default function Votings() {
 		return true;
 	});
 
-	// console.log(`📊 Po filtrowaniu statusem: ${filteredVotes.length} głosowań`);
-
 	return (
 		<>
-			<div className="votings-page">
-				<BackButton to="/panel" label="Panel" />
-				<div className="votings-header">
-					<h1>Głosowania</h1>
-					<p>Aktualne i zakończone głosowania Parlamentu Młodych RP</p>
-				</div>
+			<div className={styles.page}>
+				<header className={styles.topbar}>
+					<BackButton to="/panel" label="Panel" />
+				</header>
 
-				<div className="votings-filters">
-					{[
-						["all", "Wszystkie"],
-						["upcoming", "Oczekujące"],
-						["active", "Aktywne"],
-						["finished", "Zakończone"],
-						...(isAdmin ? [["archived", "Zarchiwizowane"]] : []),
-					].map(([key, label]) => (
-						<button
-							key={key}
-							className={`filter-btn ${filter === key ? "active" : ""}`}
-							onClick={() => setFilter(key)}
-						>
-							{label}
-						</button>
-					))}
-				</div>
+				<main className={styles.main}>
+					<div className={styles.head}>
+						<span className={styles.eyebrow}>Parlament Młodych RP</span>
+						<h1 className={styles.title}>Głosowania</h1>
+						<p className={styles.subtitle}>
+							Aktualne i zakończone głosowania Parlamentu Młodych RP.
+						</p>
+					</div>
 
-				<div className="votings-grid">
-					{isAdmin && filter !== "archived" && (
-						<Link
-							to="/glosowania/nowe"
-							className="voting-card create-vote-card"
-						>
-							<div className="create-vote-content">
-								<div className="create-vote-icon">+</div>
-								<h3>Utwórz nowe głosowanie</h3>
-							</div>
-						</Link>
-					)}
+					<div className={styles.filters}>
+						{[
+							["all", "Wszystkie"],
+							["upcoming", "Oczekujące"],
+							["active", "Aktywne"],
+							["finished", "Zakończone"],
+							...(isAdmin ? [["archived", "Zarchiwizowane"]] : []),
+						].map(([key, label]) => (
+							<button
+								key={key}
+								type="button"
+								className={`${styles.filterBtn} ${
+									filter === key ? styles.filterBtnActive : ""
+								}`}
+								onClick={() => setFilter(key)}
+							>
+								{label}
+							</button>
+						))}
+					</div>
 
-					{filteredVotes.map((vote) => {
-						const status = getVoteStatus(vote);
-						const end = new Date(vote.endTime).getTime();
-						const remainingSec = Math.max(0, Math.floor((end - now) / 1000));
-						const result = status === "finished" ? getResult(vote) : null;
-						const isArchived = status === "archived";
+					<div className={styles.grid}>
+						{isAdmin && filter !== "archived" && (
+							<Link to="/glosowania/nowe" className={styles.createCard}>
+								<div className={styles.createIcon}>+</div>
+								<span className={styles.createLabel}>
+									Utwórz nowe głosowanie
+								</span>
+							</Link>
+						)}
 
-						const canEdit =
-							canManageVote(vote) &&
-							(status === "active" || status === "upcoming");
-						const canArchive = canManageVote(vote) && status === "finished";
-						const canActivate = canManageVote(vote) && status === "upcoming";
+						{filteredVotes.map((vote) => {
+							const status = getVoteStatus(vote);
+							const end = new Date(vote.endTime).getTime();
+							const remainingSec = Math.max(0, Math.floor((end - now) / 1000));
+							const result = status === "finished" ? getResult(vote) : null;
+							const isArchived = status === "archived";
 
-						return (
-							<div key={vote.id} className={`voting-card ${status}`}>
-								<div className="voting-card-header">
-									<span className="voting-type">
-										{getCategoryLabel(vote.category)}
-									</span>
-									<span className={`voting-status ${status}`}>
-										{isArchived
-											? "ZARCHIWIZOWANE"
-											: status === "active"
-												? "TRWA"
-												: status === "finished"
-													? "ZAKOŃCZONE"
-													: "OCZEKUJE"}
-									</span>
-								</div>
+							const canEdit =
+								canManageVote(vote) &&
+								(status === "active" || status === "upcoming");
+							const canArchive = canManageVote(vote) && status === "finished";
+							const canActivate = canManageVote(vote) && status === "upcoming";
 
-								<h3 className="voting-title">{vote.title}</h3>
+							const totalVotes =
+								vote.votesFor + vote.votesAgainst + vote.abstained || 0;
 
-								<p className="voting-description">{vote.description}</p>
+							return (
+								<article
+									key={vote.id}
+									className={`${styles.card} ${styles[status] || ""}`}
+								>
+									<header className={styles.cardHead}>
+										<span className={styles.cardCategory}>
+											{getCategoryLabel(vote.category)}
+										</span>
+										<span
+											className={`${styles.statusBadge} ${
+												styles[`status_${status}`] || ""
+											}`}
+										>
+											{isArchived
+												? "Zarchiwizowane"
+												: status === "active"
+													? "Trwa"
+													: status === "finished"
+														? "Zakończone"
+														: "Oczekuje"}
+										</span>
+									</header>
 
-								<div className="voting-info">
-									<p>
-										<strong>Start:</strong>{" "}
-										{new Date(vote.startTime).toLocaleString("pl-PL")}
-									</p>
-									<p>
-										<strong>Koniec:</strong>{" "}
-										{new Date(vote.endTime).toLocaleString("pl-PL")}
-									</p>
-								</div>
+									<h3 className={styles.cardTitle}>{vote.title}</h3>
 
-								{status === "active" && (
-									<div className="voting-active">
-										<p className="live-indicator">
-											Głosowanie trwa (koniec za{" "}
-											<strong>{formatTime(remainingSec)}</strong>)
-										</p>
+									{vote.description && (
+										<p className={styles.cardDescription}>{vote.description}</p>
+									)}
 
-										{vote.hasVoted ? (
-											<p className="my-vote">
-												Twój głos:{" "}
-												<strong>
-													{vote.myVote === "for"
-														? "ZA"
-														: vote.myVote === "against"
-															? "PRZECIW"
-															: "WSTRZYMANIE"}
-												</strong>
-											</p>
-										) : (
-											<Link
-												to={`/glosowanie/${vote.id}`}
-												className="vote-now-btn"
-											>
-												Weź udział w głosowaniu
-											</Link>
-										)}
-									</div>
-								)}
-
-								{status === "finished" && (
-									<div className="voting-result">
-										<div className="result-bars">
-											<div className="result-for">
-												<span>ZA</span>
-												<div
-													className="bar"
-													style={{
-														width: `${(vote.votesFor / (vote.votesFor + vote.votesAgainst + vote.abstained)) * 100 || 0}%`,
-														background: "#166534",
-													}}
-												/>
-												<strong>{vote.votesFor}</strong>
-											</div>
-
-											<div className="result-against">
-												<span>PRZECIW</span>
-												<div
-													className="bar"
-													style={{
-														width: `${(vote.votesAgainst / (vote.votesFor + vote.votesAgainst + vote.abstained)) * 100 || 0}%`,
-														background: "#991b1b",
-													}}
-												/>
-												<strong>{vote.votesAgainst}</strong>
-											</div>
-
-											<div className="result-abstained">
-												<span>WSTRZYMAŁO SIĘ</span>
-												<div
-													className="bar"
-													style={{
-														width: `${(vote.abstained / (vote.votesFor + vote.votesAgainst + vote.abstained)) * 100 || 0}%`,
-														background: "#6c757d",
-													}}
-												/>
-												<strong>{vote.abstained}</strong>
-											</div>
+									<dl className={styles.cardInfo}>
+										<div className={styles.infoRow}>
+											<dt>Start</dt>
+											<dd>
+												{new Date(vote.startTime).toLocaleString("pl-PL")}
+											</dd>
 										</div>
+										<div className={styles.infoRow}>
+											<dt>Koniec</dt>
+											<dd>{new Date(vote.endTime).toLocaleString("pl-PL")}</dd>
+										</div>
+									</dl>
 
-										<p className={`final-result ${result}`}>
-											{result === "passed"
-												? "Uchwała przyjęta"
-												: result === "rejected"
-													? "Uchwała odrzucona"
-													: "Remis"}
-										</p>
-									</div>
-								)}
+									{status === "active" && (
+										<div className={styles.activeBox}>
+											<div className={styles.liveRow}>
+												<span className={styles.liveDot} />
+												<span className={styles.liveLabel}>
+													Głosowanie trwa
+												</span>
+												<span className={styles.liveTime}>
+													koniec za <strong>{formatTime(remainingSec)}</strong>
+												</span>
+											</div>
 
-								{isArchived && (
-									<div className="voting-archived">
-										<p className="archived-info">
-											To głosowanie zostało zarchiwizowane
-										</p>
-										<Link
-											to={`/glosowanie/${vote.id}/szczegoly`}
-											className="see-details-btn"
-										>
-											Zobacz szczegóły
-										</Link>
-									</div>
-								)}
+											{vote.hasVoted ? (
+												<p className={styles.myVote}>
+													Twój głos:{" "}
+													<strong>
+														{vote.myVote === "for"
+															? "ZA"
+															: vote.myVote === "against"
+																? "PRZECIW"
+																: "WSTRZYMANIE"}
+													</strong>
+												</p>
+											) : (
+												<Link
+													to={`/glosowanie/${vote.id}`}
+													className={`${styles.btn} ${styles.btnPrimary} ${styles.btnBlock}`}
+												>
+													Weź udział w głosowaniu
+												</Link>
+											)}
+										</div>
+									)}
 
-								{!isArchived && status === "upcoming" && (
-									<div className="voting-actions">
-										<Link
-											to={`/glosowanie/${vote.id}/szczegoly`}
-											className="see-details-btn"
-										>
-											Szczegóły
-										</Link>
+									{status === "finished" && (
+										<div className={styles.resultBox}>
+											<div className={styles.resultRow}>
+												<div className={styles.resultLabel}>
+													<span>ZA</span>
+													<strong>{vote.votesFor}</strong>
+												</div>
+												<div className={styles.resultTrack}>
+													<div
+														className={`${styles.resultFill} ${styles.resultFor}`}
+														style={{
+															width: totalVotes
+																? `${(vote.votesFor / totalVotes) * 100}%`
+																: "0%",
+														}}
+													/>
+												</div>
+											</div>
 
-										{canEdit && (
+											<div className={styles.resultRow}>
+												<div className={styles.resultLabel}>
+													<span>PRZECIW</span>
+													<strong>{vote.votesAgainst}</strong>
+												</div>
+												<div className={styles.resultTrack}>
+													<div
+														className={`${styles.resultFill} ${styles.resultAgainst}`}
+														style={{
+															width: totalVotes
+																? `${(vote.votesAgainst / totalVotes) * 100}%`
+																: "0%",
+														}}
+													/>
+												</div>
+											</div>
+
+											<div className={styles.resultRow}>
+												<div className={styles.resultLabel}>
+													<span>WSTRZYMAŁO SIĘ</span>
+													<strong>{vote.abstained}</strong>
+												</div>
+												<div className={styles.resultTrack}>
+													<div
+														className={`${styles.resultFill} ${styles.resultAbstained}`}
+														style={{
+															width: totalVotes
+																? `${(vote.abstained / totalVotes) * 100}%`
+																: "0%",
+														}}
+													/>
+												</div>
+											</div>
+
+											<p
+												className={`${styles.finalResult} ${
+													styles[`finalResult_${result}`] || ""
+												}`}
+											>
+												{result === "passed"
+													? "Uchwała przyjęta"
+													: result === "rejected"
+														? "Uchwała odrzucona"
+														: "Remis"}
+											</p>
+										</div>
+									)}
+
+									{isArchived && (
+										<div className={styles.archivedBox}>
+											<p className={styles.archivedText}>
+												To głosowanie zostało zarchiwizowane.
+											</p>
 											<Link
-												to={`/glosowanie/${vote.id}/edytuj`}
-												className="edit-vote-btn"
+												to={`/glosowanie/${vote.id}/szczegoly`}
+												className={`${styles.btn} ${styles.btnOutline} ${styles.btnBlock}`}
 											>
-												Edytuj
+												Zobacz szczegóły
 											</Link>
-										)}
-										{canActivate && (
-											<button
-												onClick={() => openActivateModal(vote.id)}
-												className="activate-vote-btn"
-											>
-												Aktywuj
-											</button>
-										)}
-									</div>
-								)}
+										</div>
+									)}
 
-								{!isArchived && status === "active" && (
-									<div className="voting-actions">
-										<Link
-											to={`/glosowanie/${vote.id}/szczegoly`}
-											className="see-details-btn"
-										>
-											Zobacz szczegóły
-										</Link>
-
-										{canEdit && (
+									{!isArchived && status === "upcoming" && (
+										<div className={styles.actions}>
 											<Link
-												to={`/glosowanie/${vote.id}/live`}
-												className="edit-vote-btn"
+												to={`/glosowanie/${vote.id}/szczegoly`}
+												className={`${styles.btn} ${styles.btnOutline}`}
 											>
-												Live
+												Szczegóły
 											</Link>
-										)}
-										{canEdit && (
+
+											{canEdit && (
+												<Link
+													to={`/glosowanie/${vote.id}/edytuj`}
+													className={`${styles.btn} ${styles.btnGhost}`}
+												>
+													Edytuj
+												</Link>
+											)}
+											{canActivate && (
+												<button
+													type="button"
+													onClick={() => openActivateModal(vote.id)}
+													className={`${styles.btn} ${styles.btnPrimary}`}
+												>
+													Aktywuj
+												</button>
+											)}
+										</div>
+									)}
+
+									{!isArchived && status === "active" && (
+										<div className={styles.actions}>
 											<Link
-												to={`/glosowanie/${vote.id}/edytuj`}
-												className="edit-vote-btn"
+												to={`/glosowanie/${vote.id}/szczegoly`}
+												className={`${styles.btn} ${styles.btnOutline}`}
 											>
-												Edytuj
+												Zobacz szczegóły
 											</Link>
-										)}
-										{canEdit && (
-											<button
-												onClick={() => handleFinish(vote.id)}
-												className="finish-vote-btn"
+
+											{canEdit && (
+												<Link
+													to={`/glosowanie/${vote.id}/live`}
+													className={`${styles.btn} ${styles.btnGhost}`}
+												>
+													Live
+												</Link>
+											)}
+											{canEdit && (
+												<Link
+													to={`/glosowanie/${vote.id}/edytuj`}
+													className={`${styles.btn} ${styles.btnGhost}`}
+												>
+													Edytuj
+												</Link>
+											)}
+											{canEdit && (
+												<button
+													type="button"
+													onClick={() => handleFinish(vote.id)}
+													className={`${styles.btn} ${styles.btnDanger}`}
+												>
+													Zakończ
+												</button>
+											)}
+										</div>
+									)}
+
+									{!isArchived && status === "finished" && (
+										<div className={styles.actions}>
+											<Link
+												to={`/glosowanie/${vote.id}/szczegoly`}
+												className={`${styles.btn} ${styles.btnOutline}`}
 											>
-												Zakończ
-											</button>
-										)}
-									</div>
-								)}
+												Zobacz szczegóły
+											</Link>
 
-								{!isArchived && status === "finished" && (
-									<div className="voting-actions">
-										<Link
-											to={`/glosowanie/${vote.id}/szczegoly`}
-											className="see-results-btn"
-										>
-											Zobacz szczegóły
-										</Link>
+											{canArchive && (
+												<button
+													type="button"
+													onClick={() => openArchiveModal(vote.id)}
+													className={`${styles.btn} ${styles.btnDanger}`}
+												>
+													Archiwizuj
+												</button>
+											)}
+										</div>
+									)}
+								</article>
+							);
+						})}
+					</div>
 
-										{canArchive && (
-											<button
-												onClick={() => openArchiveModal(vote.id)}
-												className="archive-vote-btn"
-											>
-												Archiwizuj
-											</button>
-										)}
-									</div>
-								)}
-							</div>
-						);
-					})}
-				</div>
-
-				{filteredVotes.length === 0 && (
-					<p className="no-votes">Brak głosowań w wybranej kategorii.</p>
-				)}
+					{filteredVotes.length === 0 && (
+						<div className={styles.empty}>
+							<p className={styles.emptyTitle}>Brak głosowań</p>
+							<p className={styles.emptyText}>
+								Nie ma głosowań w wybranej kategorii.
+							</p>
+						</div>
+					)}
+				</main>
 			</div>
 
 			{showArchiveModal && (
 				<div
-					className="archive-modal-overlay"
+					className={styles.modalOverlay}
 					onClick={() => setShowArchiveModal(false)}
 				>
-					<div
-						className="archive-modal-content"
-						onClick={(e) => e.stopPropagation()}
-					>
-						<h2>Archiwizacja głosowania</h2>
+					<div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+						<h2 className={styles.modalTitle}>Archiwizacja głosowania</h2>
 
-						<div className="archive-modal-warning">
+						<div className={styles.modalWarning}>
 							<strong>UWAGA!</strong>
 							<p>
 								Czy na pewno chcesz zarchiwizować to głosowanie? Po archiwizacji
-								będzie ono widoczne tylko w zakładce "Zarchiwizowane".
+								będzie ono widoczne tylko w zakładce „Zarchiwizowane”.
 							</p>
 						</div>
 
-						<div className="archive-modal-actions">
+						<div className={styles.modalActions}>
 							<button
-								className="archive-modal-btn-cancel"
+								type="button"
+								className={`${styles.btn} ${styles.btnGhost}`}
 								onClick={() => setShowArchiveModal(false)}
 							>
 								Anuluj
 							</button>
 							<button
-								className="archive-modal-btn-confirm"
+								type="button"
+								className={`${styles.btn} ${styles.btnPrimary}`}
 								onClick={() => handleArchive(archivingId)}
 							>
 								Potwierdź archiwizację
@@ -629,30 +677,27 @@ export default function Votings() {
 
 			{showActivateModal && (
 				<div
-					className="activate-modal-overlay"
+					className={styles.modalOverlay}
 					onClick={() => setShowActivateModal(false)}
 				>
-					<div
-						className="activate-modal-content"
-						onClick={(e) => e.stopPropagation()}
-					>
-						<h2>Aktywacja głosowania</h2>
+					<div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+						<h2 className={styles.modalTitle}>Aktywacja głosowania</h2>
 
-						<div className="activate-modal-info">
-							<p>
-								<strong>
-									{votes.find((v) => v.id === activatingId)?.title}
-								</strong>
+						<div className={styles.modalInfo}>
+							<p className={styles.modalInfoTitle}>
+								{votes.find((v) => v.id === activatingId)?.title}
 							</p>
-							<p className="activate-modal-subtitle">
+							<p className={styles.modalInfoText}>
 								Ustaw czas trwania i opóźnienie startu głosowania.
 							</p>
 						</div>
 
-						<div className="activate-modal-fields">
-							<div className="activate-field">
-								<label htmlFor="duration">Czas trwania głosowania</label>
-								<div className="activate-field-input">
+						<div className={styles.fieldsGrid}>
+							<div className={styles.modalField}>
+								<label htmlFor="duration" className={styles.modalLabel}>
+									Czas trwania głosowania
+								</label>
+								<div className={styles.modalInputWrap}>
 									<input
 										id="duration"
 										type="number"
@@ -663,17 +708,20 @@ export default function Votings() {
 										onChange={(e) =>
 											setActivationDuration(parseFloat(e.target.value) || 1)
 										}
+										className={styles.modalInput}
 									/>
-									<span className="activate-field-unit">godzin</span>
+									<span className={styles.modalUnit}>godzin</span>
 								</div>
-								<small className="activate-field-hint">
+								<small className={styles.modalHint}>
 									(min. 0.5h, max. 72h)
 								</small>
 							</div>
 
-							<div className="activate-field">
-								<label htmlFor="delay">Opóźnienie startu</label>
-								<div className="activate-field-input">
+							<div className={styles.modalField}>
+								<label htmlFor="delay" className={styles.modalLabel}>
+									Opóźnienie startu
+								</label>
+								<div className={styles.modalInputWrap}>
 									<input
 										id="delay"
 										type="number"
@@ -684,28 +732,27 @@ export default function Votings() {
 										onChange={(e) =>
 											setActivationStartDelay(parseInt(e.target.value) || 0)
 										}
+										className={styles.modalInput}
 									/>
-									<span className="activate-field-unit">minut</span>
+									<span className={styles.modalUnit}>minut</span>
 								</div>
-								<small className="activate-field-hint">(maks. 60 minut)</small>
+								<small className={styles.modalHint}>(maks. 60 minut)</small>
 							</div>
 						</div>
 
-						<div className="activate-modal-preview">
-							<p>
-								<strong>Podgląd:</strong>
-							</p>
-							<p>
+						<div className={styles.preview}>
+							<p className={styles.previewLabel}>Podgląd</p>
+							<p className={styles.previewRow}>
 								Start:{" "}
-								<span className="preview-time">
+								<span className={styles.previewTime}>
 									{new Date(
 										Date.now() + activationStartDelay * 60000,
 									).toLocaleString("pl-PL")}
 								</span>
 							</p>
-							<p>
+							<p className={styles.previewRow}>
 								Koniec:{" "}
-								<span className="preview-time">
+								<span className={styles.previewTime}>
 									{new Date(
 										Date.now() +
 											activationStartDelay * 60000 +
@@ -713,22 +760,24 @@ export default function Votings() {
 									).toLocaleString("pl-PL")}
 								</span>
 							</p>
-							<p className="preview-duration">
+							<p className={styles.previewDuration}>
 								Czas trwania: <strong>{activationDuration} godzin</strong>
 								{activationStartDelay > 0 &&
 									` (start za ${activationStartDelay} minut)`}
 							</p>
 						</div>
 
-						<div className="activate-modal-actions">
+						<div className={styles.modalActions}>
 							<button
-								className="activate-modal-btn-cancel"
+								type="button"
+								className={`${styles.btn} ${styles.btnGhost}`}
 								onClick={() => setShowActivateModal(false)}
 							>
 								Anuluj
 							</button>
 							<button
-								className="activate-modal-btn-confirm"
+								type="button"
+								className={`${styles.btn} ${styles.btnPrimary}`}
 								onClick={() => handleActivate(activatingId)}
 							>
 								Aktywuj głosowanie

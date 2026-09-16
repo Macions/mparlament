@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import styles from "./resolutions.module.css";
 import BackButton from "../../../components/PageBack";
+
 export default function Resolutions() {
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -54,25 +55,39 @@ export default function Resolutions() {
 	};
 
 	return (
-		<div className={styles.resolutionsPage}>
-			<main>
+		<div className={styles.page}>
+			<header className={styles.topbar}>
 				<BackButton to="/panel" label="Panel" />
+			</header>
 
-				<div className={styles.uchwalyBar}>
-					<h1 className={styles.uchwalyTitle}>UCHWAŁY</h1>
+			<main className={styles.content}>
+				<div className={styles.head}>
+					<div className={styles.headText}>
+						<span className={styles.eyebrow}>Rejestr</span>
+						<h1 className={styles.title}>Uchwały</h1>
+						<p className={styles.subtitle}>
+							{loading
+								? "Ładowanie…"
+								: `${filteredResolutions.length} ${
+										filteredResolutions.length === 1 ? "uchwała" : "uchwał"
+									}`}
+						</p>
+					</div>
 
-					<div className={styles.sessionSelector}>
-						<label htmlFor="session-select">Posiedzenie:</label>
+					<div className={styles.filter}>
+						<label htmlFor="session-select" className={styles.filterLabel}>
+							Posiedzenie
+						</label>
 						<select
 							id="session-select"
 							value={selectedSessionId}
 							onChange={(e) => setSelectedSessionId(e.target.value)}
-							className={styles.sessionSelect}
+							className={styles.select}
 						>
 							<option value="all">Wszystkie posiedzenia</option>
 							{sessions.map((session) => (
 								<option key={session.id} value={session.id}>
-									{session.name} - {session.date}
+									{session.name} — {session.date}
 								</option>
 							))}
 						</select>
@@ -80,34 +95,59 @@ export default function Resolutions() {
 				</div>
 
 				{loading ? (
-					<p className={styles.loadingText}>Ładowanie uchwał...</p>
+					<div className={styles.skeletons}>
+						{Array.from({ length: 5 }).map((_, i) => (
+							<div key={i} className={styles.skeleton} />
+						))}
+					</div>
+				) : filteredResolutions.length === 0 ? (
+					<div className={styles.empty}>
+						<p className={styles.emptyTitle}>Brak uchwał</p>
+						<p className={styles.emptyText}>
+							Nie znaleziono uchwał dla wybranego posiedzenia.
+						</p>
+					</div>
 				) : (
-					<>
-						<div className={styles.resolutionsList}>
-							{filteredResolutions.length === 0 ? (
-								<p className={styles.noResolutions}>
-									Brak uchwał dla wybranego posiedzenia.
-								</p>
-							) : (
-								filteredResolutions.map((resolution) => (
-									<div key={resolution.id} className={styles.resolutionItem}>
-										<p className={styles.resolutionTitle}>{resolution.title}</p>
-										<Link
-											to={`/${resolution.slug}`}
-											onClick={() => {
-												sessionStorage.setItem(
-													"resolutionsScroll",
-													window.scrollY.toString(),
-												);
-											}}
-										>
-											<button className={styles.readBtn}>Przeczytaj</button>
-										</Link>
-									</div>
-								))
-							)}
-						</div>
-					</>
+					<ul className={styles.list}>
+						{filteredResolutions.map((resolution) => (
+							<li key={resolution.id} className={styles.item}>
+								<div className={styles.itemMain}>
+									<span className={styles.itemEyebrow}>
+										{getSessionName(resolution.sessionId)}
+									</span>
+									<p className={styles.itemTitle}>{resolution.title}</p>
+								</div>
+
+								<Link
+									to={`/${resolution.slug}`}
+									className={styles.itemBtn}
+									onClick={() => {
+										sessionStorage.setItem(
+											"resolutionsScroll",
+											window.scrollY.toString(),
+										);
+									}}
+								>
+									Przeczytaj
+									<svg
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										aria-hidden="true"
+									>
+										<path
+											d="M5 12h14M13 6l6 6-6 6"
+											stroke="currentColor"
+											strokeWidth="2"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+										/>
+									</svg>
+								</Link>
+							</li>
+						))}
+					</ul>
 				)}
 			</main>
 		</div>
