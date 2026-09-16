@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Dashboard.module.css";
 import BackButton from "../../../components/PageBack";
+
 function CalendarIcon() {
 	return (
 		<svg
@@ -13,7 +14,7 @@ function CalendarIcon() {
 		>
 			<path
 				d="M3 9H21M7 3V5M17 3V5M6 12H8M11 12H13M16 12H18M6 15H8M11 15H13M16 15H18M6 18H8M11 18H13M16 18H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9202 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9202 3 19.4803 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51989 21 5.07989 21 6.2 21Z"
-				stroke="#ffffff"
+				stroke="currentColor"
 				strokeWidth="0.992"
 				strokeLinecap="round"
 			/>
@@ -73,11 +74,7 @@ export default function Dashboard() {
 
 				setIsAdmin(
 					userData.role === "admin" ||
-					userData.permissions?.includes("MANAGE_RESOLUTIONS"),
-				);
-				setIsAdmin(
-					userData.role === "admin" ||
-					userData.permissions?.includes("MANAGE_RESOLUTIONS"),
+						userData.permissions?.includes("MANAGE_RESOLUTIONS"),
 				);
 
 				const sessionResponse = await fetch("/newapp/api/sessions/current", {
@@ -107,94 +104,130 @@ export default function Dashboard() {
 	}
 
 	return (
-		<div className={styles.dashboard}>
-			<section className={styles.dashboardUser}>
+		<div className={styles.shell}>
+			{/* Górny pasek użytkownika */}
+			<header className={styles.topbar}>
 				<BackButton to="/" label="Strona główna" />
-				<div className={styles.dashboardUserInfo}>
-					<p className={styles.dashboardUserName}>
-						Zalogowano jako {user?.name}
-					</p>
 
-					<p className={styles.dashboardUserClub}>{user?.club}</p>
+				<div className={styles.identity}>
+					<div className={styles.avatar}>
+						{(user?.name?.[0] || "?").toUpperCase()}
+					</div>
+					<div className={styles.identityText}>
+						<span className={styles.identityGreeting}>Zalogowano jako</span>
+						<strong className={styles.identityName}>{user?.name}</strong>
+						{user?.club && (
+							<span className={styles.identityClub}>{user.club}</span>
+						)}
+					</div>
 				</div>
-			</section>
+			</header>
 
-			<div className={styles.dashboardGrid}>
-				{currentSession && currentSession.active && (
-					<article
-						className={`${styles.dashboardCard} ${styles.dashboardCardSession}`}
-					>
-						<h2 className={styles.dashboardCardTitle}>POSIEDZENIE</h2>
+			<main className={styles.content}>
+				{/* Hero z aktywnym posiedzeniem */}
+				{currentSession && currentSession.active ? (
+					<section className={styles.hero}>
+						<div className={styles.heroPulse} aria-hidden="true" />
 
-						<div className={styles.dashboardSessionInfo}>
-							<span className={styles.dashboardSessionBadge}>Trwa teraz</span>
+						<div className={styles.heroBody}>
+							<span className={styles.heroBadge}>
+								<span className={styles.heroBadgeDot} />
+								Trwa teraz
+							</span>
 
-							<h3>{currentSession.title}</h3>
+							<h1 className={styles.heroTitle}>{currentSession.title}</h1>
 
-							<p className={styles.dashboardSessionTime}>
-								<span className={styles.time}>
-									{currentSession.start || currentSession.startTime}
-								</span>
-								<span className={styles.separator}> – </span>
-								<span className={styles.time}>
-									{currentSession.end || currentSession.endTime}
-								</span>
+							<p className={styles.heroTime}>
+								{currentSession.start || currentSession.startTime}
+								<span className={styles.heroTimeSep}>–</span>
+								{currentSession.end || currentSession.endTime}
 							</p>
 						</div>
 
-						<Link
-							to="/posiedzenie"
-							className={styles.dashboardCardButtonSession}
-						>
-							ŚLEDŹ POSIEDZENIE
+						<Link to="/posiedzenie" className={styles.heroCta}>
+							<span>ŚLEDŹ POSIEDZENIE</span>
+							<svg
+								width="20"
+								height="20"
+								viewBox="0 0 24 24"
+								fill="none"
+								aria-hidden="true"
+							>
+								<path
+									d="M5 12h14M13 6l6 6-6 6"
+									stroke="currentColor"
+									strokeWidth="2"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								/>
+							</svg>
 						</Link>
-					</article>
+					</section>
+				) : (
+					<section className={styles.heroIdle}>
+						<h1 className={styles.heroIdleTitle}>Panel radnego</h1>
+						<p className={styles.heroIdleText}>
+							Brak aktywnego posiedzenia w tej chwili.
+						</p>
+					</section>
 				)}
 
-				<div className={styles.dashboardActions}>
+				{/* Kafle akcji */}
+				<section className={styles.tiles}>
+					<Link
+						to="/glosowania"
+						className={`${styles.tile} ${styles.tileVoting}`}
+					>
+						<span className={styles.tileEyebrow}>Głosowania</span>
+						<span className={styles.tileLabel}>Przejdź do głosowań</span>
+						<span className={styles.tileArrow}>→</span>
+					</Link>
+
 					<Link
 						to="/uchwaly"
-						className={`${styles.dashboardAction} ${styles.dashboardActionResolutions} ${styles.dashboardActionDisabled}`}
+						className={`${styles.tile} ${styles.tileDisabled}`}
 						title="W budowie..."
 					>
-						SPRAWDŹ UCHWAŁY
+						<span className={styles.tileEyebrow}>Uchwały</span>
+						<span className={styles.tileLabel}>Sprawdź uchwały</span>
+						<span className={styles.tileTag}>Wkrótce</span>
 					</Link>
 
 					<Link
 						to="/zloz-uchwale"
-						className={`${styles.dashboardAction} ${styles.dashboardActionSubmit} ${styles.dashboardActionDisabled}`}
+						className={`${styles.tile} ${styles.tileDisabled}`}
 						title="W budowie..."
 					>
-						ZŁÓŻ UCHWAŁĘ
+						<span className={styles.tileEyebrow}>Nowa uchwała</span>
+						<span className={styles.tileLabel}>Złóż uchwałę</span>
+						<span className={styles.tileTag}>Wkrótce</span>
 					</Link>
 
-					<Link
-						to="/glosowania"
-						className={`${styles.dashboardAction} ${styles.dashboardActionVoting}`}
-					>
-						GŁOSOWANIA
-					</Link>
 					{isAdmin && (
 						<Link
 							to="/finalizuj-uchwale"
-							className={`${styles.dashboardAction} ${styles.dashboardActionFinalize}`}
+							className={`${styles.tile} ${styles.tileAdmin}`}
 						>
-							FINALIZUJ UCHWAŁĘ
+							<span className={styles.tileEyebrow}>Administrator</span>
+							<span className={styles.tileLabel}>Finalizuj uchwałę</span>
+							<span className={styles.tileArrow}>→</span>
 						</Link>
 					)}
-				</div>
+				</section>
 
-				<article
-					className={`${styles.dashboardCard} ${styles.dashboardCardCalendar}`}
-					title="W budowie..."
-				>
-					<h2 className={styles.dashboardCardTitle}>KALENDARZ</h2>
-
-					<div className={styles.dashboardCalendarWrap}>
+				{/* Kalendarz */}
+				<section className={styles.calendar} title="W budowie...">
+					<div className={styles.calendarIcon}>
 						<CalendarIcon />
 					</div>
-				</article>
-			</div>
+					<div className={styles.calendarText}>
+						<h2 className={styles.calendarTitle}>Kalendarz</h2>
+						<p className={styles.calendarSubtitle}>
+							Harmonogram posiedzeń pojawi się wkrótce.
+						</p>
+					</div>
+				</section>
+			</main>
 		</div>
 	);
 }
