@@ -183,22 +183,24 @@ export default function Dashboard() {
 						<span className={styles.tileArrow}>→</span>
 					</Link>
 
-					<Link to="/uchwaly" className={`${styles.tile}`}>
+					<Link
+						to="/uchwaly"
+						className={`${styles.tile} ${styles.tileDisabled}`}
+						title="W budowie..."
+					>
 						<span className={styles.tileEyebrow}>Uchwały</span>
 						<span className={styles.tileLabel}>Sprawdź uchwały</span>
-
-						<span className={styles.tileArrow}>→</span>
+						<span className={styles.tileTag}>Wkrótce</span>
 					</Link>
 
 					<Link
 						to="/zloz-uchwale"
-						className={`${styles.tile}`}
+						className={`${styles.tile} ${styles.tileDisabled}`}
 						title="W budowie..."
 					>
 						<span className={styles.tileEyebrow}>Nowa uchwała</span>
 						<span className={styles.tileLabel}>Złóż uchwałę</span>
-
-						<span className={styles.tileArrow}>→</span>
+						<span className={styles.tileTag}>Wkrótce</span>
 					</Link>
 
 					{isAdmin && (
