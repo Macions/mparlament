@@ -19,7 +19,9 @@ import { SocketProvider } from "./socket/SocketProvider";
 // enableMocking().then(() => {
 // 	ReactDOM.createRoot(document.getElementById("root")).render(
 // 		<HashRouter>
-// 			<App />
+// 			<SocketProvider>
+// 				<App />
+// 			</SocketProvider>
 // 		</HashRouter>,
 // 	);
 // });

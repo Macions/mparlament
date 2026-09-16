@@ -1,13 +1,14 @@
-import logo from '../assets/full_logo.png'
+import logo from "../assets/full_logo.png";
+import styles from "./ParlamentLogo.module.css";
 
 export default function ParlamentLogo() {
-  return (
-    <div className="parlament-logo">
-      <img
-        src={logo}
-        alt="Parlament Młodych Rzeczypospolitej Polskiej"
-        className="parlament-logo__img"
-      />
-    </div>
-  )
+	return (
+		<div className={styles.parlamentLogo}>
+			<img
+				src={logo}
+				alt="Parlament Młodych Rzeczypospolitej Polskiej"
+				className={styles.parlamentLogoImg}
+			/>
+		</div>
+	);
 }

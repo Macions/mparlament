@@ -14,6 +14,7 @@ export default function SubmitResolution() {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 	const [showSuccess, setShowSuccess] = useState(false);
+	const [isDragging, setIsDragging] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
 	const [uploadProgress, setUploadProgress] = useState(0);
 	const navigate = useNavigate();
@@ -33,7 +34,35 @@ export default function SubmitResolution() {
 		}
 		fetchSessions();
 	}, []);
+	const handleDrop = (e) => {
+		e.preventDefault();
+		setIsDragging(false);
 
+		const droppedFile = e.dataTransfer.files[0];
+		if (!droppedFile) return;
+
+		if (droppedFile.name.endsWith(".docx")) {
+			setFile(droppedFile);
+			setFileName(droppedFile.name);
+			setError("");
+			setParsed(null);
+			setEditedData(null);
+			setAnalyzed(false);
+			setUploadProgress(0);
+		} else {
+			setError("Proszę wybrać plik .docx");
+		}
+	};
+
+	const handleDragOver = (e) => {
+		e.preventDefault();
+		setIsDragging(true);
+	};
+
+	const handleDragLeave = (e) => {
+		e.preventDefault();
+		setIsDragging(false);
+	};
 	const handleFileChange = (e) => {
 		const f = e.target.files[0];
 		if (f && f.name.endsWith(".docx")) {
@@ -293,7 +322,10 @@ export default function SubmitResolution() {
 						<label
 							className={`${styles.fileDrop} ${
 								fileName ? styles.fileDropActive : ""
-							}`}
+							} ${isDragging ? styles.fileDropDragging : ""}`}
+							onDragOver={handleDragOver}
+							onDragLeave={handleDragLeave}
+							onDrop={handleDrop}
 						>
 							<input
 								type="file"

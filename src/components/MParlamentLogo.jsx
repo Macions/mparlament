@@ -1,14 +1,11 @@
 import logo from "../assets/main-logo.png";
+import styles from "./MParlamentLogo.module.css";
 
 export default function MParlamentLogo() {
 	return (
-		<div className="mparlament-logo">
-			<img
-				src={logo}
-				className="mparlament-logo__img"
-				style={{ maxWidth: "100%" }}
-			/>
-			<span className="mparlament-logo__text">mParlament</span>
+		<div className={styles.mparlamentLogo}>
+			<img src={logo} alt="mParlament" className={styles.mparlamentLogoImg} />
+			<span className={styles.mparlamentLogoText}>mParlament</span>
 		</div>
 	);
 }

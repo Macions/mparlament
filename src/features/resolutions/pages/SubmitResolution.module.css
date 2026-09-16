@@ -657,3 +657,9 @@
 		transition: none;
 	}
 }
+
+.fileDropDragging {
+	border-color: #00bfff;
+	background: rgba(0, 191, 255, 0.08);
+	transform: scale(1.01);
+}

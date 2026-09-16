@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import ParlamentLogo from "./ParlamentLogo";
 import MParlamentLogo from "./MParlamentLogo";
+import styles from "./Header.module.css";
 
 export default function Header() {
 	const location = useLocation();
@@ -15,45 +16,33 @@ export default function Header() {
 		localStorage.removeItem("token");
 		localStorage.removeItem("user");
 		setIsLoggedIn(false);
-		window.location.href = "/newapp/";
+		window.location.href = "/newapp/#/";
 	};
-	return (
-		<header className="header">
-			<div className="header__top">
-				<div className="header__left">
-					<a
-						href="https://parlamentmlodych.eu/"
-						className="parlament-logo-link"
-					>
-						<ParlamentLogo />
-					</a>
-				</div>
 
-				<div className="header__center">
+	return (
+		<header className={styles.header}>
+			<div className={styles.inner}>
+				<Link to="/" className={styles.logo}>
+					<ParlamentLogo />
+				</Link>
+
+				<div className={styles.brand}>
 					<MParlamentLogo />
 				</div>
 
-				<div className="header__right">
+				<div className={styles.actions}>
 					{isLoggedIn ? (
-						<button className="logout-button" onClick={logout}>
-							<span className="logout-button__icon">
-								<LogoutIcon />
-							</span>
-							<span className="logout-button__label">Wyloguj się</span>
+						<button className={styles.authBtn} onClick={logout}>
+							<LogoutIcon />
+							<span>Wyloguj</span>
 						</button>
 					) : (
-						<Link to="/zaloguj" className="login-button">
-							<span className="login-button__icon">
-								<LoginIcon />
-							</span>
-							<span className="login-button__label">Zaloguj się</span>
+						<Link to="/zaloguj" className={styles.authBtn}>
+							<LoginIcon />
+							<span>Zaloguj</span>
 						</Link>
 					)}
 				</div>
-			</div>
-
-			<div className="header__bottom">
-				<MParlamentLogo />
 			</div>
 		</header>
 	);
@@ -61,38 +50,40 @@ export default function Header() {
 
 function LoginIcon() {
 	return (
-		<svg viewBox="0 0 24 24">
-			<circle
-				cx="12"
-				cy="8"
-				r="4"
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="1.5"
-			/>
-			<path
-				d="M5 20 C5 16 8 14 12 14 C16 14 19 16 19 20"
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="1.5"
-				strokeLinecap="round"
-			/>
+		<svg
+			className="header-icon"
+			viewBox="0 0 24 24"
+			width="20"
+			height="20"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		>
+			<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+			<polyline points="10 17 15 12 10 7" />
+			<line x1="15" y1="12" x2="3" y2="12" />
 		</svg>
 	);
 }
 
 function LogoutIcon() {
 	return (
-		<svg fill="#ffffff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-			<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-			<g
-				id="SVGRepo_tracerCarrier"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			></g>
-			<g id="SVGRepo_iconCarrier">
-				<path d="M7.707,8.707,5.414,11H17a1,1,0,0,1,0,2H5.414l2.293,2.293a1,1,0,1,1-1.414,1.414l-4-4a1,1,0,0,1,0-1.414l4-4A1,1,0,1,1,7.707,8.707ZM21,1H13a1,1,0,0,0,0,2h7V21H13a1,1,0,0,0,0,2h8a1,1,0,0,0,1-1V2A1,1,0,0,0,21,1Z"></path>
-			</g>
+		<svg
+			className="header-icon"
+			viewBox="0 0 24 24"
+			width="20"
+			height="20"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		>
+			<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+			<polyline points="16 17 21 12 16 7" />
+			<line x1="21" y1="12" x2="9" y2="12" />
 		</svg>
 	);
 }

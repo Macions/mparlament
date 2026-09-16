@@ -1,0 +1,34 @@
+.mparlamentLogo {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+}
+
+.mparlamentLogoImg {
+	max-width: 100%;
+	height: auto;
+	display: block;
+	object-fit: contain;
+}
+
+.mparlamentLogoText {
+	font-size: 1rem;
+	font-weight: 700;
+	color: #fff;
+	letter-spacing: 0.05em;
+	line-height: 1;
+}
+
+@media (max-width: 767px) {
+	.mparlamentLogoText {
+		font-size: 0.85rem;
+	}
+}
+
+@media (max-width: 479px) {
+	.mparlamentLogoText {
+		font-size: 0.75rem;
+	}
+}
