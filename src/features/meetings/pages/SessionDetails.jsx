@@ -1,10 +1,16 @@
 import { useEffect, useState, useMemo, useRef } from "react";
-import "./SessionDetails.css";
+import styles from "./SessionDetails.module.css";
 import BackButton from "../../../components/PageBack";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../../../socket/SocketProvider";
 import {
 	Check,
+	Circle,
+	Minus,
+	ArrowUp,
+	ArrowDown,
+	X,
+	Pencil,
 	RotateCcw,
 	Trash2,
 	ChevronLeft,
@@ -32,6 +38,7 @@ const parseTimeToMinutes = (timeStr) => {
 
 export default function SessionDetails() {
 	const { socket, isConnected } = useSocket();
+	const navigate = useNavigate();
 	const [session, setSession] = useState(null);
 	const [status, setStatus] = useState("");
 	const [displayPoint, setDisplayPoint] = useState(null);
@@ -74,30 +81,27 @@ export default function SessionDetails() {
 		if (saveTimer.current) clearTimeout(saveTimer.current);
 		saveTimer.current = setTimeout(() => {
 			updateSession(data);
-		}, 800); // zapisz po 800ms bez zmian
+		}, 800);
 	};
+
+	/* ─── Socket: ZO content ─── */
 	useEffect(() => {
 		if (!socket) return;
 
 		const handleZOUpdate = (newZoContent) => {
-			// console.log("📨 Odebrano nową treść ZO:", newZoContent);
 			setZoContent(newZoContent);
-
 			if (sessionMode === "zo" && displayPoint) {
-				setDisplayPoint((prev) => ({
-					...prev,
-					type: newZoContent,
-				}));
+				setDisplayPoint((prev) => ({ ...prev, type: newZoContent }));
 			}
 		};
 
 		socket.on("zoContentUpdated", handleZOUpdate);
-
 		return () => {
 			socket.off("zoContentUpdated", handleZOUpdate);
 		};
 	}, [socket, sessionMode, displayPoint]);
 
+	/* ─── Handlery harmonogramu ─── */
 	const toggleCrossItem = (index) => {
 		const newSchedule = [...schedule];
 		if (newSchedule[index].status === "crossed") {
@@ -138,7 +142,6 @@ export default function SessionDetails() {
 		if (customSpeakers && customSpeakers[name]) {
 			return customSpeakers[name];
 		}
-
 		const found = parliamentarians.find(
 			(p) => `${p.firstName} ${p.lastName}`.trim() === name,
 		);
@@ -151,7 +154,6 @@ export default function SessionDetails() {
 						: "Parlamentarzysta",
 			};
 		}
-
 		return { club: "", role: "Parlamentarzysta" };
 	};
 
@@ -177,6 +179,7 @@ export default function SessionDetails() {
 		setPointChanging(true);
 		setTimeout(() => setPointChanging(false), 400);
 	};
+
 	const goToPreviousSpeaker = () => {
 		if (currentSpeakerIndex <= 0) return;
 		const prevIndex = currentSpeakerIndex - 1;
@@ -201,11 +204,9 @@ export default function SessionDetails() {
 			updateSession({ currentSpeaker: prevSpeaker, speakers: updated });
 		}
 	};
+
 	const goToNextSpeaker = () => {
-		if (currentSpeakerIndex >= plannedSpeakers.length - 1) {
-			// console.log("Brak kolejnego mówcy");
-			return;
-		}
+		if (currentSpeakerIndex >= plannedSpeakers.length - 1) return;
 		const nextIndex = currentSpeakerIndex + 1;
 		const nextSpeaker = plannedSpeakers[nextIndex];
 		if (nextSpeaker) {
@@ -228,6 +229,7 @@ export default function SessionDetails() {
 			updateSession({ currentSpeaker: nextSpeaker, speakers: updated });
 		}
 	};
+
 	const allSpeakers = useMemo(() => {
 		const map = parliamentarians.reduce((acc, p) => {
 			const fullName = `${p.firstName} ${p.lastName}`.trim();
@@ -245,6 +247,7 @@ export default function SessionDetails() {
 		}, {});
 		return { ...map, ...customSpeakers };
 	}, [parliamentarians, customSpeakers]);
+
 	useEffect(() => {
 		if (speakers.length > 0 && plannedSpeakers.length === 0) {
 			const history = speakers.map((s, index) => ({
@@ -254,11 +257,6 @@ export default function SessionDetails() {
 				time: getCurrentTime(),
 				status: index === 0 ? "active" : "waiting",
 			}));
-			// console.log(
-			// 	"📊 ustawiam planowanych mówców z",
-			// 	history.length,
-			// 	"mówcami",
-			// );
 			setPlannedSpeakers(history);
 			setCurrentSpeakerIndex(0);
 			setDisplaySpeaker(history[0]);
@@ -293,9 +291,7 @@ export default function SessionDetails() {
 
 	const removeSpeaker = (index) => {
 		if (
-			window.confirm(
-				`Czy na pewno usunąć mówcę ${plannedSpeakers[index].name}?`,
-			)
+			window.confirm(`Czy na pewno usunąć mówcę ${plannedSpeakers[index].name}?`)
 		) {
 			const updated = plannedSpeakers.filter((_, i) => i !== index);
 			setPlannedSpeakers(updated);
@@ -309,6 +305,7 @@ export default function SessionDetails() {
 			});
 		}
 	};
+
 	const editSpeaker = (index, field, value) => {
 		const updated = [...plannedSpeakers];
 		updated[index][field] = value;
@@ -333,6 +330,7 @@ export default function SessionDetails() {
 				},
 				body: JSON.stringify(updatedSpeakers[speakerIndex]),
 			}).catch((err) => console.error("Błąd aktualizacji mówcy:", err));
+
 			if (displaySpeaker?.name === speakerName) {
 				updateSession({
 					currentSpeaker: { ...displaySpeaker, [field]: value },
@@ -341,6 +339,8 @@ export default function SessionDetails() {
 			}
 		}
 	};
+
+	/* ─── Fetch user ─── */
 	useEffect(() => {
 		async function fetchUser() {
 			try {
@@ -350,7 +350,8 @@ export default function SessionDetails() {
 				if (response.ok) {
 					const user = await response.json();
 					setUserRole(user.role);
-					const authorized = user.role === "admin" || user.role === "marshal";
+					const authorized =
+						user.role === "admin" || user.role === "marshal";
 					setIsAuthorized(authorized);
 					setAdminMode(authorized);
 				}
@@ -361,26 +362,25 @@ export default function SessionDetails() {
 		fetchUser();
 	}, [token]);
 
+	/* ─── Zastosuj sesję do stanu ─── */
 	useEffect(() => {
 		if (session) {
 			setDisplaySpeaker(session.currentSpeaker ?? null);
 			setDisplayPoint(session.currentPoint ?? null);
-			setSchedule(session.schedule ?? []);   // ← KLUCZOWE
+			setSchedule(session.schedule ?? []);
 			setStatus(session.status ?? "");
 			setTitle(session.title ?? "");
 			setDate(session.date ?? "");
 
-			if (session.zoContent) {
-				setZoContent(session.zoContent);
-			}
-			if (session.sessionMode) {
-				setSessionMode(session.sessionMode);
-			}
+			if (session.zoContent) setZoContent(session.zoContent);
+			if (session.sessionMode) setSessionMode(session.sessionMode);
 			if (Array.isArray(session.speakers) && session.speakers.length > 0) {
 				setPlannedSpeakers(session.speakers);
 			}
 		}
 	}, [session]);
+
+	/* ─── Synchronizuj displayPoint z aktywnym punktem harmonogramu ─── */
 	useEffect(() => {
 		if (sessionMode !== "normal" || !displayPoint) return;
 		const activeIndex = schedule.findIndex((item) => item.status === "active");
@@ -407,6 +407,7 @@ export default function SessionDetails() {
 		window.scrollTo({ top: 0, behavior: "instant" });
 	}, []);
 
+	/* ─── Fetch session data ─── */
 	useEffect(() => {
 		async function fetchSessionData() {
 			try {
@@ -442,7 +443,6 @@ export default function SessionDetails() {
 				setLoading(false);
 			}
 		}
-
 		fetchSessionData();
 	}, [token]);
 
@@ -458,7 +458,6 @@ export default function SessionDetails() {
 			});
 			if (!response.ok) throw new Error("Nie udało się zaktualizować sesji");
 			const data = await response.json();
-			// Merge: zachowaj poprzednie pola, nadpisz tylko to, co przyszło z backendu.
 			setSession((prev) => ({ ...prev, ...data }));
 		} catch (err) {
 			setError(err.message);
@@ -524,7 +523,7 @@ export default function SessionDetails() {
 			}
 		}
 
-		// 2) Dodaj do kolejki plannedSpeakers (jak wcześniej)
+		// 2) Dodaj do kolejki plannedSpeakers
 		const updated = plannedSpeakers.map((s) => {
 			if (s.status === "active") {
 				return { ...s, status: "done" };
@@ -650,7 +649,6 @@ export default function SessionDetails() {
 	const cancelBreak = () => {
 		if (sessionMode !== "break") return;
 
-		// Zamiast scheduleBackup — użyj schedule z bazy (bez modyfikacji "Przerwa")
 		const restoredSchedule = scheduleBackup || schedule;
 
 		setSchedule(restoredSchedule);
@@ -677,7 +675,6 @@ export default function SessionDetails() {
 
 	const setOrganizationalTeam = () => {
 		if (sessionMode === "zo") return;
-
 		if (sessionMode === "break") cancelBreak();
 
 		const activeIdx = schedule.findIndex((item) => item.status === "active");
@@ -796,6 +793,7 @@ export default function SessionDetails() {
 		setSchedule(newSchedule);
 		updateSession({ schedule: newSchedule });
 	};
+
 	const nextItem = () => {
 		if (sessionMode === "zo") return;
 		const activeIndex = schedule.findIndex((item) => item.status === "active");
@@ -832,11 +830,11 @@ export default function SessionDetails() {
 		}
 	};
 
+	/* ─── Socket: harmonogram, mówcy, tryb sesji ─── */
 	useEffect(() => {
 		if (!socket) return;
 
 		const handleScheduleUpdate = (newSchedule) => {
-			// console.log("📨 Odebrano nowy harmonogram");
 			setPointChanging(true);
 			setTimeout(() => {
 				setSchedule(newSchedule);
@@ -845,20 +843,18 @@ export default function SessionDetails() {
 		};
 
 		const handleSpeakerUpdate = (newSpeaker) => {
-			// console.log("📨 Odebrano nowego mówcę");
 			setSpeakerChanging(true);
 			setTimeout(() => {
 				setDisplaySpeaker(newSpeaker);
 				setSpeakerChanging(false);
 			}, 200);
 		};
+
 		const handleSpeakersUpdate = (newSpeakers) => {
-			// console.log("📨 Odebrano zaktualizowaną listę mówców");
 			setPlannedSpeakers(newSpeakers);
 		};
 
 		const handleSessionModeUpdate = (newMode) => {
-			// console.log("📨 Odebrano nowy tryb sesji:", newMode);
 			setSessionMode(newMode);
 			if (newMode === "break") {
 				setDisplaySpeaker(null);
@@ -877,6 +873,7 @@ export default function SessionDetails() {
 			socket.off("sessionModeUpdated", handleSessionModeUpdate);
 		};
 	}, [socket]);
+
 	const speakerNames = Object.keys(allSpeakers);
 	const filteredSpeakers = speakerNames.filter((name) =>
 		name.toLowerCase().includes(draftSpeakerName.toLowerCase()),
@@ -885,59 +882,62 @@ export default function SessionDetails() {
 	const showSpeaker = sessionMode !== "break" && displaySpeaker !== null;
 
 	return (
-		<div className="session-page">
-			<div className="session-top-bar">
+		<div className={styles.sessionPage}>
+			{/* ── TOP BAR ── */}
+			<div className={styles.sessionTopBar}>
 				<BackButton to="/panel" label="Panel" />
-				{isConnected ? (
-					<span className="ws-status connected">
-						<span className="circle-ws-status"></span>Połączono
-					</span>
-				) : (
-					<span className="ws-status disconnected">
-						<span className="circle-ws-status"></span>Rozłączono
-					</span>
-				)}
+				<span
+					className={`${styles.wsStatus} ${isConnected ? styles.connected : styles.disconnected}`}
+				>
+					<span className={styles.circleWsStatus} />
+					{isConnected ? "Połączono" : "Rozłączono"}
+				</span>
 			</div>
-			<header className="session-header">
-				<div>
+
+			{/* ── HEADER ── */}
+			<header className={styles.sessionHeader}>
+				<div className={styles.sessionHeaderText}>
 					<h1>{title}</h1>
-					<p className="session-date">{date}</p>
+					<p className={styles.sessionDate}>{date}</p>
 				</div>
 				{isAuthorized && (
-					<div className="admin-toggle-container">
-						<span className="admin-toggle-label">
+					<div className={styles.adminToggleContainer}>
+						<span className={styles.adminToggleLabel}>
 							{adminMode ? "Tryb Admina" : "Tryb Użytkownika"}
 						</span>
-						<label className="admin-toggle">
+						<label className={styles.adminToggle}>
 							<input
 								type="checkbox"
 								checked={adminMode}
 								onChange={() => setAdminMode(!adminMode)}
 							/>
-							<span className="admin-toggle-slider"></span>
+							<span className={styles.adminToggleSlider} />
 						</label>
 					</div>
 				)}
 			</header>
+
+			{/* ── PLANOWANI MÓWCY ── */}
 			{plannedSpeakers.length > 0 && (
-				<section className="speaker-history-section">
-					<div className="speaker-history-header">
+				<section className={styles.speakerHistorySection}>
+					<div className={styles.speakerHistoryHeader}>
 						<h3>Planowani mówcy</h3>
-						<span className="speaker-count">
+						<span className={styles.speakerCount}>
 							{plannedSpeakers.filter((s) => s.status !== "done").length} /{" "}
 							{plannedSpeakers.length} pozostało
 						</span>
 					</div>
-					<div className="speaker-history-list">
+					<div className={styles.speakerHistoryList}>
 						{plannedSpeakers.map((speaker, index) => (
 							<div
 								key={index}
-								className={`speaker-history-item ${speaker.status === "active" ? "active" : ""} ${speaker.status === "done" ? "done" : ""}`}
+								className={`${styles.speakerHistoryItem} ${speaker.status === "active" ? styles.active : ""
+									} ${speaker.status === "done" ? styles.done : ""}`}
 							>
-								<div className="speaker-history-avatar">
+								<div className={styles.speakerHistoryAvatar}>
 									{speaker.name.charAt(0)}
 								</div>
-								<div className="speaker-history-info">
+								<div className={styles.speakerHistoryInfo}>
 									{adminMode ? (
 										<>
 											<input
@@ -946,7 +946,8 @@ export default function SessionDetails() {
 												onChange={(e) =>
 													editSpeaker(index, "name", e.target.value)
 												}
-												className={`admin-input speaker-edit-input ${speaker.status === "done" ? "crossed" : ""}`}
+												className={`${styles.adminInput} ${styles.speakerEditInput} ${speaker.status === "done" ? styles.crossed : ""
+													}`}
 											/>
 											<input
 												type="text"
@@ -954,36 +955,54 @@ export default function SessionDetails() {
 												onChange={(e) =>
 													editSpeaker(index, "role", e.target.value)
 												}
-												className="admin-input speaker-edit-input speaker-role-input"
+												className={`${styles.adminInput} ${styles.speakerEditInput} ${styles.speakerRoleInput}`}
 											/>
 										</>
 									) : (
 										<>
 											<div
-												className={`speaker-history-name ${speaker.status === "done" ? "crossed" : ""}`}
+												className={`${styles.speakerHistoryName} ${speaker.status === "done" ? styles.crossed : ""
+													}`}
 											>
 												{speaker.name}
 											</div>
-											<div className="speaker-history-role">{speaker.role}</div>
+											<div className={styles.speakerHistoryRole}>
+												{speaker.role}
+											</div>
 										</>
 									)}
 								</div>
+
 								{speaker.status === "done" && (
-									<span className="speaker-history-status done">✓</span>
+									<span
+										className={`${styles.speakerHistoryStatus} ${styles.done}`}
+									>
+										<Check size={16} strokeWidth={3} />
+									</span>
 								)}
 								{speaker.status === "active" && (
-									<span className="speaker-history-status active">●</span>
+									<span
+										className={`${styles.speakerHistoryStatus} ${styles.active}`}
+									>
+										<Circle size={12} fill="currentColor" />
+									</span>
 								)}
 								{speaker.status === "waiting" && (
-									<span className="speaker-history-status waiting">○</span>
+									<span
+										className={`${styles.speakerHistoryStatus} ${styles.waiting}`}
+									>
+										<Circle size={12} />
+									</span>
 								)}
-								<div className="speaker-history-time">{speaker.time}</div>
+
+								<div className={styles.speakerHistoryTime}>{speaker.time}</div>
+
 								{adminMode && (
-									<div className="speaker-actions">
+									<div className={styles.speakerActions}>
 										{speaker.status !== "done" && (
 											<button
 												onClick={() => markSpeakerDone(index)}
-												className="speaker-action-btn done-btn"
+												className={`${styles.speakerActionBtn} ${styles.doneBtn}`}
 												title="Oznacz jako zrealizowane"
 											>
 												<Check size={14} />
@@ -992,7 +1011,7 @@ export default function SessionDetails() {
 										{speaker.status === "done" && (
 											<button
 												onClick={() => markSpeakerActive(index)}
-												className="speaker-action-btn active-btn"
+												className={`${styles.speakerActionBtn} ${styles.activeBtn}`}
 												title="Przywróć"
 											>
 												<RotateCcw size={14} />
@@ -1000,7 +1019,7 @@ export default function SessionDetails() {
 										)}
 										<button
 											onClick={() => removeSpeaker(index)}
-											className="speaker-action-btn delete-btn"
+											className={`${styles.speakerActionBtn} ${styles.deleteBtn}`}
 											title="Usuń mówcę"
 										>
 											<Trash2 size={14} />
@@ -1012,13 +1031,16 @@ export default function SessionDetails() {
 					</div>
 				</section>
 			)}
-			<section className="session-live">
+
+			{/* ── LIVE: MÓWCA + PUNKT ── */}
+			<section className={styles.sessionLive}>
 				{showSpeaker && (
-					<div className="live-card">
-						<h2>AKTUALNIE MÓWI</h2>
+					<div className={styles.liveCard}>
+						<h2 className={styles.liveCardTitle}>AKTUALNIE MÓWI</h2>
+
 						{adminMode ? (
-							<div className="admin-speaker-edit">
-								<div className="autocomplete-wrapper">
+							<div className={styles.adminSpeakerEdit}>
+								<div className={styles.autocompleteWrapper}>
 									<input
 										type="text"
 										value={draftSpeakerName}
@@ -1031,7 +1053,7 @@ export default function SessionDetails() {
 											setTimeout(() => setShowSuggestions(false), 200)
 										}
 										placeholder="Wpisz imię i nazwisko"
-										className="admin-input"
+										className={styles.adminInput}
 										onKeyDown={(e) => {
 											if (e.key === "Enter") {
 												e.preventDefault();
@@ -1040,21 +1062,26 @@ export default function SessionDetails() {
 										}}
 									/>
 									{showSuggestions && filteredSpeakers.length > 0 && (
-										<ul className="suggestions-list">
+										<ul className={styles.suggestionsList}>
 											{filteredSpeakers.map((name) => (
-												<li key={name} onMouseDown={() => selectSpeaker(name)}>
+												<li
+													key={name}
+													onMouseDown={() => selectSpeaker(name)}
+												>
 													{name}
 												</li>
 											))}
 										</ul>
 									)}
 								</div>
-								<div className="admin-speaker-preview">
+
+								<div className={styles.adminSpeakerPreview}>
 									<div
-										className={`speaker-wrapper ${speakerChanging ? "changing" : ""}`}
+										className={`${styles.speakerWrapper} ${speakerChanging ? styles.changing : ""
+											}`}
 									>
-										<div className="speaker">
-											<div className="speaker-avatar">
+										<div className={styles.speaker}>
+											<div className={styles.speakerAvatar}>
 												{displaySpeaker?.name?.charAt(0) || "?"}
 											</div>
 											<div>
@@ -1066,24 +1093,24 @@ export default function SessionDetails() {
 													)}
 											</div>
 										</div>
-										<div className="speech-time">
+										<div className={styles.speechTime}>
 											Wystąpienie od {displaySpeaker?.time || ""}
 										</div>
 									</div>
 								</div>
 
-								<div className="admin-add-speaker">
+								<div className={styles.adminAddSpeaker}>
 									<h4>Dodaj nowego mówcę</h4>
 									<form
 										onSubmit={addCustomSpeaker}
-										className="add-speaker-form"
+										className={styles.addSpeakerForm}
 									>
 										<input
 											type="text"
 											placeholder="Imię i nazwisko"
 											value={newSpeakerName}
 											onChange={(e) => setNewSpeakerName(e.target.value)}
-											className="admin-input"
+											className={styles.adminInput}
 											required
 										/>
 										<input
@@ -1091,29 +1118,30 @@ export default function SessionDetails() {
 											placeholder="Klub (opcjonalne)"
 											value={newSpeakerClub}
 											onChange={(e) => setNewSpeakerClub(e.target.value)}
-											className="admin-input"
+											className={styles.adminInput}
 										/>
 										<input
 											type="text"
 											placeholder="Rola (np. Parlamentarzysta)"
 											value={newSpeakerRole}
 											onChange={(e) => setNewSpeakerRole(e.target.value)}
-											className="admin-input"
+											className={styles.adminInput}
 										/>
-										<button type="submit" className="add-btn">
+										<button type="submit" className={styles.addBtn}>
 											Dodaj mówcę
 										</button>
 									</form>
-									<div className="speakerBts">
+
+									<div className={styles.speakerBts}>
 										<button
-											className="previous-speaker"
+											className={`${styles.navSpeakerBtn} ${styles.previousSpeaker}`}
 											onClick={goToPreviousSpeaker}
 											disabled={currentSpeakerIndex <= 0}
 										>
 											<ChevronLeft size={18} /> Poprzedni mówca
 										</button>
 										<button
-											className="next-speaker"
+											className={`${styles.navSpeakerBtn} ${styles.nextSpeaker}`}
 											onClick={goToNextSpeaker}
 											disabled={
 												currentSpeakerIndex >= plannedSpeakers.length - 1
@@ -1126,10 +1154,11 @@ export default function SessionDetails() {
 							</div>
 						) : (
 							<div
-								className={`speaker-wrapper ${speakerChanging ? "changing" : ""}`}
+								className={`${styles.speakerWrapper} ${speakerChanging ? styles.changing : ""
+									}`}
 							>
-								<div className="speaker">
-									<div className="speaker-avatar">
+								<div className={styles.speaker}>
+									<div className={styles.speakerAvatar}>
 										{displaySpeaker?.name?.charAt(0) || "?"}
 									</div>
 									<div>
@@ -1141,7 +1170,7 @@ export default function SessionDetails() {
 											)}
 									</div>
 								</div>
-								<div className="speech-time">
+								<div className={styles.speechTime}>
 									Wystąpienie od {displaySpeaker?.time || ""}
 								</div>
 							</div>
@@ -1150,40 +1179,45 @@ export default function SessionDetails() {
 				)}
 
 				{displayPoint && !isPointDisabled ? (
-					<div className="live-card">
-						<h2>AKTUALNY PUNKT</h2>
+					<div className={styles.liveCard}>
+						<h2 className={styles.liveCardTitle}>AKTUALNY PUNKT</h2>
 						<div
-							className={`agenda-current ${pointChanging ? "changing" : ""}`}
+							className={`${styles.agendaCurrent} ${pointChanging ? styles.changing : ""
+								}`}
 						>
 							<span>PUNKT {displayPoint.number}</span>
 							<h3>{displayPoint.title}</h3>
 							<p>{displayPoint.type}</p>
 						</div>
+
 						{adminMode && (
-							<div className="admin-point-actions">
+							<div className={styles.adminPointActions}>
 								{sessionMode === "break" ? (
-									<div className="break-controls">
-										<span className="break-info">
+									<div className={styles.breakControls}>
+										<span className={styles.breakInfo}>
 											Przerwa do:
 											<input
 												type="time"
 												value={breakEndTime}
 												onChange={(e) => setBreakEndTime(e.target.value)}
-												className="admin-input break-time-input"
+												className={`${styles.adminInput} ${styles.breakTimeInput}`}
 												step="60"
 											/>
 										</span>
-										<button className="confirm-btn" onClick={confirmBreakEnd}>
+										<button
+											className={styles.confirmBtn}
+											onClick={confirmBreakEnd}
+										>
 											Zatwierdź
 										</button>
-										<button className="cancel-btn" onClick={cancelBreak}>
+										<button className={styles.cancelBtn} onClick={cancelBreak}>
 											Anuluj przerwę
 										</button>
 									</div>
 								) : sessionMode === "zo" ? (
-									<div className="break-controls">
-										<span className="break-info">
-											Tryb ZO -
+									<div className={styles.breakControls}>
+										<span className={styles.breakInfo}>
+											Tryb ZO –
 											{isEditingZO ? (
 												<input
 													type="text"
@@ -1191,36 +1225,38 @@ export default function SessionDetails() {
 													onChange={(e) => setZoContent(e.target.value)}
 													onBlur={saveZOContent}
 													onKeyDown={(e) => {
-														if (e.key === "Enter") {
-															saveZOContent();
-														}
+														if (e.key === "Enter") saveZOContent();
 													}}
-													className="admin-input zo-content-input"
+													className={`${styles.adminInput} ${styles.zoContentInput}`}
 													autoFocus
 												/>
 											) : (
-												<span
+												<button
+													type="button"
 													onClick={toggleZOContentEdit}
-													className="zo-content-display"
+													className={styles.zoContentDisplay}
 												>
-													{zoContent}
-												</span>
+													{zoContent} <Pencil size={14} />
+												</button>
 											)}
 										</span>
-										<button className="cancel-btn" onClick={cancelZO}>
+										<button className={styles.cancelBtn} onClick={cancelZO}>
 											Zakończ ZO
 										</button>
 									</div>
 								) : (
 									<>
-										<button className="break-btn" onClick={startBreak}>
+										<button className={styles.breakBtn} onClick={startBreak}>
 											PRZERWA
 										</button>
-										<button className="zo-btn" onClick={setOrganizationalTeam}>
+										<button
+											className={styles.zoBtn}
+											onClick={setOrganizationalTeam}
+										>
 											ZO
 										</button>
 										<button
-											className="disable-point-btn"
+											className={styles.disablePointBtn}
 											onClick={disableCurrentPoint}
 											title="Wyłącz wyświetlanie aktualnego punktu"
 										>
@@ -1233,35 +1269,40 @@ export default function SessionDetails() {
 					</div>
 				) : (
 					adminMode && (
-						<div className="live-card">
-							<h2>AKTUALNY PUNKT</h2>
-							<div className="agenda-current point-disabled">
+						<div className={styles.liveCard}>
+							<h2 className={styles.liveCardTitle}>AKTUALNY PUNKT</h2>
+							<div
+								className={`${styles.agendaCurrent} ${styles.pointDisabled}`}
+							>
 								<h3>Wyłączono wyświetlanie punktu</h3>
-								<p>Kliknij "Przywróć punkt" aby ponownie pokazać</p>
+								<p>Kliknij „Przywróć punkt", aby ponownie pokazać</p>
 							</div>
-							<div className="admin-point-actions">
+							<div className={styles.adminPointActions}>
 								{sessionMode === "break" ? (
-									<div className="break-controls">
-										<span className="break-info">
+									<div className={styles.breakControls}>
+										<span className={styles.breakInfo}>
 											Przerwa do:
 											<input
 												type="time"
 												value={breakEndTime}
 												onChange={(e) => setBreakEndTime(e.target.value)}
-												className="admin-input break-time-input"
+												className={`${styles.adminInput} ${styles.breakTimeInput}`}
 												step="60"
 											/>
 										</span>
-										<button className="confirm-btn" onClick={confirmBreakEnd}>
+										<button
+											className={styles.confirmBtn}
+											onClick={confirmBreakEnd}
+										>
 											Zatwierdź
 										</button>
-										<button className="cancel-btn" onClick={cancelBreak}>
+										<button className={styles.cancelBtn} onClick={cancelBreak}>
 											Anuluj przerwę
 										</button>
 									</div>
 								) : sessionMode === "zo" ? (
-									<div className="break-controls">
-										<span className="break-info">
+									<div className={styles.breakControls}>
+										<span className={styles.breakInfo}>
 											Tryb ZO –
 											{isEditingZO ? (
 												<input
@@ -1270,36 +1311,38 @@ export default function SessionDetails() {
 													onChange={(e) => setZoContent(e.target.value)}
 													onBlur={saveZOContent}
 													onKeyDown={(e) => {
-														if (e.key === "Enter") {
-															saveZOContent();
-														}
+														if (e.key === "Enter") saveZOContent();
 													}}
-													className="admin-input zo-content-input"
+													className={`${styles.adminInput} ${styles.zoContentInput}`}
 													autoFocus
 												/>
 											) : (
-												<span
+												<button
+													type="button"
 													onClick={toggleZOContentEdit}
-													className="zo-content-display"
+													className={styles.zoContentDisplay}
 												>
-													{zoContent} ✏️
-												</span>
+													{zoContent} <Pencil size={14} />
+												</button>
 											)}
 										</span>
-										<button className="cancel-btn" onClick={cancelZO}>
+										<button className={styles.cancelBtn} onClick={cancelZO}>
 											Zakończ ZO
 										</button>
 									</div>
 								) : (
 									<>
-										<button className="break-btn" onClick={startBreak}>
+										<button className={styles.breakBtn} onClick={startBreak}>
 											PRZERWA
 										</button>
-										<button className="zo-btn" onClick={setOrganizationalTeam}>
+										<button
+											className={styles.zoBtn}
+											onClick={setOrganizationalTeam}
+										>
 											ZO
 										</button>
 										<button
-											className="restore-point-btn"
+											className={styles.restorePointBtn}
 											onClick={restoreCurrentPoint}
 											title="Przywróć aktualny punkt"
 										>
@@ -1313,26 +1356,30 @@ export default function SessionDetails() {
 				)}
 			</section>
 
-			<section className="session-content">
-				<div className="session-panel">
-					<div className="panel-header">
-						<h2>HARMONOGRAM POSIEDZENIA</h2>
+			{/* ── HARMONOGRAM ── */}
+			<section className={styles.sessionContent}>
+				<div className={styles.sessionPanel}>
+					<div className={styles.panelHeader}>
+						<h2 className={styles.panelTitle}>HARMONOGRAM POSIEDZENIA</h2>
 						{adminMode && (
-							<div className="admin-nav">
-								<button onClick={prevItem} className="nav-btn">
+							<div className={styles.adminNav}>
+								<button onClick={prevItem} className={styles.navBtn}>
 									Poprzedni
 								</button>
-								<button onClick={nextItem} className="nav-btn">
+								<button onClick={nextItem} className={styles.navBtn}>
 									Dalej
 								</button>
 							</div>
 						)}
 					</div>
 
-					<div className="timeline">
+					<div className={styles.timeline}>
 						{(schedule ?? []).map((item, index) => (
-							<div className={`timeline-item ${item.status}`} key={index}>
-								<div className="timeline-time">
+							<div
+								className={`${styles.timelineItem} ${styles[item.status] || ""}`}
+								key={index}
+							>
+								<div className={styles.timelineTime}>
 									{adminMode ? (
 										<input
 											type="text"
@@ -1343,16 +1390,16 @@ export default function SessionDetails() {
 												setSchedule(newSchedule);
 												updateSessionDebounced({ schedule: newSchedule });
 											}}
-											className="admin-input time-input"
+											className={`${styles.adminInput} ${styles.timeInput}`}
 										/>
 									) : (
 										item.time
 									)}
 								</div>
-								<div className="timeline-dot"></div>
-								<div className="timeline-content">
+								<div className={styles.timelineDot} />
+								<div className={styles.timelineContent}>
 									{adminMode ? (
-										<div className="admin-schedule-item">
+										<div className={styles.adminScheduleItem}>
 											<input
 												type="text"
 												value={item.time}
@@ -1362,7 +1409,7 @@ export default function SessionDetails() {
 													setSchedule(newSchedule);
 													updateSessionDebounced({ schedule: newSchedule });
 												}}
-												className="admin-input time-input"
+												className={`${styles.adminInput} ${styles.timeInput}`}
 											/>
 											<input
 												type="text"
@@ -1373,46 +1420,58 @@ export default function SessionDetails() {
 													setSchedule(newSchedule);
 													updateSessionDebounced({ schedule: newSchedule });
 												}}
-												className={`admin-input title-input ${item.status === "crossed" ? "crossed" : ""}`}
+												className={`${styles.adminInput} ${styles.titleInput} ${item.status === "crossed" ? styles.crossed : ""
+													}`}
 											/>
-											<div className="admin-item-actions">
+											<div className={styles.adminItemActions}>
 												<button
 													onClick={() => setActiveItem(index)}
-													className="action-btn set-active"
+													className={`${styles.actionBtn} ${styles.setActive}`}
 													title="Ustaw jako aktywny"
-												></button>
+												>
+													<Check size={14} />
+												</button>
 												<button
 													onClick={() => toggleCrossItem(index)}
-													className={`action-btn cross ${item.status === "crossed" ? "active" : ""}`}
+													className={`${styles.actionBtn} ${styles.cross} ${item.status === "crossed" ? styles.active : ""
+														}`}
 													title="Wykreśl punkt"
 												>
-													{item.status === "crossed" ? "↻" : "—"}
+													{item.status === "crossed" ? (
+														<RotateCcw size={14} />
+													) : (
+														<Minus size={14} />
+													)}
 												</button>
 												<button
 													onClick={() => moveScheduleItem(index, -1)}
-													className="action-btn move"
+													className={`${styles.actionBtn} ${styles.move}`}
 													title="Przenieś w górę"
 												>
-													↑
+													<ArrowUp size={14} />
 												</button>
 												<button
 													onClick={() => moveScheduleItem(index, 1)}
-													className="action-btn move"
+													className={`${styles.actionBtn} ${styles.move}`}
 													title="Przenieś w dół"
 												>
-													↓
+													<ArrowDown size={14} />
 												</button>
 												<button
 													onClick={() => removeScheduleItem(index)}
-													className="action-btn delete"
+													className={`${styles.actionBtn} ${styles.deleteBtn}`}
 													title="Usuń punkt"
 												>
-													✕
+													<X size={14} />
 												</button>
 											</div>
 										</div>
 									) : (
-										<h3 className={item.status === "crossed" ? "crossed" : ""}>
+										<h3
+											className={
+												item.status === "crossed" ? styles.crossed : ""
+											}
+										>
 											{item.title}
 										</h3>
 									)}
@@ -1422,7 +1481,7 @@ export default function SessionDetails() {
 					</div>
 
 					{adminMode && (
-						<div className="admin-add-point">
+						<div className={styles.adminAddPoint}>
 							<h4>Dodaj nowy punkt</h4>
 							<form
 								onSubmit={(e) => {
@@ -1435,22 +1494,22 @@ export default function SessionDetails() {
 										form.reset();
 									}
 								}}
-								className="add-point-form"
+								className={styles.addPointForm}
 							>
 								<input
 									type="text"
 									name="time"
 									placeholder="Czas (np. 15:30)"
-									className="admin-input"
+									className={styles.adminInput}
 								/>
 								<input
 									type="text"
 									name="title"
 									placeholder="Tytuł punktu"
-									className="admin-input"
+									className={styles.adminInput}
 									required
 								/>
-								<button type="submit" className="add-btn">
+								<button type="submit" className={styles.addBtn}>
 									Dodaj
 								</button>
 							</form>

@@ -1,0 +1,1429 @@
+/* SessionDetails.module.css
+   Strona /posiedzenie — spójna z Dashboard.module.css.
+   Paleta: biały, czarny, granatowy (#002b5c). Czerwony tylko dla akcji destrukcyjnych. */
+
+/* ═══════════════════════════════════════════════
+   1. KONTENER GŁÓWNY
+   ═══════════════════════════════════════════════ */
+
+.sessionPage {
+	width: 100%;
+	min-height: 100vh;
+	margin: 0 auto;
+	padding: 24px 24px 64px;
+	background: #ffffff;
+	color: #111111;
+	font-family: inherit;
+	-webkit-tap-highlight-color: transparent;
+	box-sizing: border-box;
+}
+
+.sessionPage *,
+.sessionPage *::before,
+.sessionPage *::after {
+	box-sizing: border-box;
+}
+
+/* ═══════════════════════════════════════════════
+   2. TOP BAR + WS STATUS
+   ═══════════════════════════════════════════════ */
+
+.sessionTopBar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 24px;
+	flex-wrap: wrap;
+}
+
+.wsStatus {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 14px;
+	border-radius: 999px;
+	background: #ffffff;
+	border: 1px solid #e5e7eb;
+	font-size: 0.8rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	color: #6b7280;
+	white-space: nowrap;
+}
+
+.wsStatus.connected {
+	color: #111111;
+	border-color: #111111;
+}
+
+.wsStatus.disconnected {
+	color: #b91c1c;
+	border-color: #dc2626;
+}
+
+.circleWsStatus {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: currentColor;
+	display: inline-block;
+}
+
+/* ═══════════════════════════════════════════════
+   3. HEADER SESJI
+   ═══════════════════════════════════════════════ */
+
+.sessionHeader {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 20px;
+	background: #fafafa;
+	border: 1px solid #e5e7eb;
+	border-radius: 14px;
+	margin-bottom: 24px;
+}
+
+.sessionHeaderText h1 {
+	margin: 0;
+	font-size: 1.5rem;
+	line-height: 1.25;
+	font-weight: 700;
+	color: #111111;
+	overflow-wrap: anywhere;
+}
+
+.sessionDate {
+	margin: 6px 0 0;
+	font-size: 1rem;
+	color: #6b7280;
+	font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════════════════
+   4. ADMIN TOGGLE
+   ═══════════════════════════════════════════════ */
+
+.adminToggleContainer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 12px 16px;
+	background: #ffffff;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+}
+
+.adminToggleLabel {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: #111111;
+}
+
+.adminToggle {
+	position: relative;
+	display: inline-block;
+	width: 44px;
+	height: 24px;
+	flex-shrink: 0;
+}
+
+.adminToggle input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.adminToggleSlider {
+	position: absolute;
+	inset: 0;
+	background: #e5e7eb;
+	border-radius: 999px;
+	transition: background 0.15s ease;
+	cursor: pointer;
+}
+
+.adminToggleSlider::before {
+	content: "";
+	position: absolute;
+	width: 18px;
+	height: 18px;
+	left: 3px;
+	top: 3px;
+	background: #ffffff;
+	border-radius: 50%;
+	transition: transform 0.15s ease;
+}
+
+.adminToggle input:checked+.adminToggleSlider {
+	background: #002b5c;
+}
+
+.adminToggle input:checked+.adminToggleSlider::before {
+	transform: translateX(20px);
+}
+
+.adminToggle input:focus-visible+.adminToggleSlider {
+	outline: 2px solid #002b5c;
+	outline-offset: 2px;
+}
+
+/* ═══════════════════════════════════════════════
+   5. PLANOWANI MÓWCY
+   ═══════════════════════════════════════════════ */
+
+.speakerHistorySection {
+	background: #fafafa;
+	border: 1px solid #e5e7eb;
+	border-radius: 14px;
+	padding: 20px;
+	margin-bottom: 24px;
+}
+
+.speakerHistoryHeader {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 16px;
+	flex-wrap: wrap;
+}
+
+.speakerHistoryHeader h3 {
+	margin: 0;
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: #111111;
+}
+
+.speakerCount {
+	font-size: 0.8rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	color: #6b7280;
+	font-variant-numeric: tabular-nums;
+}
+
+.speakerHistoryList {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	max-height: 40vh;
+	overflow-y: auto;
+}
+
+.speakerHistoryList::-webkit-scrollbar {
+	width: 6px;
+}
+
+.speakerHistoryList::-webkit-scrollbar-thumb {
+	background: #e5e7eb;
+	border-radius: 999px;
+}
+
+.speakerHistoryItem {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 14px;
+	border-radius: 12px;
+	background: #ffffff;
+	border: 1px solid #e5e7eb;
+	transition: border-color 0.15s ease, background 0.15s ease;
+	flex-wrap: wrap;
+}
+
+.speakerHistoryItem.active {
+	border-color: #002b5c;
+	background: #fafafa;
+}
+
+.speakerHistoryItem.done {
+	opacity: 0.55;
+}
+
+.speakerHistoryAvatar {
+	width: 40px;
+	height: 40px;
+	border-radius: 10px;
+	background: #111111;
+	color: #ffffff;
+	display: grid;
+	place-items: center;
+	font-weight: 700;
+	font-size: 1rem;
+	flex-shrink: 0;
+}
+
+.speakerHistoryItem.done .speakerHistoryAvatar {
+	background: #9ca3af;
+}
+
+.speakerHistoryInfo {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.speakerHistoryName {
+	font-weight: 600;
+	font-size: 0.95rem;
+	color: #111111;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.speakerHistoryName.crossed,
+.speakerEditInput.crossed {
+	text-decoration: line-through;
+	color: #9ca3af;
+}
+
+.speakerHistoryRole {
+	font-size: 0.8rem;
+	color: #6b7280;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.speakerHistoryStatus {
+	display: inline-flex;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+.speakerHistoryStatus.done {
+	color: #111111;
+}
+
+.speakerHistoryStatus.active {
+	color: #002b5c;
+}
+
+.speakerHistoryStatus.waiting {
+	color: #9ca3af;
+}
+
+.speakerHistoryTime {
+	font-size: 0.8rem;
+	color: #6b7280;
+	font-variant-numeric: tabular-nums;
+	flex-shrink: 0;
+}
+
+.speakerEditInput {
+	width: 100%;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	padding: 6px 10px;
+	font-size: 0.9rem;
+	background: #ffffff;
+	font-family: inherit;
+	color: #111111;
+	transition: border-color 0.15s ease;
+}
+
+.speakerEditInput:focus {
+	outline: none;
+	border-color: #002b5c;
+}
+
+.speakerRoleInput {
+	font-size: 0.8rem;
+	color: #6b7280;
+}
+
+.speakerActions {
+	display: flex;
+	gap: 6px;
+	flex-shrink: 0;
+	margin-left: auto;
+}
+
+.speakerActionBtn {
+	width: 32px;
+	height: 32px;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	background: #ffffff;
+	color: #111111;
+	display: grid;
+	place-items: center;
+	cursor: pointer;
+	transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.speakerActionBtn:hover {
+	background: #fafafa;
+	border-color: #111111;
+}
+
+.speakerActionBtn:focus-visible {
+	outline: 2px solid #111111;
+	outline-offset: 2px;
+}
+
+.doneBtn:hover {
+	background: #f5f5f5;
+}
+
+.activeBtn:hover {
+	background: #f5f5f5;
+}
+
+.deleteBtn {
+	color: #b91c1c;
+}
+
+.deleteBtn:hover {
+	background: #fef2f2;
+	border-color: #dc2626;
+}
+
+/* ═══════════════════════════════════════════════
+   6. LIVE: MÓWCA + PUNKT
+   ═══════════════════════════════════════════════ */
+
+.sessionLive {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	margin-bottom: 24px;
+}
+
+.liveCard {
+	background: #fafafa;
+	border: 1px solid #e5e7eb;
+	border-radius: 18px;
+	padding: 24px;
+	text-align: center;
+	width: 100%;
+}
+
+.liveCardTitle {
+	margin: 0 0 16px;
+	font-size: 0.8rem;
+	font-weight: 600;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: #6b7280;
+}
+
+/* Mówca */
+
+.speakerWrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 16px;
+	width: 100%;
+}
+
+.speaker {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	width: 100%;
+}
+
+.speakerAvatar {
+	width: 72px;
+	height: 72px;
+	border-radius: 14px;
+	background: #002b5c;
+	color: #ffffff;
+	font-size: 2rem;
+	font-weight: 700;
+	display: grid;
+	place-items: center;
+	flex-shrink: 0;
+}
+
+.speaker h3 {
+	margin: 0;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: #111111;
+	text-align: center;
+	overflow-wrap: anywhere;
+}
+
+.speaker p {
+	margin: 0;
+	font-size: 1rem;
+	color: #4b5563;
+	text-align: center;
+}
+
+.speaker span {
+	font-size: 0.9rem;
+	color: #6b7280;
+	display: block;
+	text-align: center;
+	margin-top: 4px;
+}
+
+.speechTime {
+	margin-top: 8px;
+	font-size: 0.85rem;
+	color: #6b7280;
+	background: #ffffff;
+	border: 1px solid #e5e7eb;
+	padding: 6px 14px;
+	border-radius: 999px;
+	display: inline-block;
+	font-variant-numeric: tabular-nums;
+}
+
+/* Punkt */
+
+.agendaCurrent {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	align-items: center;
+	width: 100%;
+}
+
+.agendaCurrent span {
+	display: inline-flex;
+	align-items: center;
+	font-size: 0.8rem;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #002b5c;
+	background: #ffffff;
+	border: 1px solid #e5e7eb;
+	padding: 4px 12px;
+	border-radius: 999px;
+}
+
+.agendaCurrent h3 {
+	margin: 0;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: #111111;
+	text-align: center;
+	overflow-wrap: anywhere;
+}
+
+.agendaCurrent p {
+	margin: 0;
+	font-size: 1rem;
+	color: #4b5563;
+	text-align: center;
+	overflow-wrap: anywhere;
+}
+
+.pointDisabled {
+	opacity: 0.5;
+}
+
+.pointDisabled h3 {
+	color: #6b7280;
+	font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════════
+   7. ADMIN: DODAWANIE MÓWCY
+   ═══════════════════════════════════════════════ */
+
+.adminSpeakerEdit,
+.adminSpeakerPreview {
+	width: 100%;
+}
+
+.adminSpeakerPreview {
+	margin-top: 8px;
+}
+
+.adminAddSpeaker {
+	margin-top: 20px;
+	padding-top: 20px;
+	border-top: 1px solid #e5e7eb;
+	text-align: left;
+}
+
+.adminAddSpeaker h4 {
+	margin: 0 0 12px;
+	font-size: 0.8rem;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #6b7280;
+}
+
+.adminInput {
+	width: 100%;
+	padding: 10px 12px;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	font-size: 0.95rem;
+	font-family: inherit;
+	background: #ffffff;
+	color: #111111;
+	transition: border-color 0.15s ease;
+}
+
+.adminInput:focus {
+	outline: none;
+	border-color: #002b5c;
+}
+
+.autocompleteWrapper {
+	position: relative;
+	width: 100%;
+}
+
+.suggestionsList {
+	position: absolute;
+	top: calc(100% + 4px);
+	left: 0;
+	right: 0;
+	background: #ffffff;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	max-height: 200px;
+	overflow-y: auto;
+	list-style: none;
+	padding: 4px 0;
+	margin: 0;
+	z-index: 20;
+}
+
+.suggestionsList li {
+	padding: 10px 14px;
+	cursor: pointer;
+	font-size: 0.95rem;
+	color: #111111;
+	transition: background 0.15s ease;
+}
+
+.suggestionsList li:hover {
+	background: #f5f5f5;
+}
+
+.addSpeakerForm {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.addBtn {
+	padding: 12px 20px;
+	border: 1px solid #002b5c;
+	border-radius: 10px;
+	background: #002b5c;
+	color: #ffffff;
+	font-weight: 600;
+	font-size: 0.95rem;
+	font-family: inherit;
+	cursor: pointer;
+	transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.addBtn:hover,
+.addBtn:focus-visible {
+	background: #003d80;
+	border-color: #003d80;
+	outline: none;
+}
+
+.speakerBts {
+	margin-top: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	width: 100%;
+}
+
+.navSpeakerBtn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 12px 20px;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	background: #ffffff;
+	color: #111111;
+	font-weight: 600;
+	font-size: 0.9rem;
+	font-family: inherit;
+	cursor: pointer;
+	transition: background 0.15s ease, border-color 0.15s ease;
+	width: 100%;
+}
+
+.navSpeakerBtn:hover:not(:disabled) {
+	background: #fafafa;
+	border-color: #111111;
+}
+
+.navSpeakerBtn:focus-visible:not(:disabled) {
+	outline: 2px solid #111111;
+	outline-offset: 2px;
+}
+
+.navSpeakerBtn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.previousSpeaker {
+	background: #ffffff;
+}
+
+.nextSpeaker {
+	background: #002b5c;
+	color: #ffffff;
+	border-color: #002b5c;
+}
+
+.nextSpeaker:hover:not(:disabled) {
+	background: #003d80;
+	border-color: #003d80;
+}
+
+/* ═══════════════════════════════════════════════
+   8. ADMIN: AKCJE NA PUNKCIE
+   ═══════════════════════════════════════════════ */
+
+.adminPointActions {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-top: 20px;
+	padding-top: 20px;
+	border-top: 1px solid #e5e7eb;
+}
+
+.breakControls {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	width: 100%;
+}
+
+.breakInfo {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: #111111;
+	background: #ffffff;
+	padding: 12px 14px;
+	border-radius: 10px;
+	border: 1px solid #e5e7eb;
+}
+
+.breakTimeInput {
+	padding: 8px 12px;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	font-size: 0.95rem;
+	font-weight: 600;
+	color: #111111;
+	background: #ffffff;
+	width: 100%;
+	font-family: inherit;
+	font-variant-numeric: tabular-nums;
+	transition: border-color 0.15s ease;
+}
+
+.breakTimeInput:focus {
+	outline: none;
+	border-color: #002b5c;
+}
+
+.zoContentInput {
+	padding: 8px 12px;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	font-size: 0.95rem;
+	font-weight: 600;
+	color: #111111;
+	background: #ffffff;
+	width: 100%;
+	font-family: inherit;
+	transition: border-color 0.15s ease;
+}
+
+.zoContentInput:focus {
+	outline: none;
+	border-color: #002b5c;
+}
+
+.zoContentDisplay {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	background: #ffffff;
+	border: 1px dashed #9ca3af;
+	border-radius: 8px;
+	padding: 8px 14px;
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: #111111;
+	cursor: pointer;
+	font-family: inherit;
+	transition: background 0.15s ease, border-color 0.15s ease;
+	width: 100%;
+}
+
+.zoContentDisplay:hover {
+	background: #fafafa;
+	border-color: #111111;
+}
+
+/* Wspólne dla wszystkich przycisków akcji */
+
+.confirmBtn,
+.cancelBtn,
+.breakBtn,
+.zoBtn,
+.disablePointBtn,
+.restorePointBtn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 12px 20px;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	font-weight: 600;
+	font-size: 0.9rem;
+	font-family: inherit;
+	cursor: pointer;
+	background: #ffffff;
+	color: #111111;
+	transition: background 0.15s ease, border-color 0.15s ease;
+	width: 100%;
+}
+
+/* Primary (Potwierdź, Przywróć) — pełne granatowe tło */
+
+.confirmBtn,
+.restorePointBtn {
+	background: #002b5c;
+	color: #ffffff;
+	border-color: #002b5c;
+}
+
+.confirmBtn:hover,
+.confirmBtn:focus-visible,
+.restorePointBtn:hover,
+.restorePointBtn:focus-visible {
+	background: #003d80;
+	border-color: #003d80;
+	outline: none;
+}
+
+/* Secondary (Przerwa, ZO, Anuluj) — białe tło, czarny border na hover */
+
+.breakBtn,
+.zoBtn,
+.cancelBtn {
+	background: #ffffff;
+	color: #111111;
+	border-color: #e5e7eb;
+}
+
+.breakBtn:hover,
+.breakBtn:focus-visible,
+.zoBtn:hover,
+.zoBtn:focus-visible,
+.cancelBtn:hover,
+.cancelBtn:focus-visible {
+	background: #fafafa;
+	border-color: #111111;
+	outline: none;
+}
+
+/* Danger (Wyłącz punkt) — białe tło, czerwony tekst i border */
+
+.disablePointBtn {
+	background: #ffffff;
+	color: #b91c1c;
+	border-color: #e5e7eb;
+}
+
+.disablePointBtn:hover,
+.disablePointBtn:focus-visible {
+	background: #fef2f2;
+	border-color: #dc2626;
+	outline: none;
+}
+
+/* ═══════════════════════════════════════════════
+   9. HARMONOGRAM
+   ═══════════════════════════════════════════════ */
+
+.sessionContent {
+	width: 100%;
+}
+
+.sessionPanel {
+	background: #fafafa;
+	border: 1px solid #e5e7eb;
+	border-radius: 14px;
+	padding: 20px;
+}
+
+.panelHeader {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.panelTitle {
+	margin: 0;
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: #111111;
+}
+
+.adminNav {
+	display: flex;
+	gap: 8px;
+}
+
+.navBtn {
+	flex: 1;
+	padding: 10px 16px;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	background: #ffffff;
+	color: #002b5c;
+	font-weight: 600;
+	font-size: 0.85rem;
+	font-family: inherit;
+	cursor: pointer;
+	transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.navBtn:hover,
+.navBtn:focus-visible {
+	background: #f0f4f9;
+	border-color: #002b5c;
+	outline: none;
+}
+
+.timeline {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.timelineItem {
+	display: grid;
+	grid-template-columns: 60px 16px 1fr;
+	gap: 12px;
+	align-items: center;
+	padding: 14px 16px;
+	border-radius: 12px;
+	background: #ffffff;
+	border: 1px solid #e5e7eb;
+	transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.timelineItem.active {
+	border-color: #002b5c;
+	background: #fafafa;
+}
+
+.timelineItem.done {
+	opacity: 0.55;
+}
+
+.timelineItem.done .timelineContent h3 {
+	text-decoration: line-through;
+	color: #9ca3af;
+}
+
+.timelineItem.disabled {
+	opacity: 0.5;
+}
+
+.timelineTime {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: #111111;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.timelineDot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: #e5e7eb;
+	justify-self: center;
+}
+
+.timelineItem.active .timelineDot {
+	background: #002b5c;
+	box-shadow: 0 0 0 3px rgba(0, 43, 92, 0.15);
+}
+
+.timelineItem.done .timelineDot {
+	background: #9ca3af;
+}
+
+.timelineContent {
+	min-width: 0;
+}
+
+.timelineContent h3 {
+	margin: 0;
+	font-size: 0.95rem;
+	font-weight: 600;
+	color: #111111;
+	overflow-wrap: anywhere;
+}
+
+.timelineContent h3.crossed {
+	text-decoration: line-through;
+	color: #9ca3af;
+}
+
+/* Admin w timeline */
+
+.adminScheduleItem {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	width: 100%;
+}
+
+.timeInput {
+	padding: 8px 10px;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	font-size: 0.9rem;
+	font-weight: 600;
+	background: #ffffff;
+	font-family: inherit;
+	color: #111111;
+	width: 100%;
+	font-variant-numeric: tabular-nums;
+	transition: border-color 0.15s ease;
+}
+
+.timeInput:focus {
+	outline: none;
+	border-color: #002b5c;
+}
+
+.titleInput {
+	padding: 8px 10px;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	font-size: 0.95rem;
+	background: #ffffff;
+	font-family: inherit;
+	color: #111111;
+	width: 100%;
+	transition: border-color 0.15s ease;
+}
+
+.titleInput:focus {
+	outline: none;
+	border-color: #002b5c;
+}
+
+.titleInput.crossed {
+	text-decoration: line-through;
+	color: #9ca3af;
+}
+
+.adminItemActions {
+	display: flex;
+	gap: 6px;
+	justify-content: flex-end;
+}
+
+.actionBtn {
+	width: 32px;
+	height: 32px;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	background: #ffffff;
+	color: #111111;
+	display: grid;
+	place-items: center;
+	cursor: pointer;
+	transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.actionBtn:hover {
+	background: #fafafa;
+	border-color: #111111;
+}
+
+.actionBtn:focus-visible {
+	outline: 2px solid #111111;
+	outline-offset: 2px;
+}
+
+.setActive {
+	color: #002b5c;
+}
+
+.setActive:hover {
+	border-color: #002b5c;
+}
+
+.cross {
+	color: #111111;
+}
+
+.deleteBtn {
+	color: #b91c1c;
+}
+
+.deleteBtn:hover {
+	background: #fef2f2;
+	border-color: #dc2626;
+}
+
+/* Admin: dodaj punkt */
+
+.adminAddPoint {
+	margin-top: 20px;
+	padding-top: 20px;
+	border-top: 1px solid #e5e7eb;
+}
+
+.adminAddPoint h4 {
+	margin: 0 0 12px;
+	font-size: 0.8rem;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #6b7280;
+}
+
+.addPointForm {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+/* ═══════════════════════════════════════════════
+   10. TABLET (min-width: 640px)
+   ═══════════════════════════════════════════════ */
+
+@media (min-width: 640px) {
+	.sessionPage {
+		padding: 32px 40px 72px;
+	}
+
+	.sessionHeader {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		padding: 24px 28px;
+	}
+
+	.sessionHeaderText h1 {
+		font-size: 1.75rem;
+	}
+
+	.adminToggleContainer {
+		width: auto;
+	}
+
+	.liveCard {
+		padding: 32px;
+	}
+
+	.speaker {
+		flex-direction: row;
+		gap: 20px;
+	}
+
+	.speaker h3,
+	.speaker p,
+	.speaker span {
+		text-align: left;
+	}
+
+	.speakerBts {
+		flex-direction: row;
+	}
+
+	.navSpeakerBtn {
+		flex: 1;
+	}
+
+	.addSpeakerForm,
+	.addPointForm {
+		flex-direction: row;
+		align-items: stretch;
+	}
+
+	.addSpeakerForm .adminInput,
+	.addPointForm .adminInput {
+		flex: 1;
+		width: auto;
+	}
+
+	.addBtn {
+		width: auto;
+	}
+
+	.adminPointActions {
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+
+	.breakControls {
+		flex-direction: row;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+
+	.breakInfo {
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.breakTimeInput,
+	.zoContentInput,
+	.zoContentDisplay {
+		width: auto;
+	}
+
+	.confirmBtn,
+	.cancelBtn,
+	.breakBtn,
+	.zoBtn,
+	.disablePointBtn,
+	.restorePointBtn {
+		width: auto;
+	}
+
+	.panelHeader {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.adminNav {
+		flex: 0 0 auto;
+	}
+
+	.navBtn {
+		flex: 0 0 auto;
+	}
+
+	.timelineItem {
+		grid-template-columns: 80px 20px 1fr;
+		gap: 14px;
+	}
+
+	.adminScheduleItem {
+		flex-direction: row;
+		align-items: center;
+		gap: 10px;
+	}
+
+	.timeInput {
+		width: 90px;
+		flex-shrink: 0;
+	}
+
+	.titleInput {
+		flex: 1;
+		width: auto;
+	}
+
+	.adminItemActions {
+		justify-content: flex-start;
+	}
+
+	.speakerHistorySection,
+	.sessionPanel {
+		padding: 24px;
+	}
+}
+
+/* ═══════════════════════════════════════════════
+   11. DESKTOP (min-width: 1024px)
+   ═══════════════════════════════════════════════ */
+
+@media (min-width: 1024px) {
+	.sessionPage {
+		max-width: 1400px;
+		padding: 40px 56px 96px;
+	}
+
+	.sessionHeader {
+		padding: 28px 32px;
+	}
+
+	.sessionHeaderText h1 {
+		font-size: 2rem;
+	}
+
+	.sessionLive {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 20px;
+		align-items: start;
+	}
+
+	.sessionLive> :only-child {
+		grid-column: 1 / -1;
+	}
+
+	.liveCard {
+		padding: 40px;
+	}
+
+	.speakerAvatar {
+		width: 88px;
+		height: 88px;
+		font-size: 2.4rem;
+	}
+
+	.speaker h3 {
+		font-size: 1.75rem;
+	}
+
+	.agendaCurrent h3 {
+		font-size: 1.75rem;
+	}
+
+	.timelineItem {
+		grid-template-columns: 100px 24px 1fr;
+		gap: 16px;
+		padding: 16px 20px;
+	}
+
+	.speakerHistoryList {
+		max-height: 320px;
+	}
+}
+
+/* ═══════════════════════════════════════════════
+   12. MOBILE (max-width: 480px)
+   ═══════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+	.sessionPage {
+		padding: 18px 18px 48px;
+	}
+
+	.sessionTopBar {
+		gap: 12px;
+		margin-bottom: 18px;
+	}
+
+	.sessionHeader {
+		padding: 16px;
+		border-radius: 12px;
+		margin-bottom: 18px;
+	}
+
+	.sessionHeaderText h1 {
+		font-size: 1.25rem;
+	}
+
+	.sessionDate {
+		font-size: 0.9rem;
+	}
+
+	.liveCard {
+		padding: 20px 16px;
+		border-radius: 14px;
+	}
+
+	.speakerAvatar {
+		width: 64px;
+		height: 64px;
+		font-size: 1.75rem;
+	}
+
+	.speaker h3 {
+		font-size: 1.25rem;
+	}
+
+	.agendaCurrent h3 {
+		font-size: 1.25rem;
+	}
+
+	.speakerHistorySection,
+	.sessionPanel {
+		padding: 16px;
+		border-radius: 12px;
+	}
+
+	.speakerHistoryAvatar {
+		width: 36px;
+		height: 36px;
+		font-size: 0.9rem;
+	}
+
+	.speakerHistoryItem {
+		padding: 10px 12px;
+		gap: 10px;
+	}
+
+	.timelineItem {
+		grid-template-columns: 52px 14px 1fr;
+		gap: 10px;
+		padding: 12px 14px;
+	}
+
+	.timelineTime {
+		font-size: 0.85rem;
+	}
+
+	.timelineContent h3 {
+		font-size: 0.9rem;
+	}
+
+	.actionBtn,
+	.speakerActionBtn {
+		width: 30px;
+		height: 30px;
+	}
+}
+
+/* ═══════════════════════════════════════════════
+   13. REDUCED MOTION
+   ═══════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+
+	.adminToggleSlider,
+	.adminToggleSlider::before,
+	.navBtn,
+	.addBtn,
+	.confirmBtn,
+	.cancelBtn,
+	.breakBtn,
+	.zoBtn,
+	.disablePointBtn,
+	.restorePointBtn,
+	.navSpeakerBtn,
+	.speakerActionBtn,
+	.actionBtn {
+		transition: none;
+	}
+}
