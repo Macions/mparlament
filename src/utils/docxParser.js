@@ -4,6 +4,9 @@ export async function parseDocx(file) {
 	try {
 		const arrayBuffer = await file.arrayBuffer();
 		const result = await mammoth.convertToHtml({ arrayBuffer });
+		console.log("=== SUROWY HTML ===");
+		console.log(result.value);
+		console.log("=== KONIEC HTML ===");
 		const blocks = htmlToBlocks(result.value);
 		return parse(blocks);
 	} catch (err) {
@@ -12,10 +15,110 @@ export async function parseDocx(file) {
 	}
 }
 
-/**
- * Zamienia HTML z mammotha na listę bloków.
- * Każdy blok: { type, text, html, level?, marker?, ordered? }
- */
+/* ─────────────────────────────────────────────────────────────
+   POMOCNICZE — markery z linii
+   ───────────────────────────────────────────────────────────── */
+
+// "1)" / "1." / "a)" / "a." / "i)" — zachowuje oryginalny format
+function extractMarker(line) {
+	const t = (line || "").trim();
+	if (!t) return null;
+
+	// "1) treść"
+	let m = t.match(/^(\d+)\)\s+(.+)$/s);
+	if (m) return { marker: `${m[1]})`, text: m[2].trim(), rawType: "num-paren" };
+
+	// "1. treść"
+	// "1. treść"
+	m = t.match(/^(\d+)\.\s+(.+)$/s);
+	if (m) return { marker: `${m[1]}.`, text: m[2].trim(), rawType: "num-dot" };
+
+	// "1.Treść" (bez spacji po kropce, np. "2.Wnioskuje się...")
+	m = t.match(/^(\d+)\.([A-ZĄĆĘŁŃÓŚŹŻ].+)$/s);
+	if (m) return { marker: `${m[1]}.`, text: m[2].trim(), rawType: "num-dot" };
+
+	// "1 treść" (bez kropki, np. Art. 34 — "1 Postuluje się...")
+	m = t.match(/^(\d+)\s+([A-ZĄĆĘŁŃÓŚŹŻ].+)$/s);
+	if (m) return { marker: `${m[1]}.`, text: m[2].trim(), rawType: "num-dot" };
+
+	// "a) treść"
+	m = t.match(/^([a-z])\)\s+(.+)$/s);
+	if (m) return { marker: `${m[1]})`, text: m[2].trim(), rawType: "let-paren" };
+
+	// "a. treść"
+	m = t.match(/^([a-z])\.\s+(.+)$/s);
+	if (m) return { marker: `${m[1]}.`, text: m[2].trim(), rawType: "let-dot" };
+
+	// "i) treść" / "ii) treść" / "iii) treść"
+	m = t.match(/^([ivxlcdm]+)\)\s+(.+)$/i);
+	if (m) return { marker: `${m[1]})`, text: m[2].trim(), rawType: "roman" };
+
+	return null;
+}
+
+// Wykrywa "2. 3. treść" (Art. 28) → zwraca marker "3." i treść
+function extractDoubleMarker(line) {
+	const m = (line || "").trim().match(/^(\d+)\.\s+(\d+)\.\s+(.+)$/s);
+	if (!m) return null;
+	return { marker: `${m[2]}.`, text: m[3].trim() };
+}
+
+/* ─────────────────────────────────────────────────────────────
+   NOWELIZACJA — rozpoznawanie markerów
+   ───────────────────────────────────────────────────────────── */
+
+const RE_POSTULUJE_NOWELIZACJE =
+	/^Postuluje się nowelizację następujących przepisów:/i;
+const RE_NOWEL_ART_BRZMIENIE = /^art\.\s*\d+[a-z]?\s+otrzymuje brzmienie:/i;
+const RE_NOWEL_UCHYLA_UST = /^uchyla się ust\.\s*[\d\s,i]+w art\.\s*\d+/i;
+const RE_NOWEL_UCHYLA_SAMO = /^uchyla się:\s*$/i;
+const RE_NOWEL_W_ART_UCHYLA = /^W art\.\s*\d+\s+uchyla się/i;
+const RE_NOWEL_ART_SREDNIK = /^art\.\s*\d+[a-z]?;\s*$/i;
+const RE_NOWEL_ART_KROPKA = /^art\.\s*\d+[a-z]?\.\s*$/i;
+
+function detectNowelizacjaMarker(line, ctx) {
+	const t = (line || "").trim();
+	if (!t) return null;
+
+	if (RE_POSTULUJE_NOWELIZACJE.test(t)) {
+		ctx.nowelCounter = 1;
+		ctx.subCounter = 0;
+		ctx.inUchyla = false;
+		return { marker: `${ctx.topCounter++}.`, level: 1 };
+	}
+	if (RE_NOWEL_ART_BRZMIENIE.test(t)) {
+		ctx.subCounter = 0;
+		ctx.inUchyla = false;
+		return { marker: `${ctx.nowelCounter++})`, level: 2 };
+	}
+	if (RE_NOWEL_UCHYLA_UST.test(t)) {
+		ctx.subCounter = 0;
+		ctx.inUchyla = false;
+		return { marker: `${ctx.nowelCounter++})`, level: 2 };
+	}
+	if (RE_NOWEL_UCHYLA_SAMO.test(t)) {
+		ctx.subCounter = 0;
+		ctx.inUchyla = true;
+		return { marker: `${ctx.nowelCounter++})`, level: 2 };
+	}
+	if (RE_NOWEL_W_ART_UCHYLA.test(t)) {
+		ctx.subCounter = 0;
+		ctx.inUchyla = false;
+		return { marker: `${ctx.nowelCounter++})`, level: 2 };
+	}
+	if (ctx.inUchyla && RE_NOWEL_ART_SREDNIK.test(t)) {
+		return { marker: `${++ctx.subCounter})`, level: 3 };
+	}
+	if (ctx.inUchyla && RE_NOWEL_ART_KROPKA.test(t)) {
+		return { marker: `${++ctx.subCounter})`, level: 3 };
+	}
+	return null;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PARSOWANIE HTML → BLOKI
+   ───────────────────────────────────────────────────────────── */
+
 function htmlToBlocks(html) {
 	const parser = new DOMParser();
 	const doc = parser.parseFromString(html, "text/html");
@@ -38,21 +141,6 @@ function htmlToBlocks(html) {
 
 	function replaceBrWithNewline(el) {
 		el.querySelectorAll("br").forEach((br) => br.replaceWith("\n"));
-	}
-
-	function formatMarker(idx, type) {
-		switch (type) {
-			case "a":
-				return String.fromCharCode(96 + idx) + ")";
-			case "A":
-				return String.fromCharCode(64 + idx) + ")";
-			case "i":
-				return roman(idx).toLowerCase() + ".";
-			case "I":
-				return roman(idx) + ".";
-			default:
-				return idx + ".";
-		}
 	}
 
 	function roman(num) {
@@ -82,28 +170,57 @@ function htmlToBlocks(html) {
 		return res;
 	}
 
+	function formatMarker(idx, type) {
+		switch (type) {
+			case "a":
+				return String.fromCharCode(96 + idx) + ")";
+			case "A":
+				return String.fromCharCode(64 + idx) + ")";
+			case "i":
+				return roman(idx).toLowerCase() + ".";
+			case "I":
+				return roman(idx) + ".";
+			default:
+				return idx + ".";
+		}
+	}
+
+	function parseLineMarker(line) {
+		const mArt = line.match(
+			/^(Art|ART)\.?\s*(\d+(?:\.\d+)*[a-z]*)[\.\s]*(.*)$/,
+		);
+		if (mArt) {
+			return { kind: "art", artNumber: `Art. ${mArt[2]}`, rest: mArt[3] || "" };
+		}
+		const extracted = extractMarker(line);
+		if (extracted) {
+			return {
+				kind: "marker",
+				marker: extracted.marker,
+				text: extracted.text,
+				rawType: extracted.rawType,
+			};
+		}
+		return null;
+	}
+
 	function walkList(listEl, level) {
 		const ordered = listEl.tagName?.toLowerCase() === "ol";
 		const items = listEl.querySelectorAll(":scope > li");
 		let counter = 0;
-
 		const start = Number(listEl.getAttribute("start")) || 1;
 		const type = listEl.getAttribute("type") || "1";
 
 		for (const li of items) {
 			counter++;
-
 			const nested = Array.from(
 				li.querySelectorAll(":scope > ul, :scope > ol"),
 			);
 			const clone = li.cloneNode(true);
 			clone.querySelectorAll("ul, ol").forEach((nl) => nl.remove());
-
 			replaceBrWithNewline(clone);
 
-			let text = (clone.textContent || "").trim();
-
-			// rozbij <li> z <br> na osobne linie
+			const text = (clone.textContent || "").trim();
 			const lines = text
 				.split(/\n/)
 				.map((l) => l.trim())
@@ -111,73 +228,91 @@ function htmlToBlocks(html) {
 
 			for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
 				const lineText = lines[lineIdx];
-				let lineMarker = null;
-				let lineContent = lineText;
+				const extracted = extractMarker(lineText);
 
-				const inlineMarker = lineText.match(
-					/^(\d+[a-z]?[.)]|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)])\s+/,
-				);
-
-				if (inlineMarker) {
-					lineMarker = inlineMarker[1];
-					lineContent = lineText.slice(inlineMarker[0].length);
-				} else if (lineIdx === 0) {
-					// pierwsza linia dostaje marker z listy
-					lineMarker = ordered ? formatMarker(start + counter - 1, type) : "–";
-				} else {
-					// kolejne linie w tym samym <li> — bez markera, głębiej
-					lineMarker = null;
-				}
-
-				if (lineContent) {
-					pushText("list-item", lineContent, {
+				if (extracted) {
+					pushText("list-item", extracted.text, {
 						ordered,
-						marker: lineMarker,
+						marker: extracted.marker,
+						rawType: extracted.rawType,
 						level: lineIdx === 0 ? level : level + 1,
+						fromList: true,
+					});
+				} else if (lineIdx === 0) {
+					const marker = ordered
+						? formatMarker(start + counter - 1, type)
+						: "–";
+					pushText("list-item", lineText, {
+						ordered,
+						marker,
+						level,
+						fromList: true,
+					});
+				} else {
+					pushText("list-item", lineText, {
+						ordered,
+						marker: null,
+						level: level + 1,
 						fromList: true,
 					});
 				}
 			}
-
-			for (const nl of nested) {
-				walkList(nl, level + 1);
-			}
+			for (const nl of nested) walkList(nl, level + 1);
 		}
 	}
+
 	function handleParagraphLine(rawText, rawHtml) {
 		const text = (rawText || "").trim();
 		if (!text) return;
 
-		// Rozbij linię, jeśli zawiera W ŚRODKU marker typu " 2. " lub " 3. "
-		// UWAGA: nie ruszaj "Art." ani "Rozdział"
-		if (!/^(Art|ART|Rozdział|DZIAŁ|CZĘŚĆ)/.test(text)) {
-			const parts = text.split(/\s(?=\d+[a-z]?\.\s|\d+[a-z]?\)\s)/);
-			if (parts.length > 1) {
-				for (const part of parts) {
-					const trimmed = part.trim();
-					if (trimmed) handleParagraphLine(trimmed, rawHtml);
-				}
-				return;
+		// 0) Rozbij linię na wiele markerów — obsługa "1.Treść 2.Treść" i "1. Treść 2. Treść"
+		const subParts = text.split(
+			/(?<=[a-ząćęłńóśźżA-ZĄĆĘŁŃÓŚŹŻ;:,.)])\s+(?=\d+[a-z]?\.(?=[A-ZĄĆĘŁŃÓŚŹŻ])|\d+[a-z]?\.\s|\d+[a-z]?\)\s|[a-z]\)\s)/,
+		);
+		if (subParts.length > 1) {
+			for (const part of subParts) {
+				handleParagraphLine(part.trim(), rawHtml);
 			}
+			return;
 		}
 
-		const m = text.match(
-			/^(\d+[a-z]?[.)]|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)])\s+(.+)$/s,
-		);
-		if (m) {
-			const marker = m[1];
-			const mtype = markerType(marker);
-			let level = 1;
-			// "1." i "1)" → poziom 1 (główne punkty)
-			if (mtype === "num-dot" || mtype === "num-paren") level = 1;
-			// "a)" i "a." → poziom 2 (podpunkty)
-			else if (mtype === "let-paren" || mtype === "let-dot") level = 2;
-			// "i)" / "i." → poziom 3
-			else if (mtype === "roman") level = 3;
+		// 1) Sprawdź Art.
+		const mArt = text.match(/^(Art|ART)\.?\s*(\d+(?:\.\d+)*[a-z]*)\.?\s*(.*)$/);
+		if (mArt) {
+			pushText("paragraph", `${`Art. ${mArt[2]}`} ${mArt[3] || ""}`.trim());
+			return;
+		}
 
-			pushText("list-item", m[2], {
+		// 2) "2. 3. treść" → normalizuj do "3. treść"
+		const dbl = extractDoubleMarker(text);
+		if (dbl) {
+			pushText("list-item", dbl.text, {
 				ordered: true,
-				marker,
+				marker: dbl.marker,
+				rawType: "num-dot",
+				level: 1,
+				fromParagraph: true,
+			});
+			return;
+		}
+
+		// 3) Zwykły marker z linii
+		const extracted = extractMarker(text);
+		if (extracted) {
+			let level = 1;
+			if (extracted.rawType === "num-paren") level = 2;
+			else if (
+				extracted.rawType === "let-paren" ||
+				extracted.rawType === "let-dot" ||
+				extracted.rawType === "roman"
+			)
+				level = 3;
+			else level = 1;
+
+			pushText("list-item", extracted.text, {
+				ordered: true,
+				marker: extracted.marker,
+				rawType: extracted.rawType,
 				level,
 				fromParagraph: true,
 			});
@@ -186,9 +321,11 @@ function htmlToBlocks(html) {
 
 		pushText("paragraph", text, { html: rawHtml });
 	}
+
 	function walk(element) {
 		for (const child of element.children) {
 			const tag = child.tagName?.toLowerCase();
+
 			if (tag === "div" && child.children.length === 0) {
 				pushText("paragraph", child.textContent || "");
 				continue;
@@ -203,16 +340,11 @@ function htmlToBlocks(html) {
 						.split(/\n/)
 						.map((l) => l.trim())
 						.filter(Boolean);
-
 					if (lines.length > 1) {
-						// Scalamy linie, które NIE zaczynają się od markera
 						const merged = [];
 						for (const line of lines) {
 							const isMarker =
-								/^(\d+[a-z]?[.)]|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)])\s+/.test(
-									line,
-								) || /^(Art|ART|Rozdział|DZIAŁ|CZĘŚĆ)/.test(line);
-
+								!!extractMarker(line) || !!extractDoubleMarker(line);
 							if (!isMarker && merged.length > 0) {
 								merged[merged.length - 1] += " " + line;
 							} else {
@@ -225,19 +357,16 @@ function htmlToBlocks(html) {
 					handleParagraphLine(rawText, rawHtml);
 					continue;
 				}
-
 				pushText("heading", rawText, {
 					headingLevel: Number(tag[1]),
 					html: rawHtml,
 				});
 				continue;
 			}
-
 			if (tag === "ul" || tag === "ol") {
 				walkList(child, 1);
 				continue;
 			}
-
 			if (tag === "table") {
 				const rows = child.querySelectorAll("tr");
 				for (const row of rows) {
@@ -249,7 +378,6 @@ function htmlToBlocks(html) {
 				}
 				continue;
 			}
-
 			walk(child);
 		}
 	}
@@ -258,70 +386,148 @@ function htmlToBlocks(html) {
 	return blocks;
 }
 
-function toSubMarker(marker, level) {
-	if (!marker) return marker;
-	if (level === 2) {
-		const m = marker.match(/^(\d+)\.$/);
-		if (m) return `${m[1]})`;
-	}
-	if (level === 3) {
-		const m = marker.match(/^(\d+)\.$/);
-		if (m) {
-			const idx = Number(m[1]);
-			return String.fromCharCode(96 + idx) + ")";
-		}
-	}
-	return marker;
-}
+/* ─────────────────────────────────────────────────────────────
+   POMOCNICZE
+   ───────────────────────────────────────────────────────────── */
 
-/**
- * Zwraca TYP markera (nie poziom):
- *   "num-dot"   → "1."   (ustęp)
- *   "num-paren" → "1)"   (punkt)
- *   "let-paren" → "a)"   (podpunkt literowy)
- *   "let-dot"   → "a."   (podpunkt literowy)
- *   "roman"     → "i)" / "i." (rzadko)
- *   "other"     → "–" lub cokolwiek
- */
-function markerType(marker) {
-	if (!marker) return "other";
-	if (/^\d+[a-z]?\.$/.test(marker)) return "num-dot";
-	if (/^\d+[a-z]?\)$/.test(marker)) return "num-paren";
-	if (/^[a-z]\)$/.test(marker)) return "let-paren";
-	if (/^[a-z]\.$/.test(marker)) return "let-dot";
-	if (/^[ivxlcdm]+[.)]$/i.test(marker)) return "roman";
-	return "other";
-}
+const RE_CHAPTER = /^(Rozdział|DZIAŁ|CZĘŚĆ)\s+[IVXLCDM\d]+[a-z]?[\.\s–-]/i;
+const RE_ART = /^(Art|ART)\.?\s*\d+(?:\.\d+)*[a-z]*\.?/;
+const RE_CHAPTER_ANYWHERE = /^(Rozdział|DZIAŁ|CZĘŚĆ)\s+[IVXLCDM\d]+/i;
+const RE_ART_ANYWHERE = /^(Art|ART)\.?\s*\d+/;
+
+/* ─────────────────────────────────────────────────────────────
+   GŁÓWNY PARSER
+   ───────────────────────────────────────────────────────────── */
 
 function parse(blocks) {
 	if (blocks.length === 0) {
 		return { title: "Dokument bez tytułu", preamble: "", chapters: [] };
 	}
 
+	// ─────────────────────────────────────────────
+	// 1) MERGE
+	// ─────────────────────────────────────────────
+	const mergedBlocks = [];
+	for (let i = 0; i < blocks.length; i++) {
+		const b = blocks[i];
+		const next = blocks[i + 1];
+		const bTrim = (b.text || "").trim();
+		const nextTrim = (next?.text || "").trim();
+
+		// "Art." + "2. Głównymi celami..."  →  "Art. 2. Głównymi celami..."
+		if (
+			bTrim &&
+			/^(Art|ART)\.?$/.test(bTrim) &&
+			next &&
+			/^\d+[a-z]?[.)]\s/.test(nextTrim)
+		) {
+			mergedBlocks.push({ ...b, text: `Art. ${nextTrim}` });
+			i++;
+			continue;
+		}
+
+		// "Art." + "2. Głównymi celami..." — wariant z pustym "Art." jako osobnym blokiem
+		// (gdy edytor zapisał Art. i treść jako dwa oddzielne bloki)
+		if (
+			bTrim &&
+			/^(Art|ART)\.?$/.test(bTrim) &&
+			next &&
+			/^\d+[a-z]?[.)]/.test(nextTrim) &&
+			!/^(Art|ART|Rozdział|DZIAŁ|CZĘŚĆ)/.test(nextTrim)
+		) {
+			mergedBlocks.push({ ...b, text: `Art. ${nextTrim}` });
+			i++;
+			continue;
+		}
+		if (
+			bTrim &&
+			/^(Art|ART)\.?\s*\d+(?:\.\d+)*[a-z]*\.$/.test(bTrim) &&
+			next &&
+			!/^(Art|ART|Rozdział|DZIAŁ|CZĘŚĆ)/.test(nextTrim)
+		) {
+			mergedBlocks.push({ ...b, text: `${bTrim} ${nextTrim}` });
+			i++;
+			continue;
+		}
+		if (
+			bTrim &&
+			/^\d+[a-z]?\.$/.test(bTrim) &&
+			next &&
+			/^[A-ZĄĆĘŁŃÓŚŹŻ]/.test(nextTrim)
+		) {
+			mergedBlocks.push({ ...b, text: `${bTrim} ${nextTrim}` });
+			i++;
+			continue;
+		}
+		mergedBlocks.push(b);
+	}
+
+	// ─────────────────────────────────────────────
+	// 2) SPLIT
+	// ─────────────────────────────────────────────
+	const splitBlocks = [];
+	for (const b of mergedBlocks) {
+		const text = (b.text || "").trim();
+		if (!text) {
+			splitBlocks.push(b);
+			continue;
+		}
+		if (RE_CHAPTER.test(text) || RE_ART.test(text)) {
+			splitBlocks.push(b);
+			continue;
+		}
+		const parts = text.split(
+			/(?<=[a-ząćęłńóśźżA-ZĄĆĘŁŃÓŚŹŻ;:,.)])\s+(?=\d+[a-z]?[.)]\s|[a-z]\)\s|\d+[a-z]?\.(?=[A-ZĄĆĘŁŃÓŚŹŻ]))/,
+		);
+		if (parts.length > 1) {
+			const filtered = parts
+				.map((p) => p.trim())
+				.filter(Boolean)
+				.map((p) => ({ ...b, text: p }));
+			if (
+				filtered.length > 1 &&
+				filtered.every((f) => !RE_CHAPTER.test(f.text) && !RE_ART.test(f.text))
+			) {
+				splitBlocks.push(...filtered);
+				continue;
+			}
+		}
+		splitBlocks.push(b);
+	}
+	blocks = splitBlocks;
+
+	// ─────────────────────────────────────────────
+	// 3) NAGŁÓWEK
+	// ─────────────────────────────────────────────
 	const isStructural = (b) =>
-		(b.type === "paragraph" || b.type === "heading") &&
-		(/^(Rozdział|DZIAŁ|CZĘŚĆ)\s+[IVXLCDM\d]+[a-z]?/i.test(b.text) ||
-			/^(Art|ART)\.?\s*\d+/.test(b.text));
+		(b.type === "paragraph" ||
+			b.type === "heading" ||
+			b.type === "list-item") &&
+		(RE_CHAPTER_ANYWHERE.test(b.text || "") ||
+			RE_ART_ANYWHERE.test(b.text || ""));
 
 	let firstStructuralIndex = blocks.findIndex(isStructural);
 	if (firstStructuralIndex === -1) firstStructuralIndex = blocks.length;
 
 	const headerBlocks = blocks.slice(0, firstStructuralIndex);
 
-	const preambleStart = headerBlocks.slice(0, 20).findIndex(
-		(b) =>
-			/^My,/.test(b.text) ||
-			/^Preambuła$/i.test(b.text) ||
-			/uchwalamy/i.test(b.text) ||
-			/w trosce o/i.test(b.text) ||
-			/uznając, że/i.test(b.text) ||
-			/^Parlament Młodych/i.test(b.text) || // ← DODAJ
-			/^Parlamentarzyści/i.test(b.text) || // ← DODAJ
-			/^Parlamentarzystki/i.test(b.text) || // ← DODAJ
-			/świadomy bezprecedensowych/i.test(b.text) || // ← DODAJ
-			/mając na uwadze/i.test(b.text) || // ← DODAJ
-			/dostrzegając, że/i.test(b.text), // ← DODAJ
-	);
+	const preambleStart = headerBlocks
+		.slice(0, 20)
+		.findIndex(
+			(b) =>
+				/^My,/.test(b.text) ||
+				/^Preambuła$/i.test(b.text) ||
+				/uchwalamy/i.test(b.text) ||
+				/w trosce o/i.test(b.text) ||
+				/uznając, że/i.test(b.text) ||
+				/^Parlament Młodych/i.test(b.text) ||
+				/^Parlamentarzyści/i.test(b.text) ||
+				/^Parlamentarzystki/i.test(b.text) ||
+				/świadomy bezprecedensowych/i.test(b.text) ||
+				/mając na uwadze/i.test(b.text) ||
+				/dostrzegając, że/i.test(b.text),
+		);
+
 	let title;
 	let preamble = "";
 	if (preambleStart > 0) {
@@ -344,109 +550,9 @@ function parse(blocks) {
 		title = headerBlocks.map((b) => b.text).join("\n") || "Dokument bez tytułu";
 	}
 
-	// Scal bloki, które mammoth rozbił na "Art." + "1. treść"
-	// Scal bloki, które mammoth rozbił na "Art." + "1. treść"
-	// oraz bloki kończące się na "Art." + następny zaczynający się od "39a."
-	const mergedBlocks = [];
-	for (let i = 0; i < blocks.length; i++) {
-		const b = blocks[i];
-		const next = blocks[i + 1];
-		const bTrim = (b.text || "").trim();
-		const nextTrim = (next?.text || "").trim();
-
-		// "Art." + "1. treść" → "Art. 1. treść"
-		if (
-			bTrim &&
-			/^(Art|ART)\.?$/.test(bTrim) &&
-			next &&
-			/^\d+[a-z]?[.)]/.test(nextTrim)
-		) {
-			mergedBlocks.push({
-				...b,
-				text: `Art. ${nextTrim}`,
-			});
-			i++;
-			continue;
-		}
-
-		// "... Art." + "39a. treść" → "... Art. 39a. treść"
-		if (
-			bTrim &&
-			/\b(Art|ART)\.$/.test(bTrim) &&
-			next &&
-			/^\d+[a-z]?[.)]/.test(nextTrim)
-		) {
-			mergedBlocks.push({
-				...b,
-				text: `${bTrim} ${nextTrim}`,
-			});
-			i++;
-			continue;
-		}
-
-		// "1." + "Apelujemy..." → "1. Apelujemy..."
-		if (
-			bTrim &&
-			/^\d+[a-z]?\.$/.test(bTrim) &&
-			next &&
-			/^[A-ZĄĆĘŁŃÓŚŹŻ]/.test(nextTrim)
-		) {
-			mergedBlocks.push({
-				...b,
-				text: `${bTrim} ${nextTrim}`,
-			});
-			i++;
-			continue;
-		}
-
-		mergedBlocks.push(b);
-	}
-	// Rozbij bloki, które zawierają kilka markerów w środku
-	// np. "1. Postulujemy... 2. Wysokość... 3. Postuluje..."
-	// Rozbij bloki, które zawierają kilka markerów w środku
-	const splitBlocks = [];
-	for (const b of mergedBlocks) {
-		const text = (b.text || "").trim();
-		if (!text) {
-			splitBlocks.push(b);
-			continue;
-		}
-
-		// nie ruszaj Art./Rozdział
-		if (/^(Art|ART|Rozdział|DZIAŁ|CZĘŚĆ)/.test(text)) {
-			splitBlocks.push(b);
-			continue;
-		}
-
-		// rozbij po markerach w środku
-		const parts = text.split(
-			/(?<=[a-ząćęłńóśźżA-ZĄĆĘŁŃÓŚŹŻ;:,.)])\s+(?=\d+[a-z]?[.)]\s|[a-z]\)\s)/,
-		);
-
-		if (parts.length > 1) {
-			const filtered = parts
-				.map((p) => p.trim())
-				.filter(Boolean)
-				.map((p) => ({ ...b, text: p }));
-
-			// nie scalaj jeśli któryś fragment zaczyna się od "Art."
-			if (
-				filtered.length > 1 &&
-				filtered.every((f) => !/^(Art|ART|Rozdział|DZIAŁ|CZĘŚĆ)/.test(f.text))
-			) {
-				splitBlocks.push(...filtered);
-				continue;
-			}
-		}
-
-		splitBlocks.push(b);
-	}
-
-	// Scal bloki, które mammoth rozbił na dwa <p> w środku zdania
-	// (np. "...odnawialnych źródeł" + "energii.")
-	// używaj splitBlocks zamiast blocks od tego miejsca
-	blocks = splitBlocks;
-
+	// ─────────────────────────────────────────────
+	// 4) GŁÓWNA PĘTLA
+	// ─────────────────────────────────────────────
 	const chapters = [];
 	let currentChapter = null;
 	let currentArticle = null;
@@ -454,9 +560,21 @@ function parse(blocks) {
 	let articleIndex = 0;
 	let insideQuote = false;
 
+	const nowelCtx = {
+		topCounter: 1,
+		nowelCounter: 1,
+		subCounter: 0,
+		inUchyla: false,
+	};
+	const resetNowelCtx = () => {
+		nowelCtx.topCounter = 1;
+		nowelCtx.nowelCounter = 1;
+		nowelCtx.subCounter = 0;
+		nowelCtx.inUchyla = false;
+	};
+
 	const flushArticle = () => {
 		if (!currentArticle) return;
-
 		if (currentArticle.contentLines.length === 0 && currentChapter) {
 			const idx = currentChapter.articles.indexOf(currentArticle);
 			if (idx !== -1) currentChapter.articles.splice(idx, 1);
@@ -502,6 +620,7 @@ function parse(blocks) {
 			type: b.type || "paragraph",
 		};
 	};
+
 	for (let k = firstStructuralIndex; k < blocks.length; k++) {
 		const block = blocks[k];
 		const line = (block.text || "")
@@ -509,12 +628,8 @@ function parse(blocks) {
 			.replace(/[\u200B\u200C\u200D\uFEFF]+$/, "");
 		if (/^\d+[.)]\s*$/.test(line) || /^\s*\.\s*$/.test(line)) continue;
 
-		// ─── Śledzenie cytatu ───────────────────────────────
-		// ─── Śledzenie cytatu ───────────────────────────────
-		// NIE włączaj cytatu, jeśli linia sama jest nowym artykułem/rozdziałem
 		const startsWithStructural =
-			/^(Rozdział|DZIAŁ|CZĘŚĆ)\s+[IVXLCDM\d]+/i.test(line) ||
-			/^(Art|ART)\.?\s*\d+/.test(line);
+			RE_CHAPTER_ANYWHERE.test(line) || RE_ART_ANYWHERE.test(line);
 
 		if (
 			!startsWithStructural &&
@@ -525,10 +640,6 @@ function parse(blocks) {
 		) {
 			insideQuote = true;
 		}
-		// Wyłącz cytat TYLKO gdy linia kończy się na cudzysłów zamykający
-		// Wyłącz cytat TYLKO gdy linia kończy się na cudzysłów zamykający
-		// Wyłącz cytat gdy linia kończy się na cudzysłów zamykający (opcjonalnie + ; lub .)
-		// albo gdy zawiera `".` lub `";` (cudzysłów + kropka/średnik)
 		if (
 			/[""„”'']\s*[;.]?\s*$/.test(line) ||
 			/[""„”'']\s*[;.](?:\s|$)/.test(line)
@@ -536,28 +647,22 @@ function parse(blocks) {
 			insideQuote = false;
 		}
 
-		// DEBUG — usuń po testach
-		console.log(
-			k,
-			"| insideQuote:",
-			insideQuote,
-			"| line:",
-			JSON.stringify(line.slice(0, 60)),
-		);
-
-		// ─── Rozdział ───────────────────────────────────────
+		// ─── Rozdział ───
 		if (
-			(block.type === "paragraph" || block.type === "heading") &&
-			/^(Rozdział|DZIAŁ|CZĘŚĆ)\s+[IVXLCDM\d]+/i.test(line)
+			(block.type === "paragraph" ||
+				block.type === "heading" ||
+				block.type === "list-item") &&
+			RE_CHAPTER_ANYWHERE.test(line)
 		) {
 			if (insideQuote && currentArticle) {
 				currentArticle.contentLines.push(blockToLine(block));
 				continue;
 			}
-
 			flushArticle();
+			insideQuote = false;
 			chapterIndex++;
-			let chapterTitle = line;
+
+			let chapterTitle = line.replace(/[\.\s–-]+$/, "").trim();
 			let chapterSubtitle = "";
 
 			const next = blocks[k + 1];
@@ -565,12 +670,12 @@ function parse(blocks) {
 				!insideQuote &&
 				next &&
 				(next.type === "paragraph" || next.type === "heading") &&
-				!/^(Rozdział|DZIAŁ|CZĘŚĆ)\s+[IVXLCDM\d]+[a-z]?/i.test(next.text) &&
-				!/^Art\.\s*\d+/i.test(next.text) &&
+				!RE_CHAPTER_ANYWHERE.test(next.text) &&
+				!RE_ART_ANYWHERE.test(next.text) &&
 				!/^Załącznik\s+nr/i.test(next.text) &&
 				next.text.trim()
 			) {
-				chapterSubtitle = next.text;
+				chapterSubtitle = next.text.trim();
 				k++;
 			}
 
@@ -581,18 +686,18 @@ function parse(blocks) {
 				articles: [],
 			};
 			chapters.push(currentChapter);
+			currentArticle = null;
 			continue;
 		}
 
-		// ─── Artykuł ────────────────────────────────────────
-		// Heurystyka: linia, poprzedni LUB następny blok wskazuje CYTAT ustawy.
+		// ─── Artykuł ───
 		const prevBlock = blocks[k - 1];
-		const prevText = prevBlock ? prevBlock.text.trim() : "";
+		const prevText = prevBlock ? (prevBlock.text || "").trim() : "";
 		const nextBlock = blocks[k + 1];
-		const nextText = nextBlock ? nextBlock.text.trim() : "";
+		const nextText = nextBlock ? (nextBlock.text || "").trim() : "";
 
 		const lineHasQuote =
-			/^Art\.\s*\d+[a-z]*[¹²³⁴⁵⁶⁷⁸⁹⁰]*\.?\s*(otrzymuje brzmienie|Otrzymuje brzmienie|uchyla się)/i.test(
+			/^Art\.\s*\d+(?:\.\d+)*[a-z]*\.?\s*(otrzymuje brzmienie|Otrzymuje brzmienie|uchyla się)/i.test(
 				line,
 			);
 		const prevLooksLikeIntro =
@@ -606,41 +711,99 @@ function parse(blocks) {
 		const looksLikeQuote =
 			lineHasQuote || prevLooksLikeIntro || nextLooksLikeQuote;
 
-		// Sprawdź, czy to "wewnętrzny" artykuł cytatu (np. Art. 39a, Art. 39b)
-		// — taki, który pojawia się wewnątrz treści innego artykułu
-		// Sprawdź, czy to "wewnętrzny" artykuł cytatu (np. Art. 39a, Art. 39b)
-		// — taki, który pojawia się wewnątrz treści innego artykułu
-		// Sprawdź, czy w contentLines bieżącego artykułu jest niezamknięty cytat
-		// (cudzysłów otwierający „ bez zamykającego ")
 		const hasOpenQuote =
 			currentArticle &&
 			currentArticle.contentLines.some((l) => {
-				const t = l.text || "";
+				const t = (typeof l === "string" ? l : l.text) || "";
 				const openCount = (t.match(/„/g) || []).length;
-				const closeCount = (t.match(/"/g) || []).length;
+				const closeCount = (t.match(/”/g) || []).length;
 				return openCount > closeCount;
 			});
 
-		// Lub czy to Art. 39a/39b (hardkod dla tego dokumentu)
 		const isInnerQuoteArticle =
-			/^(Art|ART)\.?\s*\d+[a-z]?/i.test(line) &&
+			RE_ART.test(line) &&
 			currentArticle !== null &&
 			(hasOpenQuote || /^(Art|ART)\.?\s*39[a-z]?/i.test(line));
 
+		// ─── Specjalny przypadek: sam "Art." + następny blok "X. treść" ───
+		// W edytorze edytor zapisał "Art." i "2. Głównymi celami..." jako dwa osobne bloki.
+		// Trzeba je scalić w "Art. 2. Głównymi celami..." ZANIM sprawdzimy artMatch.
+		if (/^(Art|ART)\.?$/.test(line.trim()) && !insideQuote && !looksLikeQuote) {
+			const nb = blocks[k + 1];
+			const nbText = nb ? (nb.text || "").trim() : "";
+			const mNext = nbText.match(/^(\d+(?:\.\d+)*[a-z]*)\.?\s+(.+)$/s);
+			if (mNext) {
+				flushArticle();
+				resetNowelCtx();
+
+				const artNumber = `Art. ${mNext[1]}`;
+				const chapter = ensureChapter();
+
+				// Scalanie z istniejącym artykułem (np. Art. 6 + Art. 6.1)
+				const baseNumber = artNumber.match(/^Art\.\s*\d+/)?.[0];
+				const existing = chapter.articles.find(
+					(a) =>
+						a.number === artNumber ||
+						(baseNumber && a.number === baseNumber) ||
+						(baseNumber && a.number.startsWith(baseNumber + ".")),
+				);
+
+				if (existing) {
+					existing.contentLines.push({
+						marker: null,
+						text: mNext[2],
+						level: 1,
+						type: "paragraph",
+					});
+					currentArticle = existing;
+				} else {
+					articleIndex++;
+					currentArticle = {
+						id: `art_${articleIndex}`,
+						number: artNumber,
+						contentLines: [
+							{ marker: null, text: mNext[2], level: 1, type: "paragraph" },
+						],
+						content: "",
+					};
+					chapter.articles.push(currentArticle);
+				}
+				k++; // pomiń zużyty blok
+				continue;
+			}
+		}
+
+		// ─── Artykuł ───
 		const artMatch =
 			!looksLikeQuote &&
 			!insideQuote &&
 			!isInnerQuoteArticle &&
-			line.match(/^(Art|ART)\.?\s*\d+[a-z]*[¹²³⁴⁵⁶⁷⁸⁹⁰]*\.?/);
-		if ((block.type === "paragraph" || block.type === "heading") && artMatch) {
+			line.match(RE_ART);
+
+		if (
+			(block.type === "paragraph" ||
+				block.type === "heading" ||
+				block.type === "list-item") &&
+			artMatch
+		) {
 			flushArticle();
+			resetNowelCtx();
+			// ... reszta bez zmian (bez tego wewnętrznego if-a z Art.)
+
 			const artNumber = artMatch[0]
 				.replace(/\.$/, "")
-				.replace(/^Art\s+/, "Art. ") // ← dodaj spację po Art.
+				.replace(/^Art\s+/, "Art. ")
 				.trim();
 			const chapter = ensureChapter();
 
-			const existing = chapter.articles.find((a) => a.number === artNumber);
+			const baseNumber = artNumber.match(/^Art\.\s*\d+/)?.[0];
+			const existing = chapter.articles.find(
+				(a) =>
+					a.number === artNumber ||
+					(baseNumber && a.number === baseNumber) ||
+					(baseNumber && a.number.startsWith(baseNumber + ".")),
+			);
+
 			if (existing) {
 				const firstContent = line.slice(artMatch[0].length).trim();
 				if (firstContent) {
@@ -658,34 +821,30 @@ function parse(blocks) {
 			articleIndex++;
 			const firstContent = line.slice(artMatch[0].length).trim();
 
-			// ─── Heurystyka A tymczasowo wyłączona ──
-			// if ( ... ) { ... }
-
 			currentArticle = {
 				id: `art_${articleIndex}`,
 				number: artNumber,
 				contentLines: firstContent
-					? [
-							{
-								marker: null,
-								text: firstContent,
-								level: 1,
-								type: "paragraph",
-							},
-						]
+					? [{ marker: null, text: firstContent, level: 1, type: "paragraph" }]
 					: [],
 				content: "",
 			};
 			chapter.articles.push(currentArticle);
-
 			continue;
 		}
 
-		// ─── Załącznik ──────────────────────────────────────
+		// ─── Załącznik ───
 		if (block.type === "paragraph" && /^Załącznik\s+nr/i.test(line)) {
 			flushArticle();
+			resetNowelCtx();
+			insideQuote = false;
 			chapterIndex++;
-			currentChapter = { id: `ch_${chapterIndex}`, title: line, articles: [] };
+			currentChapter = {
+				id: `ch_${chapterIndex}`,
+				title: line,
+				subtitle: "",
+				articles: [],
+			};
 			chapters.push(currentChapter);
 			currentArticle = {
 				id: `zal_${chapterIndex}`,
@@ -697,32 +856,60 @@ function parse(blocks) {
 			continue;
 		}
 
-		// ─── Zwykły blok ────────────────────────────────────
+		// ─── Zwykły blok ───
 		if (currentArticle) {
-			const lineObj = blockToLine(block);
-
-			if (lineObj.type === "list-item" && lineObj.level === 1) {
-				const fromList = block.fromList === true;
-				const fromParagraph = block.fromParagraph === true;
-
-				if (fromList) {
-					// zachowaj poziom z walkList (już ustawiony), nie wymuszaj 2
-					// lineObj.level zostaje jak jest
-				} else if (fromParagraph) {
-					lineObj.level = 1;
-				} else {
-					const type = markerType(lineObj.marker);
-					if (type === "num-paren") lineObj.level = 2;
-					else if (
-						type === "let-paren" ||
-						type === "let-dot" ||
-						type === "roman"
-					)
-						lineObj.level = 3;
-					else lineObj.level = 1;
-				}
+			// Nowelizacja (przed zwykłym markerem)
+			const nowel = detectNowelizacjaMarker(line, nowelCtx);
+			if (nowel) {
+				currentArticle.contentLines.push({
+					marker: nowel.marker,
+					text: line,
+					level: nowel.level,
+					type: "list-item",
+					fromParagraph: true,
+				});
+				continue;
 			}
-			currentArticle.contentLines.push(lineObj);
+
+			// "2. 3. treść" → "3. treść"
+			const dbl = extractDoubleMarker(line);
+			if (dbl) {
+				currentArticle.contentLines.push({
+					marker: dbl.marker,
+					text: dbl.text,
+					level: 1,
+					type: "list-item",
+					fromParagraph: true,
+				});
+				continue;
+			}
+
+			// Zachowaj oryginalny marker z linii (np. "1)", "1.", "a)")
+			const extracted = extractMarker(line);
+			if (extracted) {
+				// level wyznaczony z typu markera
+				let level = 1;
+				if (extracted.rawType === "num-paren") level = 2;
+				else if (
+					extracted.rawType === "let-paren" ||
+					extracted.rawType === "let-dot" ||
+					extracted.rawType === "roman"
+				)
+					level = 3;
+				else level = 1;
+
+				currentArticle.contentLines.push({
+					marker: extracted.marker,
+					text: extracted.text,
+					level,
+					type: "list-item",
+					fromParagraph: true,
+				});
+				continue;
+			}
+
+			// Zwykły tekst
+			currentArticle.contentLines.push(blockToLine(block));
 		} else {
 			const chapter = ensureChapter();
 			articleIndex++;
@@ -738,10 +925,14 @@ function parse(blocks) {
 
 	flushArticle();
 
-	// Przenumeruj ID artykułów (bo flushArticle usuwa puste → dziury)
-	for (const ch of chapters) {
+	// ─────────────────────────────────────────────
+	// 5) FINALNE ID
+	// ─────────────────────────────────────────────
+	for (let ci = 0; ci < chapters.length; ci++) {
+		const ch = chapters[ci];
+		ch.id = `ch_${ci + 1}`;
 		ch.articles.forEach((a, i) => {
-			a.id = `art_${i + 1}`;
+			a.id = `art_${ci + 1}_${i + 1}`;
 		});
 	}
 
