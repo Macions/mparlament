@@ -167,9 +167,56 @@ export default function ResolutionDetails() {
 	};
 
 	// --- EDYCJA: helpers ---
+	// pomocnicza funkcja — rozbij content na linie
+	const splitContentIntoLines = (content) => {
+		if (!content) {
+			return [{ marker: null, text: "", level: 1, type: "paragraph" }];
+		}
+
+		// 1) podziel po \n
+		const rawLines = content.split("\n");
+
+		// 2) rozbij każdą linię po markerach w środku
+		const expanded = [];
+		for (const rawLine of rawLines) {
+			const line = rawLine.trim();
+			if (!line) continue;
+
+			const parts = line.split(
+				/(?=\d+[a-z]?[.)]\s(?!\d)|(?<!\d)[a-z]\)\s|[IVXLCDM]+[.)]\s)/,
+			);
+
+			for (const part of parts) {
+				const trimmed = part.trim();
+				if (trimmed) expanded.push(trimmed);
+			}
+		}
+
+		// 3) dla każdej linii wykryj marker i level
+		return expanded.map((line) => {
+			const m = line.match(
+				/^(\d+[a-z]?[.)]|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)])\s+(.+)$/i,
+			);
+
+			if (m) {
+				const marker = m[1];
+				const text = m[2];
+				let level = 1;
+
+				if (/^\d+\.$/.test(marker)) level = 1;
+				else if (/^\d+\)$/.test(marker)) level = 2;
+				else if (/^[a-z]\)$/.test(marker)) level = 3;
+				else if (/^[IVXLCDM]+[.)]$/i.test(marker)) level = 4;
+
+				return { marker, text, level, type: "list-item" };
+			}
+
+			return { marker: null, text: line, level: 1, type: "paragraph" };
+		});
+	};
+
 	const startEditing = () => {
 		const clone = JSON.parse(JSON.stringify(resolution));
-		// upewniamy się, że chapters istnieje i każdy artykuł ma contentLines
 		clone.chapters = (clone.chapters || []).map((ch, chIdx) => ({
 			id: ch.id ?? `ch-${chIdx}-${Date.now()}`,
 			title: ch.title || "",
@@ -185,21 +232,13 @@ export default function ResolutionDetails() {
 									? { marker: null, text: l, level: 1, type: "paragraph" }
 									: { ...l },
 							)
-						: [
-								{
-									marker: null,
-									text: art.content || "",
-									level: 1,
-									type: "paragraph",
-								},
-							],
+						: splitContentIntoLines(art.content || ""),
 			})),
 		}));
 		setEditedData(clone);
 		setSaveError(null);
 		setIsEditing(true);
 	};
-
 	const cancelEditing = () => {
 		setIsEditing(false);
 		setEditedData(null);
@@ -794,9 +833,10 @@ export default function ResolutionDetails() {
 
 														// 2) fallback: rozbij content po \n ORAZ po markerach w środku
 														// 2) fallback: rozbij content po \n ORAZ po markerach w środku
-														const rawLines = (article.content || "").split(
-															"\n",
-														);
+														const rawLines = (article.content || "")
+															.split("\n")
+															.map((l) => l.trim())
+															.filter((l) => l);
 
 														const expanded = [];
 														for (const rawLine of rawLines) {
@@ -805,7 +845,7 @@ export default function ResolutionDetails() {
 
 															// rozbij linię po markerach w środku — łapie też markery na początku
 															const parts = line.split(
-																/(?=\d+[a-z]?[.)]\s|[a-z]\)\s|[IVXLCDM]+[.)]\s)/,
+																/(?=\d+[a-z]?[.)]\s(?!\d)|(?<!\d)[a-z]\)\s|[IVXLCDM]+[.)]\s)/,
 															);
 
 															for (const part of parts) {
