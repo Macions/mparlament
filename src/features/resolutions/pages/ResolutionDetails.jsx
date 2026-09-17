@@ -173,17 +173,35 @@ export default function ResolutionDetails() {
 			return [{ marker: null, text: "", level: 1, type: "paragraph" }];
 		}
 
-		// 1) podziel po \n
-		const rawLines = content.split("\n");
+		// 1) podziel po \n i odfiltruj puste
+		const rawLines = content
+			.split("\n")
+			.map((l) => l.trim())
+			.filter((l) => l);
 
-		// 2) rozbij każdą linię po markerach w środku
+		// 2) scal linie, które są "samotnymi cyframi" lub "Art." z poprzednią
+		const merged = [];
+		for (const line of rawLines) {
+			const isLoneDigit = /^\d{1,2}$/.test(line);
+			const isLoneNumberWithDot = /^\d{1,2}[.)]$/.test(line);
+			const isLoneArt = /^[""„”'']?Art\.?$/i.test(line);
+			const isLoneQuote = /^[""„”'']$/.test(line);
+
+			if (
+				merged.length > 0 &&
+				(isLoneDigit || isLoneNumberWithDot || isLoneArt || isLoneQuote)
+			) {
+				merged[merged.length - 1] += " " + line;
+			} else {
+				merged.push(line);
+			}
+		}
+
+		// 3) rozbij każdą scaloną linię po markerach w środku
 		const expanded = [];
-		for (const rawLine of rawLines) {
-			const line = rawLine.trim();
-			if (!line) continue;
-
+		for (const line of merged) {
 			const parts = line.split(
-				/(?=\d+[a-z]?[.)]\s(?!\d)|(?<!\d)[a-z]\)\s|[IVXLCDM]+[.)]\s)/,
+				/(?=\d+[a-z]?[.)](?:\s|(?=\d)|$)|(?<!\d)[a-z]\)\s|[IVXLCDM]+[.)]\s)/,
 			);
 
 			for (const part of parts) {
@@ -192,7 +210,7 @@ export default function ResolutionDetails() {
 			}
 		}
 
-		// 3) dla każdej linii wykryj marker i level
+		// 4) dla każdej linii wykryj marker i level
 		return expanded.map((line) => {
 			const m = line.match(
 				/^(\d+[a-z]?[.)]|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)])\s+(.+)$/i,
@@ -833,53 +851,23 @@ export default function ResolutionDetails() {
 
 														// 2) fallback: rozbij content po \n ORAZ po markerach w środku
 														// 2) fallback: rozbij content po \n ORAZ po markerach w środku
-														const rawLines = (article.content || "")
-															.split("\n")
-															.map((l) => l.trim())
-															.filter((l) => l);
+														// 2) fallback: użyj tej samej logiki co w edytorze
+														const lines = splitContentIntoLines(
+															article.content || "",
+														);
 
-														const expanded = [];
-														for (const rawLine of rawLines) {
-															const line = rawLine.trim();
-															if (!line) continue;
-
-															// rozbij linię po markerach w środku — łapie też markery na początku
-															const parts = line.split(
-																/(?=\d+[a-z]?[.)]\s(?!\d)|(?<!\d)[a-z]\)\s|[IVXLCDM]+[.)]\s)/,
-															);
-
-															for (const part of parts) {
-																const trimmed = part.trim();
-																if (trimmed) expanded.push(trimmed);
-															}
-														}
-
-														return expanded.map((line, lineIndex) => {
-															const m = line.match(
-																/^(\d+[a-z]?[.)]|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)])\s+(.+)$/i,
-															);
-
-															if (m) {
-																const marker = m[1];
-																const text = m[2];
-																let level = 1;
-
-																if (/^\d+\.$/.test(marker)) level = 1;
-																else if (/^\d+\)$/.test(marker)) level = 2;
-																else if (/^[a-z]\)$/.test(marker)) level = 3;
-																else if (/^[IVXLCDM]+[.)]$/i.test(marker))
-																	level = 4;
-
+														return lines.map((line, lineIndex) => {
+															if (line.marker) {
 																return (
 																	<p
 																		key={lineIndex}
 																		className={styles.articleLine}
-																		data-level={level}
+																		data-level={line.level}
 																	>
 																		<span className={styles.lineMarker}>
-																			{marker}
+																			{line.marker}
 																		</span>{" "}
-																		{text}
+																		{line.text}
 																	</p>
 																);
 															}
@@ -888,9 +876,9 @@ export default function ResolutionDetails() {
 																<p
 																	key={lineIndex}
 																	className={styles.articleLine}
-																	data-level={1}
+																	data-level={line.level || 1}
 																>
-																	{line}
+																	{line.text}
 																</p>
 															);
 														});
