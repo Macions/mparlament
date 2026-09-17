@@ -10,7 +10,7 @@ export default function AmendmentsPage() {
 	const [session, setSession] = useState(null);
 	const [currentUser, setCurrentUser] = useState(null);
 	const [loading, setLoading] = useState(true);
-
+	const [canAddAmendment, setCanAddAmendment] = useState(true);
 	const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 	const [selectedAmendmentId, setSelectedAmendmentId] = useState(null);
 	const [withdrawReason, setWithdrawReason] = useState("");
@@ -52,6 +52,7 @@ export default function AmendmentsPage() {
 				setResolution(data.resolution);
 				setAmendments(data.amendments);
 				setSession(data.session);
+				setCanAddAmendment(data.session?.isActive === true);
 			} catch (error) {
 				console.error("Błąd pobierania poprawek:", error);
 			} finally {
@@ -211,12 +212,21 @@ export default function AmendmentsPage() {
 					</div>
 
 					<div className={styles.headActions}>
-						<Link
-							to={`/${slug}/dodaj-poprawke`}
-							className={`${styles.btn} ${styles.btnPrimary}`}
-						>
-							Dodaj poprawkę
-						</Link>
+						{canAddAmendment ? (
+							<Link
+								to={`/${slug}/dodaj-poprawke`}
+								className={`${styles.btn} ${styles.btnPrimary}`}
+							>
+								Dodaj poprawkę
+							</Link>
+						) : (
+							<span
+								className={styles.disabledHint}
+								title="Dodawanie poprawek jest obecnie zablokowane"
+							>
+								Dodawanie poprawek zablokowane
+							</span>
+						)}
 
 						<span className={styles.count}>
 							{amendments.length}{" "}
