@@ -792,13 +792,29 @@ export default function ResolutionDetails() {
 															);
 														}
 
-														// 2) fallback: rozbij content na linie i wykryj markery
-														const lines = (article.content || "").split("\n");
+														// 2) fallback: rozbij content po \n ORAZ po markerach w środku
+														// 2) fallback: rozbij content po \n ORAZ po markerach w środku
+														const rawLines = (article.content || "").split(
+															"\n",
+														);
 
-														return lines.map((rawLine, lineIndex) => {
+														const expanded = [];
+														for (const rawLine of rawLines) {
 															const line = rawLine.trim();
-															if (!line) return null;
+															if (!line) continue;
 
+															// rozbij linię po markerach w środku — łapie też markery na początku
+															const parts = line.split(
+																/(?=\d+[a-z]?[.)]\s|[a-z]\)\s|[IVXLCDM]+[.)]\s)/,
+															);
+
+															for (const part of parts) {
+																const trimmed = part.trim();
+																if (trimmed) expanded.push(trimmed);
+															}
+														}
+
+														return expanded.map((line, lineIndex) => {
 															const m = line.match(
 																/^(\d+[a-z]?[.)]|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)])\s+(.+)$/i,
 															);
@@ -808,7 +824,6 @@ export default function ResolutionDetails() {
 																const text = m[2];
 																let level = 1;
 
-																// ustępy "1." i punkty "1)" → poziom 1-2
 																if (/^\d+\.$/.test(marker)) level = 1;
 																else if (/^\d+\)$/.test(marker)) level = 2;
 																else if (/^[a-z]\)$/.test(marker)) level = 3;
