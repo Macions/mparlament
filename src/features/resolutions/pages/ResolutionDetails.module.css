@@ -774,3 +774,120 @@
 	color: #475569;
 	margin-right: 0.25rem;
 }
+
+/* ============================================
+   TRYB EDYCJI — dopisane klasy
+   ============================================ */
+
+.contentHead {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.chapters {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.chapterTitles {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	flex: 1;
+	min-width: 0;
+}
+
+.chapterTitle,
+.chapterSubtitle,
+.articleNumber {
+	width: 100%;
+	border: 1px solid var(--border, #d9d9d9);
+	border-radius: 8px;
+	padding: 8px 10px;
+	font: inherit;
+	background: var(--surface, #fff);
+	color: inherit;
+	box-sizing: border-box;
+}
+
+.chapterTitle {
+	font-weight: 700;
+	font-size: 1.05rem;
+}
+
+.chapterSubtitle {
+	font-size: 0.9rem;
+	opacity: 0.85;
+}
+
+.articleHead {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 8px;
+}
+
+.articleHead .articleNumber {
+	max-width: 220px;
+	font-weight: 600;
+}
+
+.articleLines {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.articleLine {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+.textarea {
+	flex: 1;
+	width: 100%;
+	border: 1px solid var(--border, #d9d9d9);
+	border-radius: 8px;
+	padding: 8px 10px;
+	font: inherit;
+	line-height: 1.5;
+	resize: vertical;
+	background: var(--surface, #fff);
+	color: inherit;
+	box-sizing: border-box;
+	white-space: pre-wrap;
+}
+
+.textarea:focus,
+.chapterTitle:focus,
+.chapterSubtitle:focus,
+.articleNumber:focus {
+	outline: none;
+	border-color: var(--accent, #2b6cb0);
+	box-shadow: 0 0 0 2px rgba(43, 108, 176, 0.15);
+}
+
+/* wcięcia w edytorze — zgodne z widokiem */
+.articleLine[data-level="1"] .textarea {
+	margin-left: 0;
+}
+.articleLine[data-level="2"] .textarea {
+	margin-left: 16px;
+}
+.articleLine[data-level="3"] .textarea {
+	margin-left: 32px;
+}
+.articleLine[data-level="4"] .textarea {
+	margin-left: 48px;
+}
+
+.btnSmall {
+	padding: 4px 10px;
+	font-size: 0.85rem;
+	line-height: 1.2;
+}
