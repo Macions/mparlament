@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Clock } from "lucide-react";
 import styles from "./Dashboard.module.css";
 import BackButton from "../../../components/PageBack";
 import useCountdown from "./useCountdown";
@@ -170,15 +171,17 @@ export default function Dashboard() {
 						<span className={styles.tileLabel}>Sprawdź uchwały</span>
 						<span className={styles.tileArrow}>→</span>
 					</Link>
-
-					<Link
-						to="/zloz-uchwale"
-						className={`${styles.tile} ${styles.tileSubmit}`}
+					<div
+						className={`${styles.tile} ${styles.tileSubmit} ${styles.tileDisabled}`}
+						aria-disabled="true"
+						title="Prace techniczne — funkcja tymczasowo niedostępna"
 					>
-						<span className={styles.tileEyebrow}>Nowa uchwała</span>
+						<span className={styles.tileEyebrow}>Prace techniczne</span>
 						<span className={styles.tileLabel}>Złóż uchwałę</span>
-						<span className={styles.tileArrow}>→</span>
-					</Link>
+						<span className={styles.tileArrow}>
+							<Clock size={20} />
+						</span>
+					</div>
 
 					{isAdmin && (
 						<Link
