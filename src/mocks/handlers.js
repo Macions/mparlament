@@ -403,7 +403,8 @@ export const handlers = [
 
 	http.put("/newapp/api/session/current", async ({ request }) => {
 		const body = await request.json();
-		return HttpResponse.json(body);
+		Object.assign(currentSession, body);
+		return HttpResponse.json(currentSession);
 	}),
 
 	http.get("/newapp/api/speakers", () => HttpResponse.json(speakers)),

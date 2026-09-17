@@ -363,12 +363,12 @@ export default function SessionDetails() {
 
 	useEffect(() => {
 		if (session) {
-			setDisplaySpeaker(session.currentSpeaker);
-			setDisplayPoint(session.currentPoint);
-			setSchedule(session.schedule);
-			setStatus(session.status);
-			setTitle(session.title);
-			setDate(session.date);
+			setDisplaySpeaker(session.currentSpeaker ?? null);
+			setDisplayPoint(session.currentPoint ?? null);
+			setSchedule(session.schedule ?? []);   // ← KLUCZOWE
+			setStatus(session.status ?? "");
+			setTitle(session.title ?? "");
+			setDate(session.date ?? "");
 
 			if (session.zoContent) {
 				setZoContent(session.zoContent);
@@ -376,7 +376,7 @@ export default function SessionDetails() {
 			if (session.sessionMode) {
 				setSessionMode(session.sessionMode);
 			}
-			if (session.speakers && session.speakers.length > 0) {
+			if (Array.isArray(session.speakers) && session.speakers.length > 0) {
 				setPlannedSpeakers(session.speakers);
 			}
 		}
@@ -458,7 +458,8 @@ export default function SessionDetails() {
 			});
 			if (!response.ok) throw new Error("Nie udało się zaktualizować sesji");
 			const data = await response.json();
-			setSession(data);
+			// Merge: zachowaj poprzednie pola, nadpisz tylko to, co przyszło z backendu.
+			setSession((prev) => ({ ...prev, ...data }));
 		} catch (err) {
 			setError(err.message);
 		}
@@ -482,20 +483,48 @@ export default function SessionDetails() {
 		}
 	};
 
-	const selectSpeaker = (name) => {
-		if (!name.trim()) return;
+	const selectSpeaker = async (name) => {
+		const trimmed = name.trim();
+		if (!trimmed) return;
 
 		if (sessionMode === "break") cancelBreak();
 		if (sessionMode === "zo") cancelZO();
-		const data = getSpeakerData(name, customSpeakers);
+
+		const data = getSpeakerData(trimmed, customSpeakers);
 		const newSpeaker = {
-			name: name.trim(),
+			name: trimmed,
 			club: data.club || "",
 			role: data.role || "Parlamentarzysta",
 			time: getCurrentTime(),
 			status: "active",
 		};
 
+		// 1) Dodaj do rejestru mówców, jeśli go tam nie ma
+		const alreadyInRegistry = speakers.some((s) => s.name === trimmed);
+		if (!alreadyInRegistry) {
+			try {
+				const response = await fetch("/newapp/api/speakers", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify({
+						name: trimmed,
+						club: newSpeaker.club,
+						role: newSpeaker.role,
+					}),
+				});
+				if (response.ok) {
+					const saved = await response.json();
+					setSpeakers((prev) => [...prev, saved]);
+				}
+			} catch (err) {
+				console.error("Nie udało się dodać mówcy do rejestru:", err);
+			}
+		}
+
+		// 2) Dodaj do kolejki plannedSpeakers (jak wcześniej)
 		const updated = plannedSpeakers.map((s) => {
 			if (s.status === "active") {
 				return { ...s, status: "done" };
@@ -532,8 +561,8 @@ export default function SessionDetails() {
 			club: newSpeakerClub.trim() || "",
 			role: newSpeakerRole.trim() || "Parlamentarzysta",
 		};
-
 		await addSpeaker(speakerData);
+		await selectSpeaker(name);
 
 		setNewSpeakerName("");
 		setNewSpeakerClub("");
@@ -1301,7 +1330,7 @@ export default function SessionDetails() {
 					</div>
 
 					<div className="timeline">
-						{schedule.map((item, index) => (
+						{(schedule ?? []).map((item, index) => (
 							<div className={`timeline-item ${item.status}`} key={index}>
 								<div className="timeline-time">
 									{adminMode ? (
