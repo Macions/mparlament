@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Dashboard.module.css";
 import BackButton from "../../../components/PageBack";
+import useCountdown from "./useCountdown";
 
 function CalendarIcon() {
 	return (
@@ -44,6 +45,7 @@ export default function Dashboard() {
 
 	const [user, setUser] = useState(null);
 	const [currentSession, setCurrentSession] = useState(null);
+	const [nextSession, setNextSession] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [isAdmin, setIsAdmin] = useState(false);
 	const token = localStorage.getItem("token");
@@ -74,7 +76,7 @@ export default function Dashboard() {
 
 				setIsAdmin(
 					userData.role === "admin" ||
-						userData.permissions?.includes("MANAGE_RESOLUTIONS"),
+					userData.permissions?.includes("MANAGE_RESOLUTIONS"),
 				);
 
 				const sessionResponse = await fetch("/newapp/api/sessions/current", {
@@ -86,6 +88,17 @@ export default function Dashboard() {
 				if (sessionResponse.ok) {
 					const sessionData = await sessionResponse.json();
 					setCurrentSession(sessionData);
+				}
+
+				// --- najbliższe posiedzenie ---
+				const nextResponse = await fetch("/newapp/api/sessions/next", {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
+				if (nextResponse.ok) {
+					const nextData = await nextResponse.json();
+					setNextSession(nextData);
 				}
 			} catch {
 				localStorage.removeItem("token");
@@ -126,48 +139,14 @@ export default function Dashboard() {
 			<main className={styles.content}>
 				{/* Hero z aktywnym posiedzeniem */}
 				{currentSession && currentSession.active ? (
-					<section className={styles.hero}>
-						<div className={styles.heroPulse} aria-hidden="true" />
-
-						<div className={styles.heroBody}>
-							<span className={styles.heroBadge}>
-								<span className={styles.heroBadgeDot} />
-								Trwa teraz
-							</span>
-
-							<h1 className={styles.heroTitle}>{currentSession.title}</h1>
-
-							<p className={styles.heroTime}>
-								{currentSession.start || currentSession.startTime}
-								<span className={styles.heroTimeSep}>–</span>
-								{currentSession.end || currentSession.endTime}
-							</p>
-						</div>
-
-						<Link to="/posiedzenie" className={styles.heroCta}>
-							<span>ŚLEDŹ POSIEDZENIE</span>
-							<svg
-								width="20"
-								height="20"
-								viewBox="0 0 24 24"
-								fill="none"
-								aria-hidden="true"
-							>
-								<path
-									d="M5 12h14M13 6l6 6-6 6"
-									stroke="currentColor"
-									strokeWidth="2"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								/>
-							</svg>
-						</Link>
-					</section>
+					<LiveHero session={currentSession} />
+				) : nextSession ? (
+					<UpcomingHero session={nextSession} />
 				) : (
 					<section className={styles.heroIdle}>
 						<h1 className={styles.heroIdleTitle}>Panel radnego</h1>
 						<p className={styles.heroIdleText}>
-							Brak aktywnego posiedzenia w tej chwili.
+							Brak zaplanowanych posiedzeń.
 						</p>
 					</section>
 				)}
@@ -227,5 +206,91 @@ export default function Dashboard() {
 				</section>
 			</main>
 		</div>
+	);
+}
+/* ---------- Hero: TRWA ---------- */
+function LiveHero({ session }) {
+	return (
+		<section className={styles.hero}>
+			<div className={styles.heroPulse} aria-hidden="true" />
+			<div className={styles.heroBody}>
+				<span className={styles.heroBadge}>
+					<span className={styles.heroBadgeDot} />
+					Trwa teraz
+				</span>
+				<h1 className={styles.heroTitle}>{session.title}</h1>
+				<p className={styles.heroTime}>
+					{session.start || session.startTime}
+					<span className={styles.heroTimeSep}>–</span>
+					{session.end || session.endTime}
+				</p>
+			</div>
+			<Link to="/posiedzenie" className={styles.heroCta}>
+				<span>ŚLEDŹ POSIEDZENIE</span>
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+					<path
+						d="M5 12h14M13 6l6 6-6 6"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					/>
+				</svg>
+			</Link>
+		</section>
+	);
+}
+
+/* ---------- Hero: NADCHODZĄCE ---------- */
+function UpcomingHero({ session }) {
+	const startRaw = session.start || session.startTime;
+	const { text, diff } = useCountdown(startRaw);
+
+	const urgency =
+		diff < 60 * 60 * 1000
+			? "urgent"
+			: diff < 24 * 60 * 60 * 1000
+				? "soon"
+				: "calm";
+
+	return (
+		<section
+			className={`${styles.hero} ${styles.heroUpcoming} ${styles[`heroUpcoming--${urgency}`]}`}
+		>
+			<div className={styles.heroBody}>
+				<span className={styles.heroBadge}>
+					<span className={styles.heroBadgeDot} />
+					Najbliższe posiedzenie
+				</span>
+
+				<h1 className={styles.heroTitle}>{session.title}</h1>
+
+				<p className={styles.heroTime}>
+					{formatDate(startRaw)}
+					<span className={styles.heroTimeSep}>•</span>
+					{new Date(startRaw).toLocaleTimeString("pl-PL", {
+						hour: "2-digit",
+						minute: "2-digit",
+					})}
+				</p>
+
+				<p className={styles.heroCountdown} aria-live="polite">
+					{text}
+				</p>
+			</div>
+
+			<Link to="/posiedzenie" className={styles.heroCta}>
+				<span>SZCZEGÓŁY POSIEDZENIA</span>
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+					<path
+						d="M5 12h14M13 6l6 6-6 6"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					/>
+				</svg>
+			</Link>
+		</section>
 	);
 }

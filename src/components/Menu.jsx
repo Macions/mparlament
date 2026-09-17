@@ -1,3 +1,4 @@
+import styles from "./Menu.module.css";
 import { NavLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 
@@ -19,13 +20,13 @@ export default function Menu() {
   ];
 
   return (
-    <nav className="menu">
+    <nav className={styles.menu}>
       {menuItems.map((item) =>
         item.href ? (
           <a
             key={item.id}
             href={item.href}
-            className="menu__button"
+            className={styles.menu__button}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -36,7 +37,7 @@ export default function Menu() {
             key={item.id}
             to={item.to}
             className={({ isActive }) =>
-              `menu__button ${isActive ? "menu__button--active" : ""}`
+              `${styles.menu__button} ${isActive ? styles["menu__button--active"] : ""}`
             }
           >
             {item.label}

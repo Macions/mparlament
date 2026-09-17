@@ -384,7 +384,7 @@ export const handlers = [
 				try {
 					currentUser = JSON.parse(savedUser);
 					return HttpResponse.json(currentUser);
-				} catch (e) {}
+				} catch (e) { }
 			}
 		}
 		return HttpResponse.json({ message: "Nie zalogowany" }, { status: 401 });
@@ -600,7 +600,24 @@ export const handlers = [
 	http.get("/newapp/api/sessions/current", () =>
 		HttpResponse.json(currentSession),
 	),
+	http.get("/newapp/api/sessions/next", () => {
+		const now = Date.now();
 
+		const upcoming = sessions
+			.filter((s) => new Date(s.startISO).getTime() > now)
+			.sort((a, b) => new Date(a.startISO) - new Date(b.startISO))[0];
+
+		if (!upcoming) return HttpResponse.json(null);
+
+		return HttpResponse.json({
+			id: upcoming.id,
+			title: upcoming.name,
+			start: upcoming.startISO,
+			end: upcoming.endISO,
+			active: false,
+			city: upcoming.city,
+		});
+	}),
 	http.post("/newapp/api/votings", async ({ request }) => {
 		const body = await request.json();
 		const newVoting = createVoting(body);

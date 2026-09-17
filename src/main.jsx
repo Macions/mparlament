@@ -5,31 +5,31 @@ import App from "./app/App";
 import "./components/backButton.css";
 import { SocketProvider } from "./socket/SocketProvider";
 
-// async function enableMocking() {
-// 	if (import.meta.env.DEV) {
-// 		// if (false) {
-// 		const { worker } = await import("./mocks/browser");
+async function enableMocking() {
+	if (import.meta.env.DEV) {
+		// if (false) {
+		const { worker } = await import("./mocks/browser");
 
-// 		return worker.start();
-// 	}
+		return worker.start();
+	}
 
-// 	return Promise.resolve();
-// }
+	return Promise.resolve();
+}
 
-// enableMocking().then(() => {
-// 	ReactDOM.createRoot(document.getElementById("root")).render(
-// 		<HashRouter>
-// 			<SocketProvider>
-// 				<App />
-// 			</SocketProvider>
-// 		</HashRouter>,
-// 	);
-// });
+enableMocking().then(() => {
+	ReactDOM.createRoot(document.getElementById("root")).render(
+		<HashRouter>
+			<SocketProvider>
+				<App />
+			</SocketProvider>
+		</HashRouter>,
+	);
+});
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-	<HashRouter>
-		<SocketProvider>
-			<App />
-		</SocketProvider>
-	</HashRouter>,
-);
+// ReactDOM.createRoot(document.getElementById("root")).render(
+// 	<HashRouter>
+// 		<SocketProvider>
+// 			<App />
+// 		</SocketProvider>
+// 	</HashRouter>,
+// );
