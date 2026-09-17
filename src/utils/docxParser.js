@@ -31,7 +31,8 @@ function htmlToBlocks(html) {
 				.replace(/[ \t\r]+$/, "")
 				.replace(/^[\u200B\u200C\u200D\uFEFF]+/, "")
 				.replace(/[\u200B\u200C\u200D\uFEFF]+$/, "");
-			if (cleaned) blocks.push({ type, text: cleaned, html: cleaned, ...extra });
+			if (cleaned)
+				blocks.push({ type, text: cleaned, html: cleaned, ...extra });
 		}
 	}
 
@@ -57,13 +58,26 @@ function htmlToBlocks(html) {
 	function roman(num) {
 		if (num <= 0 || num > 3999) return String(num);
 		const map = [
-			[1000, "M"], [900, "CM"], [500, "D"], [400, "CD"],
-			[100, "C"], [90, "XC"], [50, "L"], [40, "XL"],
-			[10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"],
+			[1000, "M"],
+			[900, "CM"],
+			[500, "D"],
+			[400, "CD"],
+			[100, "C"],
+			[90, "XC"],
+			[50, "L"],
+			[40, "XL"],
+			[10, "X"],
+			[9, "IX"],
+			[5, "V"],
+			[4, "IV"],
+			[1, "I"],
 		];
 		let res = "";
 		for (const [v, s] of map) {
-			while (num >= v) { res += s; num -= v; }
+			while (num >= v) {
+				res += s;
+				num -= v;
+			}
 		}
 		return res;
 	}
@@ -79,7 +93,9 @@ function htmlToBlocks(html) {
 		for (const li of items) {
 			counter++;
 
-			const nested = Array.from(li.querySelectorAll(":scope > ul, :scope > ol"));
+			const nested = Array.from(
+				li.querySelectorAll(":scope > ul, :scope > ol"),
+			);
 			const clone = li.cloneNode(true);
 			clone.querySelectorAll("ul, ol").forEach((nl) => nl.remove());
 
@@ -89,13 +105,13 @@ function htmlToBlocks(html) {
 
 			let marker;
 			const inlineMarker = text.match(
-				/^(\d+\.|\d+\)|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)])\s+/
+				/^(\d+\.|\d+\)|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)])\s+/,
 			);
 			if (inlineMarker) {
 				marker = inlineMarker[1];
 				text = text.slice(inlineMarker[0].length);
 			} else if (ordered) {
-				marker = (start + counter - 1) + ")";
+				marker = start + counter - 1 + ")";
 			} else {
 				marker = "–";
 			}
@@ -105,7 +121,7 @@ function htmlToBlocks(html) {
 					ordered,
 					marker,
 					level,
-					fromList: true,   // ← NOWE: pochodzi z <ol>/<ul>
+					fromList: true, // ← NOWE: pochodzi z <ol>/<ul>
 				});
 			}
 			for (const nl of nested) {
@@ -128,14 +144,19 @@ function htmlToBlocks(html) {
 
 				if (!tag.startsWith("h")) {
 					const m = rawText.match(
-						/^(\d+\.|\d+\)|[a-z]\)|[a-z]\.|[IVXLCDM]+\.|[IVXLCDM]+\))\s+(.+)$/s
+						/^(\d+\.|\d+\)|[a-z]\)|[a-z]\.|[IVXLCDM]+\.|[IVXLCDM]+\))\s+(.+)$/s,
 					);
 					if (m) {
 						const marker = m[1];
-						const mtype = markerType(marker);   // ← użyj markerType
+						const mtype = markerType(marker); // ← użyj markerType
 						let level = 1;
 						if (mtype === "num-paren") level = 2;
-						else if (mtype === "let-paren" || mtype === "let-dot" || mtype === "roman") level = 3;
+						else if (
+							mtype === "let-paren" ||
+							mtype === "let-dot" ||
+							mtype === "roman"
+						)
+							level = 3;
 
 						const parts = m[2].split(/\n/);
 						parts.forEach((p) => {
@@ -143,13 +164,18 @@ function htmlToBlocks(html) {
 							if (!t) return;
 
 							const innerMatch = t.match(
-								/^(\d+\.|\d+\)|[a-z]\)|[a-z]\.|[IVXLCDM]+\.|[IVXLCDM]+\))\s+(.+)$/
+								/^(\d+\.|\d+\)|[a-z]\)|[a-z]\.|[IVXLCDM]+\.|[IVXLCDM]+\))\s+(.+)$/,
 							);
 							if (innerMatch) {
 								const innerMtype = markerType(innerMatch[1]);
 								let innerLevel = 1;
 								if (innerMtype === "num-paren") innerLevel = 2;
-								else if (innerMtype === "let-paren" || innerMtype === "let-dot" || innerMtype === "roman") innerLevel = 3;
+								else if (
+									innerMtype === "let-paren" ||
+									innerMtype === "let-dot" ||
+									innerMtype === "roman"
+								)
+									innerLevel = 3;
 
 								pushText("list-item", innerMatch[2], {
 									ordered: true,
@@ -161,7 +187,7 @@ function htmlToBlocks(html) {
 								pushText("list-item", t, {
 									ordered: true,
 									marker,
-									level,                 // ← było na sztywno 1
+									level, // ← było na sztywno 1
 									fromParagraph: true,
 								});
 							}
@@ -170,14 +196,10 @@ function htmlToBlocks(html) {
 					}
 				}
 
-				pushText(
-					tag.startsWith("h") ? "heading" : "paragraph",
-					rawText,
-					{
-						headingLevel: tag.startsWith("h") ? Number(tag[1]) : undefined,
-						html: rawHtml,
-					},
-				);
+				pushText(tag.startsWith("h") ? "heading" : "paragraph", rawText, {
+					headingLevel: tag.startsWith("h") ? Number(tag[1]) : undefined,
+					html: rawHtml,
+				});
 				continue;
 			}
 
@@ -262,12 +284,21 @@ function parse(blocks) {
 			/^Preambuła$/i.test(b.text) ||
 			/uchwalamy/i.test(b.text) ||
 			/w trosce o/i.test(b.text) ||
-			/uznając, że/i.test(b.text),
+			/uznając, że/i.test(b.text) ||
+			/^Parlament Młodych/i.test(b.text) || // ← DODAJ
+			/^Parlamentarzyści/i.test(b.text) || // ← DODAJ
+			/^Parlamentarzystki/i.test(b.text) || // ← DODAJ
+			/świadomy bezprecedensowych/i.test(b.text) || // ← DODAJ
+			/mając na uwadze/i.test(b.text) || // ← DODAJ
+			/dostrzegając, że/i.test(b.text), // ← DODAJ
 	);
 	let title;
 	let preamble = "";
 	if (preambleStart > 0) {
-		title = headerBlocks.slice(0, preambleStart).map((b) => b.text).join("\n");
+		title = headerBlocks
+			.slice(0, preambleStart)
+			.map((b) => b.text)
+			.join("\n");
 		preamble = headerBlocks
 			.slice(preambleStart)
 			.filter((b) => !/^Preambuła$/i.test(b.text.trim()))
@@ -290,7 +321,7 @@ function parse(blocks) {
 	let articleIndex = 0;
 
 	const flushArticle = () => {
-		if (!currentArticle) return;              // ← DODAJ TO
+		if (!currentArticle) return;
 
 		if (currentArticle.contentLines.length === 0 && currentChapter) {
 			const idx = currentChapter.articles.indexOf(currentArticle);
@@ -308,7 +339,12 @@ function parse(blocks) {
 
 	const ensureChapter = () => {
 		if (!currentChapter) {
-			currentChapter = { id: "ch_0", title: "Przepisy wstępne", subtitle: "", articles: [] };
+			currentChapter = {
+				id: "ch_0",
+				title: "Przepisy wstępne",
+				subtitle: "",
+				articles: [],
+			};
 			chapters.push(currentChapter);
 		}
 		return currentChapter;
@@ -337,8 +373,7 @@ function parse(blocks) {
 		const line = (block.text || "")
 			.replace(/^[\u200B\u200C\u200D\uFEFF]+/, "")
 			.replace(/[\u200B\u200C\u200D\uFEFF]+$/, "");
-		if (/^\d+[.)]\s*$/.test(line)) continue;
-
+		if (/^\d+[.)]\s*$/.test(line) || /^\s*\.\s*$/.test(line)) continue;
 		// ─── Rozdział ───────────────────────────────────────
 		// ─── Rozdział ───────────────────────────────────────
 		if (
@@ -353,8 +388,8 @@ function parse(blocks) {
 			const next = blocks[k + 1];
 			if (
 				next &&
-				(next.type === "paragraph" || next.type === "heading") &&  // ← DODANE: heading też
-				!/^(Rozdział|DZIAŁ|CZĘŚĆ)\s+[IVXLCDM\d]+/i.test(next.text) &&
+				(next.type === "paragraph" || next.type === "heading") && // ← DODANE: heading też
+				!/^(Rozdział|DZIAŁ|CZĘŚĆ)\s+[IVXLCDM\d]+[a-z]?/i.test(next.text) &&
 				!/^Art\.\s*\d+/i.test(next.text) &&
 				!/^Załącznik\s+nr/i.test(next.text) &&
 				next.text.trim()
@@ -380,19 +415,26 @@ function parse(blocks) {
 		const nextBlock = blocks[k + 1];
 		const nextText = nextBlock ? nextBlock.text.trim() : "";
 
-		const lineHasQuote = /^Art\.\s*\d+[a-z]*[¹²³⁴⁵⁶⁷⁸⁹⁰]*\.?\s*(otrzymuje brzmienie|Otrzymuje brzmienie|uchyla się)/i.test(line);
-		const prevLooksLikeIntro = /(wprowadza się następujące zmiany|nowelizację następujących przepisów|otrzymuje brzmienie|uchyla się|zmienia się w następujący sposób):?\s*$/i.test(prevText);
-		const nextLooksLikeQuote = /^(Otrzymuje brzmienie|otrzymuje brzmienie|wprowadza się następujące zmiany|uchyla się)/i.test(nextText);
-		const looksLikeQuote = lineHasQuote || prevLooksLikeIntro || nextLooksLikeQuote;
+		const lineHasQuote =
+			/^Art\.\s*\d+[a-z]*[¹²³⁴⁵⁶⁷⁸⁹⁰]*\.?\s*(otrzymuje brzmienie|Otrzymuje brzmienie|uchyla się)/i.test(
+				line,
+			);
+		const prevLooksLikeIntro =
+			/(wprowadza się następujące zmiany|nowelizację następujących przepisów|otrzymuje brzmienie|uchyla się|zmienia się w następujący sposób):?\s*$/i.test(
+				prevText,
+			);
+		const nextLooksLikeQuote =
+			/^(Otrzymuje brzmienie|otrzymuje brzmienie|wprowadza się następujące zmiany|uchyla się)/i.test(
+				nextText,
+			);
+		const looksLikeQuote =
+			lineHasQuote || prevLooksLikeIntro || nextLooksLikeQuote;
 
-		const artMatch = !looksLikeQuote && line.match(/^(Art|ART)\.?\s*\d+[a-z]*[¹²³⁴⁵⁶⁷⁸⁹⁰]*\.?/);
+		const artMatch =
+			!looksLikeQuote &&
+			line.match(/^(Art|ART)\.?\s*\d+[a-z]*[¹²³⁴⁵⁶⁷⁸⁹⁰]*\.?/);
 		if ((block.type === "paragraph" || block.type === "heading") && artMatch) {
 			flushArticle();
-			console.log("=== ART DEBUG ===");
-			console.log("k =", k);
-			console.log("artMatch[0] =", JSON.stringify(artMatch[0]));
-			console.log("line.slice(0, 60) =", JSON.stringify(line.slice(0, 60)));
-			console.log("articleIndex PRZED =", articleIndex);
 			const artNumber = artMatch[0].replace(/\.$/, "").trim();
 			const chapter = ensureChapter();
 
@@ -422,23 +464,17 @@ function parse(blocks) {
 				number: artNumber,
 				contentLines: firstContent
 					? [
-						{
-							marker: null,
-							text: firstContent,
-							level: 1,
-							type: "paragraph",
-						},
-					]
+							{
+								marker: null,
+								text: firstContent,
+								level: 1,
+								type: "paragraph",
+							},
+						]
 					: [],
 				content: "",
 			};
 			chapter.articles.push(currentArticle);
-
-			console.log("  → artNumber =", JSON.stringify(artNumber));
-			console.log("  → articleIndex PO =", articleIndex);
-			console.log("  → chapter.articles.length PO push =", chapter.articles.length);
-			console.log("  → numery w chapter:", chapter.articles.map((a) => a.number));
-			console.log("==================");
 
 			continue;
 		}
@@ -479,7 +515,11 @@ function parse(blocks) {
 					const type = markerType(lineObj.marker);
 					if (type === "num-paren") {
 						lineObj.level = 2;
-					} else if (type === "let-paren" || type === "let-dot" || type === "roman") {
+					} else if (
+						type === "let-paren" ||
+						type === "let-dot" ||
+						type === "roman"
+					) {
 						lineObj.level = 3;
 					} else {
 						lineObj.level = 1;
@@ -501,6 +541,13 @@ function parse(blocks) {
 	}
 
 	flushArticle();
+
+	// Przenumeruj ID artykułów (bo flushArticle usuwa puste → dziury)
+	for (const ch of chapters) {
+		ch.articles.forEach((a, i) => {
+			a.id = `art_${i + 1}`;
+		});
+	}
 
 	return { title, preamble, chapters };
 }

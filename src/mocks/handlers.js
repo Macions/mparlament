@@ -154,12 +154,12 @@ const createVoting = (body) => {
 const extractTarget = (amendment) => {
 	return {
 		article: amendment.target?.article || null,
+		section_id: amendment.target?.section_id || null, // ← DODAJ
 		section: amendment.target?.section || "other",
 		fragment:
 			amendment.target?.fragment || amendment.changes?.[0]?.before || null,
 	};
 };
-
 const compareAmendments = (amendment1, amendment2) => {
 	if (amendment1.resolutionId !== amendment2.resolutionId) {
 		return { conflict: false, potential: false, reason: null, fragment: null };
@@ -174,9 +174,40 @@ const compareAmendments = (amendment1, amendment2) => {
 		target1.fragment === target2.fragment;
 	const sameArticle =
 		target1.article && target2.article && target1.article === target2.article;
+	const sameSectionId =
+		target1.section_id &&
+		target2.section_id &&
+		target1.section_id === target2.section_id;
 	const sameSection =
 		target1.section === target2.section && target1.section !== "other";
 
+	// PRIORYTET 1: ten sam ustęp — konflikt pewny lub potencjalny
+	if (sameArticle && sameSectionId) {
+		if (sameFragment) {
+			const before1 = amendment1.changes?.[0]?.before || "";
+			const before2 = amendment2.changes?.[0]?.before || "";
+			const after1 = amendment1.changes?.[0]?.after || "";
+			const after2 = amendment2.changes?.[0]?.after || "";
+
+			if (before1 === before2 && after1 !== after2) {
+				return {
+					conflict: true,
+					potential: false,
+					reason: `Zmiana tego samego fragmentu w artykule ${target1.article}, ustęp ${target1.section_id}`,
+					fragment: target1.fragment,
+				};
+			}
+		}
+
+		return {
+			conflict: false,
+			potential: true,
+			reason: `Poprawki dotyczą tego samego ustępu w artykule ${target1.article}`,
+			fragment: `Artykuł ${target1.article}, ustęp ${target1.section_id}`,
+		};
+	}
+
+	// PRIORYTET 2: ten sam fragment, ale różne ustępy (rzadkie, ale możliwe)
 	if (sameFragment) {
 		const before1 = amendment1.changes?.[0]?.before || "";
 		const before2 = amendment2.changes?.[0]?.before || "";
@@ -193,6 +224,7 @@ const compareAmendments = (amendment1, amendment2) => {
 		}
 	}
 
+	// PRIORYTET 3: ten sam artykuł, ten sam obszar (bez section_id)
 	if (sameArticle && sameSection) {
 		return {
 			conflict: true,
@@ -202,16 +234,8 @@ const compareAmendments = (amendment1, amendment2) => {
 		};
 	}
 
-	if (sameSection && !sameArticle) {
-		return {
-			conflict: false,
-			potential: true,
-			reason: `Poprawki dotyczą tego samego obszaru: ${target1.section}`,
-			fragment: `Obszar: ${target1.section}`,
-		};
-	}
-
-	if (sameArticle && !sameSection) {
+	// PRIORYTET 4: ten sam artykuł, różne ustępy → potencjalny
+	if (sameArticle) {
 		return {
 			conflict: false,
 			potential: true,
@@ -220,9 +244,18 @@ const compareAmendments = (amendment1, amendment2) => {
 		};
 	}
 
+	// PRIORYTET 5: ten sam obszar, różne artykuły → potencjalny
+	if (sameSection) {
+		return {
+			conflict: false,
+			potential: true,
+			reason: `Poprawki dotyczą tego samego obszaru: ${target1.section}`,
+			fragment: `Obszar: ${target1.section}`,
+		};
+	}
+
 	return { conflict: false, potential: false, reason: null, fragment: null };
 };
-
 const detectAllConflicts = (amendmentsList) => {
 	const result = amendmentsList.map((amendment) => ({
 		...amendment,
@@ -364,7 +397,9 @@ export const handlers = [
 		}),
 	),
 
-	http.get("/newapp/api/session/current", () => HttpResponse.json(currentSession)),
+	http.get("/newapp/api/session/current", () =>
+		HttpResponse.json(currentSession),
+	),
 
 	http.put("/newapp/api/session/current", async ({ request }) => {
 		const body = await request.json();
@@ -562,7 +597,9 @@ export const handlers = [
 		});
 	}),
 
-	http.get("/newapp/api/sessions/current", () => HttpResponse.json(currentSession)),
+	http.get("/newapp/api/sessions/current", () =>
+		HttpResponse.json(currentSession),
+	),
 
 	http.post("/newapp/api/votings", async ({ request }) => {
 		const body = await request.json();
@@ -726,33 +763,37 @@ export const handlers = [
 		}
 	}),
 
-	http.get("/newapp/api/resolutions/:slug/amendments/:amendmentId", ({ params }) => {
-		const resolution = resolutions.find((r) => r.slug === params.slug);
-		if (!resolution) {
-			return HttpResponse.json(
-				{ message: "Nie znaleziono uchwały" },
-				{ status: 404 },
+	http.get(
+		"/newapp/api/resolutions/:slug/amendments/:amendmentId",
+		({ params }) => {
+			const resolution = resolutions.find((r) => r.slug === params.slug);
+			if (!resolution) {
+				return HttpResponse.json(
+					{ message: "Nie znaleziono uchwały" },
+					{ status: 404 },
+				);
+			}
+			const amendment = amendments.find(
+				(a) =>
+					a.id === Number(params.amendmentId) &&
+					a.resolutionId === resolution.id,
 			);
-		}
-		const amendment = amendments.find(
-			(a) =>
-				a.id === Number(params.amendmentId) && a.resolutionId === resolution.id,
-		);
-		if (!amendment) {
-			return HttpResponse.json(
-				{ message: "Nie znaleziono poprawki" },
-				{ status: 404 },
-			);
-		}
-		return HttpResponse.json({
-			resolution: { title: resolution.title, slug: resolution.slug },
-			amendment,
-			session: {
-				city: currentSession?.city,
-				date: currentSession?.date,
-			},
-		});
-	}),
+			if (!amendment) {
+				return HttpResponse.json(
+					{ message: "Nie znaleziono poprawki" },
+					{ status: 404 },
+				);
+			}
+			return HttpResponse.json({
+				resolution: { title: resolution.title, slug: resolution.slug },
+				amendment,
+				session: {
+					city: currentSession?.city,
+					date: currentSession?.date,
+				},
+			});
+		},
+	),
 
 	http.post(
 		"/newapp/api/resolutions/:slug/amendments",
@@ -775,6 +816,7 @@ export const handlers = [
 				status: "pending",
 				createdAt: new Date().toISOString().split("T")[0],
 				withdrawnReason: null,
+				target: body.target || null, // ← DODAJ
 				changes: body.changes || [],
 			};
 			amendments.push(newAmendment);
@@ -785,39 +827,45 @@ export const handlers = [
 		},
 	),
 
-	http.post("/newapp/api/amendments/:id/withdraw", async ({ params, request }) => {
-		const amendmentId = Number(params.id);
-		const amendment = amendments.find((a) => a.id === amendmentId);
-		if (!amendment) {
-			return HttpResponse.json(
-				{ message: "Nie znaleziono poprawki" },
-				{ status: 404 },
-			);
-		}
+	http.post(
+		"/newapp/api/amendments/:id/withdraw",
+		async ({ params, request }) => {
+			const amendmentId = Number(params.id);
+			const amendment = amendments.find((a) => a.id === amendmentId);
+			if (!amendment) {
+				return HttpResponse.json(
+					{ message: "Nie znaleziono poprawki" },
+					{ status: 404 },
+				);
+			}
 
-		const user = getCurrentUser();
-		if (!user) {
-			return HttpResponse.json({ message: "Nie zalogowany" }, { status: 401 });
-		}
+			const user = getCurrentUser();
+			if (!user) {
+				return HttpResponse.json(
+					{ message: "Nie zalogowany" },
+					{ status: 401 },
+				);
+			}
 
-		if (amendment.authorId !== user.id) {
-			return HttpResponse.json(
-				{ message: "Nie masz uprawnień do wycofania tej poprawki" },
-				{ status: 403 },
-			);
-		}
+			if (amendment.authorId !== user.id) {
+				return HttpResponse.json(
+					{ message: "Nie masz uprawnień do wycofania tej poprawki" },
+					{ status: 403 },
+				);
+			}
 
-		if (amendment.status === "withdrawn") {
-			return HttpResponse.json(
-				{ message: "Ta poprawka została już wycofana" },
-				{ status: 400 },
-			);
-		}
-		const body = await request.json();
-		amendment.status = "withdrawn";
-		amendment.withdrawnReason = body.reason || "Wycofane przez autora";
-		return HttpResponse.json({ success: true, amendment });
-	}),
+			if (amendment.status === "withdrawn") {
+				return HttpResponse.json(
+					{ message: "Ta poprawka została już wycofana" },
+					{ status: 400 },
+				);
+			}
+			const body = await request.json();
+			amendment.status = "withdrawn";
+			amendment.withdrawnReason = body.reason || "Wycofane przez autora";
+			return HttpResponse.json({ success: true, amendment });
+		},
+	),
 
 	http.post("/newapp/api/votings/:id/activate", async ({ params, request }) => {
 		const votingId = Number(params.id);

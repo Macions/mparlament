@@ -60,6 +60,8 @@ export default function AddAmendment() {
 
 	const [target, setTarget] = useState({
 		article: "",
+		section_id: "", // ← DODAJ
+		section_text: "", // ← DODAJ
 		section: "other",
 		fragment: "",
 	});
@@ -134,33 +136,146 @@ export default function AddAmendment() {
 		}
 		return [];
 	};
+	const buildArticleTree = () => {
+		if (!resolution) return [];
 
+		const articles = resolution.chapters
+			? resolution.chapters.flatMap((ch) =>
+					(ch.articles || []).map((art) => ({
+						...art,
+						chapterTitle: ch.subtitle || ch.title || "",
+					})),
+				)
+			: resolution.articles || [];
+
+		return articles.map((art) => {
+			const lines = art.contentLines || [];
+
+			const sections = [];
+			let currentSection = null;
+
+			for (const line of lines) {
+				if (line.level === 1) {
+					let text = line.text || "";
+					let marker = line.marker;
+
+					if (!marker) {
+						const match = text.match(
+							/^(\d+\.?|\d+\)|[a-z][.)]|[IVXLCDM]+[.)]?)\s+(.+)$/,
+						);
+						if (match) {
+							marker = match[1];
+							text = match[2];
+						}
+					}
+
+					if (marker && /^\d+$/.test(marker)) {
+						marker = `${marker}.`;
+					}
+
+					currentSection = {
+						id: `${art.id}_${sections.length + 1}`,
+						marker: marker || `${sections.length + 1}.`,
+						text,
+						introText: text, // ← DODAJ: sama treść bez dzieci
+						children: [],
+					};
+					sections.push(currentSection);
+				} else if (currentSection && line.level === 2) {
+					let text = line.text || "";
+					let marker = line.marker;
+
+					if (!marker) {
+						const match = text.match(
+							/^(\d+\)|[a-z][.)]|[IVXLCDM]+[.)]?)\s+(.+)$/,
+						);
+						if (match) {
+							marker = match[1];
+							text = match[2];
+						}
+					}
+
+					currentSection.children.push({
+						id: `${currentSection.id}_${currentSection.children.length + 1}`,
+						marker: marker || `${currentSection.children.length + 1})`,
+						text,
+					});
+				}
+			}
+
+			// ← DODAJ: po zebraniu children — zbuduj pełny tekst sekcji
+			for (const section of sections) {
+				const childrenText = section.children
+					.map((c) => `${c.marker} ${c.text}`)
+					.join("\n");
+
+				section.fullText = childrenText
+					? `${section.marker} ${section.introText}\n${childrenText}`
+					: `${section.marker} ${section.introText}`;
+
+				// Zachowaj `text` jako sam intro (bez markera) — dla UI
+				section.text = section.introText;
+			}
+
+			return {
+				id: art.id,
+				number: art.number,
+				chapterTitle: art.chapterTitle,
+				content: art.content,
+				sections,
+			};
+		});
+	};
+	const articleTree = buildArticleTree();
 	const allArticles = getAllArticles();
 
-	const handleArticleChange = (articleId) => {
-		const article = allArticles.find((a) => String(a.id) === String(articleId));
-
-		if (article) {
+	const handleSectionChange = (value) => {
+		if (!value) {
 			setTarget({
 				...target,
-				article: articleId,
-				fragment: article.content || "",
-			});
-		} else {
-			setTarget({
-				...target,
-				article: articleId,
+				article: "",
+				section_id: "",
+				section_text: "",
 				fragment: "",
 			});
+			setHasCheckedConflicts(false);
+			return;
 		}
+
+		const [articleId, sectionId] = value.split(":");
+		const article = articleTree.find((a) => String(a.id) === String(articleId));
+
+		if (!article) return;
+
+		let fragment = article.content || "";
+		let sectionText = "";
+
+		if (sectionId && sectionId !== "all") {
+			const section = article.sections.find((s) => s.id === sectionId);
+			if (section) {
+				fragment = section.fullText; // ← pełny tekst z dziećmi
+				sectionText = section.fullText;
+			}
+		}
+
+		setTarget({
+			...target,
+			article: articleId,
+			section_id: sectionId || "",
+			section_text: sectionText,
+			fragment,
+		});
 		setHasCheckedConflicts(false);
+	};
+	const getBaseArticleId = (compositeId) => {
+		if (!compositeId) return "";
+		return String(compositeId).split(":")[0];
 	};
 
 	const calculateSimilarity = (str1, str2) => {
 		if (!str1 || !str2) return 0;
 		const s1 = str1.toLowerCase().trim();
 		const s2 = str2.toLowerCase().trim();
-
 		const words1 = s1.split(/\s+/).filter((w) => w.length > 3);
 		const words2 = s2.split(/\s+/).filter((w) => w.length > 3);
 
@@ -178,7 +293,12 @@ export default function AddAmendment() {
 		return matches ? matches.map((m) => parseFloat(m.replace(",", "."))) : [];
 	};
 
-	const checkConflicts = (newChanges, targetArticle, targetFragment) => {
+	const checkConflicts = (
+		newChanges,
+		targetArticle,
+		targetFragment,
+		targetSectionId = null,
+	) => {
 		const conflictsList = [];
 		const blockingList = [];
 
@@ -216,7 +336,11 @@ export default function AddAmendment() {
 					if (existingChange.type !== "modify") return;
 					newChanges.forEach((newChange) => {
 						if (newChange.type !== "modify") return;
-						if (existingChange.articleId !== newChange.articleId) return;
+						if (
+							getBaseArticleId(existingChange.articleId) !==
+							getBaseArticleId(newChange.articleId)
+						)
+							return;
 
 						const existingBefore = extractNumbers(existingChange.before);
 						const existingAfter = extractNumbers(existingChange.after);
@@ -257,9 +381,16 @@ export default function AddAmendment() {
 				a?.target?.article === Number(targetArticle) &&
 				(a.status === "pending" || a.status === "accepted"),
 		);
-
-		if (existingForArticle.length > 0) {
-			existingForArticle.forEach((existing) => {
+		const existingForSection = targetSectionId
+			? existingAmendments.filter(
+					(a) =>
+						a?.target?.article === Number(targetArticle) &&
+						a?.target?.section_id === targetSectionId &&
+						(a.status === "pending" || a.status === "accepted"),
+				)
+			: existingForArticle;
+		if (existingForSection.length > 0) {
+			existingForSection.forEach((existing) => {
 				newChanges.forEach((newChange) => {
 					if (
 						newChange.type === "add" &&
@@ -345,8 +476,10 @@ export default function AddAmendment() {
 				conflictsList.push({
 					level: "warning",
 					type: "existing_amendments",
-					message: `Istnieją już ${existingForArticle.length} inne poprawki dla tego artykułu – sprawdź czy nie ma konfliktów`,
-					amendments: existingForArticle,
+					message: targetSectionId
+						? `Istnieją już ${existingForSection.length} inne poprawki dla tego ustępu – sprawdź czy nie ma konfliktów`
+						: `Istnieją już ${existingForSection.length} inne poprawki dla tego artykułu – sprawdź czy nie ma konfliktów`,
+					amendments: existingForSection,
 				});
 			}
 		}
@@ -442,6 +575,7 @@ export default function AddAmendment() {
 			validChanges,
 			target.article,
 			target.fragment,
+			target.section_id,
 		);
 
 		setConflicts(result.conflicts);
@@ -469,6 +603,7 @@ export default function AddAmendment() {
 				validChanges,
 				target.article,
 				target.fragment,
+				target.section_id, // ← DODAJ
 			);
 			setConflicts(result.conflicts);
 			setBlockingConflicts(result.blocking);
@@ -481,7 +616,13 @@ export default function AddAmendment() {
 			setShowConflicts(false);
 			setHasCheckedConflicts(false);
 		}
-	}, [target.article, target.fragment, changes, existingAmendments]);
+	}, [
+		target.article,
+		target.section_id,
+		target.fragment,
+		changes,
+		existingAmendments,
+	]);
 
 	if (loading) {
 		return (
@@ -515,16 +656,36 @@ export default function AddAmendment() {
 		setHasCheckedConflicts(false);
 	};
 
-	const handleArticleSelect = (changeId, articleId) => {
-		const article = allArticles.find((a) => String(a.id) === String(articleId));
+	const handleArticleSelect = (changeId, value) => {
+		if (!value) {
+			setChanges((prev) =>
+				prev.map((c) =>
+					c.id === changeId ? { ...c, articleId: "", from: "", to: "" } : c,
+				),
+			);
+			setHasCheckedConflicts(false);
+			return;
+		}
+
+		const [articleId, sectionId] = value.split(":");
+		const article = articleTree.find((a) => String(a.id) === String(articleId));
+
+		let fromText = article?.content || "";
+		if (article && sectionId && sectionId !== "all") {
+			const section = article.sections.find((s) => s.id === sectionId);
+			if (section) {
+				fromText = section.fullText; // ← pełny tekst z dziećmi
+			}
+		}
+
 		setChanges((prev) =>
 			prev.map((c) =>
 				c.id === changeId
 					? {
 							...c,
-							articleId,
-							from: article ? article.content : "",
-							to: c.type === "modify" ? article?.content || "" : c.to,
+							articleId: value, // ← zachowaj pełny klucz "artId:sectionId"
+							from: fromText,
+							to: c.type === "modify" ? fromText : c.to,
 						}
 					: c,
 			),
@@ -587,7 +748,10 @@ export default function AddAmendment() {
 					.join("; "),
 				status: "pending",
 				target: {
-					article: target.article ? Number(target.article) : null,
+					article: target.article
+						? Number(String(target.article).replace(/^art_/, ""))
+						: null,
+					section_id: target.section_id || null,
 					section: target.section || "other",
 					fragment: target.fragment || validChanges[0]?.from || null,
 				},
@@ -773,28 +937,56 @@ export default function AddAmendment() {
 
 						<div className={styles.field}>
 							<label className={styles.label} htmlFor="target-article">
-								Artykuł / paragraf
+								Artykuł / ustęp
 							</label>
 							<select
 								id="target-article"
-								value={target.article}
-								onChange={(e) => handleArticleChange(e.target.value)}
+								value={
+									target.section_id
+										? `${target.article}:${target.section_id}`
+										: ""
+								}
+								onChange={(e) => handleSectionChange(e.target.value)}
 								className={styles.select}
 								required
 							>
-								<option value="">— wybierz artykuł —</option>
-								{allArticles.map((art, idx) => {
+								<option value="">— wybierz artykuł lub ustęp —</option>
+
+								{articleTree.map((art) => {
 									const hasAmendments = existingAmendments.some(
 										(a) =>
 											a?.target?.article === Number(art.id) &&
 											(a.status === "pending" || a.status === "accepted"),
 									);
+
 									return (
-										<option key={art.id || idx} value={art.id}>
-											{art.number || `Art. ${idx + 1}`}:{" "}
-											{art.content?.substring(0, 40)}…
-											{hasAmendments ? " ⚠" : ""}
-										</option>
+										<optgroup
+											key={art.id}
+											label={`${art.number}${art.chapterTitle ? ` — ${art.chapterTitle}` : ""}${hasAmendments ? " ⚠" : ""}`}
+										>
+											{/* Opcja: cały artykuł */}
+											<option value={`${art.id}:all`}>
+												Cały artykuł: {art.number}
+											</option>
+
+											{/* Opcje: poszczególne ustępy */}
+											{art.sections.map((sec) => {
+												const secHasAmendments = existingAmendments.some(
+													(a) =>
+														a?.target?.article === Number(art.id) &&
+														a?.target?.section_id === sec.id &&
+														(a.status === "pending" || a.status === "accepted"),
+												);
+
+												return (
+													<option key={sec.id} value={`${art.id}:${sec.id}`}>
+														{art.number} ust. {sec.marker.replace(/[.)]$/, "")}:{" "}
+														{sec.text.substring(0, 60)}…
+														{secHasAmendments ? " ⚠" : ""}
+													</option>
+												);
+											})}
+										</optgroup>
 									);
 								})}
 							</select>
@@ -963,7 +1155,9 @@ export default function AddAmendment() {
 
 									{(change.type === "modify" || change.type === "delete") && (
 										<div className={styles.field}>
-											<label className={styles.label}>Wybierz artykuł</label>
+											<label className={styles.label}>
+												Wybierz artykuł lub ustęp
+											</label>
 											<select
 												value={change.articleId}
 												onChange={(e) =>
@@ -971,17 +1165,32 @@ export default function AddAmendment() {
 												}
 												className={styles.select}
 											>
-												<option value="">— wybierz artykuł —</option>
-												{allArticles.map((art, idx) => (
-													<option key={art.id || idx} value={art.id}>
-														{art.number || `Art. ${idx + 1}`}:{" "}
-														{art.content?.substring(0, 50)}…
-													</option>
+												<option value="">— wybierz artykuł lub ustęp —</option>
+
+												{articleTree.map((art) => (
+													<optgroup
+														key={art.id}
+														label={`${art.number}${art.chapterTitle ? ` — ${art.chapterTitle}` : ""}`}
+													>
+														<option value={art.id}>
+															Cały artykuł: {art.number}
+														</option>
+
+														{art.sections.map((sec) => (
+															<option
+																key={sec.id}
+																value={`${art.id}:${sec.id}`}
+															>
+																{art.number} ust.{" "}
+																{sec.marker.replace(/[.)]$/, "")}:{" "}
+																{sec.text.substring(0, 50)}…
+															</option>
+														))}
+													</optgroup>
 												))}
 											</select>
 										</div>
 									)}
-
 									{(change.type === "modify" || change.type === "add") && (
 										<div className={styles.field}>
 											<label className={styles.label}>

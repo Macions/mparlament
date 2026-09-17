@@ -669,3 +669,108 @@
 		animation: none;
 	}
 }
+
+.preamble {
+	margin-top: 1.5rem;
+	padding: 1.25rem;
+	background: #f8fafc;
+	border-left: 3px solid #3b82f6;
+	border-radius: 4px;
+	font-size: 0.95rem;
+	line-height: 1.6;
+	color: #334155;
+	text-align: justify;
+}
+
+.content {
+	margin-top: 2rem;
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+}
+
+.contentTitle {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #0f172a;
+	margin-bottom: 1rem;
+	padding-bottom: 0.5rem;
+	border-bottom: 2px solid #e2e8f0;
+}
+
+.chapter {
+	padding: 1.5rem;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+}
+
+.chapterHead {
+	margin-bottom: 1rem;
+	padding-bottom: 0.75rem;
+	border-bottom: 1px solid #f1f5f9;
+}
+
+.chapterTitle {
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #1e293b;
+	margin: 0;
+}
+
+.chapterSubtitle {
+	font-size: 0.95rem;
+	color: #64748b;
+	margin: 0.25rem 0 0;
+}
+
+.article {
+	margin-top: 1.25rem;
+	padding-top: 1.25rem;
+	border-top: 1px dashed #e2e8f0;
+}
+
+.article:first-of-type {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: none;
+}
+
+.articleNumber {
+	font-size: 1rem;
+	font-weight: 600;
+	color: #0f172a;
+	margin: 0 0 0.75rem;
+}
+
+.articleContent {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.articleLine {
+	font-size: 0.95rem;
+	line-height: 1.6;
+	color: #334155;
+	margin: 0;
+	text-align: justify;
+}
+
+.articleLine[data-level="1"] {
+	padding-left: 0;
+}
+
+.articleLine[data-level="2"] {
+	padding-left: 1.5rem;
+}
+
+.articleLine[data-level="3"] {
+	padding-left: 3rem;
+}
+
+.lineMarker {
+	font-weight: 500;
+	color: #475569;
+	margin-right: 0.25rem;
+}

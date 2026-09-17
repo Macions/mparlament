@@ -182,6 +182,12 @@ export default function ResolutionDetails() {
 							<span className={styles.authorParty}> ({resolution.party})</span>
 						)}
 					</p>
+
+					{resolution.preamble && (
+						<div className={styles.preamble}>
+							<p>{resolution.preamble}</p>
+						</div>
+					)}
 				</div>
 
 				<div className={styles.grid}>
@@ -266,6 +272,68 @@ export default function ResolutionDetails() {
 						</div>
 					</section>
 				</div>
+
+				{resolution.chapters && resolution.chapters.length > 0 && (
+					<section className={styles.content}>
+						<h2 className={styles.contentTitle}>Treść uchwały</h2>
+
+						{resolution.chapters.map((chapter, chIndex) => (
+							<article key={chapter.id || chIndex} className={styles.chapter}>
+								<header className={styles.chapterHead}>
+									<h3 className={styles.chapterTitle}>{chapter.title}</h3>
+									{chapter.subtitle && (
+										<p className={styles.chapterSubtitle}>{chapter.subtitle}</p>
+									)}
+								</header>
+
+								{(chapter.articles || []).map((article, artIndex) => (
+									<div key={article.id || artIndex} className={styles.article}>
+										<h4 className={styles.articleNumber}>{article.number}</h4>
+
+										<div className={styles.articleContent}>
+											{(article.contentLines || []).length > 0 ? (
+												(article.contentLines || []).map((line, lineIndex) => {
+													if (typeof line === "string") {
+														return (
+															<p
+																key={lineIndex}
+																className={styles.articleLine}
+																data-level={1}
+															>
+																{line}
+															</p>
+														);
+													}
+
+													const level = line.level || 1;
+													const marker = line.marker;
+													const text = line.text || "";
+
+													return (
+														<p
+															key={lineIndex}
+															className={styles.articleLine}
+															data-level={level}
+														>
+															{marker && (
+																<span className={styles.lineMarker}>
+																	{marker}
+																</span>
+															)}{" "}
+															{text}
+														</p>
+													);
+												})
+											) : (
+												<p className={styles.articleLine}>{article.content}</p>
+											)}
+										</div>
+									</div>
+								))}
+							</article>
+						))}
+					</section>
+				)}
 
 				<section className={styles.actions}>
 					{currentUser?.isAuthor ? (
