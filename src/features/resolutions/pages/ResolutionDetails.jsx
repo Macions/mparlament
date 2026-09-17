@@ -63,6 +63,7 @@ export default function ResolutionDetails() {
 		setErrorMessage(null);
 
 		try {
+			// 1) uchwała
 			const res = await fetch(`/newapp/api/resolutions/${slug}`);
 
 			if (!res.ok) {
@@ -73,7 +74,38 @@ export default function ResolutionDetails() {
 			setResolution(data.resolution);
 			setSignedUsers(data.signedUsers);
 			setSession(data.session);
-			setCurrentUser(data.currentUser);
+
+			// 2) currentUser — backend nie zwraca w /resolutions, więc pobierz osobno
+			try {
+				const tokenData = localStorage.getItem("token");
+				let token = null;
+				try {
+					const parsed = JSON.parse(tokenData);
+					token = parsed?.token;
+				} catch {
+					token = tokenData;
+				}
+
+				const meRes = await fetch("/newapp/api/auth/me", {
+					headers: token ? { Authorization: `Bearer ${token}` } : {},
+				});
+
+				if (meRes.ok) {
+					const me = await meRes.json();
+					// dopisz informacje, których oczekuje UI
+					setCurrentUser({
+						...me,
+						hasSigned:
+							data.signedUsers?.some((u) => u.name === me.name) ?? false,
+						isAuthor: data.resolution?.authorId === me.id,
+					});
+				} else {
+					setCurrentUser(null);
+				}
+			} catch (err) {
+				console.error("Nie udało się pobrać currentUser:", err);
+				setCurrentUser(null);
+			}
 		} catch (error) {
 			setErrorMessage(error.message);
 		} finally {
