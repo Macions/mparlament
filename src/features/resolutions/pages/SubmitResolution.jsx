@@ -32,7 +32,11 @@ export default function SubmitResolution() {
 	const [file, setFile] = useState(null);
 	const [fileName, setFileName] = useState("");
 	const [parsed, setParsed] = useState(null);
-	const [editedData, setEditedData] = useState(null);
+	const [editedData, setEditedData] = useState({
+		title: "",
+		preamble: "",
+		chapters: [],
+	});
 	const [analyzed, setAnalyzed] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
@@ -69,7 +73,11 @@ export default function SubmitResolution() {
 			setFileName(droppedFile.name);
 			setError("");
 			setParsed(null);
-			setEditedData(null);
+			setEditedData((prev) => ({
+				title: prev?.title || "",
+				preamble: prev?.preamble || "",
+				chapters: [],
+			}));
 			setAnalyzed(false);
 			setUploadProgress(0);
 		} else {
@@ -93,7 +101,11 @@ export default function SubmitResolution() {
 			setFileName(f.name);
 			setError("");
 			setParsed(null);
-			setEditedData(null);
+			setEditedData((prev) => ({
+				title: prev?.title || "",
+				preamble: prev?.preamble || "",
+				chapters: [],
+			}));
 			setAnalyzed(false);
 			setUploadProgress(0);
 		} else {
@@ -117,7 +129,19 @@ export default function SubmitResolution() {
 
 			const data = await parseDocx(file);
 			setParsed(data);
-			setEditedData(JSON.parse(JSON.stringify(data)));
+
+			setEditedData((prev) => {
+				// zachowaj to, co user wpisał RĘCZNIE przed analizą
+				const userTitle = prev?.title?.trim();
+				const userPreamble = prev?.preamble?.trim();
+
+				return {
+					...data,
+					title: userTitle || data.title || "",
+					preamble: userPreamble || data.preamble || "",
+				};
+			});
+
 			setAnalyzed(true);
 		} catch (err) {
 			setError("Błąd parsowania: " + err.message);
@@ -128,9 +152,14 @@ export default function SubmitResolution() {
 
 	const updateField = (path, value) => {
 		setEditedData((prev) => {
-			const newData = structuredClone(prev);
+			const newData = structuredClone(
+				prev ?? { title: "", preamble: "", chapters: [] },
+			);
 			let target = newData;
 			for (let i = 0; i < path.length - 1; i++) {
+				if (target[path[i]] == null) {
+					target[path[i]] = {};
+				}
 				target = target[path[i]];
 			}
 			target[path[path.length - 1]] = value;
@@ -337,9 +366,8 @@ export default function SubmitResolution() {
 				</div>
 
 				<form
-					className={`${styles.form} ${
-						!selectedSessionId ? styles.formDisabled : ""
-					}`}
+					className={`${styles.form} ${!selectedSessionId ? styles.formDisabled : ""
+						}`}
 					onSubmit={(e) => e.preventDefault()}
 				>
 					<div className={styles.field}>
@@ -376,9 +404,8 @@ export default function SubmitResolution() {
 						<label className={styles.label}>Plik DOCX</label>
 
 						<label
-							className={`${styles.fileDrop} ${
-								fileName ? styles.fileDropActive : ""
-							} ${isDragging ? styles.fileDropDragging : ""}`}
+							className={`${styles.fileDrop} ${fileName ? styles.fileDropActive : ""
+								} ${isDragging ? styles.fileDropDragging : ""}`}
 							onDragOver={handleDragOver}
 							onDragLeave={handleDragLeave}
 							onDrop={handleDrop}
@@ -542,11 +569,11 @@ export default function SubmitResolution() {
 															const normalizedLine =
 																typeof line === "string"
 																	? {
-																			marker: null,
-																			text: line,
-																			level: 1,
-																			type: "paragraph",
-																		}
+																		marker: null,
+																		text: line,
+																		level: 1,
+																		type: "paragraph",
+																	}
 																	: line;
 
 															const indent = "  ".repeat(
