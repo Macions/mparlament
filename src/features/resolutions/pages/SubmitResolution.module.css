@@ -12,7 +12,7 @@
 	-webkit-tap-highlight-color: transparent;
 }
 
-.page > * {
+.page>* {
 	width: 100%;
 	max-width: 1000px;
 }
@@ -645,6 +645,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
 	.back,
 	.btn,
 	.input,
@@ -700,4 +701,52 @@
 
 .articleLine[data-level="1"] .textarea {
 	font-weight: 500;
+}
+
+.chapterTitles {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	flex: 1;
+}
+
+.chapterSubtitle {
+	font-size: 0.95rem;
+	color: #666;
+	border: 1px solid transparent;
+	background: transparent;
+	padding: 0.25rem 0.5rem;
+	border-radius: 4px;
+	font-style: italic;
+}
+
+.chapterSubtitle:focus {
+	border-color: #ccc;
+	background: #fff;
+	outline: none;
+	font-style: normal;
+}
+
+.chapterTitles {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	flex: 1;
+}
+
+.chapterSubtitle {
+	font-size: 0.95rem;
+	color: #666;
+	border: 1px solid transparent;
+	background: transparent;
+	padding: 0.25rem 0.5rem;
+	border-radius: 4px;
+	font-style: italic;
+}
+
+.chapterSubtitle:focus {
+	border-color: #ccc;
+	background: #fff;
+	outline: none;
+	font-style: normal;
 }

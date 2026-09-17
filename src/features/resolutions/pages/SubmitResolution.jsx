@@ -5,12 +5,14 @@ import styles from "./SubmitResolution.module.css";
 import SuccessModal from "../../../components/SuccessModal";
 
 function parseLineBack(raw) {
-	// Dopasuj: opcjonalne wcięcie + marker (1., 1), a), a., i., I., –) + treść
 	const match = raw.match(
-		/^(\s*)(\d+\.|\d+\)|[a-z]\)|[a-z]\.|[IVXLCDM]+\.|–)\s+(.*)$/i,
+		/^(\s*)(\d+\.|\d+\)|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)]|–)\s+(.*)$/i,
 	);
 	if (match) {
-		const level = Math.floor(match[1].length / 2) + 1;
+		// Level wyłącznie z wcięcia — użytkownik ma pełną kontrolę.
+		const indent = match[1].replace(/\t/g, "  ").length;
+		const level = Math.floor(indent / 2) + 1;
+
 		return {
 			marker: match[2],
 			text: match[3],
@@ -141,7 +143,8 @@ export default function SubmitResolution() {
 			const newData = structuredClone(prev);
 			newData.chapters.push({
 				id: Date.now(),
-				title: "Nowy rozdział",
+				title: "Rozdział nowy",
+				subtitle: "",
 				articles: [],
 			});
 			return newData;
@@ -161,7 +164,7 @@ export default function SubmitResolution() {
 			const newData = structuredClone(prev);
 			newData.chapters[chIndex].articles.push({
 				id: Date.now(),
-				number: (newData.chapters[chIndex].articles.length + 1).toString(),
+				number: `Art. ${newData.chapters[chIndex].articles.length + 1}`,
 				content: "",
 				contentLines: [{ marker: null, text: "", level: 1, type: "paragraph" }],
 			});
@@ -323,33 +326,46 @@ export default function SubmitResolution() {
 				</div>
 
 				<form
-					className={`${styles.form} ${
-						!selectedSessionId ? styles.formDisabled : ""
-					}`}
+					className={`${styles.form} ${!selectedSessionId ? styles.formDisabled : ""
+						}`}
 					onSubmit={(e) => e.preventDefault()}
 				>
 					<div className={styles.field}>
 						<label className={styles.label} htmlFor="resolution-title">
 							Nazwa uchwały
 						</label>
-						<input
+						<textarea
 							id="resolution-title"
-							type="text"
 							className={styles.input}
 							value={editedData?.title || ""}
 							onChange={(e) => updateField(["title"], e.target.value)}
 							placeholder="Wpisz nazwę uchwały..."
 							disabled={!selectedSessionId}
+							rows={5}
 						/>
 					</div>
-
+					{editedData?.preamble && (
+						<div className={styles.field}>
+							<label className={styles.label} htmlFor="resolution-preamble">
+								Preambuła
+							</label>
+							<textarea
+								id="resolution-preamble"
+								className={styles.input}
+								value={editedData.preamble}
+								onChange={(e) => updateField(["preamble"], e.target.value)}
+								placeholder="Preambuła uchwały..."
+								disabled={!selectedSessionId}
+								rows={8}
+							/>
+						</div>
+					)}
 					<div className={styles.field}>
 						<label className={styles.label}>Plik DOCX</label>
 
 						<label
-							className={`${styles.fileDrop} ${
-								fileName ? styles.fileDropActive : ""
-							} ${isDragging ? styles.fileDropDragging : ""}`}
+							className={`${styles.fileDrop} ${fileName ? styles.fileDropActive : ""
+								} ${isDragging ? styles.fileDropDragging : ""}`}
 							onDragOver={handleDragOver}
 							onDragLeave={handleDragLeave}
 							onDrop={handleDrop}
@@ -434,18 +450,32 @@ export default function SubmitResolution() {
 								{editedData.chapters.map((chapter, chIndex) => (
 									<article key={chapter.id} className={styles.chapter}>
 										<header className={styles.chapterHead}>
-											<input
-												type="text"
-												className={styles.chapterTitle}
-												value={chapter.title}
-												onChange={(e) =>
-													updateField(
-														["chapters", chIndex, "title"],
-														e.target.value,
-													)
-												}
-												placeholder="Nazwa rozdziału"
-											/>
+											<div className={styles.chapterTitles}>
+												<input
+													type="text"
+													className={styles.chapterTitle}
+													value={chapter.title}
+													onChange={(e) =>
+														updateField(
+															["chapters", chIndex, "title"],
+															e.target.value,
+														)
+													}
+													placeholder="Numer rozdziału"
+												/>
+												<input
+													type="text"
+													className={styles.chapterSubtitle}
+													value={chapter.subtitle || ""}
+													onChange={(e) =>
+														updateField(
+															["chapters", chIndex, "subtitle"],
+															e.target.value,
+														)
+													}
+													placeholder="Tytuł rozdziału"
+												/>
+											</div>
 											<button
 												type="button"
 												onClick={() => removeChapter(chIndex)}
@@ -499,19 +529,17 @@ export default function SubmitResolution() {
 															const normalizedLine =
 																typeof line === "string"
 																	? {
-																			marker: null,
-																			text: line,
-																			level: 1,
-																			type: "paragraph",
-																		}
+																		marker: null,
+																		text: line,
+																		level: 1,
+																		type: "paragraph",
+																	}
 																	: line;
 
-															const indent = "  ".repeat(
-																(normalizedLine.level || 1) - 1,
-															);
+															const indent = "  ".repeat((normalizedLine.level || 1) - 1);
 															const displayValue = normalizedLine.marker
 																? `${indent}${normalizedLine.marker} ${normalizedLine.text}`
-																: normalizedLine.text || "";
+																: `${indent}${normalizedLine.text || ""}`;
 
 															return (
 																<div
