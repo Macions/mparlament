@@ -117,11 +117,23 @@ export default function ResolutionDetails() {
 		const endpoint = `/newapp/api/resolutions/${resolution.id}/sign`;
 		const method = actionType === "sign" ? "POST" : "DELETE";
 
+		const token = localStorage.getItem("token");
+
+		if (!token) {
+			setErrorMessage("Musisz być zalogowany, aby podpisać uchwałę.");
+			return;
+		}
+
 		try {
-			const res = await fetch(endpoint, { method });
+			const res = await fetch(endpoint, {
+				method,
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
 
 			if (!res.ok) {
-				const data = await res.json();
+				const data = await res.json().catch(() => ({}));
 				throw new Error(data.message || "Wystąpił błąd");
 			}
 
@@ -136,8 +148,13 @@ export default function ResolutionDetails() {
 
 	const handleDeleteResolution = async () => {
 		try {
+			const token = localStorage.getItem("token");
+
 			const res = await fetch(`/newapp/api/resolutions/${resolution.id}`, {
 				method: "DELETE",
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
 			});
 
 			if (!res.ok) {
@@ -251,10 +268,10 @@ export default function ResolutionDetails() {
 				contentLines:
 					art.contentLines && art.contentLines.length > 0
 						? art.contentLines.map((l) =>
-								typeof l === "string"
-									? { marker: null, text: l, level: 1, type: "paragraph" }
-									: { ...l },
-							)
+							typeof l === "string"
+								? { marker: null, text: l, level: 1, type: "paragraph" }
+								: { ...l },
+						)
 						: splitContentIntoLines(art.content || ""),
 			})),
 		}));
@@ -328,9 +345,14 @@ export default function ResolutionDetails() {
 		setSaveError(null);
 
 		try {
+			const token = localStorage.getItem("token");
+
 			const res = await fetch(`/newapp/api/resolutions/${resolution.id}`, {
 				method: "PUT",
-				headers: { "Content-Type": "application/json" },
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
 				body: JSON.stringify({
 					title: editedData.title,
 					preamble: editedData.preamble,
