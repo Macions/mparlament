@@ -186,10 +186,16 @@ export default function ResolutionDetails() {
 			const isLoneNumberWithDot = /^\d{1,2}[.)]$/.test(line);
 			const isLoneArt = /^[""„”'']?Art\.?$/i.test(line);
 			const isLoneQuote = /^[""„”'']$/.test(line);
+			// linia zaczyna się od cudzysłowu + Art. lub samego Art.
+			const isArtStart = /^[""„”'']?Art\.?\s*$/i.test(line);
 
 			if (
 				merged.length > 0 &&
-				(isLoneDigit || isLoneNumberWithDot || isLoneArt || isLoneQuote)
+				(isLoneDigit ||
+					isLoneNumberWithDot ||
+					isLoneArt ||
+					isLoneQuote ||
+					isArtStart)
 			) {
 				merged[merged.length - 1] += " " + line;
 			} else {
@@ -201,9 +207,8 @@ export default function ResolutionDetails() {
 		const expanded = [];
 		for (const line of merged) {
 			const parts = line.split(
-				/(?=\d+[a-z]?[.)](?:\s|(?=\d)|$)|(?<!\d)[a-z]\)\s|[IVXLCDM]+[.)]\s)/,
+				/(?<!\d)(?=\d+[a-z]?[.)](?:\s|$))|(?<!\d)(?=(?<!\d)[a-z]\)\s)|(?<!\d)(?=[IVXLCDM]+[.)]\s)/,
 			);
-
 			for (const part of parts) {
 				const trimmed = part.trim();
 				if (trimmed) expanded.push(trimmed);
