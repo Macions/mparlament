@@ -610,17 +610,22 @@ function parse(blocks) {
 		// — taki, który pojawia się wewnątrz treści innego artykułu
 		// Sprawdź, czy to "wewnętrzny" artykuł cytatu (np. Art. 39a, Art. 39b)
 		// — taki, który pojawia się wewnątrz treści innego artykułu
-		const inArt2Quote =
+		// Sprawdź, czy w contentLines bieżącego artykułu jest niezamknięty cytat
+		// (cudzysłów otwierający „ bez zamykającego ")
+		const hasOpenQuote =
 			currentArticle &&
-			currentArticle.number === "Art. 2" &&
-			currentArticle.contentLines.some(
-				(l) => l.text && /w brzmieniu:/.test(l.text),
-			);
+			currentArticle.contentLines.some((l) => {
+				const t = l.text || "";
+				const openCount = (t.match(/„/g) || []).length;
+				const closeCount = (t.match(/"/g) || []).length;
+				return openCount > closeCount;
+			});
 
+		// Lub czy to Art. 39a/39b (hardkod dla tego dokumentu)
 		const isInnerQuoteArticle =
 			/^(Art|ART)\.?\s*\d+[a-z]?/i.test(line) &&
 			currentArticle !== null &&
-			(inArt2Quote || /^(Art|ART)\.?\s*39[a-z]?/i.test(line));
+			(hasOpenQuote || /^(Art|ART)\.?\s*39[a-z]?/i.test(line));
 
 		const artMatch =
 			!looksLikeQuote &&
