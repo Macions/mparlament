@@ -197,7 +197,18 @@ export default function SubmitResolution() {
 		setUploadProgress(0);
 
 		try {
-			const userResponse = await fetch("/newapp/api/auth/me");
+			const tokenData = localStorage.getItem("token");
+			let jwt = null;
+			try {
+				const parsed = JSON.parse(tokenData);
+				jwt = parsed?.token;
+			} catch {
+				jwt = tokenData;
+			}
+
+			const userResponse = await fetch("/newapp/api/auth/me", {
+				headers: jwt ? { Authorization: `Bearer ${jwt}` } : {},
+			});
 			if (!userResponse.ok) {
 				throw new Error("Nie można pobrać danych użytkownika");
 			}
@@ -326,8 +337,9 @@ export default function SubmitResolution() {
 				</div>
 
 				<form
-					className={`${styles.form} ${!selectedSessionId ? styles.formDisabled : ""
-						}`}
+					className={`${styles.form} ${
+						!selectedSessionId ? styles.formDisabled : ""
+					}`}
 					onSubmit={(e) => e.preventDefault()}
 				>
 					<div className={styles.field}>
@@ -364,8 +376,9 @@ export default function SubmitResolution() {
 						<label className={styles.label}>Plik DOCX</label>
 
 						<label
-							className={`${styles.fileDrop} ${fileName ? styles.fileDropActive : ""
-								} ${isDragging ? styles.fileDropDragging : ""}`}
+							className={`${styles.fileDrop} ${
+								fileName ? styles.fileDropActive : ""
+							} ${isDragging ? styles.fileDropDragging : ""}`}
 							onDragOver={handleDragOver}
 							onDragLeave={handleDragLeave}
 							onDrop={handleDrop}
@@ -529,14 +542,16 @@ export default function SubmitResolution() {
 															const normalizedLine =
 																typeof line === "string"
 																	? {
-																		marker: null,
-																		text: line,
-																		level: 1,
-																		type: "paragraph",
-																	}
+																			marker: null,
+																			text: line,
+																			level: 1,
+																			type: "paragraph",
+																		}
 																	: line;
 
-															const indent = "  ".repeat((normalizedLine.level || 1) - 1);
+															const indent = "  ".repeat(
+																(normalizedLine.level || 1) - 1,
+															);
 															const displayValue = normalizedLine.marker
 																? `${indent}${normalizedLine.marker} ${normalizedLine.text}`
 																: `${indent}${normalizedLine.text || ""}`;
