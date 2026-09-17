@@ -103,33 +103,89 @@ function htmlToBlocks(html) {
 
 			let text = (clone.textContent || "").trim();
 
-			let marker;
-			const inlineMarker = text.match(
-				/^(\d+\.|\d+\)|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)])\s+/,
-			);
-			if (inlineMarker) {
-				marker = inlineMarker[1];
-				text = text.slice(inlineMarker[0].length);
-			} else if (ordered) {
-				marker = start + counter - 1 + ")";
-			} else {
-				marker = "–";
+			// rozbij <li> z <br> na osobne linie
+			const lines = text
+				.split(/\n/)
+				.map((l) => l.trim())
+				.filter(Boolean);
+
+			for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+				const lineText = lines[lineIdx];
+				let lineMarker = null;
+				let lineContent = lineText;
+
+				const inlineMarker = lineText.match(
+					/^(\d+[a-z]?[.)]|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)])\s+/,
+				);
+
+				if (inlineMarker) {
+					lineMarker = inlineMarker[1];
+					lineContent = lineText.slice(inlineMarker[0].length);
+				} else if (lineIdx === 0) {
+					// pierwsza linia dostaje marker z listy
+					lineMarker = ordered ? formatMarker(start + counter - 1, type) : "–";
+				} else {
+					// kolejne linie w tym samym <li> — bez markera, głębiej
+					lineMarker = null;
+				}
+
+				if (lineContent) {
+					pushText("list-item", lineContent, {
+						ordered,
+						marker: lineMarker,
+						level: lineIdx === 0 ? level : level + 1,
+						fromList: true,
+					});
+				}
 			}
 
-			if (text) {
-				pushText("list-item", text, {
-					ordered,
-					marker,
-					level,
-					fromList: true, // ← NOWE: pochodzi z <ol>/<ul>
-				});
-			}
 			for (const nl of nested) {
 				walkList(nl, level + 1);
 			}
 		}
 	}
+	function handleParagraphLine(rawText, rawHtml) {
+		const text = (rawText || "").trim();
+		if (!text) return;
 
+		// Rozbij linię, jeśli zawiera W ŚRODKU marker typu " 2. " lub " 3. "
+		// UWAGA: nie ruszaj "Art." ani "Rozdział"
+		if (!/^(Art|ART|Rozdział|DZIAŁ|CZĘŚĆ)/.test(text)) {
+			const parts = text.split(/\s(?=\d+[a-z]?\.\s|\d+[a-z]?\)\s)/);
+			if (parts.length > 1) {
+				for (const part of parts) {
+					const trimmed = part.trim();
+					if (trimmed) handleParagraphLine(trimmed, rawHtml);
+				}
+				return;
+			}
+		}
+
+		const m = text.match(
+			/^(\d+[a-z]?[.)]|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)])\s+(.+)$/s,
+		);
+		if (m) {
+			const marker = m[1];
+			const mtype = markerType(marker);
+			let level = 1;
+			// "1." i "1)" → poziom 1 (główne punkty)
+			if (mtype === "num-dot" || mtype === "num-paren") level = 1;
+			// "a)" i "a." → poziom 2 (podpunkty)
+			else if (mtype === "let-paren" || mtype === "let-dot") level = 2;
+			// "i)" / "i." → poziom 3
+			else if (mtype === "roman") level = 3;
+
+			pushText("list-item", m[2], {
+				ordered: true,
+				marker,
+				level,
+				fromParagraph: true,
+			});
+			return;
+		}
+
+		pushText("paragraph", text, { html: rawHtml });
+	}
 	function walk(element) {
 		for (const child of element.children) {
 			const tag = child.tagName?.toLowerCase();
@@ -143,61 +199,35 @@ function htmlToBlocks(html) {
 				const rawText = child.textContent || "";
 
 				if (!tag.startsWith("h")) {
-					const m = rawText.match(
-						/^(\d+\.|\d+\)|[a-z]\)|[a-z]\.|[IVXLCDM]+\.|[IVXLCDM]+\))\s+(.+)$/s,
-					);
-					if (m) {
-						const marker = m[1];
-						const mtype = markerType(marker); // ← użyj markerType
-						let level = 1;
-						if (mtype === "num-paren") level = 2;
-						else if (
-							mtype === "let-paren" ||
-							mtype === "let-dot" ||
-							mtype === "roman"
-						)
-							level = 3;
+					const lines = rawText
+						.split(/\n/)
+						.map((l) => l.trim())
+						.filter(Boolean);
 
-						const parts = m[2].split(/\n/);
-						parts.forEach((p) => {
-							const t = p.replace(/^[ \t]+/, "").replace(/[ \t]+$/, "");
-							if (!t) return;
+					if (lines.length > 1) {
+						// Scalamy linie, które NIE zaczynają się od markera
+						const merged = [];
+						for (const line of lines) {
+							const isMarker =
+								/^(\d+[a-z]?[.)]|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)])\s+/.test(
+									line,
+								) || /^(Art|ART|Rozdział|DZIAŁ|CZĘŚĆ)/.test(line);
 
-							const innerMatch = t.match(
-								/^(\d+\.|\d+\)|[a-z]\)|[a-z]\.|[IVXLCDM]+\.|[IVXLCDM]+\))\s+(.+)$/,
-							);
-							if (innerMatch) {
-								const innerMtype = markerType(innerMatch[1]);
-								let innerLevel = 1;
-								if (innerMtype === "num-paren") innerLevel = 2;
-								else if (
-									innerMtype === "let-paren" ||
-									innerMtype === "let-dot" ||
-									innerMtype === "roman"
-								)
-									innerLevel = 3;
-
-								pushText("list-item", innerMatch[2], {
-									ordered: true,
-									marker: innerMatch[1],
-									level: innerLevel,
-									fromParagraph: true,
-								});
+							if (!isMarker && merged.length > 0) {
+								merged[merged.length - 1] += " " + line;
 							} else {
-								pushText("list-item", t, {
-									ordered: true,
-									marker,
-									level, // ← było na sztywno 1
-									fromParagraph: true,
-								});
+								merged.push(line);
 							}
-						});
+						}
+						for (const line of merged) handleParagraphLine(line, rawHtml);
 						continue;
 					}
+					handleParagraphLine(rawText, rawHtml);
+					continue;
 				}
 
-				pushText(tag.startsWith("h") ? "heading" : "paragraph", rawText, {
-					headingLevel: tag.startsWith("h") ? Number(tag[1]) : undefined,
+				pushText("heading", rawText, {
+					headingLevel: Number(tag[1]),
 					html: rawHtml,
 				});
 				continue;
@@ -255,8 +285,8 @@ function toSubMarker(marker, level) {
  */
 function markerType(marker) {
 	if (!marker) return "other";
-	if (/^\d+\.$/.test(marker)) return "num-dot";
-	if (/^\d+\)$/.test(marker)) return "num-paren";
+	if (/^\d+[a-z]?\.$/.test(marker)) return "num-dot";
+	if (/^\d+[a-z]?\)$/.test(marker)) return "num-paren";
 	if (/^[a-z]\)$/.test(marker)) return "let-paren";
 	if (/^[a-z]\.$/.test(marker)) return "let-dot";
 	if (/^[ivxlcdm]+[.)]$/i.test(marker)) return "roman";
@@ -314,11 +344,115 @@ function parse(blocks) {
 		title = headerBlocks.map((b) => b.text).join("\n") || "Dokument bez tytułu";
 	}
 
+	// Scal bloki, które mammoth rozbił na "Art." + "1. treść"
+	// Scal bloki, które mammoth rozbił na "Art." + "1. treść"
+	// oraz bloki kończące się na "Art." + następny zaczynający się od "39a."
+	const mergedBlocks = [];
+	for (let i = 0; i < blocks.length; i++) {
+		const b = blocks[i];
+		const next = blocks[i + 1];
+		const bTrim = (b.text || "").trim();
+		const nextTrim = (next?.text || "").trim();
+
+		// "Art." + "1. treść" → "Art. 1. treść"
+		if (
+			bTrim &&
+			/^(Art|ART)\.?$/.test(bTrim) &&
+			next &&
+			/^\d+[a-z]?[.)]/.test(nextTrim)
+		) {
+			mergedBlocks.push({
+				...b,
+				text: `Art. ${nextTrim}`,
+			});
+			i++;
+			continue;
+		}
+
+		// "... Art." + "39a. treść" → "... Art. 39a. treść"
+		if (
+			bTrim &&
+			/\b(Art|ART)\.$/.test(bTrim) &&
+			next &&
+			/^\d+[a-z]?[.)]/.test(nextTrim)
+		) {
+			mergedBlocks.push({
+				...b,
+				text: `${bTrim} ${nextTrim}`,
+			});
+			i++;
+			continue;
+		}
+
+		// "1." + "Apelujemy..." → "1. Apelujemy..."
+		if (
+			bTrim &&
+			/^\d+[a-z]?\.$/.test(bTrim) &&
+			next &&
+			/^[A-ZĄĆĘŁŃÓŚŹŻ]/.test(nextTrim)
+		) {
+			mergedBlocks.push({
+				...b,
+				text: `${bTrim} ${nextTrim}`,
+			});
+			i++;
+			continue;
+		}
+
+		mergedBlocks.push(b);
+	}
+	// Rozbij bloki, które zawierają kilka markerów w środku
+	// np. "1. Postulujemy... 2. Wysokość... 3. Postuluje..."
+	// Rozbij bloki, które zawierają kilka markerów w środku
+	const splitBlocks = [];
+	for (const b of mergedBlocks) {
+		const text = (b.text || "").trim();
+		if (!text) {
+			splitBlocks.push(b);
+			continue;
+		}
+
+		// nie ruszaj Art./Rozdział
+		if (/^(Art|ART|Rozdział|DZIAŁ|CZĘŚĆ)/.test(text)) {
+			splitBlocks.push(b);
+			continue;
+		}
+
+		// rozbij po markerach w środku
+		const parts = text.split(
+			/(?<=[a-ząćęłńóśźżA-ZĄĆĘŁŃÓŚŹŻ;:,.)])\s+(?=\d+[a-z]?[.)]\s|[a-z]\)\s)/,
+		);
+
+		if (parts.length > 1) {
+			const filtered = parts
+				.map((p) => p.trim())
+				.filter(Boolean)
+				.map((p) => ({ ...b, text: p }));
+
+			// nie scalaj jeśli któryś fragment zaczyna się od "Art."
+			if (
+				filtered.length > 1 &&
+				filtered.every((f) => !/^(Art|ART|Rozdział|DZIAŁ|CZĘŚĆ)/.test(f.text))
+			) {
+				splitBlocks.push(...filtered);
+				continue;
+			}
+		}
+
+		splitBlocks.push(b);
+	}
+
+	// Scal bloki, które mammoth rozbił na dwa <p> w środku zdania
+	// (np. "...odnawialnych źródeł" + "energii.")
+	// używaj splitBlocks zamiast blocks od tego miejsca
+	blocks = splitBlocks;
+
 	const chapters = [];
 	let currentChapter = null;
 	let currentArticle = null;
 	let chapterIndex = 0;
 	let articleIndex = 0;
+	let insideQuote = false;
 
 	const flushArticle = () => {
 		if (!currentArticle) return;
@@ -374,12 +508,53 @@ function parse(blocks) {
 			.replace(/^[\u200B\u200C\u200D\uFEFF]+/, "")
 			.replace(/[\u200B\u200C\u200D\uFEFF]+$/, "");
 		if (/^\d+[.)]\s*$/.test(line) || /^\s*\.\s*$/.test(line)) continue;
-		// ─── Rozdział ───────────────────────────────────────
+
+		// ─── Śledzenie cytatu ───────────────────────────────
+		// ─── Śledzenie cytatu ───────────────────────────────
+		// NIE włączaj cytatu, jeśli linia sama jest nowym artykułem/rozdziałem
+		const startsWithStructural =
+			/^(Rozdział|DZIAŁ|CZĘŚĆ)\s+[IVXLCDM\d]+/i.test(line) ||
+			/^(Art|ART)\.?\s*\d+/.test(line);
+
+		if (
+			!startsWithStructural &&
+			/[:]\s*$/.test(line) &&
+			/(w brzmieniu|następujące zmiany|następująco|uchyla się|zmienia się)/i.test(
+				line,
+			)
+		) {
+			insideQuote = true;
+		}
+		// Wyłącz cytat TYLKO gdy linia kończy się na cudzysłów zamykający
+		// Wyłącz cytat TYLKO gdy linia kończy się na cudzysłów zamykający
+		// Wyłącz cytat gdy linia kończy się na cudzysłów zamykający (opcjonalnie + ; lub .)
+		// albo gdy zawiera `".` lub `";` (cudzysłów + kropka/średnik)
+		if (
+			/[""„”'']\s*[;.]?\s*$/.test(line) ||
+			/[""„”'']\s*[;.](?:\s|$)/.test(line)
+		) {
+			insideQuote = false;
+		}
+
+		// DEBUG — usuń po testach
+		console.log(
+			k,
+			"| insideQuote:",
+			insideQuote,
+			"| line:",
+			JSON.stringify(line.slice(0, 60)),
+		);
+
 		// ─── Rozdział ───────────────────────────────────────
 		if (
 			(block.type === "paragraph" || block.type === "heading") &&
 			/^(Rozdział|DZIAŁ|CZĘŚĆ)\s+[IVXLCDM\d]+/i.test(line)
 		) {
+			if (insideQuote && currentArticle) {
+				currentArticle.contentLines.push(blockToLine(block));
+				continue;
+			}
+
 			flushArticle();
 			chapterIndex++;
 			let chapterTitle = line;
@@ -387,8 +562,9 @@ function parse(blocks) {
 
 			const next = blocks[k + 1];
 			if (
+				!insideQuote &&
 				next &&
-				(next.type === "paragraph" || next.type === "heading") && // ← DODANE: heading też
+				(next.type === "paragraph" || next.type === "heading") &&
 				!/^(Rozdział|DZIAŁ|CZĘŚĆ)\s+[IVXLCDM\d]+[a-z]?/i.test(next.text) &&
 				!/^Art\.\s*\d+/i.test(next.text) &&
 				!/^Załącznik\s+nr/i.test(next.text) &&
@@ -430,12 +606,33 @@ function parse(blocks) {
 		const looksLikeQuote =
 			lineHasQuote || prevLooksLikeIntro || nextLooksLikeQuote;
 
+		// Sprawdź, czy to "wewnętrzny" artykuł cytatu (np. Art. 39a, Art. 39b)
+		// — taki, który pojawia się wewnątrz treści innego artykułu
+		// Sprawdź, czy to "wewnętrzny" artykuł cytatu (np. Art. 39a, Art. 39b)
+		// — taki, który pojawia się wewnątrz treści innego artykułu
+		const inArt2Quote =
+			currentArticle &&
+			currentArticle.number === "Art. 2" &&
+			currentArticle.contentLines.some(
+				(l) => l.text && /w brzmieniu:/.test(l.text),
+			);
+
+		const isInnerQuoteArticle =
+			/^(Art|ART)\.?\s*\d+[a-z]?/i.test(line) &&
+			currentArticle !== null &&
+			(inArt2Quote || /^(Art|ART)\.?\s*39[a-z]?/i.test(line));
+
 		const artMatch =
 			!looksLikeQuote &&
+			!insideQuote &&
+			!isInnerQuoteArticle &&
 			line.match(/^(Art|ART)\.?\s*\d+[a-z]*[¹²³⁴⁵⁶⁷⁸⁹⁰]*\.?/);
 		if ((block.type === "paragraph" || block.type === "heading") && artMatch) {
 			flushArticle();
-			const artNumber = artMatch[0].replace(/\.$/, "").trim();
+			const artNumber = artMatch[0]
+				.replace(/\.$/, "")
+				.replace(/^Art\s+/, "Art. ") // ← dodaj spację po Art.
+				.trim();
 			const chapter = ensureChapter();
 
 			const existing = chapter.articles.find((a) => a.number === artNumber);
@@ -504,26 +701,20 @@ function parse(blocks) {
 				const fromParagraph = block.fromParagraph === true;
 
 				if (fromList) {
-					// Pochodzi z <ol> — to jest lista podrzędna, poziom 2
-					lineObj.level = 2;
-					// Marker już ustawiony na "1)", "2)" w walkList
+					// zachowaj poziom z walkList (już ustawiony), nie wymuszaj 2
+					// lineObj.level zostaje jak jest
 				} else if (fromParagraph) {
-					// Pochodzi z <p> z markerem "1.", "2." — to ustęp, poziom 1
 					lineObj.level = 1;
 				} else {
-					// Fallback — heurystyka po markerze
 					const type = markerType(lineObj.marker);
-					if (type === "num-paren") {
-						lineObj.level = 2;
-					} else if (
+					if (type === "num-paren") lineObj.level = 2;
+					else if (
 						type === "let-paren" ||
 						type === "let-dot" ||
 						type === "roman"
-					) {
+					)
 						lineObj.level = 3;
-					} else {
-						lineObj.level = 1;
-					}
+					else lineObj.level = 1;
 				}
 			}
 			currentArticle.contentLines.push(lineObj);
