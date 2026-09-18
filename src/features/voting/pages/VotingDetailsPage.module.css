@@ -612,3 +612,266 @@
 		animation: none;
 	}
 }
+
+/* badge w nagłówku */
+.batchBadge {
+	display: inline-flex;
+	align-items: center;
+	padding: 4px 10px;
+	background: #eef2ff;
+	color: #3730a3;
+	border-radius: 12px;
+	font-size: 12px;
+	font-weight: 600;
+	margin-left: 8px;
+}
+
+.batchSubtitle {
+	font-size: 13px;
+	color: #6c757d;
+	margin: -4px 0 16px 0;
+}
+
+/* lista kart pytań */
+.batchResultsSection {
+	margin-top: 8px;
+}
+
+.batchResultsList {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.batchQuestionCard {
+	padding: 16px;
+	background: #fff;
+	border: 1px solid #e9ecef;
+	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.batchQuestionHead {
+	display: flex;
+	gap: 10px;
+	align-items: flex-start;
+}
+
+.batchQuestionIdx {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	background: #2563eb;
+	color: #fff;
+	font-size: 12px;
+	font-weight: 600;
+	margin-top: 2px;
+}
+
+.batchQuestionBody {
+	flex: 1;
+}
+
+.batchQuestionText {
+	font-size: 15px;
+	font-weight: 500;
+	color: #212529;
+	line-height: 1.4;
+}
+
+.batchQuestionLink {
+	margin-top: 4px;
+	font-size: 11px;
+	color: #6c757d;
+	font-style: italic;
+}
+
+/* paski wyników */
+.batchBars {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.batchRow {
+	display: grid;
+	grid-template-columns: 140px 1fr 48px;
+	gap: 10px;
+	align-items: center;
+}
+
+.batchRowLabel {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 6px;
+	font-size: 12px;
+	color: #495057;
+}
+
+.batchRowLabelText {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-weight: 500;
+}
+
+.batchRowCount {
+	font-weight: 700;
+	color: #212529;
+}
+
+.batchTrack {
+	width: 100%;
+	height: 8px;
+	background: #f1f3f5;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.batchFill {
+	height: 100%;
+	border-radius: 4px;
+	transition: width 0.3s ease;
+}
+
+.batchFillFor {
+	background: #28a745;
+}
+
+.batchFillAgainst {
+	background: #dc3545;
+}
+
+.batchFillAbstain {
+	background: #adb5bd;
+}
+
+.batchRowPct {
+	font-size: 12px;
+	color: #6c757d;
+	text-align: right;
+}
+
+/* wynik pytania */
+.batchOutcome {
+	align-self: flex-start;
+	padding: 4px 12px;
+	border-radius: 12px;
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.3px;
+}
+
+.batchOutcome_passed {
+	background: #d4edda;
+	color: #155724;
+}
+
+.batchOutcome_rejected {
+	background: #f8d7da;
+	color: #721c24;
+}
+
+.batchOutcome_tie {
+	background: #e2e3e5;
+	color: #383d41;
+}
+
+/* hint gdy trwa */
+.batchLiveHint {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 14px 16px;
+	background: #f8f9fa;
+	border-left: 3px solid #2563eb;
+	border-radius: 6px;
+	font-size: 13px;
+	color: #495057;
+}
+
+/* responsywność */
+@media (max-width: 640px) {
+	.batchRow {
+		grid-template-columns: 1fr;
+		gap: 4px;
+	}
+
+	.batchRowPct {
+		text-align: left;
+	}
+}
+
+.batchVotersSection {
+	margin-top: 4px;
+	padding-top: 14px;
+	border-top: 1px solid #e9ecef;
+}
+
+.batchVotersTitle {
+	font-size: 13px;
+	font-weight: 600;
+	color: #495057;
+	margin: 0 0 10px 0;
+}
+.batchVotersSection {
+	margin-top: 4px;
+	padding-top: 12px;
+	border-top: 1px solid #e9ecef;
+}
+
+.batchVotersSummary {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	cursor: pointer;
+	padding: 8px 10px;
+	background: #f8f9fa;
+	border-radius: 6px;
+	list-style: none;
+	user-select: none;
+	transition: background 0.15s ease;
+}
+
+.batchVotersSummary::-webkit-details-marker {
+	display: none;
+}
+
+.batchVotersSummary:hover {
+	background: #f1f3f5;
+}
+
+.batchVotersSummaryText {
+	font-size: 13px;
+	font-weight: 500;
+	color: #495057;
+}
+
+.batchVotersChevron {
+	font-size: 12px;
+	color: #6c757d;
+	transition: transform 0.2s ease;
+}
+
+.batchVotersSection[open] .batchVotersChevron {
+	transform: rotate(180deg);
+}
+
+.batchVotersSection[open] .votersTableWrap {
+	margin-top: 10px;
+}
+
+.batchVotersMissingInfo {
+	margin: 10px 0 0 0;
+	font-size: 12px;
+	color: #6c757d;
+	font-style: italic;
+	text-align: center;
+}

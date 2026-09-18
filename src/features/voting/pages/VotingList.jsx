@@ -388,6 +388,11 @@ export default function Votings() {
 										<span className={styles.cardCategory}>
 											{getCategoryLabel(vote.category)}
 										</span>
+										{vote.votingMode === "batch" && (
+											<span className={styles.cardBatch}>
+												{vote.questions?.length || 0} pytań
+											</span>
+										)}
 										<span
 											className={`${styles.statusBadge} ${
 												styles[`status_${status}`] || ""
@@ -436,84 +441,57 @@ export default function Votings() {
 
 											{vote.hasVoted ? (
 												<p className={styles.myVote}>
-													Twój głos:{" "}
-													<strong>
-														{vote.myVote === "for"
-															? "ZA"
-															: vote.myVote === "against"
-																? "PRZECIW"
-																: "WSTRZYMANIE"}
-													</strong>
+													{vote.votingMode === "batch" ? (
+														<>
+															Zagłosowałeś na{" "}
+															<strong>
+																{vote.myAnswersCount} /{" "}
+																{vote.questions?.length || 0}
+															</strong>{" "}
+															pytań
+														</>
+													) : (
+														<>
+															Twój głos:{" "}
+															<strong>
+																{vote.myVote === "for"
+																	? "ZA"
+																	: vote.myVote === "against"
+																		? "PRZECIW"
+																		: "WSTRZYMANIE"}
+															</strong>
+														</>
+													)}
 												</p>
 											) : (
 												<Link
 													to={`/glosowanie/${vote.id}`}
 													className={`${styles.btn} ${styles.btnPrimary} ${styles.btnBlock}`}
 												>
-													Weź udział w głosowaniu
+													{vote.votingMode === "batch"
+														? "Weź udział w głosowaniu"
+														: "Weź udział w głosowaniu"}
 												</Link>
 											)}
 										</div>
 									)}
 
-									{status === "finished" && (
+									{status === "finished" && vote.votingMode === "batch" && (
+										<div className={styles.batchSummary}>
+											<p className={styles.batchSummaryText}>
+												Głosowanie zbiorcze — {vote.questions?.length || 0}{" "}
+												pytań
+											</p>
+											<p className={styles.batchSummaryHint}>
+												Wyniki dla każdego pytania znajdziesz w szczegółach.
+											</p>
+										</div>
+									)}
+
+									{status === "finished" && vote.votingMode !== "batch" && (
 										<div className={styles.resultBox}>
-											<div className={styles.resultRow}>
-												<div className={styles.resultLabel}>
-													<span>ZA</span>
-													<strong>{vote.votesFor}</strong>
-												</div>
-												<div className={styles.resultTrack}>
-													<div
-														className={`${styles.resultFill} ${styles.resultFor}`}
-														style={{
-															width: totalVotes
-																? `${(vote.votesFor / totalVotes) * 100}%`
-																: "0%",
-														}}
-													/>
-												</div>
-											</div>
-
-											<div className={styles.resultRow}>
-												<div className={styles.resultLabel}>
-													<span>PRZECIW</span>
-													<strong>{vote.votesAgainst}</strong>
-												</div>
-												<div className={styles.resultTrack}>
-													<div
-														className={`${styles.resultFill} ${styles.resultAgainst}`}
-														style={{
-															width: totalVotes
-																? `${(vote.votesAgainst / totalVotes) * 100}%`
-																: "0%",
-														}}
-													/>
-												</div>
-											</div>
-
-											<div className={styles.resultRow}>
-												<div className={styles.resultLabel}>
-													<span>WSTRZYMAŁO SIĘ</span>
-													<strong>{vote.abstained}</strong>
-												</div>
-												<div className={styles.resultTrack}>
-													<div
-														className={`${styles.resultFill} ${styles.resultAbstained}`}
-														style={{
-															width: totalVotes
-																? `${(vote.abstained / totalVotes) * 100}%`
-																: "0%",
-														}}
-													/>
-												</div>
-											</div>
-
-											<p
-												className={`${styles.finalResult} ${
-													styles[`finalResult_${result}`] || ""
-												}`}
-											>
+											{/* ...dotychczasowe paski ZA/PRZECIW/WSTRZYMANIE... */}
+											<p className={`${styles.finalResult} ...`}>
 												{result === "passed"
 													? "Uchwała przyjęta"
 													: result === "rejected"

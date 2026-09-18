@@ -75,15 +75,10 @@ export default function VotingDetailsPage() {
 		async function fetchUser() {
 			try {
 				const response = await fetch("/newapp/api/auth/me", {
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
+					headers: { Authorization: `Bearer ${token}` },
 				});
-
 				if (!response.ok) throw new Error();
-
 				const user = await response.json();
-
 				setIsAdmin(
 					user.role === "admin" || user.permissions?.includes("MANAGE_VOTINGS"),
 				);
@@ -91,7 +86,6 @@ export default function VotingDetailsPage() {
 				setIsAdmin(false);
 			}
 		}
-
 		fetchUser();
 	}, [token]);
 
@@ -99,28 +93,20 @@ export default function VotingDetailsPage() {
 		async function fetchVote() {
 			try {
 				const response = await fetch(`/newapp/api/votings/${id}`, {
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
+					headers: { Authorization: `Bearer ${token}` },
 				});
-
 				const data = await response.json();
-
 				if (!response.ok) {
 					throw new Error(data.message || "Nie udało się pobrać głosowania");
 				}
-
 				setVote(data);
 
 				if (data.recipientsType === "groups" && data.selectedGroups) {
 					try {
 						const groupsResponse = await fetch("/newapp/api/groups", {
-							headers: {
-								Authorization: `Bearer ${token}`,
-							},
+							headers: { Authorization: `Bearer ${token}` },
 						});
 						const groupsData = await groupsResponse.json();
-
 						const selectedGroupsDetails = groupsData.filter((g) =>
 							data.selectedGroups.includes(g.id),
 						);
@@ -140,12 +126,9 @@ export default function VotingDetailsPage() {
 				} else if (data.recipientsType === "members" && data.selectedMembers) {
 					try {
 						const membersResponse = await fetch("/newapp/api/users", {
-							headers: {
-								Authorization: `Bearer ${token}`,
-							},
+							headers: { Authorization: `Bearer ${token}` },
 						});
 						const membersData = await membersResponse.json();
-
 						const selectedMembersDetails = membersData.filter((m) =>
 							data.selectedMembers.includes(m.id),
 						);
@@ -163,10 +146,7 @@ export default function VotingDetailsPage() {
 						});
 					}
 				} else {
-					setRecipientsDetails({
-						type: "all",
-						data: null,
-					});
+					setRecipientsDetails({ type: "all", data: null });
 				}
 			} catch (error) {
 				setError(error.message);
@@ -174,7 +154,6 @@ export default function VotingDetailsPage() {
 				setLoading(false);
 			}
 		}
-
 		fetchVote();
 	}, [id, token]);
 
@@ -212,11 +191,10 @@ export default function VotingDetailsPage() {
 
 	const statusClass = getStatusClass(vote);
 	const statusLabel = getStatusLabel(vote);
-	const result =
-		statusClass === "finished" || statusClass === "archived"
-			? getResult(vote)
-			: null;
+	const isBatch = vote.votingMode === "batch";
+	const isFinished = statusClass === "finished" || statusClass === "archived";
 
+	// SINGLE – wyniki zbiorcze
 	const totalVotes = vote.votesFor + vote.votesAgainst + vote.abstained;
 	const forPercentage =
 		totalVotes > 0 ? Math.round((vote.votesFor / totalVotes) * 100) : 0;
@@ -224,6 +202,7 @@ export default function VotingDetailsPage() {
 		totalVotes > 0 ? Math.round((vote.votesAgainst / totalVotes) * 100) : 0;
 	const abstainPercentage =
 		totalVotes > 0 ? Math.round((vote.abstained / totalVotes) * 100) : 0;
+	const result = isFinished ? getResult(vote) : null;
 
 	const recipientsLabel = getRecipientsLabel(vote);
 	const categoryTranslations = {
@@ -235,11 +214,11 @@ export default function VotingDetailsPage() {
 		motion: "Wniosek",
 	};
 
+	// ============================================================
+	// SINGLE – lista głosujących
+	// ============================================================
 	const renderVotersList = () => {
-		if (
-			!vote.isAnonymous &&
-			(statusClass === "finished" || statusClass === "archived")
-		) {
+		if (!vote.isAnonymous && isFinished) {
 			const voters = vote.votedUsers || [];
 
 			if (voters.length === 0) {
@@ -275,14 +254,22 @@ export default function VotingDetailsPage() {
 											<td>{voter.club || "—"}</td>
 											<td>
 												<span
-													className={`${styles.voteBadge} ${voteValue
-														? styles[`vote_${voteValue === "abstained" ? "abstain" : voteValue}`] || ""
-														: styles.vote_missing
-														}`}
+													className={`${styles.voteBadge} ${
+														voteValue
+															? styles[
+																	`vote_${
+																		voteValue === "abstained"
+																			? "abstain"
+																			: voteValue
+																	}`
+																] || ""
+															: styles.vote_missing
+													}`}
 												>
 													{voteValue === "for" && <Check size={14} />}
 													{voteValue === "against" && <X size={14} />}
-													{(voteValue === "abstain" || voteValue === "abstained") && <Minus size={14} />}
+													{(voteValue === "abstain" ||
+														voteValue === "abstained") && <Minus size={14} />}
 													{voteLabel}
 												</span>
 											</td>
@@ -310,6 +297,230 @@ export default function VotingDetailsPage() {
 		return null;
 	};
 
+	// ============================================================
+	// BATCH – tabela wyników per pytanie
+	// ============================================================
+	const renderBatchResults = () => {
+		const results = vote.resultsPerQuestion || vote.questions || [];
+
+		if (!results.length) {
+			return (
+				<div className={styles.votersEmpty}>
+					<p>Brak danych o pytaniach</p>
+				</div>
+			);
+		}
+
+		return (
+			<div className={styles.batchResultsSection}>
+				<div className={styles.batchResultsList}>
+					{results.map((q, idx) => {
+						const qFor = q.votesFor ?? 0;
+						const qAgainst = q.votesAgainst ?? 0;
+						const qAbstain = q.abstained ?? 0;
+						const qTotal = qFor + qAgainst + qAbstain;
+
+						const qForPct = qTotal ? Math.round((qFor / qTotal) * 100) : 0;
+						const qAgainstPct = qTotal
+							? Math.round((qAgainst / qTotal) * 100)
+							: 0;
+						const qAbstainPct = qTotal
+							? Math.round((qAbstain / qTotal) * 100)
+							: 0;
+
+						let qResult = q.outcome;
+						if (!qResult) {
+							if (qFor > qAgainst) qResult = "passed";
+							else if (qFor < qAgainst) qResult = "rejected";
+							else qResult = "tie";
+						}
+
+						return (
+							<div
+								key={q.id || q.questionId || idx}
+								className={styles.batchQuestionCard}
+							>
+								<div className={styles.batchQuestionHead}>
+									<span className={styles.batchQuestionIdx}>{idx + 1}</span>
+									<div className={styles.batchQuestionBody}>
+										<div className={styles.batchQuestionText}>
+											{q.text || q.questionText}
+										</div>
+
+										{q.linkedItemType === "resolution" && (
+											<div className={styles.batchQuestionLink}>
+												Powiązanie: uchwała #{q.linkedItemId}
+											</div>
+										)}
+										{q.linkedItemType === "amendment" && (
+											<div className={styles.batchQuestionLink}>
+												Powiązanie: poprawka #{q.linkedItemId}
+												{q.resolutionId && ` (uchwała #${q.resolutionId})`}
+											</div>
+										)}
+									</div>
+								</div>
+
+								<div className={styles.batchBars}>
+									<div className={styles.batchRow}>
+										<div className={styles.batchRowLabel}>
+											<span className={styles.batchRowLabelText}>
+												<Check size={14} /> ZA
+											</span>
+											<span className={styles.batchRowCount}>{qFor}</span>
+										</div>
+										<div className={styles.batchTrack}>
+											<div
+												className={`${styles.batchFill} ${styles.batchFillFor}`}
+												style={{ width: `${qForPct}%` }}
+											/>
+										</div>
+										<span className={styles.batchRowPct}>{qForPct}%</span>
+									</div>
+
+									<div className={styles.batchRow}>
+										<div className={styles.batchRowLabel}>
+											<span className={styles.batchRowLabelText}>
+												<X size={14} /> PRZECIW
+											</span>
+											<span className={styles.batchRowCount}>{qAgainst}</span>
+										</div>
+										<div className={styles.batchTrack}>
+											<div
+												className={`${styles.batchFill} ${styles.batchFillAgainst}`}
+												style={{ width: `${qAgainstPct}%` }}
+											/>
+										</div>
+										<span className={styles.batchRowPct}>{qAgainstPct}%</span>
+									</div>
+
+									<div className={styles.batchRow}>
+										<div className={styles.batchRowLabel}>
+											<span className={styles.batchRowLabelText}>
+												<Minus size={14} /> WSTRZYMANIE
+											</span>
+											<span className={styles.batchRowCount}>{qAbstain}</span>
+										</div>
+										<div className={styles.batchTrack}>
+											<div
+												className={`${styles.batchFill} ${styles.batchFillAbstain}`}
+												style={{ width: `${qAbstainPct}%` }}
+											/>
+										</div>
+										<span className={styles.batchRowPct}>{qAbstainPct}%</span>
+									</div>
+								</div>
+
+								<div
+									className={`${styles.batchOutcome} ${
+										styles[`batchOutcome_${qResult}`] || ""
+									}`}
+								>
+									{qResult === "passed" && "Przyjęta"}
+									{qResult === "rejected" && "Odrzucona"}
+									{qResult === "tie" && "Remis"}
+								</div>
+								{!vote.isAnonymous &&
+									vote.votersPerQuestion &&
+									(() => {
+										const qId = q.questionId || q.id;
+										const allVoters =
+											vote.votersPerQuestion.find(
+												(v) => String(v.questionId) === String(qId),
+											)?.voters || [];
+
+										if (allVoters.length === 0) return null;
+
+										// tylko ci, którzy faktycznie głosowali
+										const votedVoters = allVoters.filter((v) => v.vote);
+										const missingCount = allVoters.length - votedVoters.length;
+
+										return (
+											<details className={styles.batchVotersSection}>
+												<summary className={styles.batchVotersSummary}>
+													<span className={styles.batchVotersSummaryText}>
+														Lista głosujących — {votedVoters.length}{" "}
+														{votedVoters.length === 1 ? "osoba" : "osób"}
+														{missingCount > 0 &&
+															` (${missingCount} nie zagłosowało)`}
+													</span>
+													<span className={styles.batchVotersChevron}>▾</span>
+												</summary>
+
+												<div className={styles.votersTableWrap}>
+													<table className={styles.votersTable}>
+														<thead>
+															<tr>
+																<th>Lp.</th>
+																<th>Imię i nazwisko</th>
+																<th>Klub</th>
+																<th>Głos</th>
+															</tr>
+														</thead>
+														<tbody>
+															{votedVoters.map((voter, vIdx) => {
+																const voteValue = voter.vote;
+																return (
+																	<tr key={voter.id || vIdx}>
+																		<td className={styles.voterIndex}>
+																			{vIdx + 1}
+																		</td>
+																		<td>
+																			{voter.name || `Użytkownik ${voter.id}`}
+																		</td>
+																		<td>{voter.club || "—"}</td>
+																		<td>
+																			<span
+																				className={`${styles.voteBadge} ${
+																					styles[
+																						`vote_${
+																							voteValue === "abstained"
+																								? "abstain"
+																								: voteValue
+																						}`
+																					] || ""
+																				}`}
+																			>
+																				{voteValue === "for" && (
+																					<Check size={14} />
+																				)}
+																				{voteValue === "against" && (
+																					<X size={14} />
+																				)}
+																				{(voteValue === "abstain" ||
+																					voteValue === "abstained") && (
+																					<Minus size={14} />
+																				)}
+																				{formatVote(voteValue)}
+																			</span>
+																		</td>
+																	</tr>
+																);
+															})}
+														</tbody>
+													</table>
+												</div>
+
+												{missingCount > 0 && (
+													<p className={styles.batchVotersMissingInfo}>
+														{missingCount}{" "}
+														{missingCount === 1
+															? "osoba nie oddała"
+															: "osób nie oddało"}{" "}
+														głosu na to pytanie.
+													</p>
+												)}
+											</details>
+										);
+									})()}
+							</div>
+						);
+					})}
+				</div>
+			</div>
+		);
+	};
+
 	return (
 		<div className={styles.page}>
 			<header className={styles.topbar}>
@@ -322,9 +533,15 @@ export default function VotingDetailsPage() {
 						<span className={styles.category}>
 							{categoryTranslations[vote.category] || vote.category}
 						</span>
+						{isBatch && (
+							<span className={styles.batchBadge}>
+								{vote.questions?.length || 0} pytań
+							</span>
+						)}
 						<span
-							className={`${styles.statusBadge} ${styles[`status_${statusClass}`] || ""
-								}`}
+							className={`${styles.statusBadge} ${
+								styles[`status_${statusClass}`] || ""
+							}`}
 						>
 							{statusLabel}
 						</span>
@@ -371,8 +588,12 @@ export default function VotingDetailsPage() {
 					</div>
 
 					<div className={styles.infoItem}>
-						<span className={styles.infoLabel}>Łączna liczba głosów</span>
-						<span className={styles.infoValue}>{totalVotes}</span>
+						<span className={styles.infoLabel}>
+							{isBatch ? "Liczba pytań" : "Łączna liczba głosów"}
+						</span>
+						<span className={styles.infoValue}>
+							{isBatch ? vote.questions?.length || 0 : totalVotes}
+						</span>
 					</div>
 				</section>
 
@@ -412,7 +633,10 @@ export default function VotingDetailsPage() {
 					</div>
 				</section>
 
-				{(statusClass === "finished" || statusClass === "archived") && (
+				{/* ============================================================
+				    SINGLE – wyniki zbiorcze
+				   ============================================================ */}
+				{!isBatch && isFinished && (
 					<section className={styles.section}>
 						<h2 className={styles.sectionTitle}>Wyniki głosowania</h2>
 
@@ -475,8 +699,9 @@ export default function VotingDetailsPage() {
 						</div>
 
 						<div
-							className={`${styles.finalResult} ${styles[`finalResult_${result}`] || ""
-								}`}
+							className={`${styles.finalResult} ${
+								styles[`finalResult_${result}`] || ""
+							}`}
 						>
 							{result === "passed" && "Uchwała przyjęta"}
 							{result === "rejected" && "Uchwała odrzucona"}
@@ -502,6 +727,36 @@ export default function VotingDetailsPage() {
 						</div>
 
 						{renderVotersList()}
+					</section>
+				)}
+
+				{/* ============================================================
+				    BATCH – wyniki per pytanie
+				   ============================================================ */}
+				{isBatch && isFinished && (
+					<section className={styles.section}>
+						<h2 className={styles.sectionTitle}>Wyniki głosowania</h2>
+						<p className={styles.batchSubtitle}>
+							Głosowanie zbiorcze — {vote.questions?.length || 0} pytań, każde
+							głosowane niezależnie.
+						</p>
+
+						{renderBatchResults()}
+					</section>
+				)}
+
+				{/* ============================================================
+				    BATCH – gdy jeszcze trwa, pokaż tylko licznik
+				   ============================================================ */}
+				{isBatch && statusClass === "active" && (
+					<section className={styles.section}>
+						<div className={styles.batchLiveHint}>
+							<Lock size={18} />
+							<span>
+								Wyniki głosowania zbiorczego są dostępne dopiero po jego
+								zakończeniu.
+							</span>
+						</div>
 					</section>
 				)}
 

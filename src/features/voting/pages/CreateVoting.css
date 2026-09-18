@@ -3275,3 +3275,397 @@
 	color: #1e40af;
 	font-weight: 500;
 }
+
+/* ============================================================
+   TRYB GŁOSOWANIA (krok 1)
+   ============================================================ */
+
+.voting-mode-options {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+	margin-top: 8px;
+}
+
+.voting-mode-option {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+	padding: 16px;
+	background: #fff;
+	border: 2px solid #e9ecef;
+	border-radius: 10px;
+	cursor: pointer;
+	text-align: left;
+	transition: all 0.15s ease;
+	font-family: inherit;
+}
+
+.voting-mode-option strong {
+	font-size: 15px;
+	color: #212529;
+	font-weight: 600;
+}
+
+.voting-mode-option small {
+	font-size: 12px;
+	color: #6c757d;
+	line-height: 1.4;
+}
+
+.voting-mode-option:hover {
+	border-color: #c7d2fe;
+	background: #f8f9ff;
+}
+
+.voting-mode-option.active {
+	border-color: #2563eb;
+	background: #eff6ff;
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.voting-mode-option.active strong {
+	color: #1d4ed8;
+}
+
+/* ============================================================
+   LISTA PYTAŃ (tryb zbiorczy)
+   ============================================================ */
+
+.batch-questions-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-bottom: 20px;
+}
+
+.batch-question-item {
+	display: flex;
+	align-items: stretch;
+	gap: 12px;
+	padding: 12px 14px;
+	background: #fff;
+	border: 1px solid #e9ecef;
+	border-radius: 10px;
+	transition: all 0.15s ease;
+}
+
+.batch-question-item:hover {
+	border-color: #c7d2fe;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.batch-question-item.editing {
+	border-color: #2563eb;
+	background: #f8faff;
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.batch-question-order {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+	padding-top: 2px;
+	color: #adb5bd;
+}
+
+.batch-question-number {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	background: #eef2ff;
+	color: #3730a3;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.batch-question-body {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.batch-question-text {
+	font-size: 14px;
+	color: #212529;
+	font-weight: 500;
+	line-height: 1.4;
+	word-break: break-word;
+}
+
+.batch-question-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.batch-question-actions {
+	display: flex;
+	align-items: flex-start;
+	gap: 4px;
+}
+
+.batch-question-actions button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	background: #f8f9fa;
+	border: 1px solid #e9ecef;
+	border-radius: 6px;
+	cursor: pointer;
+	color: #495057;
+	font-size: 14px;
+	line-height: 1;
+	transition: all 0.12s ease;
+}
+
+.batch-question-actions button:hover:not(:disabled) {
+	background: #eef2ff;
+	border-color: #c7d2fe;
+	color: #1d4ed8;
+}
+
+.batch-question-actions button:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.batch-question-actions button.danger:hover {
+	background: #fee2e2;
+	border-color: #fecaca;
+	color: #b91c1c;
+}
+
+/* ============================================================
+   BADGE (rodzaj powiązania)
+   ============================================================ */
+
+.badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 10px;
+	border-radius: 12px;
+	font-size: 11px;
+	font-weight: 500;
+	line-height: 1.6;
+	white-space: nowrap;
+}
+
+.badge-neutral {
+	background: #e9ecef;
+	color: #495057;
+}
+
+.badge-resolution {
+	background: #d4edda;
+	color: #155724;
+}
+
+.badge-amendment {
+	background: #fff3cd;
+	color: #856404;
+}
+
+/* ============================================================
+   EDYTOR POJEDYNCZEGO PYTANIA
+   ============================================================ */
+
+.batch-question-editor {
+	padding: 18px;
+	background: #f8f9fa;
+	border: 1px dashed #ced4da;
+	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.batch-question-editor h4 {
+	margin: 0 0 4px 0;
+	font-size: 15px;
+	font-weight: 600;
+	color: #212529;
+}
+
+.batch-question-editor .form-group {
+	margin: 0;
+}
+
+.batch-editor-actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 4px;
+}
+
+.batch-editor-actions .btn-primary,
+.batch-editor-actions .btn-secondary {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+/* Kompaktowa wersja selektora powiązania (w edytorze pytania) */
+.linked-item-selector.compact {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 8px;
+	margin-top: 6px;
+}
+
+.linked-item-selector.compact .link-option {
+	padding: 10px 12px;
+	border-radius: 8px;
+	border-width: 1.5px;
+}
+
+.linked-item-selector.compact .link-option strong {
+	font-size: 13px;
+}
+
+.linked-item-selector.compact .link-option small {
+	font-size: 11px;
+}
+
+/* ============================================================
+   LISTY PRZEWIJALNE (uchwały / poprawki)
+   ============================================================ */
+
+.items-list.scrollable,
+.amendments-list.scrollable {
+	max-height: 260px;
+	overflow-y: auto;
+	padding-right: 4px;
+}
+
+.items-list.scrollable::-webkit-scrollbar,
+.amendments-list.scrollable::-webkit-scrollbar {
+	width: 6px;
+}
+
+.items-list.scrollable::-webkit-scrollbar-thumb,
+.amendments-list.scrollable::-webkit-scrollbar-thumb {
+	background: #ced4da;
+	border-radius: 3px;
+}
+
+.items-list.scrollable::-webkit-scrollbar-track,
+.amendments-list.scrollable::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+/* Kompaktowe karty w edytorze pytania */
+.item-card.compact {
+	padding: 10px 12px;
+}
+
+.item-card.compact .item-title {
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.item-card.compact .item-meta {
+	font-size: 11px;
+	margin-top: 2px;
+}
+
+.amendment-card.compact {
+	padding: 10px 12px;
+}
+
+.amendment-card.compact .amendment-title {
+	font-size: 13px;
+	font-weight: 600;
+	margin-bottom: 2px;
+}
+
+.amendment-card.compact .amendment-content {
+	font-size: 12px;
+	color: #6c757d;
+	line-height: 1.4;
+}
+
+/* ============================================================
+   PODSUMOWANIE – lista pytań (krok 5)
+   ============================================================ */
+
+.summary-questions-list {
+	list-style: none;
+	padding: 0;
+	margin: 8px 0 0 0;
+	counter-reset: qcounter;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.summary-questions-list li {
+	counter-increment: qcounter;
+	position: relative;
+	padding: 10px 12px 10px 40px;
+	background: #f8f9fa;
+	border-left: 3px solid #2563eb;
+	border-radius: 6px;
+}
+
+.summary-questions-list li::before {
+	content: counter(qcounter);
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	background: #2563eb;
+	color: #fff;
+	font-size: 11px;
+	font-weight: 600;
+}
+
+.summary-question-text {
+	font-size: 13px;
+	color: #212529;
+	font-weight: 500;
+	line-height: 1.4;
+}
+
+.summary-question-link {
+	margin-top: 4px;
+	font-size: 11px;
+	color: #6c757d;
+	font-style: italic;
+}
+
+/* ============================================================
+   RESPONSYWNOŚĆ
+   ============================================================ */
+
+@media (max-width: 640px) {
+	.voting-mode-options {
+		grid-template-columns: 1fr;
+	}
+
+	.linked-item-selector.compact {
+		grid-template-columns: 1fr;
+	}
+
+	.batch-question-item {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.batch-question-actions {
+		align-self: flex-end;
+	}
+}

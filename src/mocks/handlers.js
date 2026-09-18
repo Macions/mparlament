@@ -82,6 +82,8 @@ const handleResolutionSign = (resolutionId, userId) => {
 	return { success: true };
 };
 const updateLinkedItemStatus = (voting) => {
+	if (voting.votingMode === "batch") return;
+
 	if (voting.linkedItemType === "amendment") {
 		const amendment = amendments.find(
 			(a) => a.id === Number(voting.linkedItemId),
@@ -161,9 +163,54 @@ const findVotingIndex = (id) => votings.findIndex((v) => v.id === Number(id));
 
 const createVoting = (body) => {
 	const user = getCurrentUser();
+	const votingMode = body.votingMode === "batch" ? "batch" : "single";
+
 	return {
 		id: Date.now(),
-		...body,
+		title: body.title || "",
+		description: body.description || "",
+		category: body.category || "",
+
+		votingMode,
+		questions:
+			votingMode === "batch" && Array.isArray(body.questions)
+				? body.questions.map((q, idx) => ({
+						id: q.id || `q_${Date.now()}_${idx}`,
+						text: String(q.text || "").trim(),
+						linkedItemType: q.linkedItemType || "none",
+						linkedItemId: q.linkedItemId || "",
+						resolutionId: q.resolutionId || "",
+					}))
+				: [],
+
+		startTime: body.startTime || null,
+		endTime: body.endTime || null,
+
+		recipientsType: body.recipientsType || "all",
+		selectedGroups: body.selectedGroups || [],
+		selectedMembers: body.selectedMembers || [],
+
+		// W trybie batch czyścimy pojedyncze powiązanie
+		linkedItemType:
+			votingMode === "batch" ? "none" : body.linkedItemType || "none",
+		linkedItemId: votingMode === "batch" ? "" : body.linkedItemId || "",
+
+		applicant: body.applicant || "",
+		managers: body.managers || [],
+
+		quorumRequired: body.quorumRequired ?? 50,
+		majorityType: body.majorityType || "simple",
+		allowAbstain: body.allowAbstain ?? true,
+		isAnonymous: body.isAnonymous ?? false,
+		requireComment: body.requireComment ?? false,
+		canChangeVote: body.canChangeVote ?? false,
+		showResultsDuringVoting: body.showResultsDuringVoting ?? false,
+		notifyEmail: body.notifyEmail ?? false,
+		notifyPush: body.notifyPush ?? false,
+
+		status: "inactive",
+		createdAt: new Date().toISOString(),
+
 		votesFor: 0,
 		votesAgainst: 0,
 		abstained: 0,
@@ -447,7 +494,7 @@ export const handlers = [
 				try {
 					currentUser = JSON.parse(savedUser);
 					return HttpResponse.json(currentUser);
-				} catch (e) { }
+				} catch (e) {}
 			}
 		}
 		return HttpResponse.json({ message: "Nie zalogowany" }, { status: 401 });
@@ -683,12 +730,53 @@ export const handlers = [
 		});
 	}),
 	http.post("/newapp/api/votings", async ({ request }) => {
-		const body = await request.json();
+		let body;
+		try {
+			body = await request.json();
+		} catch {
+			return HttpResponse.json(
+				{ message: "Nieprawidłowe ciało żądania (nieprawidłowy JSON)" },
+				{ status: 400 },
+			);
+		}
+
+		// walidacja zależna od trybu
+		if (body.votingMode === "batch") {
+			if (!Array.isArray(body.questions) || body.questions.length === 0) {
+				return HttpResponse.json(
+					{ message: "Dodaj co najmniej jedno pytanie" },
+					{ status: 400 },
+				);
+			}
+			if (body.questions.length > 50) {
+				return HttpResponse.json(
+					{ message: "Maksymalnie 50 pytań w jednym głosowaniu" },
+					{ status: 400 },
+				);
+			}
+			const bad = body.questions.find((q) => !q.text || !String(q.text).trim());
+			if (bad) {
+				return HttpResponse.json(
+					{ message: "Każde pytanie musi mieć treść" },
+					{ status: 400 },
+				);
+			}
+		}
+		const badLink = body.questions.find(
+			(q) => q.linkedItemType === "amendment" && !q.resolutionId,
+		);
+		if (badLink) {
+			return HttpResponse.json(
+				{
+					message: `Poprawka w pytaniu "${badLink.text}" nie ma wskazanej uchwały`,
+				},
+				{ status: 400 },
+			);
+		}
 		const newVoting = createVoting(body);
 		votings.push(newVoting);
 		return HttpResponse.json(newVoting, { status: 201 });
 	}),
-
 	http.patch("/newapp/api/votings/:id", async ({ params, request }) => {
 		const index = findVotingIndex(params.id);
 		if (index === -1) {
@@ -1006,22 +1094,63 @@ export const handlers = [
 				{ status: 404 },
 			);
 		}
-		const body = await request.json();
+
+		let body;
+		try {
+			body = await request.json();
+		} catch {
+			return HttpResponse.json(
+				{ message: "Nieprawidłowe ciało żądania (nieprawidłowy JSON)" },
+				{ status: 400 },
+			);
+		}
+
+		const nextMode =
+			body.votingMode === "batch" || body.votingMode === "single"
+				? body.votingMode
+				: voting.votingMode || "single";
+
+		const nextQuestions =
+			nextMode === "batch" && Array.isArray(body.questions)
+				? body.questions.map((q, idx) => ({
+						id: q.id || `q_${Date.now()}_${idx}`,
+						text: String(q.text || "").trim(),
+						linkedItemType: q.linkedItemType || "none",
+						linkedItemId: q.linkedItemId || "",
+						resolutionId: q.resolutionId || "",
+					}))
+				: nextMode === "batch"
+					? voting.questions || []
+					: [];
+
 		Object.assign(voting, {
-			title: body.title,
-			description: body.description,
-			category: body.category,
-			startTime: body.startTime,
-			endTime: body.endTime,
-			recipientsType: body.recipientsType,
-			selectedGroups: body.selectedGroups || [],
-			selectedMembers: body.selectedMembers || [],
-			tags: body.tags || [],
-			linkedItemType: body.linkedItemType,
-			linkedItemId: body.linkedItemId,
-			applicant: body.applicant,
-			managers: body.managers || [],
+			title: body.title ?? voting.title,
+			description: body.description ?? voting.description,
+			category: body.category ?? voting.category,
+
+			votingMode: nextMode,
+			questions: nextQuestions,
+
+			startTime: body.startTime ?? voting.startTime,
+			endTime: body.endTime ?? voting.endTime,
+
+			recipientsType: body.recipientsType ?? voting.recipientsType,
+			selectedGroups: body.selectedGroups || voting.selectedGroups || [],
+			selectedMembers: body.selectedMembers || voting.selectedMembers || [],
+
+			tags: body.tags || voting.tags || [],
+
+			linkedItemType:
+				nextMode === "batch"
+					? "none"
+					: (body.linkedItemType ?? voting.linkedItemType),
+			linkedItemId:
+				nextMode === "batch" ? "" : (body.linkedItemId ?? voting.linkedItemId),
+
+			applicant: body.applicant ?? voting.applicant,
+			managers: body.managers || voting.managers || [],
 		});
+
 		return HttpResponse.json({
 			success: true,
 			message: "Głosowanie zostało zaktualizowane",
@@ -1044,6 +1173,51 @@ export const handlers = [
 	http.get("/finalizuj-uchwale/:sessionId", () =>
 		HttpResponse.json({ message: "Strona finalizacji" }),
 	),
+	http.post(
+		"/newapp/api/votings/:id/attachments",
+		async ({ params, request }) => {
+			const votingId = Number(params.id);
+			const voting = votings.find((v) => v.id === votingId);
+			if (!voting) {
+				return HttpResponse.json(
+					{ message: "Nie znaleziono głosowania" },
+					{ status: 404 },
+				);
+			}
+
+			try {
+				const formData = await request.formData();
+				const files = [];
+				for (const [fieldName, value] of formData.entries()) {
+					if (value instanceof File) {
+						files.push({
+							id: `${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+							fieldName,
+							name: value.name,
+							size: value.size,
+							type: value.type,
+							uploadedAt: new Date().toISOString(),
+						});
+					}
+				}
+
+				voting.attachments = [...(voting.attachments || []), ...files];
+
+				return HttpResponse.json({
+					success: true,
+					attachments: voting.attachments,
+				});
+			} catch (err) {
+				return HttpResponse.json(
+					{
+						message: "Błąd przetwarzania załączników",
+						error: err.message,
+					},
+					{ status: 500 },
+				);
+			}
+		},
+	),
 	http.post("/newapp/api/votings/:id/archive", ({ params }) => {
 		const votingId = Number(params.id);
 
@@ -1059,6 +1233,38 @@ export const handlers = [
 
 		return HttpResponse.json({
 			success: true,
+			voting,
+		});
+	}),
+	http.post("/newapp/api/votings/:id/finish", ({ params }) => {
+		const votingId = Number(params.id);
+		const voting = votings.find((v) => v.id === votingId);
+
+		if (!voting) {
+			return HttpResponse.json({ message: "Nie znaleziono" }, { status: 404 });
+		}
+
+		// ustaw koniec na teraz, żeby `getVoteStatus` zwrócił "finished"
+		voting.endTime = new Date().toISOString();
+		voting.status = "inactive";
+
+		// przelicz wyniki z `votes` (dla single — sumy; dla batch — per pytanie)
+		const votingVotes = votes.filter((v) => v.votingId === votingId);
+
+		if (voting.votingMode !== "batch") {
+			voting.votesFor = votingVotes.filter((v) => v.vote === "for").length;
+			voting.votesAgainst = votingVotes.filter(
+				(v) => v.vote === "against",
+			).length;
+			voting.abstained = votingVotes.filter((v) => v.vote === "abstain").length;
+		}
+
+		// zastosuj statusy powiązanych uchwał/poprawek
+		updateLinkedItemStatus(voting);
+
+		return HttpResponse.json({
+			success: true,
+			message: "Głosowanie zostało zakończone",
 			voting,
 		});
 	}),
@@ -1092,16 +1298,39 @@ export const handlers = [
 		const votingsWithResults = filteredVotings.map((voting) => {
 			const votingVotes = votes.filter((v) => v.votingId === voting.id);
 
-			const votesFor = votingVotes.filter((v) => v.vote === "for").length;
-			const votesAgainst = votingVotes.filter(
-				(v) => v.vote === "against",
-			).length;
-			const abstained = votingVotes.filter((v) => v.vote === "abstain").length;
+			const isBatch = voting.votingMode === "batch";
+
+			const votesFor = isBatch
+				? 0
+				: votingVotes.filter((v) => v.vote === "for").length;
+			const votesAgainst = isBatch
+				? 0
+				: votingVotes.filter((v) => v.vote === "against").length;
+			const abstained = isBatch
+				? 0
+				: votingVotes.filter((v) => v.vote === "abstain").length;
 
 			const currentUser = getCurrentUser();
-			const userVote = votingVotes.find((v) => v.userId === currentUser?.id);
-			const hasVoted = !!userVote;
-			const myVote = userVote?.vote || null;
+			const userVotes = currentUser
+				? votingVotes.filter((v) => v.userId === currentUser.id)
+				: [];
+
+			let hasVoted = false;
+			let myVote = null;
+			let myAnswersCount = 0;
+
+			if (isBatch) {
+				const requiredCount = voting.questions?.length || 0;
+				myAnswersCount = userVotes.filter((v) => v.questionId).length;
+				hasVoted =
+					requiredCount > 0 &&
+					voting.questions.every((q) =>
+						userVotes.some((v) => String(v.questionId) === String(q.id)),
+					);
+			} else {
+				myVote = userVotes[0]?.vote || null;
+				hasVoted = !!myVote;
+			}
 
 			return {
 				...voting,
@@ -1110,6 +1339,7 @@ export const handlers = [
 				abstained,
 				hasVoted,
 				myVote,
+				myAnswersCount,
 				votedCount: votingVotes.length,
 			};
 		});
@@ -1217,22 +1447,106 @@ export const handlers = [
 		);
 
 		const currentUser = getCurrentUser();
-		const myVote =
-			votingVotes.find((v) => v.userId === currentUser?.id)?.vote || null;
-		const hasVoted = !!myVote;
+		const userVotes = currentUser
+			? votingVotes.filter((v) => v.userId === currentUser.id)
+			: [];
+
+		let myVote = null;
+		let myAnswers = null;
+		let hasVoted = false;
+
+		if (voting.votingMode === "batch") {
+			myAnswers = userVotes
+				.filter((v) => v.questionId)
+				.map((v) => ({ questionId: v.questionId, vote: v.vote }));
+
+			const requiredCount = voting.questions?.length || 0;
+			hasVoted =
+				requiredCount > 0 &&
+				voting.questions.every((q) =>
+					myAnswers.some((a) => String(a.questionId) === String(q.id)),
+				);
+		} else {
+			myVote = userVotes[0]?.vote || null;
+			hasVoted = !!myVote;
+		}
+
+		// ============================================================
+		// BATCH – wyniki per pytanie
+		// ============================================================
+		let votersPerQuestion = null;
+
+		if (
+			voting.votingMode === "batch" &&
+			Array.isArray(voting.questions) &&
+			!voting.isAnonymous
+		) {
+			votersPerQuestion = voting.questions.map((q) => {
+				const qVotes = votingVotes.filter(
+					(v) => String(v.questionId) === String(q.id),
+				);
+
+				const voters = eligibleUsers.map((u) => {
+					const userVote = qVotes.find((v) => v.userId === u.id);
+					return {
+						id: u.id,
+						name: u.name,
+						club: u.club,
+						vote: userVote?.vote || null,
+					};
+				});
+
+				return {
+					questionId: q.id,
+					voters,
+				};
+			});
+		}
+		let resultsPerQuestion = null;
+
+		if (voting.votingMode === "batch" && Array.isArray(voting.questions)) {
+			resultsPerQuestion = voting.questions.map((q) => {
+				const qVotes = votingVotes.filter(
+					(v) => String(v.questionId) === String(q.id),
+				);
+				const qFor = qVotes.filter((v) => v.vote === "for").length;
+				const qAgainst = qVotes.filter((v) => v.vote === "against").length;
+				const qAbstain = qVotes.filter((v) => v.vote === "abstain").length;
+
+				let outcome = "tie";
+				if (qFor > qAgainst) outcome = "passed";
+				else if (qFor < qAgainst) outcome = "rejected";
+
+				return {
+					questionId: q.id,
+					text: q.text,
+					linkedItemType: q.linkedItemType,
+					linkedItemId: q.linkedItemId,
+					resolutionId: q.resolutionId,
+					votesFor: qFor,
+					votesAgainst: qAgainst,
+					abstained: qAbstain,
+					totalVotes: qVotes.length,
+					outcome,
+				};
+			});
+		}
 
 		return HttpResponse.json({
 			...voting,
-			votesFor: votesFor,
-			votesAgainst: votesAgainst,
-			abstained: abstained,
+			votesFor,
+			votesAgainst,
+			abstained,
 			votedCount: votedUsers.length,
 			totalEligible: eligibleUsers.length,
 			eligibleUsers,
+			votersPerQuestion,
 			votedUsers,
 			notVotedUsers,
-			hasVoted: hasVoted,
-			myVote: myVote,
+			hasVoted,
+			myVote,
+			myAnswers,
+			resultsPerQuestion, // ← NOWE
 		});
 	}),
 	http.get("/newapp/api/amendments", () => {
@@ -1252,33 +1566,90 @@ export const handlers = [
 
 		return HttpResponse.json(result);
 	}),
-	http.post("/newapp/api/votings/:id/vote", async ({ request }) => {
+	http.post("/newapp/api/votings/:id/vote", async ({ params, request }) => {
+		const votingId = Number(params.id);
+		const voting = votings.find((v) => v.id === votingId);
+		if (!voting) {
+			return HttpResponse.json({ message: "Nie znaleziono" }, { status: 404 });
+		}
+
+		const user = getCurrentUser();
+		if (!user) {
+			return HttpResponse.json({ message: "Nie zalogowany" }, { status: 401 });
+		}
+
 		const body = await request.json();
-		const { amendmentId, vote, userVotes } = body;
+		const now = Date.now();
+		const start = new Date(voting.startTime).getTime();
+		const end = new Date(voting.endTime).getTime();
 
-		if (vote === "for") {
-			const allWithConflicts = detectAllConflicts(amendments);
-			const amendment = allWithConflicts.find((a) => a.id === amendmentId);
+		if (now < start || now >= end || voting.status === "archived") {
+			return HttpResponse.json(
+				{ message: "Głosowanie nie jest aktywne" },
+				{ status: 403 },
+			);
+		}
 
-			if (amendment?.conflictsWith?.length > 0) {
-				const hasConflict = amendment.conflictsWith.some((id) =>
-					userVotes?.some((v) => v.amendmentId === id && v.vote === "for"),
+		// BATCH
+		if (voting.votingMode === "batch" && Array.isArray(body.answers)) {
+			// walidacja: każde pytanie musi mieć odpowiedź
+			const missing = voting.questions.find(
+				(q) => !body.answers.some((a) => String(a.questionId) === String(q.id)),
+			);
+			if (missing) {
+				return HttpResponse.json(
+					{ message: `Brak odpowiedzi na pytanie: "${missing.text}"` },
+					{ status: 400 },
 				);
+			}
 
-				if (hasConflict) {
-					return HttpResponse.json(
-						{
-							success: false,
-							message:
-								"Nie możesz głosować ZA tą poprawką, ponieważ jest sprzeczna z inną poprawką, którą poparłeś.",
-							conflictsWith: amendment.conflictsWith,
-							conflictReason: amendment.conflictReason,
-							conflictFragment: amendment.conflictFragment,
-						},
-						{ status: 409 },
-					);
+			// zapis głosów w `votes` (z questionId)
+			for (const ans of body.answers) {
+				const existing = votes.find(
+					(v) =>
+						v.votingId === votingId &&
+						v.userId === user.id &&
+						String(v.questionId) === String(ans.questionId),
+				);
+				if (existing) {
+					existing.vote = ans.vote;
+				} else {
+					votes.push({
+						id: Date.now() + Math.random(),
+						votingId,
+						questionId: ans.questionId,
+						userId: user.id,
+						vote: ans.vote,
+						timestamp: new Date().toISOString(),
+					});
 				}
 			}
+
+			return HttpResponse.json({
+				success: true,
+				answers: body.answers,
+			});
+		}
+
+		// SINGLE – dotychczasowa logika + zapis do votes
+		// (u Ciebie mock nie zapisywał do votes, ale dla spójności warto)
+		// SINGLE – zapisz (lub zaktualizuj) głos w `votes`
+		const existing = votes.find(
+			(v) => v.votingId === votingId && v.userId === user.id && !v.questionId,
+		);
+
+		if (existing) {
+			existing.vote = body.vote;
+			existing.timestamp = new Date().toISOString();
+		} else {
+			votes.push({
+				id: Date.now() + Math.random(),
+				votingId,
+				questionId: null,
+				userId: user.id,
+				vote: body.vote,
+				timestamp: new Date().toISOString(),
+			});
 		}
 
 		return HttpResponse.json({ success: true, vote: body.vote });

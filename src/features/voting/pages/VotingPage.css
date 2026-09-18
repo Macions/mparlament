@@ -820,3 +820,410 @@
 		font-size: 0.8rem;
 	}
 }
+
+/* ============================================================
+   BATCH – badge w nagłówku (liczba pytań)
+   ============================================================ */
+
+.voting-batch-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 4px 10px;
+	background: #eef2ff;
+	color: #3730a3;
+	border-radius: 12px;
+	font-size: 12px;
+	font-weight: 600;
+	margin-left: 8px;
+}
+
+/* ============================================================
+   BATCH – kontener sekcji „Twój głos”
+   ============================================================ */
+
+.vote-options.batch {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.batch-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 4px;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.batch-progress {
+	font-size: 13px;
+	color: #6c757d;
+	background: #f1f3f5;
+	padding: 4px 10px;
+	border-radius: 12px;
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+/* ============================================================
+   BATCH – lista pytań
+   ============================================================ */
+
+.batch-questions-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.batch-question-item {
+	padding: 16px;
+	background: #fff;
+	border: 1px solid #e9ecef;
+	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	transition:
+		border-color 0.15s ease,
+		box-shadow 0.15s ease;
+}
+
+.batch-question-item:hover {
+	border-color: #c7d2fe;
+	box-shadow: 0 2px 8px rgba(37, 99, 235, 0.06);
+}
+
+.batch-question-head {
+	display: flex;
+	gap: 10px;
+	align-items: flex-start;
+}
+
+.batch-question-idx {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	background: #2563eb;
+	color: #fff;
+	font-size: 12px;
+	font-weight: 600;
+	margin-top: 2px;
+}
+
+.batch-question-text {
+	font-size: 15px;
+	font-weight: 500;
+	color: #212529;
+	line-height: 1.4;
+}
+
+/* ============================================================
+   BATCH – powiązanie z uchwałą/poprawką
+   ============================================================ */
+
+.batch-question-linked {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 10px;
+	background: #f8f9fa;
+	border-left: 3px solid #2563eb;
+	border-radius: 4px;
+	font-size: 12px;
+}
+
+.batch-linked-badge {
+	display: inline-flex;
+	align-items: center;
+	flex-shrink: 0;
+	padding: 2px 8px;
+	border-radius: 10px;
+	font-size: 10px;
+	font-weight: 700;
+	background: #d4edda;
+	color: #155724;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+}
+
+.batch-linked-title {
+	color: #495057;
+	font-style: italic;
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* ============================================================
+   BATCH – przyciski ZA/PRZECIW/WSTRZYMANIE
+   ============================================================ */
+
+.batch-vote-buttons {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 8px;
+}
+
+.batch-vote-buttons .vote-btn {
+	padding: 10px 8px;
+	font-size: 12px;
+	font-weight: 600;
+	border: 2px solid transparent;
+	background: #f1f3f5;
+	color: #495057;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: all 0.12s ease;
+	font-family: inherit;
+	letter-spacing: 0.3px;
+}
+
+.batch-vote-buttons .vote-btn:hover {
+	background: #e9ecef;
+}
+
+.batch-vote-buttons .vote-btn.for.selected {
+	background: #d4edda;
+	border-color: #28a745;
+	color: #155724;
+}
+
+.batch-vote-buttons .vote-btn.against.selected {
+	background: #f8d7da;
+	border-color: #dc3545;
+	color: #721c24;
+}
+
+.batch-vote-buttons .vote-btn.abstain.selected {
+	background: #e2e3e5;
+	border-color: #6c757d;
+	color: #383d41;
+}
+
+/* ============================================================
+   BATCH – przycisk „Zatwierdź wszystkie głosy”
+   ============================================================ */
+
+.batch-submit-row {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 8px;
+}
+
+.batch-submit-btn {
+	padding: 12px 24px;
+	background: #2563eb;
+	color: #fff;
+	border: none;
+	border-radius: 8px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition:
+		background 0.15s ease,
+		transform 0.1s ease;
+	font-family: inherit;
+}
+
+.batch-submit-btn:hover:not(:disabled) {
+	background: #1d4ed8;
+}
+
+.batch-submit-btn:active:not(:disabled) {
+	transform: scale(0.98);
+}
+
+.batch-submit-btn:disabled {
+	background: #ced4da;
+	color: #6c757d;
+	cursor: not-allowed;
+}
+
+/* ============================================================
+   BATCH – widok po zagłosowaniu („Już oddałeś głos”)
+   ============================================================ */
+
+.batch-results {
+	background: #f8f9fa;
+	border-radius: 10px;
+	padding: 16px;
+}
+
+.batch-results-title {
+	font-size: 14px;
+	color: #495057;
+	margin: 0 0 12px 0;
+	font-weight: 500;
+}
+
+.batch-answers-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.batch-answer-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 10px;
+	background: #fff;
+	border-radius: 6px;
+	font-size: 13px;
+}
+
+.batch-answer-idx {
+	color: #6c757d;
+	font-weight: 600;
+	min-width: 22px;
+	flex-shrink: 0;
+}
+
+.batch-answer-text {
+	flex: 1;
+	color: #212529;
+	line-height: 1.4;
+}
+
+.batch-answer-value {
+	padding: 2px 10px;
+	border-radius: 10px;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.3px;
+	white-space: nowrap;
+}
+
+.batch-answer-for {
+	background: #d4edda;
+	color: #155724;
+}
+
+.batch-answer-against {
+	background: #f8d7da;
+	color: #721c24;
+}
+
+.batch-answer-abstain {
+	background: #e2e3e5;
+	color: #383d41;
+}
+
+.batch-answer-none {
+	background: #f1f3f5;
+	color: #adb5bd;
+}
+
+/* ============================================================
+   BATCH – modal potwierdzenia
+   ============================================================ */
+
+.batch-confirm-modal {
+	max-width: 560px;
+	max-height: 80vh;
+	overflow-y: auto;
+}
+
+.batch-confirm-modal .modal-lead {
+	font-size: 13px;
+	color: #6c757d;
+	margin: 0 0 14px 0;
+	line-height: 1.4;
+}
+
+.batch-confirm-list {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 20px 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	max-height: 40vh;
+	overflow-y: auto;
+}
+
+.batch-confirm-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 10px;
+	background: #f8f9fa;
+	border-radius: 6px;
+	font-size: 13px;
+}
+
+.batch-confirm-idx {
+	color: #6c757d;
+	font-weight: 600;
+	min-width: 22px;
+	flex-shrink: 0;
+}
+
+.batch-confirm-text {
+	flex: 1;
+	color: #212529;
+	line-height: 1.4;
+}
+
+.batch-confirm-value {
+	padding: 2px 10px;
+	border-radius: 10px;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.3px;
+	white-space: nowrap;
+}
+
+/* ============================================================
+   BATCH – responsywność
+   ============================================================ */
+
+@media (max-width: 640px) {
+	.batch-vote-buttons {
+		grid-template-columns: 1fr;
+	}
+
+	.batch-vote-buttons .vote-btn {
+		padding: 12px 8px;
+		font-size: 13px;
+	}
+
+	.batch-submit-row {
+		justify-content: stretch;
+	}
+
+	.batch-submit-btn {
+		width: 100%;
+	}
+
+	.batch-question-item {
+		padding: 14px;
+	}
+
+	.batch-answer-row,
+	.batch-confirm-row {
+		flex-wrap: wrap;
+	}
+
+	.batch-answer-text,
+	.batch-confirm-text {
+		flex-basis: 100%;
+		order: 3;
+	}
+
+	.batch-confirm-modal {
+		max-height: 90vh;
+	}
+}
