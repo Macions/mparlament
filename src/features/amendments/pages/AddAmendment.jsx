@@ -71,7 +71,8 @@ export default function AddAmendment() {
 		{ value: "modify", label: "Zmiana treści" },
 		{ value: "add", label: "Dodanie nowego artykułu" },
 		{ value: "delete", label: "Usunięcie artykułu" },
-		{ value: "rename_chapter", label: "Zmiana nazwy rozdziału" }, // ← NOWE
+		{ value: "rename_chapter", label: "Zmiana nazwy rozdziału" },
+		{ value: "rename_resolution", label: "Zmiana tytułu uchwały" },
 	];
 
 	const showToast = (type, title, message) => {
@@ -342,6 +343,8 @@ export default function AddAmendment() {
 					if (c.type === "delete") return `Usunięcie artykułu`;
 					if (c.type === "rename_chapter")
 						return `Zmiana nazwy rozdziału: ${c.from} → ${c.to}`;
+					if (c.type === "rename_resolution")
+						return `Zmiana tytułu uchwały: ${c.from} → ${c.to}`;
 					return `Zmiana treści artykułu: ${c.to}`;
 				})
 				.join("; ");
@@ -618,6 +621,39 @@ export default function AddAmendment() {
 			}
 		}
 
+		// ← NOWE: kolizje przy zmianie tytułu uchwały
+		const renameResolutionChange = newChanges.find(
+			(c) => c.type === "rename_resolution",
+		);
+		if (renameResolutionChange) {
+			const existingRename = existingAmendments.find((a) =>
+				a.changes?.some((ec) => ec.type === "rename_resolution"),
+			);
+			if (existingRename) {
+				const existingChange = existingRename.changes.find(
+					(ec) => ec.type === "rename_resolution",
+				);
+				if (existingChange.after === renameResolutionChange.to) {
+					blockingList.push({
+						level: "blocking",
+						type: "duplicate_resolution_rename",
+						message:
+							existingRename.authorId === currentUser?.id
+								? `Ta sama zmiana tytułu uchwały została już przez Ciebie zgłoszona (Poprawka #${existingRename.id})`
+								: `Ta sama zmiana tytułu uchwały została już zgłoszona przez ${existingRename.author} (Poprawka #${existingRename.id})`,
+						amendment: existingRename,
+					});
+				} else {
+					conflictsList.push({
+						level: "warning",
+						type: "resolution_rename_conflict",
+						message: `Tytuł uchwały jest już zmieniany w poprawce #${existingRename.id} (${existingRename.author}) na „${existingChange.after}”`,
+						amendment: existingRename,
+					});
+				}
+			}
+		}
+
 		return { conflicts: conflictsList, blocking: blockingList };
 	};
 
@@ -635,11 +671,14 @@ export default function AddAmendment() {
 			);
 			return;
 		}
-		if (!target.article && !target.chapter_id) {
+		const hasRenameResolution = validChanges.some(
+			(c) => c.type === "rename_resolution",
+		);
+		if (!target.article && !target.chapter_id && !hasRenameResolution) {
 			showToast(
 				"warning",
 				"Brak celu",
-				"Wybierz artykuł, ustęp lub rozdział, którego dotyczy zmiana.",
+				"Wybierz artykuł, ustęp, rozdział lub zmianę tytułu uchwały.",
 			);
 			return;
 		}
@@ -771,15 +810,16 @@ export default function AddAmendment() {
 	};
 
 	const handleTypeChange = (changeId, type) => {
+		const isRenameResolution = type === "rename_resolution";
 		setChanges((prev) =>
 			prev.map((c) =>
 				c.id === changeId
 					? {
 							...c,
 							type,
-							to: "",
+							to: isRenameResolution ? resolution?.title || "" : "",
 							articleId: type === "add" ? "new" : "",
-							from: "",
+							from: isRenameResolution ? resolution?.title || "" : "",
 						}
 					: c,
 			),
@@ -822,6 +862,8 @@ export default function AddAmendment() {
 						if (c.type === "delete") return `Usunięcie artykułu`;
 						if (c.type === "rename_chapter")
 							return `Zmiana nazwy rozdziału: ${c.from} → ${c.to}`;
+						if (c.type === "rename_resolution")
+							return `Zmiana tytułu uchwały: ${c.from} → ${c.to}`;
 						return `Zmiana treści artykułu: ${c.to}`;
 					})
 					.join("; "),
@@ -892,7 +934,8 @@ export default function AddAmendment() {
 			if (c.type === "delete") return c.articleId && c.articleId !== "new";
 			if (c.type === "modify")
 				return c.articleId && c.articleId !== "new" && c.to.trim();
-			if (c.type === "rename_chapter") return c.articleId && c.to.trim(); // ← NOWE
+			if (c.type === "rename_chapter") return c.articleId && c.to.trim();
+			if (c.type === "rename_resolution") return c.to.trim();
 			return false;
 		});
 
@@ -904,11 +947,14 @@ export default function AddAmendment() {
 			);
 			return;
 		}
-		if (!target.article && !target.chapter_id) {
+		const hasRenameResolution = validChanges.some(
+			(c) => c.type === "rename_resolution",
+		);
+		if (!target.article && !target.chapter_id && !hasRenameResolution) {
 			showToast(
 				"warning",
 				"Brak celu",
-				"Wybierz artykuł, ustęp lub rozdział, którego dotyczy zmiana.",
+				"Wybierz artykuł, ustęp, rozdział lub zmianę tytułu uchwały.",
 			);
 			return;
 		}
@@ -1323,14 +1369,17 @@ export default function AddAmendment() {
 									)}
 									{(change.type === "modify" ||
 										change.type === "add" ||
-										change.type === "rename_chapter") && (
+										change.type === "rename_chapter" ||
+										change.type === "rename_resolution") && (
 										<div className={styles.field}>
 											<label className={styles.label}>
 												{change.type === "add"
 													? "Treść nowego artykułu"
 													: change.type === "rename_chapter"
 														? "Nowa nazwa rozdziału"
-														: "Nowa treść artykułu"}
+														: change.type === "rename_resolution"
+															? "Nowy tytuł uchwały"
+															: "Nowa treść artykułu"}
 											</label>
 											<textarea
 												value={change.to}
@@ -1342,7 +1391,9 @@ export default function AddAmendment() {
 														? "np. Art. 1a: Wprowadza się nowy przepis…"
 														: change.type === "rename_chapter"
 															? "np. Rozdział 1 — Przepisy ogólne"
-															: "Wpisz nową treść artykułu…"
+															: change.type === "rename_resolution"
+																? "np. Uchwała w sprawie OZE"
+																: "Wpisz nową treść artykułu…"
 												}
 												className={styles.textarea}
 												rows={4}
