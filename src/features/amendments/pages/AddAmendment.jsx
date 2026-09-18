@@ -60,8 +60,9 @@ export default function AddAmendment() {
 
 	const [target, setTarget] = useState({
 		article: "",
-		section_id: "", // ← DODAJ
-		section_text: "", // ← DODAJ
+		section_id: "",
+		section_text: "",
+		chapter_id: "", // ← NOWE
 		section: "other",
 		fragment: "",
 	});
@@ -70,6 +71,7 @@ export default function AddAmendment() {
 		{ value: "modify", label: "Zmiana treści" },
 		{ value: "add", label: "Dodanie nowego artykułu" },
 		{ value: "delete", label: "Usunięcie artykułu" },
+		{ value: "rename_chapter", label: "Zmiana nazwy rozdziału" }, // ← NOWE
 	];
 
 	const showToast = (type, title, message) => {
@@ -226,8 +228,19 @@ export default function AddAmendment() {
 			};
 		});
 	};
+
 	const articleTree = buildArticleTree();
 	const allArticles = getAllArticles();
+
+	// ← NOWE: drzewo rozdziałów
+	const chapterTree = (resolution?.chapters || []).map((ch, idx) => ({
+		id: `chapter_${ch.id ?? idx}`,
+		rawId: ch.id ?? idx,
+		title: ch.title || "",
+		subtitle: ch.subtitle || "",
+		fullTitle:
+			`${ch.title || ""}${ch.subtitle ? " — " + ch.subtitle : ""}`.trim(),
+	}));
 
 	const handleSectionChange = (value) => {
 		if (!value) {
@@ -236,7 +249,24 @@ export default function AddAmendment() {
 				article: "",
 				section_id: "",
 				section_text: "",
+				chapter_id: "",
 				fragment: "",
+			});
+			setHasCheckedConflicts(false);
+			return;
+		}
+
+		// ← NOWE: obsługa rozdziału
+		if (value.startsWith("chapter:")) {
+			const rawId = value.split(":")[1];
+			const ch = chapterTree.find((c) => String(c.rawId) === String(rawId));
+			setTarget({
+				...target,
+				article: "",
+				section_id: "",
+				section_text: ch?.fullTitle || "",
+				chapter_id: rawId,
+				fragment: ch?.fullTitle || "",
 			});
 			setHasCheckedConflicts(false);
 			return;
@@ -263,6 +293,7 @@ export default function AddAmendment() {
 			article: articleId,
 			section_id: sectionId || "",
 			section_text: sectionText,
+			chapter_id: "", // ← NOWE
 			fragment,
 		});
 		setHasCheckedConflicts(false);
@@ -309,6 +340,8 @@ export default function AddAmendment() {
 				.map((c) => {
 					if (c.type === "add") return `Dodanie nowego artykułu: ${c.to}`;
 					if (c.type === "delete") return `Usunięcie artykułu`;
+					if (c.type === "rename_chapter")
+						return `Zmiana nazwy rozdziału: ${c.from} → ${c.to}`;
 					return `Zmiana treści artykułu: ${c.to}`;
 				})
 				.join("; ");
@@ -524,6 +557,45 @@ export default function AddAmendment() {
 				});
 			}
 		}
+		// ← NOWE: kolizje przy zmianie nazwy rozdziału
+		const renameChapterChange = newChanges.find(
+			(c) => c.type === "rename_chapter",
+		);
+		if (renameChapterChange) {
+			const rawId = String(renameChapterChange.articleId).replace(
+				"chapter:",
+				"",
+			);
+			const chapterAmendments = existingAmendments.filter(
+				(a) =>
+					String(a?.target?.chapter_id) === String(rawId) &&
+					(a.status === "pending" || a.status === "accepted"),
+			);
+			chapterAmendments.forEach((existing) => {
+				const existingRename = existing.changes?.find(
+					(ec) => ec.type === "rename_chapter",
+				);
+				if (!existingRename) return;
+				if (existingRename.after === renameChapterChange.to) {
+					blockingList.push({
+						level: "blocking",
+						type: "duplicate_chapter_rename",
+						message:
+							existing.authorId === currentUser?.id
+								? `Ta sama zmiana nazwy rozdziału została już przez Ciebie zgłoszona (Poprawka #${existing.id})`
+								: `Ta sama zmiana nazwy rozdziału została już zgłoszona przez ${existing.author} (Poprawka #${existing.id})`,
+						amendment: existing,
+					});
+				} else {
+					conflictsList.push({
+						level: "warning",
+						type: "chapter_rename_conflict",
+						message: `Rozdział ten jest już przemianowywany w poprawce #${existing.id} (${existing.author}) na „${existingRename.after}”`,
+						amendment: existing,
+					});
+				}
+			});
+		}
 
 		if (hasDelete) {
 			const deletedArticleId = newChanges.find(
@@ -550,10 +622,11 @@ export default function AddAmendment() {
 	};
 
 	const handleCheckConflicts = () => {
-		const validChanges = changes.filter(
-			(c) => c.type && (c.to || c.type === "delete"),
-		);
-
+		const validChanges = changes.filter((c) => {
+			if (!c.type) return false;
+			if (c.type === "delete") return true;
+			return !!c.to;
+		});
 		if (validChanges.length === 0) {
 			showToast(
 				"warning",
@@ -562,11 +635,11 @@ export default function AddAmendment() {
 			);
 			return;
 		}
-		if (!target.article) {
+		if (!target.article && !target.chapter_id) {
 			showToast(
 				"warning",
-				"Brak artykułu",
-				"Wybierz artykuł, którego dotyczy zmiana.",
+				"Brak celu",
+				"Wybierz artykuł, ustęp lub rozdział, którego dotyczy zmiana.",
 			);
 			return;
 		}
@@ -595,15 +668,18 @@ export default function AddAmendment() {
 	};
 
 	useEffect(() => {
-		if (target.article) {
-			const validChanges = changes.filter(
-				(c) => c.type && (c.to || c.type === "delete"),
-			);
+		if (target.article || target.chapter_id) {
+			// ← ZMIANA
+			const validChanges = changes.filter((c) => {
+				if (!c.type) return false;
+				if (c.type === "delete") return true;
+				return !!c.to;
+			});
 			const result = checkConflicts(
 				validChanges,
 				target.article,
 				target.fragment,
-				target.section_id, // ← DODAJ
+				target.section_id,
 			);
 			setConflicts(result.conflicts);
 			setBlockingConflicts(result.blocking);
@@ -619,6 +695,7 @@ export default function AddAmendment() {
 	}, [
 		target.article,
 		target.section_id,
+		target.chapter_id, // ← NOWE
 		target.fragment,
 		changes,
 		existingAmendments,
@@ -743,6 +820,8 @@ export default function AddAmendment() {
 					.map((c) => {
 						if (c.type === "add") return `Dodanie nowego artykułu: ${c.to}`;
 						if (c.type === "delete") return `Usunięcie artykułu`;
+						if (c.type === "rename_chapter")
+							return `Zmiana nazwy rozdziału: ${c.from} → ${c.to}`;
 						return `Zmiana treści artykułu: ${c.to}`;
 					})
 					.join("; "),
@@ -752,6 +831,7 @@ export default function AddAmendment() {
 						? Number(String(target.article).replace(/^art_/, ""))
 						: null,
 					section_id: target.section_id || null,
+					chapter_id: target.chapter_id || null, // ← NOWE
 					section: target.section || "other",
 					fragment: target.fragment || validChanges[0]?.from || null,
 				},
@@ -812,6 +892,7 @@ export default function AddAmendment() {
 			if (c.type === "delete") return c.articleId && c.articleId !== "new";
 			if (c.type === "modify")
 				return c.articleId && c.articleId !== "new" && c.to.trim();
+			if (c.type === "rename_chapter") return c.articleId && c.to.trim(); // ← NOWE
 			return false;
 		});
 
@@ -823,11 +904,11 @@ export default function AddAmendment() {
 			);
 			return;
 		}
-		if (!target.article) {
+		if (!target.article && !target.chapter_id) {
 			showToast(
 				"warning",
-				"Brak artykułu",
-				"Wybierz artykuł, którego dotyczy zmiana.",
+				"Brak celu",
+				"Wybierz artykuł, ustęp lub rozdział, którego dotyczy zmiana.",
 			);
 			return;
 		}
@@ -942,15 +1023,28 @@ export default function AddAmendment() {
 							<select
 								id="target-article"
 								value={
-									target.section_id
-										? `${target.article}:${target.section_id}`
-										: ""
+									target.chapter_id
+										? `chapter:${target.chapter_id}`
+										: target.section_id
+											? `${target.article}:${target.section_id}`
+											: ""
 								}
 								onChange={(e) => handleSectionChange(e.target.value)}
 								className={styles.select}
 								required
 							>
 								<option value="">— wybierz artykuł lub ustęp —</option>
+
+								{/* ← NOWE: rozdziały */}
+								{chapterTree.length > 0 && (
+									<optgroup label="Rozdziały">
+										{chapterTree.map((ch) => (
+											<option key={ch.id} value={`chapter:${ch.rawId}`}>
+												{ch.fullTitle}
+											</option>
+										))}
+									</optgroup>
+								)}
 
 								{articleTree.map((art) => {
 									const hasAmendments = existingAmendments.some(
@@ -1012,7 +1106,7 @@ export default function AddAmendment() {
 							</select>
 						</div>
 
-						{target.article && target.fragment && (
+						{(target.article || target.chapter_id) && target.fragment && (
 							<p className={styles.fragmentHint}>
 								Automatycznie pobrano fragment do porównania.
 							</p>
@@ -1153,6 +1247,42 @@ export default function AddAmendment() {
 										</div>
 									</div>
 
+									{change.type === "rename_chapter" && (
+										<div className={styles.field}>
+											<label className={styles.label}>Wybierz rozdział</label>
+											<select
+												value={change.articleId}
+												onChange={(e) => {
+													const val = e.target.value;
+													const ch = chapterTree.find(
+														(c) => `chapter:${c.rawId}` === val,
+													);
+													setChanges((prev) =>
+														prev.map((c) =>
+															c.id === change.id
+																? {
+																		...c,
+																		articleId: val,
+																		from: ch?.fullTitle || "",
+																		to: ch?.fullTitle || "",
+																	}
+																: c,
+														),
+													);
+													setHasCheckedConflicts(false);
+												}}
+												className={styles.select}
+											>
+												<option value="">— wybierz rozdział —</option>
+												{chapterTree.map((ch) => (
+													<option key={ch.id} value={`chapter:${ch.rawId}`}>
+														{ch.fullTitle}
+													</option>
+												))}
+											</select>
+										</div>
+									)}
+
 									{(change.type === "modify" || change.type === "delete") && (
 										<div className={styles.field}>
 											<label className={styles.label}>
@@ -1191,12 +1321,16 @@ export default function AddAmendment() {
 											</select>
 										</div>
 									)}
-									{(change.type === "modify" || change.type === "add") && (
+									{(change.type === "modify" ||
+										change.type === "add" ||
+										change.type === "rename_chapter") && (
 										<div className={styles.field}>
 											<label className={styles.label}>
 												{change.type === "add"
 													? "Treść nowego artykułu"
-													: "Nowa treść artykułu"}
+													: change.type === "rename_chapter"
+														? "Nowa nazwa rozdziału"
+														: "Nowa treść artykułu"}
 											</label>
 											<textarea
 												value={change.to}
@@ -1206,7 +1340,9 @@ export default function AddAmendment() {
 												placeholder={
 													change.type === "add"
 														? "np. Art. 1a: Wprowadza się nowy przepis…"
-														: "Wpisz nową treść artykułu…"
+														: change.type === "rename_chapter"
+															? "np. Rozdział 1 — Przepisy ogólne"
+															: "Wpisz nową treść artykułu…"
 												}
 												className={styles.textarea}
 												rows={4}

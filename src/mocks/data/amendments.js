@@ -4,20 +4,24 @@ export const amendments = [
 		resolutionId: 1,
 		author: "Anna Nowak",
 		authorId: 2,
-		content: "Proponuję zmianę w artykule 2 dotyczącą zwiększenia budżetu na szkolenia z kompetencji cyfrowych z 500 tys. zł do 1 mln zł.",
+		content:
+			"Proponuję zmianę w artykule 2 dotyczącą zwiększenia budżetu na szkolenia z kompetencji cyfrowych z 500 tys. zł do 1 mln zł.",
 		status: "pending",
 		createdAt: "2026-07-10",
 		withdrawnReason: null,
 		target: {
 			article: 2,
 			section: "budget",
-			fragment: "Przeznacza się kwotę 500 000 zł na szkolenia z kompetencji cyfrowych."
+			fragment:
+				"Przeznacza się kwotę 500 000 zł na szkolenia z kompetencji cyfrowych.",
 		},
 		changes: [
 			{
 				articleId: 2,
-				before: "Przeznacza się kwotę 500 000 zł na szkolenia z kompetencji cyfrowych.",
-				after: "Przeznacza się kwotę 1 000 000 zł na szkolenia z kompetencji cyfrowych.",
+				before:
+					"Przeznacza się kwotę 500 000 zł na szkolenia z kompetencji cyfrowych.",
+				after:
+					"Przeznacza się kwotę 1 000 000 zł na szkolenia z kompetencji cyfrowych.",
 			},
 		],
 	},
@@ -26,20 +30,22 @@ export const amendments = [
 		resolutionId: 1,
 		author: "Piotr Wiśniewski",
 		authorId: 3,
-		content: "Dodanie nowego artykułu dotyczącego obowiązkowych szkoleń dla nauczycieli.",
+		content:
+			"Dodanie nowego artykułu dotyczącego obowiązkowych szkoleń dla nauczycieli.",
 		status: "accepted",
 		createdAt: "2026-07-09",
 		withdrawnReason: null,
 		target: {
 			article: 3,
 			section: "people",
-			fragment: null
+			fragment: null,
 		},
 		changes: [
 			{
 				articleId: 3,
 				before: null,
-				after: "Nauczyciele są zobowiązani do odbycia szkolenia z kompetencji cyfrowych w ciągu 6 miesięcy od wejścia w życie uchwały.",
+				after:
+					"Nauczyciele są zobowiązani do odbycia szkolenia z kompetencji cyfrowych w ciągu 6 miesięcy od wejścia w życie uchwały.",
 			},
 		],
 	},
@@ -55,7 +61,7 @@ export const amendments = [
 		target: {
 			article: 5,
 			section: "deadline",
-			fragment: "Projekt zostanie zrealizowany do 31 grudnia 2026 roku."
+			fragment: "Projekt zostanie zrealizowany do 31 grudnia 2026 roku.",
 		},
 		changes: [
 			{
@@ -77,7 +83,7 @@ export const amendments = [
 		target: {
 			article: null,
 			section: "other",
-			fragment: null
+			fragment: null,
 		},
 		changes: [],
 	},
@@ -86,20 +92,24 @@ export const amendments = [
 		resolutionId: 1,
 		author: "Jan Kowalski",
 		authorId: 1,
-		content: "Proponuję zmianę w artykule 4 dotyczącą zwiększenia liczby godzin szkoleń z kompetencji cyfrowych dla uczestników programu.",
+		content:
+			"Proponuję zmianę w artykule 4 dotyczącą zwiększenia liczby godzin szkoleń z kompetencji cyfrowych dla uczestników programu.",
 		status: "pending",
 		createdAt: "2026-07-10",
 		withdrawnReason: null,
 		target: {
 			article: 4,
 			section: "budget",
-			fragment: "Program obejmuje szkolenia z kompetencji cyfrowych w wymiarze 10 godzin."
+			fragment:
+				"Program obejmuje szkolenia z kompetencji cyfrowych w wymiarze 10 godzin.",
 		},
 		changes: [
 			{
 				articleId: 4,
-				before: "Program obejmuje szkolenia z kompetencji cyfrowych w wymiarze 10 godzin.",
-				after: "Program obejmuje szkolenia z kompetencji cyfrowych w wymiarze 20 godzin.",
+				before:
+					"Program obejmuje szkolenia z kompetencji cyfrowych w wymiarze 10 godzin.",
+				after:
+					"Program obejmuje szkolenia z kompetencji cyfrowych w wymiarze 20 godzin.",
 			},
 		],
 	},
@@ -108,14 +118,15 @@ export const amendments = [
 		resolutionId: 1,
 		author: "Tomasz Zieliński",
 		authorId: 5,
-		content: "Proponuję usunięcie artykułu 5 dotyczącego terminu realizacji projektu.",
+		content:
+			"Proponuję usunięcie artykułu 5 dotyczącego terminu realizacji projektu.",
 		status: "accepted",
 		createdAt: "2026-07-11",
 		withdrawnReason: null,
 		target: {
 			article: 5,
 			section: "deadline",
-			fragment: "Projekt zostanie zrealizowany do 31 grudnia 2026 roku."
+			fragment: "Projekt zostanie zrealizowany do 31 grudnia 2026 roku.",
 		},
 		changes: [
 			{
@@ -130,20 +141,49 @@ export const amendments = [
 		resolutionId: 1,
 		author: "Ewa Kwiatkowska",
 		authorId: 6,
-		content: "Dodanie nowego artykułu dotyczącego monitorowania postępów w kompetencjach cyfrowych.",
+		content:
+			"Dodanie nowego artykułu dotyczącego monitorowania postępów w kompetencjach cyfrowych.",
 		status: "accepted",
 		createdAt: "2026-07-11",
 		withdrawnReason: null,
 		target: {
 			article: 4,
 			section: "other",
-			fragment: null
+			fragment: null,
 		},
 		changes: [
 			{
 				articleId: 4,
 				before: null,
-				after: "Minister właściwy do spraw cyfryzacji monitoruje postępy w realizacji programu i składa raport raz na rok.",
+				after:
+					"Minister właściwy do spraw cyfryzacji monitoruje postępy w realizacji programu i składa raport raz na rok.",
+			},
+		],
+	},
+	{
+		id: 999,
+		resolutionId: 1, // ← ZMIEŃ na id uchwały, której chcesz testować
+		author: "Jan Kowalski",
+		authorId: 2,
+		club: "Klub A",
+		content:
+			"Zmiana nazwy rozdziału: Rozdział I — Przepisy ogólne → Rozdział 1 — Przepisy ogólne",
+		status: "pending",
+		createdAt: "2025-05-20",
+		withdrawnReason: null,
+		target: {
+			article: null,
+			section_id: null,
+			chapter_id: "1", // ← ZMIEŃ na id rozdziału w tej uchwale
+			section: "other",
+			fragment: "Rozdział I — Przepisy ogólne",
+		},
+		changes: [
+			{
+				articleId: "chapter:1",
+				type: "rename_chapter",
+				before: "Rozdział I — Przepisy ogólne",
+				after: "Rozdział 1 — Przepisy ogólne",
 			},
 		],
 	},

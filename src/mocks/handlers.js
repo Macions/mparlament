@@ -89,8 +89,31 @@ const updateLinkedItemStatus = (voting) => {
 
 		if (!amendment) return;
 
-		amendment.status =
-			voting.votesFor > voting.votesAgainst ? "accepted" : "rejected";
+		const accepted = voting.votesFor > voting.votesAgainst;
+		amendment.status = accepted ? "accepted" : "rejected";
+
+		// ← NOWE: zastosuj zmianę nazwy rozdziału
+		if (accepted) {
+			const renameChange = amendment.changes?.find(
+				(c) => c.type === "rename_chapter",
+			);
+			if (renameChange && amendment.target?.chapter_id != null) {
+				const resolution = resolutions.find(
+					(r) => r.id === amendment.resolutionId,
+				);
+				const chapter = resolution?.chapters?.find(
+					(ch) => String(ch.id) === String(amendment.target.chapter_id),
+				);
+				if (chapter) {
+					// Rozbij „Rozdział 1 — Przepisy ogólne" na title/subtitle
+					const parts = String(renameChange.after).split(" — ");
+					chapter.title = parts[0]?.trim() || renameChange.after;
+					if (parts.length > 1) {
+						chapter.subtitle = parts.slice(1).join(" — ").trim();
+					}
+				}
+			}
+		}
 	}
 
 	if (voting.linkedItemType === "resolution") {
@@ -153,8 +176,9 @@ const createVoting = (body) => {
 
 const extractTarget = (amendment) => {
 	return {
-		article: amendment.target?.article || null,
-		section_id: amendment.target?.section_id || null, // ← DODAJ
+		article: amendment.target?.article ?? null,
+		section_id: amendment.target?.section_id ?? null,
+		chapter_id: amendment.target?.chapter_id ?? null, // ← NOWE
 		section: amendment.target?.section || "other",
 		fragment:
 			amendment.target?.fragment || amendment.changes?.[0]?.before || null,
@@ -181,6 +205,45 @@ const compareAmendments = (amendment1, amendment2) => {
 	const sameSection =
 		target1.section === target2.section && target1.section !== "other";
 
+	// ← NOWE: ten sam rozdział
+	const sameChapter =
+		target1.chapter_id &&
+		target2.chapter_id &&
+		String(target1.chapter_id) === String(target2.chapter_id);
+
+	// PRIORYTET 0: ten sam rozdział
+	if (sameChapter) {
+		const rename1 = amendment1.changes?.find(
+			(c) => c.type === "rename_chapter",
+		);
+		const rename2 = amendment2.changes?.find(
+			(c) => c.type === "rename_chapter",
+		);
+
+		if (rename1 && rename2) {
+			if (rename1.after === rename2.after) {
+				return {
+					conflict: true,
+					potential: false,
+					reason: `Ta sama zmiana nazwy rozdziału ${target1.chapter_id}: „${rename1.after}”`,
+					fragment: rename1.before || target1.fragment,
+				};
+			}
+			return {
+				conflict: true,
+				potential: false,
+				reason: `Sprzeczna zmiana nazwy rozdziału ${target1.chapter_id}: „${rename1.after}” vs „${rename2.after}”`,
+				fragment: rename1.before || target1.fragment,
+			};
+		}
+
+		return {
+			conflict: false,
+			potential: true,
+			reason: `Obie poprawki dotyczą rozdziału ${target1.chapter_id}`,
+			fragment: target1.fragment,
+		};
+	}
 	// PRIORYTET 1: ten sam ustęp — konflikt pewny lub potencjalny
 	if (sameArticle && sameSectionId) {
 		if (sameFragment) {
@@ -824,6 +887,23 @@ export const handlers = [
 				);
 			}
 			const body = await request.json();
+
+			// ← NOWE: walidacja celu
+			const hasTarget =
+				body.target &&
+				(body.target.article != null ||
+					body.target.section_id != null ||
+					body.target.chapter_id != null);
+			if (!hasTarget) {
+				return HttpResponse.json(
+					{
+						message:
+							"Poprawka musi mieć określony cel (article, section_id lub chapter_id)",
+					},
+					{ status: 400 },
+				);
+			}
+
 			const newAmendment = {
 				id: Date.now(),
 				resolutionId: resolution.id,
@@ -834,7 +914,13 @@ export const handlers = [
 				status: "pending",
 				createdAt: new Date().toISOString().split("T")[0],
 				withdrawnReason: null,
-				target: body.target || null, // ← DODAJ
+				target: {
+					article: body.target?.article ?? null,
+					section_id: body.target?.section_id ?? null,
+					chapter_id: body.target?.chapter_id ?? null, // ← NOWE
+					section: body.target?.section || "other",
+					fragment: body.target?.fragment ?? null,
+				},
 				changes: body.changes || [],
 			};
 			amendments.push(newAmendment);
