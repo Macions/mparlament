@@ -52,7 +52,7 @@ export default function AmendmentsPage() {
 				setResolution(data.resolution);
 				setAmendments(data.amendments);
 				setSession(data.session);
-				setCanAddAmendment(data.session?.isActive === true);
+				setCanAddAmendment(true);
 			} catch (error) {
 				console.error("Błąd pobierania poprawek:", error);
 			} finally {
@@ -244,9 +244,8 @@ export default function AmendmentsPage() {
 								return (
 									<li
 										key={amendment.id}
-										className={`${styles.item} ${
-											isWithdrawn ? styles.itemWithdrawn : ""
-										}`}
+										className={`${styles.item} ${isWithdrawn ? styles.itemWithdrawn : ""
+											}`}
 									>
 										<div className={styles.itemMain}>
 											<div className={styles.itemHead}>
