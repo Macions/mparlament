@@ -1614,11 +1614,15 @@ export default function CreateVoting() {
 				title: formData.title,
 				description: formData.description,
 				category: formData.category,
-				startTime: formData.startDateTime,
+				startTime: formData.startDateTime
+					? new Date(formData.startDateTime).toISOString()
+					: null,
 				endTime:
 					formData.durationType === "datetime"
 						? formData.endDateTime
-						: getEndDate()?.toISOString(),
+							? new Date(formData.endDateTime).toISOString()
+							: null
+						: getEndDate()?.toISOString() || null,
 				recipientsType: formData.recipientsType,
 				selectedGroups: formData.selectedGroups,
 				selectedMembers: formData.selectedMembers,
