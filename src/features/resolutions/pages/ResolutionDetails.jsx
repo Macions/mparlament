@@ -221,19 +221,13 @@ export default function ResolutionDetails() {
 		}
 
 		// 3) rozbij każdą scaloną linię po markerach w środku
-		const expanded = [];
-		for (const line of merged) {
-			const parts = line.split(
-				/(?<!\d)(?=\d+[a-z]?[.)](?:\s|$))|(?<!\d)(?=(?<!\d)[a-z]\)\s)|(?<!\d)(?=[IVXLCDM]+[.)]\s)/,
-			);
-			for (const part of parts) {
-				const trimmed = part.trim();
-				if (trimmed) expanded.push(trimmed);
-			}
-		}
+		// 3) rozbij każdą scaloną linię po markerach w środku,
+		//    ale TYLKO gdy marker jest na POCZĄTKU linii (^),
+		//    żeby nie rozbijać zdań typu "…o których mowa w art. 1 ust. 2."
+
 
 		// 4) dla każdej linii wykryj marker i level
-		return expanded.map((line) => {
+		return merged.map((line) => {
 			const m = line.match(
 				/^(\d+[a-z]?[.)]|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)])\s+(.+)$/i,
 			);
