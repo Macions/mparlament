@@ -364,7 +364,7 @@ export default function Parliamentarians() {
 					const user = await response.json();
 					setIsAdmin(
 						user.role === "admin" ||
-							user.permissions?.includes("MANAGE_PARLIAMENTARIANS"),
+						user.permissions?.includes("MANAGE_PARLIAMENTARIANS"),
 					);
 				} else {
 					setIsAdmin(false);
@@ -583,12 +583,6 @@ export default function Parliamentarians() {
 					<span className={styles.statNumber}>{totalCircles}</span>
 					<span className={styles.statLabel}>
 						{polishPlural(totalCircles, "Koło", "Koła", "Kół")}
-					</span>
-				</div>
-				<div className={styles.statCard}>
-					<span className={styles.statNumber}>{totalCommittees}</span>
-					<span className={styles.statLabel}>
-						{polishPlural(totalCommittees, "Komitet", "Komitety", "Komitetów")}
 					</span>
 				</div>
 				<div className={styles.statCard}>

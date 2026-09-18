@@ -11,6 +11,7 @@ function formatVote(v) {
 		case "against":
 			return "PRZECIW";
 		case "abstain":
+		case "abstained":
 			return "WSTRZYMANIE";
 		default:
 			return "BRAK";
@@ -265,7 +266,8 @@ export default function VotingDetailsPage() {
 							</thead>
 							<tbody>
 								{voters.map((voter, index) => {
-									const voteValue = voter.vote || "abstain";
+									const voteValue = voter.vote ?? null;
+									const voteLabel = formatVote(voter.vote);
 									return (
 										<tr key={voter.id || index}>
 											<td className={styles.voterIndex}>{index + 1}</td>
@@ -273,14 +275,15 @@ export default function VotingDetailsPage() {
 											<td>{voter.club || "—"}</td>
 											<td>
 												<span
-													className={`${styles.voteBadge} ${
-														styles[`vote_${voteValue}`] || ""
-													}`}
+													className={`${styles.voteBadge} ${voteValue
+														? styles[`vote_${voteValue === "abstained" ? "abstain" : voteValue}`] || ""
+														: styles.vote_missing
+														}`}
 												>
 													{voteValue === "for" && <Check size={14} />}
 													{voteValue === "against" && <X size={14} />}
-													{voteValue === "abstain" && <Minus size={14} />}
-													{formatVote(voter.vote)}
+													{(voteValue === "abstain" || voteValue === "abstained") && <Minus size={14} />}
+													{voteLabel}
 												</span>
 											</td>
 										</tr>
@@ -320,9 +323,8 @@ export default function VotingDetailsPage() {
 							{categoryTranslations[vote.category] || vote.category}
 						</span>
 						<span
-							className={`${styles.statusBadge} ${
-								styles[`status_${statusClass}`] || ""
-							}`}
+							className={`${styles.statusBadge} ${styles[`status_${statusClass}`] || ""
+								}`}
 						>
 							{statusLabel}
 						</span>
@@ -473,9 +475,8 @@ export default function VotingDetailsPage() {
 						</div>
 
 						<div
-							className={`${styles.finalResult} ${
-								styles[`finalResult_${result}`] || ""
-							}`}
+							className={`${styles.finalResult} ${styles[`finalResult_${result}`] || ""
+								}`}
 						>
 							{result === "passed" && "Uchwała przyjęta"}
 							{result === "rejected" && "Uchwała odrzucona"}
@@ -486,7 +487,10 @@ export default function VotingDetailsPage() {
 							<div className={styles.stat}>
 								<span className={styles.statLabel}>Frekwencja</span>
 								<span className={styles.statValue}>
-									{totalVotes > 0 ? Math.round((totalVotes / 300) * 100) : 0}%
+									{vote.totalEligible > 0
+										? Math.round((totalVotes / vote.totalEligible) * 100)
+										: 0}
+									%
 								</span>
 							</div>
 							<div className={styles.stat}>
