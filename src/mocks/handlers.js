@@ -175,12 +175,12 @@ const createVoting = (body) => {
 		questions:
 			votingMode === "batch" && Array.isArray(body.questions)
 				? body.questions.map((q, idx) => ({
-						id: q.id || `q_${Date.now()}_${idx}`,
-						text: String(q.text || "").trim(),
-						linkedItemType: q.linkedItemType || "none",
-						linkedItemId: q.linkedItemId || "",
-						resolutionId: q.resolutionId || "",
-					}))
+					id: q.id || `q_${Date.now()}_${idx}`,
+					text: String(q.text || "").trim(),
+					linkedItemType: q.linkedItemType || "none",
+					linkedItemId: q.linkedItemId || "",
+					resolutionId: q.resolutionId || "",
+				}))
 				: [],
 
 		startTime: body.startTime || null,
@@ -494,7 +494,7 @@ export const handlers = [
 				try {
 					currentUser = JSON.parse(savedUser);
 					return HttpResponse.json(currentUser);
-				} catch (e) {}
+				} catch (e) { }
 			}
 		}
 		return HttpResponse.json({ message: "Nie zalogowany" }, { status: 401 });
@@ -762,16 +762,18 @@ export const handlers = [
 				);
 			}
 		}
-		const badLink = body.questions.find(
-			(q) => q.linkedItemType === "amendment" && !q.resolutionId,
-		);
-		if (badLink) {
-			return HttpResponse.json(
-				{
-					message: `Poprawka w pytaniu "${badLink.text}" nie ma wskazanej uchwały`,
-				},
-				{ status: 400 },
+		if (Array.isArray(body.questions)) {
+			const badLink = body.questions.find(
+				(q) => q.linkedItemType === "amendment" && !q.resolutionId,
 			);
+			if (badLink) {
+				return HttpResponse.json(
+					{
+						message: `Poprawka w pytaniu "${badLink.text}" nie ma wskazanej uchwały`,
+					},
+					{ status: 400 },
+				);
+			}
 		}
 		const newVoting = createVoting(body);
 		votings.push(newVoting);
@@ -1113,12 +1115,12 @@ export const handlers = [
 		const nextQuestions =
 			nextMode === "batch" && Array.isArray(body.questions)
 				? body.questions.map((q, idx) => ({
-						id: q.id || `q_${Date.now()}_${idx}`,
-						text: String(q.text || "").trim(),
-						linkedItemType: q.linkedItemType || "none",
-						linkedItemId: q.linkedItemId || "",
-						resolutionId: q.resolutionId || "",
-					}))
+					id: q.id || `q_${Date.now()}_${idx}`,
+					text: String(q.text || "").trim(),
+					linkedItemType: q.linkedItemType || "none",
+					linkedItemId: q.linkedItemId || "",
+					resolutionId: q.resolutionId || "",
+				}))
 				: nextMode === "batch"
 					? voting.questions || []
 					: [];
