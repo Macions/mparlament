@@ -53,8 +53,8 @@ export default function CreateVoting() {
 		title: "",
 		description: "",
 		category: "",
-		votingMode: "single", // "single" | "batch"
-		questions: [], // dla trybu zbiorczego
+		votingMode: "single",
+		questions: [],
 		recipientsType: "all",
 		selectedGroups: [],
 		selectedMembers: [],
@@ -83,7 +83,10 @@ export default function CreateVoting() {
 
 	const [errors, setErrors] = useState({});
 	const [searchQuery, setSearchQuery] = useState("");
-	const [searchQueryMembers, setSearchQueryMembers] = useState("");
+
+	// NOWE: pole tekstowe na maile zamiast listy członków
+	const [memberEmailsInput, setMemberEmailsInput] = useState("");
+	const [unmatchedEmails, setUnmatchedEmails] = useState([]);
 
 	const token = localStorage.getItem("token");
 
@@ -319,7 +322,7 @@ export default function CreateVoting() {
 				formData.recipientsType === "individual" &&
 				formData.selectedMembers.length === 0
 			) {
-				newErrors.recipients = "Wybierz co najmniej jedną osobę";
+				newErrors.recipients = "Dodaj co najmniej jednego użytkownika (e-mail)";
 			}
 		}
 
@@ -355,7 +358,6 @@ export default function CreateVoting() {
 						"Najpierw wybierz uchwałę, a następnie poprawkę";
 				}
 			} else {
-				// tryb zbiorczy
 				if (!formData.questions || formData.questions.length === 0) {
 					newErrors.questions = "Dodaj co najmniej jedno pytanie";
 				} else if (formData.questions.length > 50) {
@@ -391,6 +393,8 @@ export default function CreateVoting() {
 			selectedGroups: [],
 			selectedMembers: [],
 		}));
+		setMemberEmailsInput("");
+		setUnmatchedEmails([]);
 		setErrors({});
 	};
 
@@ -398,15 +402,6 @@ export default function CreateVoting() {
 		if (!searchQuery.trim()) return groups;
 		return groups.filter((group) =>
 			group.name.toLowerCase().includes(searchQuery.toLowerCase()),
-		);
-	};
-
-	const getFilteredMembers = () => {
-		if (!searchQueryMembers.trim()) return members;
-		return members.filter(
-			(member) =>
-				member.name.toLowerCase().includes(searchQueryMembers.toLowerCase()) ||
-				member.group?.toLowerCase().includes(searchQueryMembers.toLowerCase()),
 		);
 	};
 
@@ -426,14 +421,76 @@ export default function CreateVoting() {
 		setErrors({});
 	};
 
-	const handleMemberToggle = (memberId) => {
+	// ============================================================
+	// NOWE: dodawanie użytkowników po mailach
+	// ============================================================
+
+	/** Normalizuj email (trim + lower). */
+	const normalizeEmail = (s) => String(s || "").trim().toLowerCase();
+
+	/** Wyciągnij emaile z tekstu — separatory: spacja, przecinek, średnik, nowa linia. */
+	const parseEmails = (raw) =>
+		String(raw || "")
+			.split(/[\s,;]+/)
+			.map((s) => s.trim())
+			.filter((s) => s.length > 0);
+
+	/** Znajdź ID użytkownika po mailu. */
+	const findUserByEmail = (email) => {
+		const norm = normalizeEmail(email);
+		return users.find((u) => {
+			const candidates = [
+				u.email,
+				u.username,
+				u.username?.toLowerCase?.(),
+				u.mail,
+			]
+				.filter(Boolean)
+				.map((v) => normalizeEmail(v));
+			return candidates.includes(norm);
+		});
+	};
+
+	/** Dodaj wszystkich pasujących userów z pola tekstowego. */
+	const handleAddMembersFromEmails = () => {
+		const emails = parseEmails(memberEmailsInput);
+		if (emails.length === 0) return;
+
+		const foundIds = [];
+		const notFound = [];
+
+		for (const email of emails) {
+			const user = findUserByEmail(email);
+			if (user) {
+				foundIds.push(user.id);
+			} else {
+				notFound.push(email);
+			}
+		}
+
+		setFormData((prev) => {
+			const merged = [...new Set([...prev.selectedMembers, ...foundIds])];
+			return { ...prev, selectedMembers: merged };
+		});
+
+		setUnmatchedEmails(notFound);
+		setMemberEmailsInput("");
+		setErrors({});
+	};
+
+	/** Usuń usera z listy. */
+	const handleRemoveMember = (memberId) => {
 		setFormData((prev) => ({
 			...prev,
-			selectedMembers: prev.selectedMembers.includes(memberId)
-				? prev.selectedMembers.filter((id) => id !== memberId)
-				: [...prev.selectedMembers, memberId],
+			selectedMembers: prev.selectedMembers.filter((id) => id !== memberId),
 		}));
-		setErrors({});
+	};
+
+	/** Nazwa usera do wyświetlenia. */
+	const getUserDisplay = (id) => {
+		const u = users.find((x) => x.id === id);
+		if (!u) return `#${id}`;
+		return u.name || u.username || u.email || `#${id}`;
 	};
 
 	// ============================================================
@@ -658,7 +715,7 @@ export default function CreateVoting() {
 						className={`recipient-option ${formData.recipientsType === "individual" ? "active" : ""}`}
 						onClick={() => handleRecipientsChange("individual")}
 					>
-						Wybrane osoby
+						Wybrane osoby (e-mail)
 					</button>
 				</div>
 				{errors.recipients && (
@@ -698,7 +755,7 @@ export default function CreateVoting() {
 										<input
 											type="checkbox"
 											checked={isSelected}
-											onChange={() => {}}
+											onChange={() => { }}
 										/>
 										<span>{group.name}</span>
 										<span className="member-count">
@@ -725,33 +782,128 @@ export default function CreateVoting() {
 				</div>
 			)}
 
+			{/* NOWE: wybrane osoby przez pole tekstowe z mailami */}
 			{formData.recipientsType === "individual" && (
 				<div className="form-group">
-					<label>Wybierz osoby</label>
-					<input
-						type="text"
-						placeholder="Szukaj osoby..."
-						value={searchQueryMembers}
-						onChange={(e) => setSearchQueryMembers(e.target.value)}
-						className="search-input"
-					/>
-					<div className="members-list">
-						{getFilteredMembers().map((member) => (
-							<div
-								key={member.id}
-								className={`member-item ${formData.selectedMembers.includes(member.id) ? "selected" : ""}`}
-								onClick={() => handleMemberToggle(member.id)}
-							>
-								<input
-									type="checkbox"
-									checked={formData.selectedMembers.includes(member.id)}
-									onChange={() => {}}
-								/>
-								<span>{member.name}</span>
-								<span className="member-group">{member.group}</span>
-							</div>
-						))}
+					<label>Dodaj uprawnionych przez e-mail</label>
+					<p
+						className="field-hint"
+						style={{
+							fontSize: "13px",
+							color: "#6c757d",
+							marginBottom: "8px",
+						}}
+					>
+						Wpisz adresy e-mail (możesz oddzielić spacją, przecinkiem lub
+						nową linią). Zostaną dopasowane do istniejących użytkowników.
+					</p>
+
+					<div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
+						<textarea
+							rows={3}
+							placeholder="np. jan.kowalski@parlamentmlodych.eu anna.nowak@parlamentmlodych.eu"
+							value={memberEmailsInput}
+							onChange={(e) => setMemberEmailsInput(e.target.value)}
+							onKeyDown={(e) => {
+								if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+									e.preventDefault();
+									handleAddMembersFromEmails();
+								}
+							}}
+							style={{
+								flex: 1,
+								padding: "8px 12px",
+								border: "1px solid #ddd",
+								borderRadius: "6px",
+								fontFamily: "inherit",
+								fontSize: "13px",
+								resize: "vertical",
+							}}
+						/>
+						<button
+							type="button"
+							className="btn-primary"
+							onClick={handleAddMembersFromEmails}
+							disabled={!memberEmailsInput.trim()}
+							style={{
+								padding: "8px 16px",
+								alignSelf: "flex-start",
+								whiteSpace: "nowrap",
+							}}
+						>
+							<Plus size={16} /> Dodaj
+						</button>
 					</div>
+
+					{unmatchedEmails.length > 0 && (
+						<div
+							className="error-text"
+							style={{
+								marginBottom: "8px",
+								fontSize: "12px",
+								lineHeight: 1.5,
+							}}
+						>
+							<strong>Nie znaleziono użytkownika dla:</strong>{" "}
+							{unmatchedEmails.join(", ")}
+						</div>
+					)}
+
+					{formData.selectedMembers.length > 0 ? (
+						<div
+							style={{
+								display: "flex",
+								flexWrap: "wrap",
+								gap: "6px",
+								padding: "8px",
+								border: "1px solid #e9ecef",
+								borderRadius: "6px",
+								background: "#f8f9fa",
+							}}
+						>
+							{formData.selectedMembers.map((id) => (
+								<span
+									key={id}
+									style={{
+										display: "inline-flex",
+										alignItems: "center",
+										gap: "6px",
+										padding: "4px 10px",
+										background: "#e7f0ff",
+										borderRadius: "20px",
+										fontSize: "12px",
+										color: "#004085",
+									}}
+								>
+									{getUserDisplay(id)}
+									<button
+										type="button"
+										onClick={() => handleRemoveMember(id)}
+										style={{
+											background: "none",
+											border: "none",
+											color: "#dc3545",
+											cursor: "pointer",
+											fontSize: "14px",
+											padding: "0 2px",
+										}}
+									>
+										×
+									</button>
+								</span>
+							))}
+						</div>
+					) : (
+						<p
+							style={{
+								fontSize: "13px",
+								color: "#6c757d",
+								fontStyle: "italic",
+							}}
+						>
+							Nie dodano jeszcze żadnych osób.
+						</p>
+					)}
 				</div>
 			)}
 		</div>
@@ -886,7 +1038,7 @@ export default function CreateVoting() {
 	);
 
 	// ============================================================
-	// KROK 4 – SINGLE (dotychczasowy widok powiązania)
+	// KROK 4 – SINGLE
 	// ============================================================
 
 	const renderSingleLinkSection = () => {
@@ -943,89 +1095,89 @@ export default function CreateVoting() {
 
 				{(formData.linkedItemType === "resolution" ||
 					formData.linkedItemType === "amendment") && (
-					<div className="linked-selection">
-						<div className="form-group">
-							<label>
-								{formData.linkedItemType === "amendment"
-									? "Wybierz uchwałę, do której chcesz dodać poprawkę *"
-									: "Wybierz uchwałę *"}
-							</label>
-							<div className="items-list">
-								{resolutionsArray.length === 0 ? (
-									<p className="no-items">Brak dostępnych uchwał</p>
-								) : (
-									resolutionsArray.map((res) => {
-										const statusColors = getStatusColor(res.status);
-										const isSelected =
-											String(selectedResolution) === String(res.id);
-										return (
-											<div
-												key={res.id}
-												className={`item-card ${isSelected ? "selected" : ""}`}
-												onClick={() => {
-													setSelectedResolution(String(res.id));
-													setSelectedAmendment("");
+						<div className="linked-selection">
+							<div className="form-group">
+								<label>
+									{formData.linkedItemType === "amendment"
+										? "Wybierz uchwałę, do której chcesz dodać poprawkę *"
+										: "Wybierz uchwałę *"}
+								</label>
+								<div className="items-list">
+									{resolutionsArray.length === 0 ? (
+										<p className="no-items">Brak dostępnych uchwał</p>
+									) : (
+										resolutionsArray.map((res) => {
+											const statusColors = getStatusColor(res.status);
+											const isSelected =
+												String(selectedResolution) === String(res.id);
+											return (
+												<div
+													key={res.id}
+													className={`item-card ${isSelected ? "selected" : ""}`}
+													onClick={() => {
+														setSelectedResolution(String(res.id));
+														setSelectedAmendment("");
 
-													if (formData.linkedItemType !== "amendment") {
-														setFormData((prev) => ({
-															...prev,
-															linkedItemType: "resolution",
-															linkedItemId: String(res.id),
-														}));
-													}
-												}}
-											>
-												<div className="item-header">
-													<span
-														className="item-status"
-														style={{
-															background: statusColors.bg,
-															color: statusColors.color,
-															padding: "2px 10px",
-															borderRadius: "12px",
-															fontSize: "11px",
-															fontWeight: "500",
-															display: "inline-block",
-														}}
-													>
-														{getStatusLabel(res.status)}
-													</span>
-													<span className="item-date">
-														{res.createdAt || "Brak daty"}
-													</span>
-												</div>
-												<div className="item-title">
-													{res.title || "Brak tytułu"}
-												</div>
-												<div className="item-meta">
-													<span>Autor: {res.author || "Nieznany"}</span>
-													<span className="amendments-count">
-														Poprawek:{" "}
-														{getAmendmentsForResolution(res.id).length}
-													</span>
-												</div>
-
-												{formData.linkedItemType === "amendment" &&
-													isSelected && (
-														<div
+														if (formData.linkedItemType !== "amendment") {
+															setFormData((prev) => ({
+																...prev,
+																linkedItemType: "resolution",
+																linkedItemId: String(res.id),
+															}));
+														}
+													}}
+												>
+													<div className="item-header">
+														<span
+															className="item-status"
 															style={{
-																marginTop: "6px",
-																fontSize: "12px",
-																color: "#007bff",
+																background: statusColors.bg,
+																color: statusColors.color,
+																padding: "2px 10px",
+																borderRadius: "12px",
+																fontSize: "11px",
 																fontWeight: "500",
+																display: "inline-block",
 															}}
 														>
-															✓ Wybrano uchwałę dla poprawki
-														</div>
-													)}
-											</div>
-										);
-									})
-								)}
+															{getStatusLabel(res.status)}
+														</span>
+														<span className="item-date">
+															{res.createdAt || "Brak daty"}
+														</span>
+													</div>
+													<div className="item-title">
+														{res.title || "Brak tytułu"}
+													</div>
+													<div className="item-meta">
+														<span>Autor: {res.author || "Nieznany"}</span>
+														<span className="amendments-count">
+															Poprawek:{" "}
+															{getAmendmentsForResolution(res.id).length}
+														</span>
+													</div>
+
+													{formData.linkedItemType === "amendment" &&
+														isSelected && (
+															<div
+																style={{
+																	marginTop: "6px",
+																	fontSize: "12px",
+																	color: "#007bff",
+																	fontWeight: "500",
+																}}
+															>
+																✓ Wybrano uchwałę dla poprawki
+															</div>
+														)}
+												</div>
+											);
+										})
+									)}
+								</div>
 							</div>
 						</div>
-					</div>
-				)}
+					)}
 
 				{formData.linkedItemType === "amendment" && selectedResolution && (
 					<div className="linked-selection amendment-selection">
@@ -1269,7 +1421,7 @@ export default function CreateVoting() {
 	};
 
 	// ============================================================
-	// KROK 4 – BATCH (lista pytań)
+	// KROK 4 – BATCH
 	// ============================================================
 
 	const renderBatchQuestions = () => {
@@ -1284,7 +1436,6 @@ export default function CreateVoting() {
 					samodzielne.
 				</p>
 
-				{/* Lista już dodanych pytań */}
 				{formData.questions.length > 0 && (
 					<div className="batch-questions-list">
 						{formData.questions.map((q, idx) => (
@@ -1361,7 +1512,6 @@ export default function CreateVoting() {
 					</div>
 				)}
 
-				{/* Formularz dodawania/edycji pytania */}
 				<div className="batch-question-editor">
 					<h4>{editingQuestionId ? "Edytuj pytanie" : "Dodaj nowe pytanie"}</h4>
 
@@ -1441,59 +1591,57 @@ export default function CreateVoting() {
 						</div>
 					</div>
 
-					{/* Wybór uchwały dla trybu resolution LUB amendment */}
 					{(questionDraft.linkedItemType === "resolution" ||
 						questionDraft.linkedItemType === "amendment") && (
-						<div className="form-group">
-							<label>
-								{questionDraft.linkedItemType === "amendment"
-									? "Wybierz uchwałę, do której należy poprawka *"
-									: "Wybierz uchwałę *"}
-							</label>
-							<div className="items-list scrollable">
-								{resolutionsArray.length === 0 ? (
-									<p className="no-items">Brak dostępnych uchwał</p>
-								) : (
-									resolutionsArray.map((res) => {
-										const isSelected =
-											String(questionDraft.resolutionId) === String(res.id) ||
-											(questionDraft.linkedItemType === "resolution" &&
-												String(questionDraft.linkedItemId) === String(res.id));
-										return (
-											<div
-												key={res.id}
-												className={`item-card compact ${isSelected ? "selected" : ""}`}
-												onClick={() => {
-													if (questionDraft.linkedItemType === "resolution") {
-														setQuestionDraft((prev) => ({
-															...prev,
-															linkedItemId: String(res.id),
-															resolutionId: "",
-														}));
-													} else {
-														setQuestionDraft((prev) => ({
-															...prev,
-															resolutionId: String(res.id),
-															linkedItemId: "",
-														}));
-													}
-												}}
-											>
-												<div className="item-title">
-													{res.title || "Brak tytułu"}
+							<div className="form-group">
+								<label>
+									{questionDraft.linkedItemType === "amendment"
+										? "Wybierz uchwałę, do której należy poprawka *"
+										: "Wybierz uchwałę *"}
+								</label>
+								<div className="items-list scrollable">
+									{resolutionsArray.length === 0 ? (
+										<p className="no-items">Brak dostępnych uchwał</p>
+									) : (
+										resolutionsArray.map((res) => {
+											const isSelected =
+												String(questionDraft.resolutionId) === String(res.id) ||
+												(questionDraft.linkedItemType === "resolution" &&
+													String(questionDraft.linkedItemId) === String(res.id));
+											return (
+												<div
+													key={res.id}
+													className={`item-card compact ${isSelected ? "selected" : ""}`}
+													onClick={() => {
+														if (questionDraft.linkedItemType === "resolution") {
+															setQuestionDraft((prev) => ({
+																...prev,
+																linkedItemId: String(res.id),
+																resolutionId: "",
+															}));
+														} else {
+															setQuestionDraft((prev) => ({
+																...prev,
+																resolutionId: String(res.id),
+																linkedItemId: "",
+															}));
+														}
+													}}
+												>
+													<div className="item-title">
+														{res.title || "Brak tytułu"}
+													</div>
+													<div className="item-meta">
+														<span>Autor: {res.author || "Nieznany"}</span>
+													</div>
 												</div>
-												<div className="item-meta">
-													<span>Autor: {res.author || "Nieznany"}</span>
-												</div>
-											</div>
-										);
-									})
-								)}
+											);
+										})
+									)}
+								</div>
 							</div>
-						</div>
-					)}
+						)}
 
-					{/* Wybór poprawki */}
 					{questionDraft.linkedItemType === "amendment" &&
 						questionDraft.resolutionId && (
 							<div className="form-group">
@@ -1577,7 +1725,7 @@ export default function CreateVoting() {
 	};
 
 	// ============================================================
-	// KROK 4 – główny render (single / batch)
+	// KROK 4 – główny render
 	// ============================================================
 
 	const renderStep4 = () => {
@@ -1891,7 +2039,9 @@ export default function CreateVoting() {
 							<div className="summary-item">
 								<span className="summary-label">Osoby:</span>
 								<span className="summary-value">
-									{getSelectedMembersNames().join(", ") || "Brak"}
+									{formData.selectedMembers
+										.map((id) => getUserDisplay(id))
+										.join(", ") || "Brak"}
 								</span>
 							</div>
 						)}
@@ -1919,7 +2069,6 @@ export default function CreateVoting() {
 						</div>
 					</div>
 
-					{/* SINGLE – powiązanie */}
 					{formData.votingMode === "single" && (
 						<div className="summary-section">
 							<h3>Powiązania</h3>
@@ -2000,7 +2149,6 @@ export default function CreateVoting() {
 						</div>
 					)}
 
-					{/* BATCH – lista pytań */}
 					{formData.votingMode === "batch" && (
 						<div className="summary-section">
 							<h3>Pytania ({formData.questions.length})</h3>
@@ -2164,16 +2312,16 @@ export default function CreateVoting() {
 				title: formData.title,
 				description: formData.description,
 				category: formData.category,
-				votingMode: formData.votingMode, // "single" | "batch"
+				votingMode: formData.votingMode,
 				questions:
 					formData.votingMode === "batch"
 						? formData.questions.map((q) => ({
-								id: q.id,
-								text: q.text,
-								linkedItemType: q.linkedItemType,
-								linkedItemId: q.linkedItemId || null,
-								resolutionId: q.resolutionId || null,
-							}))
+							id: q.id,
+							text: q.text,
+							linkedItemType: q.linkedItemType,
+							linkedItemId: q.linkedItemId || null,
+							resolutionId: q.resolutionId || null,
+						}))
 						: undefined,
 				startTime: formData.startDateTime
 					? new Date(formData.startDateTime).toISOString()
@@ -2225,8 +2373,8 @@ export default function CreateVoting() {
 			if (!response.ok) {
 				throw new Error(
 					data.message ||
-						data.error ||
-						`Serwer zwrócił ${response.status} ${response.statusText}`,
+					data.error ||
+					`Serwer zwrócił ${response.status} ${response.statusText}`,
 				);
 			}
 
@@ -2258,7 +2406,6 @@ export default function CreateVoting() {
 					} catch {
 						if (t) msg = t;
 					}
-					// nie przerywamy — głosowanie już istnieje, tylko logujemy
 					console.warn(msg);
 				}
 			}
@@ -2276,9 +2423,9 @@ export default function CreateVoting() {
 		const end = new Date(formData.startDateTime);
 		end.setTime(
 			end.getTime() +
-				formData.durationDays * 86400000 +
-				formData.durationHours * 3600000 +
-				formData.durationMinutes * 60000,
+			formData.durationDays * 86400000 +
+			formData.durationHours * 3600000 +
+			formData.durationMinutes * 60000,
 		);
 		return end;
 	};
@@ -2308,12 +2455,6 @@ export default function CreateVoting() {
 		return groups
 			.filter((g) => formData.selectedGroups.includes(g.id))
 			.map((g) => g.name);
-	};
-
-	const getSelectedMembersNames = () => {
-		return members
-			.filter((m) => formData.selectedMembers.includes(m.id))
-			.map((m) => m.name);
 	};
 
 	const getApplicantLabel = (applicant) => {
