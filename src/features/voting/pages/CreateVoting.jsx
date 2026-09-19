@@ -360,8 +360,6 @@ export default function CreateVoting() {
 			} else {
 				if (!formData.questions || formData.questions.length === 0) {
 					newErrors.questions = "Dodaj co najmniej jedno pytanie";
-				} else if (formData.questions.length > 50) {
-					newErrors.questions = "Maksymalnie 50 pytań w jednym głosowaniu";
 				} else if (formData.questions.some((q) => !q.text.trim())) {
 					newErrors.questions = "Każde pytanie musi mieć treść";
 				}
