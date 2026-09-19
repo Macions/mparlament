@@ -5,6 +5,7 @@ import BackButton from "../../../components/PageBack";
 
 function getVoteStatus(vote) {
 	if (vote.status === "archived") return "archived";
+	if (vote.status === "finished") return "finished";
 
 	const now = Date.now();
 	const start = new Date(vote.startTime).getTime();
@@ -126,7 +127,7 @@ export default function Votings() {
 						setUser(userData);
 						setIsAdmin(
 							userData.role === "admin" ||
-								userData.permissions?.includes("MANAGE_VOTINGS"),
+							userData.permissions?.includes("MANAGE_VOTINGS"),
 						);
 						return;
 					}
@@ -343,9 +344,8 @@ export default function Votings() {
 							<button
 								key={key}
 								type="button"
-								className={`${styles.filterBtn} ${
-									filter === key ? styles.filterBtnActive : ""
-								}`}
+								className={`${styles.filterBtn} ${filter === key ? styles.filterBtnActive : ""
+									}`}
 								onClick={() => setFilter(key)}
 							>
 								{label}
@@ -394,9 +394,8 @@ export default function Votings() {
 											</span>
 										)}
 										<span
-											className={`${styles.statusBadge} ${
-												styles[`status_${status}`] || ""
-											}`}
+											className={`${styles.statusBadge} ${styles[`status_${status}`] || ""
+												}`}
 										>
 											{isArchived
 												? "Zarchiwizowane"
@@ -733,8 +732,8 @@ export default function Votings() {
 								<span className={styles.previewTime}>
 									{new Date(
 										Date.now() +
-											activationStartDelay * 60000 +
-											activationDuration * 3600000,
+										activationStartDelay * 60000 +
+										activationDuration * 3600000,
 									).toLocaleString("pl-PL")}
 								</span>
 							</p>
