@@ -30,6 +30,7 @@ function getStatusLabel(vote) {
 	const end = new Date(vote.endTime).getTime();
 
 	if (vote.status === "archived") return "ZARCHIWIZOWANE";
+	if (vote.status === "finished") return "ZAKOŃCZONE";
 	if (now < start) return "OCZEKUJE";
 	if (now >= start && now < end) return "TRWA";
 	return "ZAKOŃCZONE";
@@ -41,6 +42,7 @@ function getStatusClass(vote) {
 	const end = new Date(vote.endTime).getTime();
 
 	if (vote.status === "archived") return "archived";
+	if (vote.status === "finished") return "finished";
 	if (now < start) return "upcoming";
 	if (now >= start && now < end) return "active";
 	return "finished";
@@ -254,17 +256,15 @@ export default function VotingDetailsPage() {
 											<td>{voter.club || "—"}</td>
 											<td>
 												<span
-													className={`${styles.voteBadge} ${
-														voteValue
-															? styles[
-																	`vote_${
-																		voteValue === "abstained"
-																			? "abstain"
-																			: voteValue
-																	}`
-																] || ""
-															: styles.vote_missing
-													}`}
+													className={`${styles.voteBadge} ${voteValue
+														? styles[
+														`vote_${voteValue === "abstained"
+															? "abstain"
+															: voteValue
+														}`
+														] || ""
+														: styles.vote_missing
+														}`}
 												>
 													{voteValue === "for" && <Check size={14} />}
 													{voteValue === "against" && <X size={14} />}
@@ -412,9 +412,8 @@ export default function VotingDetailsPage() {
 								</div>
 
 								<div
-									className={`${styles.batchOutcome} ${
-										styles[`batchOutcome_${qResult}`] || ""
-									}`}
+									className={`${styles.batchOutcome} ${styles[`batchOutcome_${qResult}`] || ""
+										}`}
 								>
 									{qResult === "passed" && "Przyjęta"}
 									{qResult === "rejected" && "Odrzucona"}
@@ -471,15 +470,13 @@ export default function VotingDetailsPage() {
 																		<td>{voter.club || "—"}</td>
 																		<td>
 																			<span
-																				className={`${styles.voteBadge} ${
-																					styles[
-																						`vote_${
-																							voteValue === "abstained"
-																								? "abstain"
-																								: voteValue
-																						}`
-																					] || ""
-																				}`}
+																				className={`${styles.voteBadge} ${styles[
+																					`vote_${voteValue === "abstained"
+																						? "abstain"
+																						: voteValue
+																					}`
+																				] || ""
+																					}`}
 																			>
 																				{voteValue === "for" && (
 																					<Check size={14} />
@@ -489,8 +486,8 @@ export default function VotingDetailsPage() {
 																				)}
 																				{(voteValue === "abstain" ||
 																					voteValue === "abstained") && (
-																					<Minus size={14} />
-																				)}
+																						<Minus size={14} />
+																					)}
 																				{formatVote(voteValue)}
 																			</span>
 																		</td>
@@ -539,9 +536,8 @@ export default function VotingDetailsPage() {
 							</span>
 						)}
 						<span
-							className={`${styles.statusBadge} ${
-								styles[`status_${statusClass}`] || ""
-							}`}
+							className={`${styles.statusBadge} ${styles[`status_${statusClass}`] || ""
+								}`}
 						>
 							{statusLabel}
 						</span>
@@ -699,9 +695,8 @@ export default function VotingDetailsPage() {
 						</div>
 
 						<div
-							className={`${styles.finalResult} ${
-								styles[`finalResult_${result}`] || ""
-							}`}
+							className={`${styles.finalResult} ${styles[`finalResult_${result}`] || ""
+								}`}
 						>
 							{result === "passed" && "Uchwała przyjęta"}
 							{result === "rejected" && "Uchwała odrzucona"}
