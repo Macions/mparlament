@@ -76,6 +76,7 @@ export default function SessionDetails() {
 	const token = localStorage.getItem("token");
 
 	const saveTimer = useRef(null);
+	const isLocalUpdate = useRef(false);
 
 	const updateSessionDebounced = (data) => {
 		if (saveTimer.current) clearTimeout(saveTimer.current);
@@ -364,7 +365,7 @@ export default function SessionDetails() {
 
 	/* ─── Zastosuj sesję do stanu ─── */
 	useEffect(() => {
-		if (session) {
+		if (session && !isLocalUpdate.current) {
 			setDisplaySpeaker(session.currentSpeaker ?? null);
 			setDisplayPoint(session.currentPoint ?? null);
 			setSchedule(session.schedule ?? []);
@@ -447,6 +448,7 @@ export default function SessionDetails() {
 	}, [token]);
 
 	const updateSession = async (updatedData) => {
+		isLocalUpdate.current = true;
 		try {
 			const response = await fetch("/newapp/api/session/current", {
 				method: "PUT",
@@ -461,9 +463,12 @@ export default function SessionDetails() {
 			setSession((prev) => ({ ...prev, ...data }));
 		} catch (err) {
 			setError(err.message);
+		} finally {
+			setTimeout(() => {
+				isLocalUpdate.current = false;
+			}, 0);
 		}
 	};
-
 	const addSpeaker = async (speakerData) => {
 		try {
 			const response = await fetch("/newapp/api/speakers", {
@@ -623,6 +628,7 @@ export default function SessionDetails() {
 			schedule: updatedSchedule,
 			sessionMode: "break",
 			currentSpeaker: null,
+			currentPoint: breakPoint,
 		});
 	};
 
@@ -636,7 +642,10 @@ export default function SessionDetails() {
 			return item;
 		});
 		setSchedule(updatedSchedule);
-		updateSession({ schedule: updatedSchedule });
+		updateSession({
+			schedule: updatedSchedule,
+			currentPoint: { ...displayPoint, title: `Przerwa do ${breakEndTime}` },
+		});
 
 		setDisplayPoint((prev) => ({
 			...prev,
