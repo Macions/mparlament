@@ -29,7 +29,34 @@ import EditVoting from "../features/voting/pages/EditVoting";
 import LiveVoting from "../features/voting/pages/LiveVoting";
 import { SocketProvider } from "../socket/SocketProvider";
 
+import { MaintenancePage } from "../components/MaintenancePage";
+import { useSystemStatus } from "../hooks/useSystemStatus";
+
 export default function AppRoutes() {
+	const { loading, maintenance, message, until } = useSystemStatus();
+
+	// Podczas pierwszego sprawdzania — unikamy mignięcia normalnej strony
+	if (loading) {
+		return (
+			<div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-300">
+				Ładowanie…
+			</div>
+		);
+	}
+
+	// Tryb maintenance — każda ścieżka pokazuje MaintenancePage
+	if (maintenance) {
+		return (
+			<Routes>
+				<Route
+					path="*"
+					element={<MaintenancePage message={message} until={until} />}
+				/>
+			</Routes>
+		);
+	}
+
+	// Normalny routing
 	return (
 		<SocketProvider>
 			<Routes>
