@@ -6,7 +6,7 @@ export function useSystemStatus() {
 	const [status, setStatus] = useState({
 		loading: false, // ← też zmień na false, żeby nie czekać
 		maintenance: true, // ← WYMUŚ
-		message: "Test trybu maintenance",
+		message: "Tryb serwisowy",
 		until: null,
 	});
 
