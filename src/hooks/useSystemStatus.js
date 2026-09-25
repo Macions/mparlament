@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "";
+// Domyślnie /newapp/api — bo frontend jest hostowany pod /newapp/,
+// a nginx proxuje /newapp/api/* na nowy backend (mparlament-backend:4000).
+const API_BASE = import.meta.env.VITE_API_URL ?? "/newapp/api";
 
 export function useSystemStatus() {
 	const [status, setStatus] = useState({
-		loading: false, // ← też zmień na false, żeby nie czekać
-		maintenance: true, // ← WYMUŚ
-		message: "Tryb serwisowy",
+		loading: true, // ← najpierw ładuje
+		maintenance: false, // ← NIE wymuszaj maintenance
+		message: null,
 		until: null,
 	});
 
@@ -29,7 +31,17 @@ export function useSystemStatus() {
 					});
 				}
 			} catch {
-				if (!cancelled) setStatus((s) => ({ ...s, loading: false }));
+				// Jak fetch padnie — NIE zostawiaj maintenance=true na siłę.
+				// Lepiej wpuścić użytkownika do aplikacji niż trzymać go
+				// w trybie serwisowym z powodu błędu sieci.
+				if (!cancelled) {
+					setStatus({
+						loading: false,
+						maintenance: false,
+						message: null,
+						until: null,
+					});
+				}
 			}
 		}
 
