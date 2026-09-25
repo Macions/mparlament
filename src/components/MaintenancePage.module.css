@@ -1,69 +1,195 @@
 /* src/components/MaintenancePage.module.css */
 
+/* ===== Zmienne ===== */
 .page {
+	--brand-900: #0b1b3f;
+	--brand-800: #14275c;
+	--brand-700: #1e3a8a;
+	--brand-500: #3b5bdb;
+	--brand-300: #93a7f0;
+	--ink-900: #0b1220;
+	--ink-700: #1e293b;
+	--ink-500: #475569;
+	--ink-400: #64748b;
+	--ink-300: #94a3b8;
+	--line: #e5e9f2;
+	--line-soft: #eef2f8;
+	--surface: #ffffff;
+	--surface-2: #f8fafc;
+	--success-bg: #eef7f1;
+	--success-line: #b7e0c4;
+	--success-ink: #12693a;
+
+	position: relative;
 	min-height: 100vh;
+	min-height: 100dvh;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	padding: 32px 24px;
+	padding: 48px 20px;
 	background:
-		radial-gradient(circle at 50% 0%, #eef2ff 0%, #ffffff 55%);
-	font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-	color: #0f172a;
+		radial-gradient(
+			1000px 500px at 50% -10%,
+			#e6ecff 0%,
+			rgba(230, 236, 255, 0) 60%
+		),
+		radial-gradient(
+			700px 400px at 100% 100%,
+			#f0f4ff 0%,
+			rgba(240, 244, 255, 0) 60%
+		),
+		#f6f8fc;
+	font-family:
+		ui-sans-serif,
+		system-ui,
+		-apple-system,
+		"Segoe UI",
+		Roboto,
+		"Inter",
+		sans-serif;
+	color: var(--ink-900);
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
 }
 
+/* dekoracyjna siatka w tle (subtelna) */
+.page::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image:
+		linear-gradient(rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+	background-size: 48px 48px;
+	mask-image: radial-gradient(circle at 50% 40%, #000 0%, transparent 75%);
+	-webkit-mask-image: radial-gradient(
+		circle at 50% 40%,
+		#000 0%,
+		transparent 75%
+	);
+	pointer-events: none;
+}
+
+/* ===== Karta ===== */
 .container {
 	position: relative;
 	width: 100%;
-	max-width: 600px;
-	padding: 56px 48px 44px;
-	background: #ffffff;
-	border: 1px solid #e2e8f0;
-	border-radius: 16px;
+	max-width: 640px;
+	padding: 44px 44px 36px;
+	background: var(--surface);
+	border: 1px solid var(--line);
+	border-radius: 20px;
 	box-shadow:
+		0 1px 0 rgba(255, 255, 255, 0.8) inset,
 		0 1px 2px rgba(15, 23, 42, 0.04),
-		0 12px 40px -12px rgba(30, 58, 138, 0.12);
+		0 24px 60px -24px rgba(15, 23, 42, 0.25);
 	overflow: hidden;
+	z-index: 1;
 }
 
-/* Granatowy pasek akcentowy u góry karty */
+/* pasek gradientowy u góry */
 .container::before {
 	content: "";
 	position: absolute;
 	top: 0;
 	left: 0;
 	right: 0;
-	height: 4px;
-	background: linear-gradient(90deg, #1e3a8a 0%, #3b5bdb 50%, #1e3a8a 100%);
+	height: 3px;
+	background: linear-gradient(
+		90deg,
+		var(--brand-700),
+		var(--brand-500),
+		var(--brand-700)
+	);
 }
 
+@media (max-width: 520px) {
+	.container {
+		padding: 32px 22px 26px;
+		border-radius: 16px;
+	}
+}
+
+/* ===== Logo (jedno) ===== */
+.logos {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto 28px;
+	padding: 16px 24px;
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
+	background: linear-gradient(180deg, #0f1d45 0%, #0b1530 100%);
+	border: 1px solid #1c2a55;
+	border-radius: 16px;
+	box-shadow:
+		0 1px 0 rgba(255, 255, 255, 0.08) inset,
+		0 10px 30px -12px rgba(11, 27, 63, 0.55);
+	overflow: hidden;
+}
+
+/* Cokolwiek renderuje ParlamentLogo — wymuś rozmiar */
+.logos img,
+.logos svg {
+	display: block;
+	height: 64px;
+	width: auto;
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
+	filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+}
+
+/* Nadpisz wymiary z ParlamentLogo.module.css */
+.logos > * {
+	max-width: 100%;
+	max-height: 100%;
+	height: auto;
+	width: auto;
+}
+
+@media (max-width: 520px) {
+	.logos {
+		padding: 12px 16px;
+		margin-bottom: 22px;
+	}
+	.logos img,
+	.logos svg {
+		height: 48px;
+	}
+}
 /* ===== Nagłówek ===== */
 .brand {
-	margin: 0 0 10px;
+	margin: 0;
 	text-align: center;
-	font-size: 1.6rem;
-	font-weight: 700;
-	letter-spacing: -0.02em;
-	color: #0f172a;
+	font-size: clamp(1.7rem, 1.2rem + 1.4vw, 2.1rem);
+	font-weight: 800;
+	letter-spacing: -0.03em;
+	color: var(--ink-900);
+	background: linear-gradient(180deg, #0b1220 0%, #1e293b 100%);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
 }
 
-/* mała kreska pod nazwą */
 .brand::after {
 	content: "";
 	display: block;
-	width: 40px;
+	width: 44px;
 	height: 3px;
-	margin: 14px auto 0;
+	margin: 16px auto 0;
 	border-radius: 999px;
-	background: #1e3a8a;
+	background: linear-gradient(90deg, var(--brand-500), var(--brand-700));
 }
 
 .subtitle {
-	margin: 20px 0 36px;
+	margin: 22px auto 34px;
+	max-width: 46ch;
 	text-align: center;
 	font-size: 1rem;
-	line-height: 1.65;
-	color: #475569;
+	line-height: 1.7;
+	color: var(--ink-500);
 }
 
 /* ===== Formularz ===== */
@@ -76,8 +202,8 @@
 	margin-bottom: 10px;
 	font-size: 0.9rem;
 	font-weight: 600;
-	letter-spacing: 0.01em;
-	color: #1e293b;
+	letter-spacing: 0.005em;
+	color: var(--ink-700);
 }
 
 .textarea {
@@ -87,33 +213,34 @@
 	font-family: inherit;
 	font-size: 1rem;
 	line-height: 1.55;
-	color: #0f172a;
-	background: #f8fafc;
-	border: 1px solid #dbe3ec;
-	border-radius: 10px;
+	color: var(--ink-900);
+	background: var(--surface-2);
+	border: 1px solid var(--line);
+	border-radius: 12px;
 	resize: vertical;
 	box-sizing: border-box;
 	transition:
-		border-color 0.15s,
-		background 0.15s,
-		box-shadow 0.15s;
+		border-color 0.15s ease,
+		background 0.15s ease,
+		box-shadow 0.15s ease;
 }
 
 .textarea::placeholder {
-	color: #94a3b8;
+	color: var(--ink-300);
 }
 
 .textarea:hover {
-	border-color: #c7d2e0;
+	border-color: #cbd5e6;
 }
 
 .textarea:focus {
 	outline: none;
 	background: #ffffff;
-	border-color: #1e3a8a;
-	box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1);
+	border-color: var(--brand-700);
+	box-shadow: 0 0 0 4px rgba(59, 91, 219, 0.14);
 }
 
+/* ===== Przycisk ===== */
 .button {
 	margin-top: 20px;
 	width: 100%;
@@ -121,39 +248,47 @@
 	align-items: center;
 	justify-content: center;
 	gap: 10px;
-	padding: 15px;
-	background: linear-gradient(180deg, #24479b 0%, #1e3a8a 100%);
+	padding: 15px 18px;
+	background: linear-gradient(180deg, #24479b 0%, #1a337c 100%);
 	color: #ffffff;
 	font-size: 1rem;
 	font-weight: 600;
 	letter-spacing: 0.01em;
-	border: none;
-	border-radius: 10px;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 12px;
 	cursor: pointer;
 	box-shadow:
-		0 1px 0 rgba(255, 255, 255, 0.15) inset,
-		0 8px 20px -8px rgba(30, 58, 138, 0.5);
+		0 1px 0 rgba(255, 255, 255, 0.18) inset,
+		0 12px 24px -14px rgba(26, 51, 124, 0.7);
 	transition:
-		transform 0.12s ease,
-		box-shadow 0.15s,
-		opacity 0.15s;
+		transform 0.1s ease,
+		box-shadow 0.18s ease,
+		filter 0.18s ease;
 }
 
 .button:hover:not(:disabled) {
-	background: linear-gradient(180deg, #2b52b0 0%, #24479b 100%);
+	filter: brightness(1.08);
 	box-shadow:
-		0 1px 0 rgba(255, 255, 255, 0.15) inset,
-		0 10px 24px -8px rgba(30, 58, 138, 0.6);
+		0 1px 0 rgba(255, 255, 255, 0.22) inset,
+		0 16px 30px -14px rgba(26, 51, 124, 0.8);
 }
 
 .button:active:not(:disabled) {
-	transform: translateY(1px);
+	transform: translateY(1px) scale(0.998);
+}
+
+.button:focus-visible {
+	outline: none;
+	box-shadow:
+		0 0 0 3px #ffffff,
+		0 0 0 6px rgba(59, 91, 219, 0.45);
 }
 
 .button:disabled {
-	opacity: 0.55;
+	opacity: 0.5;
 	cursor: not-allowed;
 	box-shadow: none;
+	filter: grayscale(0.15);
 }
 
 /* ===== Komunikat sukcesu ===== */
@@ -163,13 +298,13 @@
 	align-items: center;
 	gap: 10px;
 	padding: 13px 16px;
-	background: #eef2ff;
-	border: 1px solid #c7d2fe;
-	border-left: 3px solid #1e3a8a;
-	color: #1e3a8a;
-	border-radius: 8px;
+	background: var(--success-bg);
+	border: 1px solid var(--success-line);
+	color: var(--success-ink);
+	border-radius: 10px;
 	font-size: 0.95rem;
 	font-weight: 500;
+	animation: fadeIn 0.25s ease both;
 }
 
 /* ===== Stopka ===== */
@@ -178,16 +313,32 @@
 	padding-top: 22px;
 	text-align: center;
 	font-size: 0.85rem;
-	color: #64748b;
-	border-top: 1px solid #eef2f7;
+	color: var(--ink-400);
+	border-top: 1px solid var(--line-soft);
 }
 
 .link {
-	color: #1e3a8a;
+	color: var(--brand-700);
 	text-decoration: none;
 	font-weight: 600;
+	border-bottom: 1px solid transparent;
+	transition:
+		border-color 0.15s ease,
+		color 0.15s ease;
 }
 
 .link:hover {
-	text-decoration: underline;
+	color: var(--brand-800);
+	border-bottom-color: currentColor;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(-2px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }

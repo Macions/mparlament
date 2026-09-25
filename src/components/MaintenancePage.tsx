@@ -2,6 +2,8 @@
 import { useState, type FormEvent } from "react";
 import { Send, CheckCircle2 } from "lucide-react";
 import styles from "./MaintenancePage.module.css";
+import ParlamentLogo from "./ParlamentLogo";
+import MParlamentLogo from "./MParlamentLogo";
 
 type Props = {
 	message?: string | null;
@@ -48,6 +50,10 @@ export function MaintenancePage({
 	return (
 		<div className={styles.page}>
 			<div className={styles.container}>
+				<div className={styles.logos}>
+					<ParlamentLogo />
+				</div>
+
 				<h1 className={styles.brand}>mParlament</h1>
 
 				<p className={styles.subtitle}>
