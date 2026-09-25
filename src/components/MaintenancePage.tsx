@@ -1,4 +1,3 @@
-// src/components/MaintenancePage.tsx
 import { useState, type FormEvent } from "react";
 import { Send, CheckCircle2, AlertCircle } from "lucide-react";
 import styles from "./MaintenancePage.module.css";
@@ -7,14 +6,13 @@ import MParlamentLogo from "./MParlamentLogo";
 
 type Props = {
 	message?: string | null;
-	/** Endpoint API przyjmujący { idea: string } — opcjonalny */
 	submitUrl?: string;
 	contactEmail?: string;
 };
 
 export function MaintenancePage({
 	message,
-	submitUrl = "/newapp/api/ideas", // ← DODAJ
+	submitUrl = "/newapp/api/ideas",
 	contactEmail = "maciej.czarnecki@parlamentmlodych.eu",
 }: Props) {
 	const [idea, setIdea] = useState("");
