@@ -59,7 +59,7 @@ export function MaintenancePage({
 
 				<p className={styles.subtitle}>
 					{message ??
-						"System jest w przebudowie. Prace potrwają kilka miesięcy — wracamy z nową, lepszą wersją."}
+						"System jest w przebudowie. Wrócimy z nową, lepszą wersją."}
 				</p>
 
 				<form onSubmit={handleSubmit} className={styles.form}>
