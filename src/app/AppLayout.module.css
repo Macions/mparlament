@@ -1,0 +1,29 @@
+.layout {
+	min-height: 100vh;
+	box-sizing: border-box;
+	padding-top: 76px;
+	padding-left: 240px;
+}
+
+.content {
+	min-width: 0;
+	padding: 16px;
+}
+
+@media (max-width: 1023px) {
+	.layout {
+		padding-left: 0;
+	}
+}
+
+@media (max-width: 767px) {
+	.layout {
+		padding-top: 64px;
+	}
+}
+
+@media (max-width: 479px) {
+	.layout {
+		padding-top: 56px;
+	}
+}

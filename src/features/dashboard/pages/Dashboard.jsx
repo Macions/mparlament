@@ -1,39 +1,27 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Clock } from "lucide-react";
+import {
+	Vote,
+	FileText,
+	FilePlus2,
+	ShieldCheck,
+	LayoutDashboard,
+	CalendarDays,
+	ArrowRight,
+	ArrowUpRight,
+} from "lucide-react";
 import styles from "./Dashboard.module.css";
 import BackButton from "../../../components/PageBack";
 import useCountdown from "./useCountdown";
-
-function CalendarIcon() {
-	return (
-		<svg
-			width="256"
-			height="256"
-			viewBox="0 0 24 24"
-			fill="none"
-			xmlns="http://www.w3.org/2000/svg"
-		>
-			<path
-				d="M3 9H21M7 3V5M17 3V5M6 12H8M11 12H13M16 12H18M6 15H8M11 15H13M16 15H18M6 18H8M11 18H13M16 18H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9202 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9202 3 19.4803 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51989 21 5.07989 21 6.2 21Z"
-				stroke="currentColor"
-				strokeWidth="0.992"
-				strokeLinecap="round"
-			/>
-		</svg>
-	);
-}
+import { useAuth } from "../../auth/AuthContext";
 
 const formatDate = (dateStr) => {
 	if (!dateStr) return "";
-
 	if (typeof dateStr === "string" && /^\d{2}\.\d{2}\.\d{4}$/.test(dateStr)) {
 		return dateStr;
 	}
-
 	const date = new Date(dateStr);
 	if (isNaN(date.getTime())) return "";
-
 	return date.toLocaleDateString("pl-PL", {
 		day: "2-digit",
 		month: "2-digit",
@@ -43,64 +31,31 @@ const formatDate = (dateStr) => {
 
 export default function Dashboard() {
 	const navigate = useNavigate();
+	const { user, isAdmin, loading: authLoading } = useAuth();
 
-	const [user, setUser] = useState(null);
 	const [currentSession, setCurrentSession] = useState(null);
 	const [nextSession, setNextSession] = useState(null);
 	const [loading, setLoading] = useState(true);
-	const [isAdmin, setIsAdmin] = useState(false);
-	const token = localStorage.getItem("token");
 
 	useEffect(() => {
-		const fetchDashboard = async () => {
+		const fetchSessions = async () => {
 			try {
 				const token = localStorage.getItem("token");
-
 				if (!token) {
 					navigate("/zaloguj");
 					return;
 				}
-
-				const userResponse = await fetch("/newapp/api/auth/me", {
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				});
-
-				if (!userResponse.ok) {
-					throw new Error("Unauthorized");
-				}
-
-				const userData = await userResponse.json();
-
-				setUser(userData);
-
-				setIsAdmin(
-					userData.role === "admin" ||
-					userData.permissions?.includes("MANAGE_RESOLUTIONS"),
-				);
+				const headers = { Authorization: `Bearer ${token}` };
 
 				const sessionResponse = await fetch("/newapp/api/sessions/current", {
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
+					headers,
 				});
+				if (sessionResponse.ok) setCurrentSession(await sessionResponse.json());
 
-				if (sessionResponse.ok) {
-					const sessionData = await sessionResponse.json();
-					setCurrentSession(sessionData);
-				}
-
-				// --- najbliższe posiedzenie ---
 				const nextResponse = await fetch("/newapp/api/sessions/next", {
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
+					headers,
 				});
-				if (nextResponse.ok) {
-					const nextData = await nextResponse.json();
-					setNextSession(nextData);
-				}
+				if (nextResponse.ok) setNextSession(await nextResponse.json());
 			} catch {
 				localStorage.removeItem("token");
 				localStorage.removeItem("user");
@@ -110,116 +65,140 @@ export default function Dashboard() {
 			}
 		};
 
-		fetchDashboard();
+		fetchSessions();
 	}, [navigate]);
 
-	if (loading) {
-		return null;
-	}
+	if (authLoading || loading) return null;
+
+	const links = [
+		{
+			to: "/glosowania",
+			label: "Głosowania",
+			hint: "Przejdź do głosowań",
+			icon: Vote,
+			tone: "teal",
+		},
+		{
+			to: "/uchwaly",
+			label: "Uchwały",
+			hint: "Sprawdź uchwały",
+			icon: FileText,
+			tone: "blue",
+		},
+		{
+			to: "/zloz-uchwale",
+			label: "Nowa uchwała",
+			hint: "Złóż uchwałę",
+			icon: FilePlus2,
+			tone: "violet",
+		},
+		...(isAdmin
+			? [
+					{
+						to: "/finalizuj-uchwale",
+						label: "Administrator",
+						hint: "Finalizuj uchwałę",
+						icon: ShieldCheck,
+						tone: "amber",
+					},
+				]
+			: []),
+	];
 
 	return (
 		<div className={styles.shell}>
-			{/* Górny pasek użytkownika */}
-			<header className={styles.topbar}>
-				<BackButton to="/" label="Strona główna" />
+			<div className={styles.frame}>
+				<div className={styles.main}>
+					<header className={styles.topbar}>
+						<div className={styles.topbarTitle}>
+							<BackButton to="/" label="Strona główna" />
+							<h1 className={styles.pageTitle}>Przegląd</h1>
+							<p className={styles.pageSubtitle}>
+								Witaj, {user?.name?.split(" ")[0]}! Oto co dzieje się w Twojej
+								radzie.
+							</p>
+						</div>
 
-				<div className={styles.identity}>
-					<div className={styles.avatar}>
-						{(user?.name?.[0] || "?").toUpperCase()}
-					</div>
-					<div className={styles.identityText}>
-						<span className={styles.identityGreeting}>Zalogowano jako</span>
-						<strong className={styles.identityName}>{user?.name}</strong>
-						{user?.club && (
-							<span className={styles.identityClub}>{user.club}</span>
-						)}
-					</div>
+						<div className={styles.identity}>
+							<div className={styles.avatar}>
+								{(user?.name?.[0] || "?").toUpperCase()}
+							</div>
+							<div className={styles.identityText}>
+								<span className={styles.identityGreeting}>Zalogowano jako</span>
+								<strong className={styles.identityName}>{user?.name}</strong>
+							</div>
+						</div>
+					</header>
+
+					<main className={styles.content}>
+						{/* Kafle akcji */}
+						<section className={styles.tiles}>
+							{links.map(({ to, label, hint, icon: Icon, tone }) => (
+								<Link key={to} to={to} className={styles.tile}>
+									<span
+										className={`${styles.tileIcon} ${styles[`tone-${tone}`]}`}
+									>
+										<Icon size={22} />
+									</span>
+									<span className={styles.tileText}>
+										<span className={styles.tileEyebrow}>{label}</span>
+										<span className={styles.tileLabel}>{hint}</span>
+									</span>
+									<span className={styles.tileGo}>
+										<ArrowUpRight size={14} />
+									</span>
+								</Link>
+							))}
+						</section>
+
+						{/* Hero + kalendarz */}
+						<div className={styles.row}>
+							{currentSession && currentSession.active ? (
+								<LiveHero session={currentSession} />
+							) : nextSession ? (
+								<UpcomingHero session={nextSession} />
+							) : (
+								<section className={styles.heroIdle}>
+									<h2 className={styles.heroIdleTitle}>Brak posiedzeń</h2>
+									<p className={styles.heroIdleText}>
+										Nie ma zaplanowanych posiedzeń.
+									</p>
+								</section>
+							)}
+
+							<section className={styles.calendar} title="W budowie...">
+								<span className={`${styles.tileIcon} ${styles["tone-blue"]}`}>
+									<CalendarDays size={22} />
+								</span>
+								<div className={styles.calendarText}>
+									<h2 className={styles.calendarTitle}>Kalendarz</h2>
+									<p className={styles.calendarSubtitle}>
+										Harmonogram posiedzeń pojawi się wkrótce.
+									</p>
+								</div>
+							</section>
+						</div>
+					</main>
 				</div>
-			</header>
-
-			<main className={styles.content}>
-				{/* Hero z aktywnym posiedzeniem */}
-				{currentSession && currentSession.active ? (
-					<LiveHero session={currentSession} />
-				) : nextSession ? (
-					<UpcomingHero session={nextSession} />
-				) : (
-					<section className={styles.heroIdle}>
-						<h1 className={styles.heroIdleTitle}>Panel radnego</h1>
-						<p className={styles.heroIdleText}>
-							Brak zaplanowanych posiedzeń.
-						</p>
-					</section>
-				)}
-
-				{/* Kafle akcji */}
-				<section className={styles.tiles}>
-					<Link
-						to="/glosowania"
-						className={`${styles.tile} ${styles.tileVoting}`}
-					>
-						<span className={styles.tileEyebrow}>Głosowania</span>
-						<span className={styles.tileLabel}>Przejdź do głosowań</span>
-						<span className={styles.tileArrow}>→</span>
-					</Link>
-
-					<Link
-						to="/uchwaly"
-						className={`${styles.tile} ${styles.tileResolution}`}
-					>
-						<span className={styles.tileEyebrow}>Uchwały</span>
-						<span className={styles.tileLabel}>Sprawdź uchwały</span>
-						<span className={styles.tileArrow}>→</span>
-					</Link>
-
-					<Link
-						to="/zloz-uchwale"
-						className={`${styles.tile} ${styles.tileSubmit}`}
-					>
-						<span className={styles.tileEyebrow}>Uchwały</span>
-						<span className={styles.tileLabel}>Złóż uchwałę</span>
-						<span className={styles.tileArrow}>→</span>
-					</Link>
-
-					{isAdmin && (
-						<Link
-							to="/finalizuj-uchwale"
-							className={`${styles.tile} ${styles.tileAdmin}`}
-						>
-							<span className={styles.tileEyebrow}>Administrator</span>
-							<span className={styles.tileLabel}>Finalizuj uchwałę</span>
-							<span className={styles.tileArrow}>→</span>
-						</Link>
-					)}
-				</section>
-
-				{/* Kalendarz */}
-				<section className={styles.calendar} title="W budowie...">
-					<div className={styles.calendarIcon}>
-						<CalendarIcon />
-					</div>
-					<div className={styles.calendarText}>
-						<h2 className={styles.calendarTitle}>Kalendarz</h2>
-						<p className={styles.calendarSubtitle}>
-							Harmonogram posiedzeń pojawi się wkrótce.
-						</p>
-					</div>
-				</section>
-			</main>
+			</div>
 		</div>
 	);
 }
+
+function CtaArrow() {
+	return <ArrowRight size={18} aria-hidden="true" />;
+}
+
 /* ---------- Hero: TRWA ---------- */
 function LiveHero({ session }) {
 	return (
 		<section className={styles.hero}>
-			<div className={styles.heroPulse} aria-hidden="true" />
 			<div className={styles.heroBody}>
 				<span className={styles.heroBadge}>
-					<span className={styles.heroBadgeDot} />
+					<span className={`${styles.heroBadgeDot} ${styles.heroBadgeLive}`} />
 					Trwa teraz
 				</span>
-				<h1 className={styles.heroTitle}>{session.title}</h1>
+				<h2 className={styles.heroTitle}>{session.title}</h2>
 				<p className={styles.heroTime}>
 					{session.start || session.startTime}
 					<span className={styles.heroTimeSep}>–</span>
@@ -227,16 +206,8 @@ function LiveHero({ session }) {
 				</p>
 			</div>
 			<Link to="/posiedzenie" className={styles.heroCta}>
-				<span>ŚLEDŹ POSIEDZENIE</span>
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-					<path
-						d="M5 12h14M13 6l6 6-6 6"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-					/>
-				</svg>
+				<span>Śledź posiedzenie</span>
+				<CtaArrow />
 			</Link>
 		</section>
 	);
@@ -263,9 +234,7 @@ function UpcomingHero({ session }) {
 					<span className={styles.heroBadgeDot} />
 					Najbliższe posiedzenie
 				</span>
-
-				<h1 className={styles.heroTitle}>{session.title}</h1>
-
+				<h2 className={styles.heroTitle}>{session.title}</h2>
 				<p className={styles.heroTime}>
 					{formatDate(startRaw)}
 					<span className={styles.heroTimeSep}>•</span>
@@ -274,23 +243,13 @@ function UpcomingHero({ session }) {
 						minute: "2-digit",
 					})}
 				</p>
-
 				<p className={styles.heroCountdown} aria-live="polite">
 					{text}
 				</p>
 			</div>
-
 			<Link to="/posiedzenie" className={styles.heroCta}>
-				<span>SZCZEGÓŁY POSIEDZENIA</span>
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-					<path
-						d="M5 12h14M13 6l6 6-6 6"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-					/>
-				</svg>
+				<span>Szczegóły posiedzenia</span>
+				<CtaArrow />
 			</Link>
 		</section>
 	);

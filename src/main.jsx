@@ -1,35 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { HashRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import App from "./app/App";
 import "./components/backButton.css";
-import { SocketProvider } from "./socket/SocketProvider";
-
-// async function enableMocking() {
-// 	if (import.meta.env.DEV) {
-// 		// if (false) {
-// 		const { worker } = await import("./mocks/browser");
-
-// 		return worker.start();
-// 	}
-
-// 	return Promise.resolve();
-// }
-
-// enableMocking().then(() => {
-// 	ReactDOM.createRoot(document.getElementById("root")).render(
-// 		<HashRouter>
-// 			<SocketProvider>
-// 				<App />
-// 			</SocketProvider>
-// 		</HashRouter>,
-// 	);
-// });
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-	<HashRouter>
-		<SocketProvider>
+	<React.StrictMode>
+		<BrowserRouter basename="/newapp">
 			<App />
-		</SocketProvider>
-	</HashRouter>,
+		</BrowserRouter>
+	</React.StrictMode>,
 );

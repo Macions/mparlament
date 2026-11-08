@@ -9,22 +9,19 @@ export default function Login() {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		const tokenData = localStorage.getItem("token");
+		const token = localStorage.getItem("token");
+		const expiresAt = Number(localStorage.getItem("tokenExpiresAt") || 0);
 
-		if (tokenData) {
-			try {
-				const parsed = JSON.parse(tokenData);
-				if (parsed.expiresAt && Date.now() > parsed.expiresAt) {
-					localStorage.removeItem("token");
-					localStorage.removeItem("user");
-					return;
-				}
-				navigate("/panel", { replace: true });
-			} catch {
-				localStorage.removeItem("token");
-				localStorage.removeItem("user");
-			}
+		if (!token) return;
+
+		if (expiresAt && Date.now() > expiresAt) {
+			localStorage.removeItem("token");
+			localStorage.removeItem("tokenExpiresAt");
+			localStorage.removeItem("user");
+			return;
 		}
+
+		navigate("/panel", { replace: true });
 	}, [navigate]);
 
 	const handleSubmit = async (e) => {
@@ -49,14 +46,12 @@ export default function Login() {
 				throw new Error(data.message || "Błąd logowania");
 			}
 
-			const tokenData = {
-				token: data.token,
-				expiresAt: Date.now() + 10 * 60 * 60 * 1000,
-			};
-
-			localStorage.setItem("token", JSON.stringify(tokenData));
+			localStorage.setItem("token", data.token);
+			localStorage.setItem(
+				"tokenExpiresAt",
+				String(Date.now() + 10 * 60 * 60 * 1000),
+			);
 			localStorage.setItem("user", JSON.stringify(data.user));
-
 			navigate("/panel");
 		} catch (error) {
 			setError(error.message);

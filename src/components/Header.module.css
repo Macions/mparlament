@@ -1,146 +1,153 @@
 .header {
-	background: #141644;
-	color: #fff;
-	border-radius: 0 0 1.75rem 1.75rem;
-	box-shadow:
-		0 4px 12px rgba(0, 0, 0, 0.41),
-		0 8px 16px -6px rgba(0, 0, 0, 0.404);
-	width: 100%;
+	position: fixed;
+	top: 0;
+	left: 240px;
+	right: 0;
+	height: 88px;
+	z-index: 200;
+
+	background: rgba(255, 255, 255, 0.85);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	color: #16302f;
+	border-radius: 0 0 1.75rem 0;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.9);
+	box-shadow: 0 4px 12px rgba(21, 94, 99, 0.08);
 }
 
 .inner {
-	display: grid;
-	grid-template-columns: 1fr auto 1fr;
-	align-items: center;
-	gap: 1rem;
-	padding: 0.75rem 1.5rem;
-	min-height: 76px;
-	max-width: 1400px;
-	margin: 0 auto;
-	width: 100%;
-}
-
-.logo {
 	display: flex;
 	align-items: center;
-	justify-self: start;
-	text-decoration: none;
-	color: inherit;
+	justify-content: space-between;
+	gap: 2rem;
+	height: 100%;
+	padding: 0 2rem 0 30px; /* zero po lewej, 2rem po prawej dla badge/dzwonka */
+	/* brak max-width i margin: auto */
 }
-
-.logo img,
-.logo svg {
-	max-height: 48px;
-	width: auto;
-	max-width: 100%;
-	display: block;
-	object-fit: contain;
-}
-
-.brand {
+/* LEWO — powitanie */
+.textBlock {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	justify-self: center;
 	gap: 4px;
+	min-width: 0;
 }
 
-.brand img,
-.brand svg {
-	max-height: 56px;
-	width: auto;
-	max-width: 100%;
-	display: block;
-	object-fit: contain;
+.greeting {
+	margin: 0;
+	font-size: 1.55rem;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	color: #16302f;
+	line-height: 1.1;
 }
 
-.actions {
+.subtitle {
+	margin: 0;
+	font-size: 0.9rem;
+	font-weight: 500;
+	color: #6b8584;
+	line-height: 1.25;
+}
+
+/* PRAWO — badge + przycisk powiadomień */
+.right {
 	display: flex;
 	align-items: center;
-	justify-self: end;
-}
-.authBtn {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	padding: 0.6rem 1.2rem;
-	border: 1.5px solid rgba(255, 255, 255, 0.25);
-	border-radius: 50px;
-	background: rgba(255, 255, 255, 0.06);
-	color: #fff;
-	font-size: 0.95rem;
-	font-weight: 600;
-	text-decoration: none;
-	cursor: pointer;
-	transition:
-		background 0.2s ease,
-		border-color 0.2s ease,
-		transform 0.2s ease;
-	white-space: nowrap;
-}
-
-.authBtn:hover {
-	background: rgba(255, 255, 255, 0.14);
-	border-color: rgba(255, 255, 255, 0.45);
-	transform: translateY(-1px);
-}
-
-.authBtn:active {
-	transform: translateY(0);
-}
-
-.authBtn svg {
-	width: 18px;
-	height: 18px;
+	gap: 16px;
 	flex-shrink: 0;
 }
 
+.badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 8px 18px;
+	border-radius: 999px;
+	font-size: 0.82rem;
+	font-weight: 700;
+	color: #0b7c80;
+	background: #d7f1ee;
+	border: 1px solid rgba(11, 124, 128, 0.15);
+	white-space: nowrap;
+}
+
+.notificationsBtn {
+	position: relative;
+	display: grid;
+	place-items: center;
+	width: 46px;
+	height: 46px;
+	flex-shrink: 0;
+	border-radius: 14px;
+	border: 1px solid rgba(11, 124, 128, 0.15);
+	background: #d7f1ee;
+	color: #0b7c80;
+	cursor: pointer;
+	transition:
+		background 0.15s ease,
+		transform 0.15s ease;
+}
+
+.notificationsBtn:hover,
+.notificationsBtn:focus-visible {
+	background: #c8ebe7;
+	transform: translateY(-1px);
+	outline: none;
+}
+
+.notificationsBtn:active {
+	transform: translateY(0);
+}
+
+/* opcjonalna czerwona kropka */
+.notificationsBtn::after {
+	content: "";
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #ff7b7b;
+	box-shadow: 0 0 0 2px #fff;
+}
+
+@media (max-width: 1023px) {
+	.header {
+		left: 0;
+	}
+}
+
 @media (max-width: 767px) {
+	.header {
+		height: 72px;
+	}
 	.inner {
-		padding: 0.6rem 1rem;
-		min-height: 64px;
-		gap: 0.75rem;
+		padding: 0 1rem;
+		gap: 1rem;
 	}
-
-	.logo img,
-	.logo svg {
-		max-height: 36px;
+	.notificationsBtn {
+		width: 40px;
+		height: 40px;
 	}
-
-	.brand img,
-	.brand svg {
-		max-height: 40px;
+	.greeting {
+		font-size: 1.2rem;
 	}
-
-	.authBtn {
-		padding: 0.5rem;
-		border-radius: 50%;
+	.subtitle {
+		font-size: 0.78rem;
 	}
-
-	.authBtn span {
+	.badge {
 		display: none;
-	}
-
-	.authBtn svg {
-		width: 20px;
-		height: 20px;
 	}
 }
 
 @media (max-width: 479px) {
-	.inner {
-		padding: 0.5rem 0.75rem;
-		min-height: 56px;
+	.header {
+		height: 64px;
 	}
-
-	.logo img,
-	.logo svg {
-		max-height: 32px;
+	.greeting {
+		font-size: 1.05rem;
 	}
-
-	.brand img,
-	.brand svg {
-		max-height: 34px;
+	.subtitle {
+		display: none;
 	}
 }

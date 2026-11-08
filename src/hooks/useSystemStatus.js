@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 const API_BASE = import.meta.env.VITE_API_URL ?? "/newapp/api";
 
 export function useSystemStatus() {
+	return { loading: false, maintenance: false, message: null, until: null };
 	const [status, setStatus] = useState({
 		loading: true, // ← najpierw ładuje
 		maintenance: false, // ← NIE wymuszaj maintenance
