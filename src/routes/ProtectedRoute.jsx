@@ -1,11 +1,27 @@
 import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../features/auth/AuthContext";
 
 export default function ProtectedRoute() {
-    const token = localStorage.getItem("token");
+	const { user, loading } = useAuth();
 
-    if (!token) {
-        return <Navigate to="/zaloguj" replace />;
-    }
+	if (loading) {
+		return (
+			<div
+				style={{
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					height: "100vh",
+				}}
+			>
+				Ładowanie…
+			</div>
+		);
+	}
 
-    return <Outlet />;
+	if (!user) {
+		return <Navigate to="/zaloguj" replace />;
+	}
+
+	return <Outlet />;
 }

@@ -1,0 +1,293 @@
+/* ─────────────────────────────────────────────
+   Logowanie — split layout, typografia urzędowa
+   Palette: atrament + mosiądz
+   ───────────────────────────────────────────── */
+
+.page {
+	--ink: #111827;
+	--ink-soft: #374151;
+	--ink-muted: #6b7280;
+	--line: #e5e7eb;
+	--line-strong: #d1d5db;
+	--paper: #fafaf9;
+	--accent: #7c5e10;
+	--accent-soft: #fbf3dc;
+	--error: #b91c1c;
+	--error-bg: #fef2f2;
+
+	min-height: 100vh;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 48px 24px;
+	background: var(--paper);
+	color: var(--ink);
+	font-family:
+		"IBM Plex Sans",
+		"Inter Tight",
+		ui-sans-serif,
+		system-ui,
+		-apple-system,
+		"Segoe UI",
+		sans-serif;
+	font-feature-settings: "ss01", "cv11";
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.page * {
+	box-sizing: border-box;
+}
+
+.layout {
+	width: 100%;
+	max-width: 960px;
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 48px;
+}
+
+/* ───── Lewa kolumna: kontekst ───── */
+
+.intro {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	max-width: 420px;
+}
+
+.kicker {
+	margin: 0;
+	font-size: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--accent);
+}
+
+.heading {
+	margin: 0;
+	font-size: 2rem;
+	line-height: 1.15;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	color: var(--ink);
+}
+
+.lead {
+	margin: 0;
+	font-size: 0.98rem;
+	line-height: 1.6;
+	color: var(--ink-soft);
+}
+
+.help {
+	margin: 8px 0 0;
+	font-size: 0.85rem;
+	line-height: 1.55;
+	color: var(--ink-muted);
+}
+
+/* ───── Prawa kolumna: formularz ───── */
+
+.form {
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+	width: 100%;
+	max-width: 400px;
+	justify-self: end;
+	align-self: center;
+}
+
+.formHeader {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid var(--line);
+}
+
+.formTitle {
+	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+	color: var(--ink);
+}
+
+.formSubtitle {
+	margin: 0;
+	font-size: 0.88rem;
+	color: var(--ink-muted);
+	line-height: 1.5;
+}
+
+.error {
+	padding: 12px 14px;
+	border-left: 3px solid var(--error);
+	background: var(--error-bg);
+	color: var(--error);
+	font-size: 0.86rem;
+	line-height: 1.5;
+}
+
+.form form {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.labelRow {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.label {
+	font-size: 0.82rem;
+	font-weight: 500;
+	color: var(--ink);
+	letter-spacing: 0.01em;
+}
+
+.input {
+	width: 100%;
+	padding: 10px 0;
+	border: none;
+	border-bottom: 1px solid var(--line-strong);
+	background: transparent;
+	color: var(--ink);
+	font-family: inherit;
+	font-size: 0.95rem;
+	line-height: 1.4;
+	outline: none;
+	border-radius: 0;
+	transition: border-color 0.15s ease;
+}
+
+.input:hover:not(:disabled) {
+	border-bottom-color: var(--ink-soft);
+}
+
+.input:focus {
+	border-bottom-color: var(--accent);
+	box-shadow: 0 1px 0 0 var(--accent);
+}
+
+.input:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.inlineLink {
+	font-size: 0.78rem;
+	color: var(--accent);
+	text-decoration: none;
+	border-bottom: 1px solid transparent;
+	transition: border-color 0.15s ease;
+}
+
+.inlineLink:hover,
+.inlineLink:focus-visible {
+	border-bottom-color: var(--accent);
+	outline: none;
+}
+
+.submit {
+	margin-top: 8px;
+	align-self: flex-start;
+	padding: 12px 24px;
+	border: 1px solid var(--ink);
+	background: var(--ink);
+	color: #fff;
+	font-family: inherit;
+	font-size: 0.9rem;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	border-radius: 2px;
+	cursor: pointer;
+	transition:
+		background-color 0.15s ease,
+		color 0.15s ease;
+}
+
+.submit:hover:not(:disabled),
+.submit:focus-visible:not(:disabled) {
+	background: transparent;
+	color: var(--ink);
+	outline: none;
+}
+
+.submit:disabled {
+	opacity: 0.5;
+	cursor: progress;
+}
+
+/* ───── Responsywność ───── */
+
+@media (min-width: 768px) {
+	.layout {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+		gap: 80px;
+		align-items: center;
+	}
+
+	.heading {
+		font-size: 2.4rem;
+	}
+}
+
+@media (min-width: 1024px) {
+	.page {
+		padding: 80px 48px;
+	}
+	.layout {
+		gap: 120px;
+	}
+}
+
+@media (max-width: 767px) {
+	.intro {
+		max-width: none;
+	}
+	.form {
+		max-width: none;
+		justify-self: stretch;
+	}
+	.heading {
+		font-size: 1.65rem;
+	}
+	.logo {
+		max-width: 180px;
+		padding: 12px 16px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.input,
+	.inlineLink,
+	.submit {
+		transition: none;
+	}
+}
+
+.logo {
+	display: block;
+	width: auto;
+	max-width: 220px;
+	height: auto;
+	margin: 0 0 24px;
+	padding: 16px 20px;
+	background: var(--ink);
+	border-radius: 4px;
+	object-fit: contain;
+}

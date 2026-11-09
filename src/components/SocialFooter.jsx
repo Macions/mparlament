@@ -2,10 +2,30 @@ import { FaFacebookF, FaInstagram, FaTiktok, FaYoutube } from "react-icons/fa";
 import styles from "./Footer.module.css";
 
 const socialLinks = [
-	{ label: "Instagram", href: "https://www.instagram.com/parlamentmlodychrp/", icon: FaInstagram, showLabel: true },
-	{ label: "Facebook", href: "https://www.facebook.com/parlamentmlodychrp/", icon: FaFacebookF, showLabel: true },
-	{ label: "TikTok", href: "https://www.tiktok.com/@parlamentmlodychrp", icon: FaTiktok, showLabel: true },
-	{ label: "YouTube", href: "https://www.youtube.com/@ParlamentM%C5%82odychRP", icon: FaYoutube, showLabel: true },
+	{
+		label: "Instagram",
+		href: "https://www.instagram.com/parlamentmlodychrp/",
+		icon: FaInstagram,
+		showLabel: true,
+	},
+	{
+		label: "Facebook",
+		href: "https://www.facebook.com/parlamentmlodychrp/",
+		icon: FaFacebookF,
+		showLabel: true,
+	},
+	{
+		label: "TikTok",
+		href: "https://www.tiktok.com/@parlamentmlodychrp",
+		icon: FaTiktok,
+		showLabel: true,
+	},
+	{
+		label: "YouTube",
+		href: "https://www.youtube.com/@ParlamentM%C5%82odychRP",
+		icon: FaYoutube,
+		showLabel: true,
+	},
 ];
 
 export default function SocialFooter() {

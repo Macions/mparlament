@@ -3,14 +3,14 @@ import Header from "../components/Header";
 import Sidebar from "../features/dashboard/components/Sidebar";
 import styles from "./AppLayout.module.css";
 
-export default function AppLayout() {
+export default function AppLayout({ children }) {
 	return (
 		<div className={styles.layout}>
 			<Sidebar />
-			<Header />
-			<main className={styles.content}>
-				<Outlet />
-			</main>
+			<div className={styles.main}>
+				<Header />
+				<main className={styles.content}>{children ?? <Outlet />}</main>
+			</div>
 		</div>
 	);
 }

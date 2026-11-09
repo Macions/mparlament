@@ -11,6 +11,9 @@ import FinalizeResolution from "../features/resolutions/pages/FinalizeResolution
 
 import Dashboard from "../features/dashboard/pages/Dashboard";
 
+import AdminRoute from "./AdminRoute";
+import Coordination from "../features/coordination/pages/Coordination";
+
 import Resolutions from "../features/resolutions/pages/Resolutions";
 import ResolutionDetails from "../features/resolutions/pages/ResolutionDetails";
 import SubmitResolution from "../features/resolutions/pages/SubmitResolution";
@@ -27,7 +30,6 @@ import Parliamentarians from "../features/parliamentarians/pages/Parliamentarian
 import VotingDetailsPage from "../features/voting/pages/VotingDetailsPage";
 import EditVoting from "../features/voting/pages/EditVoting";
 import LiveVoting from "../features/voting/pages/LiveVoting";
-import { SocketProvider } from "../socket/SocketProvider";
 
 import { MaintenancePage } from "../components/MaintenancePage";
 import { useSystemStatus } from "../hooks/useSystemStatus";
@@ -58,41 +60,42 @@ export default function AppRoutes() {
 
 	// Normalny routing
 	return (
-		<SocketProvider>
-			<Routes>
-				<Route path="/" element={<Home />} />
-				<Route path="/zaloguj" element={<Login />} />
-				<Route path="/parlamentarzysci" element={<Parliamentarians />} />
+		<Routes>
+			<Route path="/" element={<Home />} />
+			<Route path="/zaloguj" element={<Login />} />
+			<Route path="/parlamentarzysci" element={<Parliamentarians />} />
 
-				<Route path="/posiedzenie" element={<SessionDetails />} />
-				<Route element={<ProtectedRoute />}>
-					<Route path="/panel" element={<Dashboard />} />
+			<Route path="/posiedzenie" element={<SessionDetails />} />
+			<Route element={<ProtectedRoute />}>
+				<Route path="/panel" element={<Dashboard />} />
 
-					<Route path="/uchwaly" element={<Resolutions />} />
-					<Route path="/zloz-uchwale" element={<SubmitResolution />} />
+				<Route path="/uchwaly" element={<Resolutions />} />
+				<Route path="/zloz-uchwale" element={<SubmitResolution />} />
 
-					<Route path="/:slug" element={<ResolutionDetails />} />
-					<Route path="/:slug/poprawki" element={<AmendmentsPage />} />
-					<Route path="/:slug/dodaj-poprawke" element={<AddAmendment />} />
-					<Route
-						path="/:slug/poprawka/:amendmentId"
-						element={<AmendmentDetails />}
-					/>
+				<Route path="/:slug" element={<ResolutionDetails />} />
+				<Route path="/:slug/poprawki" element={<AmendmentsPage />} />
+				<Route path="/:slug/dodaj-poprawke" element={<AddAmendment />} />
+				<Route
+					path="/:slug/poprawka/:amendmentId"
+					element={<AmendmentDetails />}
+				/>
 
-					<Route path="/glosowania" element={<VotingList />} />
-					<Route path="/glosowanie/:id" element={<VotingPage />} />
-					<Route path="/glosowania/nowe" element={<CreateVoting />} />
+				<Route path="/glosowania" element={<VotingList />} />
+				<Route path="/glosowanie/:id" element={<VotingPage />} />
+				<Route path="/glosowania/nowe" element={<CreateVoting />} />
 
-					<Route
-						path="/glosowanie/:id/szczegoly"
-						element={<VotingDetailsPage />}
-					/>
-					<Route path="/finalizuj-uchwale" element={<FinalizeResolution />} />
+				<Route
+					path="/glosowanie/:id/szczegoly"
+					element={<VotingDetailsPage />}
+				/>
+				<Route path="/finalizuj-uchwale" element={<FinalizeResolution />} />
 
-					<Route path="/glosowanie/:id/edytuj" element={<EditVoting />} />
-					<Route path="/glosowanie/:id/live" element={<LiveVoting />} />
+				<Route path="/glosowanie/:id/edytuj" element={<EditVoting />} />
+				<Route path="/glosowanie/:id/live" element={<LiveVoting />} />
+				<Route element={<AdminRoute />}>
+					<Route path="/koordynacja" element={<Coordination />} />
 				</Route>
-			</Routes>
-		</SocketProvider>
+			</Route>
+		</Routes>
 	);
 }

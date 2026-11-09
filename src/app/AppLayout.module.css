@@ -1,29 +1,141 @@
+/* ─────────────────────────────────────────────
+   App layout — sidebar fixed (240px) + treść
+   Palette: atrament + papier + mosiądz
+   ───────────────────────────────────────────── */
+
 .layout {
+	--ink: #111827;
+	--ink-2: #1f2937;
+	--ink-soft: #374151;
+	--ink-muted: #6b7280;
+	--line: #e5e7eb;
+	--line-strong: #d1d5db;
+	--paper: #fafaf9;
+	--paper-2: #f4f3f0;
+	--accent: #7c5e10;
+	--accent-soft: #fbf3dc;
+
+	display: block;
 	min-height: 100vh;
+	padding-left: 0;
+	background: var(--paper);
+	color: var(--ink);
+	font-family:
+		"IBM Plex Sans",
+		ui-sans-serif,
+		system-ui,
+		-apple-system,
+		"Segoe UI",
+		sans-serif;
+	font-feature-settings: "ss01", "cv11";
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.layout * {
 	box-sizing: border-box;
-	padding-top: 76px;
-	padding-left: 240px;
+}
+
+.main {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
 }
 
 .content {
-	min-width: 0;
-	padding: 16px;
+	flex: 1;
+	padding: 28px 20px 40px;
+	max-width: 1200px;
+	width: 100%;
+	margin: 0 auto;
 }
 
-@media (max-width: 1023px) {
-	.layout {
-		padding-left: 0;
+/* ───── Topbar ───── */
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 16px 20px;
+	border-bottom: 1px solid var(--line);
+	background: var(--paper);
+}
+
+.headerGreeting {
+	margin: 0;
+	font-size: 0.95rem;
+	font-weight: 500;
+	color: var(--ink);
+}
+
+.headerSubtitle {
+	margin: 2px 0 0;
+	font-size: 0.8rem;
+	color: var(--ink-muted);
+}
+
+.headerRight {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 4px 10px;
+	border: 1px solid var(--line-strong);
+	border-radius: 2px;
+	font-size: 0.75rem;
+	font-weight: 500;
+	color: var(--ink-soft);
+	background: var(--paper-2);
+}
+
+.notificationsBtn {
+	display: grid;
+	place-items: center;
+	width: 36px;
+	height: 36px;
+	border: 1px solid var(--line);
+	border-radius: 2px;
+	background: transparent;
+	color: var(--ink-soft);
+	cursor: pointer;
+	transition:
+		background-color 0.15s ease,
+		border-color 0.15s ease;
+}
+
+.notificationsBtn:hover,
+.notificationsBtn:focus-visible {
+	background: var(--paper-2);
+	border-color: var(--line-strong);
+	outline: none;
+}
+
+/* ───── Breakpoints ───── */
+
+@media (min-width: 768px) {
+	.content {
+		padding: 40px 32px 56px;
+	}
+	.header {
+		padding: 20px 32px;
 	}
 }
 
-@media (max-width: 767px) {
+@media (min-width: 1024px) {
+	/* Sidebar jest position: fixed i ma 240px szerokości.
+	   Rezerwujemy miejsce, żeby treść nie wchodziła pod niego. */
 	.layout {
-		padding-top: 64px;
+		padding-left: 240px;
 	}
 }
 
-@media (max-width: 479px) {
-	.layout {
-		padding-top: 56px;
+@media (prefers-reduced-motion: reduce) {
+	.notificationsBtn {
+		transition: none;
 	}
 }

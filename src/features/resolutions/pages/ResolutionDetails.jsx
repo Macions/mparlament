@@ -1,8 +1,29 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import styles from "./ResolutionDetails.module.css";
 import { createPortal } from "react-dom";
 import { Trash2, Pencil, Save, X } from "lucide-react";
+
+const STATUS_LABEL = {
+	pending: "Oczekuje",
+	accepted: "Przyjęta",
+	rejected: "Odrzucona",
+};
+
+const STATUS_TONE = {
+	pending: "warn",
+	accepted: "ok",
+	rejected: "bad",
+};
+
+function StatusPill({ status }) {
+	const tone = STATUS_TONE[status] ?? "neutral";
+	return (
+		<span className={`${styles.pill} ${styles[`pill--${tone}`]}`}>
+			{STATUS_LABEL[status] ?? status}
+		</span>
+	);
+}
 
 function parseLineBack(raw) {
 	const match = raw.match(
@@ -11,19 +32,9 @@ function parseLineBack(raw) {
 	if (match) {
 		const indent = match[1].replace(/\t/g, "  ").length;
 		const level = Math.floor(indent / 2) + 1;
-		return {
-			marker: match[2],
-			text: match[3],
-			level,
-			type: "list-item",
-		};
+		return { marker: match[2], text: match[3], level, type: "list-item" };
 	}
-	return {
-		marker: null,
-		text: raw,
-		level: 1,
-		type: "paragraph",
-	};
+	return { marker: null, text: raw, level: 1, type: "paragraph" };
 }
 
 export default function ResolutionDetails() {
@@ -41,17 +52,13 @@ export default function ResolutionDetails() {
 	const [errorMessage, setErrorMessage] = useState(null);
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-	// --- EDYCJA ---
 	const [isEditing, setIsEditing] = useState(false);
 	const [editedData, setEditedData] = useState(null);
 	const [saving, setSaving] = useState(false);
 	const [saveError, setSaveError] = useState(null);
 
 	useEffect(() => {
-		window.scrollTo({
-			top: 0,
-			behavior: "instant",
-		});
+		window.scrollTo({ top: 0, behavior: "instant" });
 	}, []);
 
 	useEffect(() => {
@@ -61,21 +68,14 @@ export default function ResolutionDetails() {
 	const fetchResolution = async () => {
 		setLoading(true);
 		setErrorMessage(null);
-
 		try {
-			// 1) uchwała
 			const res = await fetch(`/newapp/api/resolutions/${slug}`);
-
-			if (!res.ok) {
-				throw new Error("Nie znaleziono uchwały");
-			}
-
+			if (!res.ok) throw new Error("Nie znaleziono uchwały");
 			const data = await res.json();
 			setResolution(data.resolution);
-			setSignedUsers(data.signedUsers);
+			setSignedUsers(data.signedUsers ?? []);
 			setSession(data.session);
 
-			// 2) currentUser — backend nie zwraca w /resolutions, więc pobierz osobno
 			try {
 				const tokenData = localStorage.getItem("token");
 				let token = null;
@@ -85,14 +85,11 @@ export default function ResolutionDetails() {
 				} catch {
 					token = tokenData;
 				}
-
 				const meRes = await fetch("/newapp/api/auth/me", {
 					headers: token ? { Authorization: `Bearer ${token}` } : {},
 				});
-
 				if (meRes.ok) {
 					const me = await meRes.json();
-					// dopisz informacje, których oczekuje UI
 					setCurrentUser({
 						...me,
 						hasSigned:
@@ -116,30 +113,22 @@ export default function ResolutionDetails() {
 	const handleSignatureAction = async () => {
 		const endpoint = `/newapp/api/resolutions/${resolution.id}/sign`;
 		const method = actionType === "sign" ? "POST" : "DELETE";
-
 		const token = localStorage.getItem("token");
-
 		if (!token) {
 			setErrorMessage("Musisz być zalogowany, aby podpisać uchwałę.");
 			return;
 		}
-
 		try {
 			const res = await fetch(endpoint, {
 				method,
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
+				headers: { Authorization: `Bearer ${token}` },
 			});
-
 			if (!res.ok) {
 				const data = await res.json().catch(() => ({}));
 				throw new Error(data.message || "Wystąpił błąd");
 			}
-
 			setShowConfirm(false);
 			setErrorMessage(null);
-
 			await fetchResolution();
 		} catch (error) {
 			setErrorMessage(error.message);
@@ -149,19 +138,14 @@ export default function ResolutionDetails() {
 	const handleDeleteResolution = async () => {
 		try {
 			const token = localStorage.getItem("token");
-
 			const res = await fetch(`/newapp/api/resolutions/${resolution.id}`, {
 				method: "DELETE",
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
+				headers: { Authorization: `Bearer ${token}` },
 			});
-
 			if (!res.ok) {
 				const data = await res.json();
 				throw new Error(data.message || "Wystąpił błąd podczas usuwania");
 			}
-
 			setShowDeleteConfirm(false);
 			navigate("/uchwaly");
 		} catch (error) {
@@ -171,39 +155,29 @@ export default function ResolutionDetails() {
 
 	const getUserRole = (user) => {
 		if (!user) return "member";
-
 		if (user.role_id === 1) return "admin";
 		if (user.role_id === 2 || user.role_id === 3) return "coordinator";
 		if (user.role_id === 4) return "member";
-
 		const role = user.role?.toLowerCase();
 		if (role === "admin" || role === "zarząd") return "admin";
 		if (role === "coordinator" || role === "koordynator") return "coordinator";
-
 		return "member";
 	};
 
-	// --- EDYCJA: helpers ---
-	// pomocnicza funkcja — rozbij content na linie
 	const splitContentIntoLines = (content) => {
-		if (!content) {
+		if (!content)
 			return [{ marker: null, text: "", level: 1, type: "paragraph" }];
-		}
-
-		// 1) podziel po \n i odfiltruj puste
 		const rawLines = content
 			.split("\n")
 			.map((l) => l.trim())
 			.filter((l) => l);
 
-		// 2) scal linie, które są "samotnymi cyframi" lub "Art." z poprzednią
 		const merged = [];
 		for (const line of rawLines) {
 			const isLoneDigit = /^\d{1,2}$/.test(line);
 			const isLoneNumberWithDot = /^\d{1,2}[.)]$/.test(line);
 			const isLoneArt = /^[""„”'']?Art\.?$/i.test(line);
 			const isLoneQuote = /^[""„”'']$/.test(line);
-			// linia zaczyna się od cudzysłowu + Art. lub samego Art.
 			const isArtStart = /^[""„”'']?Art\.?\s*$/i.test(line);
 
 			if (
@@ -220,31 +194,20 @@ export default function ResolutionDetails() {
 			}
 		}
 
-		// 3) rozbij każdą scaloną linię po markerach w środku
-		// 3) rozbij każdą scaloną linię po markerach w środku,
-		//    ale TYLKO gdy marker jest na POCZĄTKU linii (^),
-		//    żeby nie rozbijać zdań typu "…o których mowa w art. 1 ust. 2."
-
-
-		// 4) dla każdej linii wykryj marker i level
 		return merged.map((line) => {
 			const m = line.match(
 				/^(\d+[a-z]?[.)]|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)])\s+(.+)$/i,
 			);
-
 			if (m) {
 				const marker = m[1];
 				const text = m[2];
 				let level = 1;
-
 				if (/^\d+\.$/.test(marker)) level = 1;
 				else if (/^\d+\)$/.test(marker)) level = 2;
 				else if (/^[a-z]\)$/.test(marker)) level = 3;
 				else if (/^[IVXLCDM]+[.)]$/i.test(marker)) level = 4;
-
 				return { marker, text, level, type: "list-item" };
 			}
-
 			return { marker: null, text: line, level: 1, type: "paragraph" };
 		});
 	};
@@ -262,10 +225,10 @@ export default function ResolutionDetails() {
 				contentLines:
 					art.contentLines && art.contentLines.length > 0
 						? art.contentLines.map((l) =>
-							typeof l === "string"
-								? { marker: null, text: l, level: 1, type: "paragraph" }
-								: { ...l },
-						)
+								typeof l === "string"
+									? { marker: null, text: l, level: 1, type: "paragraph" }
+									: { ...l },
+							)
 						: splitContentIntoLines(art.content || ""),
 			})),
 		}));
@@ -273,6 +236,7 @@ export default function ResolutionDetails() {
 		setSaveError(null);
 		setIsEditing(true);
 	};
+
 	const cancelEditing = () => {
 		setIsEditing(false);
 		setEditedData(null);
@@ -283,9 +247,7 @@ export default function ResolutionDetails() {
 		setEditedData((prev) => {
 			const newData = structuredClone(prev);
 			let target = newData;
-			for (let i = 0; i < path.length - 1; i++) {
-				target = target[path[i]];
-			}
+			for (let i = 0; i < path.length - 1; i++) target = target[path[i]];
 			target[path[path.length - 1]] = value;
 			return newData;
 		});
@@ -337,10 +299,8 @@ export default function ResolutionDetails() {
 		if (!editedData) return;
 		setSaving(true);
 		setSaveError(null);
-
 		try {
 			const token = localStorage.getItem("token");
-
 			const res = await fetch(`/newapp/api/resolutions/${resolution.id}`, {
 				method: "PUT",
 				headers: {
@@ -353,12 +313,10 @@ export default function ResolutionDetails() {
 					chapters: editedData.chapters,
 				}),
 			});
-
 			if (!res.ok) {
 				const data = await res.json().catch(() => ({}));
 				throw new Error(data.message || "Nie udało się zapisać zmian");
 			}
-
 			setIsEditing(false);
 			setEditedData(null);
 			await fetchResolution();
@@ -369,11 +327,12 @@ export default function ResolutionDetails() {
 		}
 	};
 
+	/* ── Render ── */
+
 	if (loading) {
 		return (
 			<div className={styles.page}>
-				<div className={`${styles.skeleton} ${styles.skeletonHead}`} />
-				<div className={`${styles.skeleton} ${styles.skeletonBody}`} />
+				<p className={styles.muted}>Ładowanie…</p>
 			</div>
 		);
 	}
@@ -381,15 +340,15 @@ export default function ResolutionDetails() {
 	if (!resolution) {
 		return (
 			<div className={styles.page}>
-				<Link to="/uchwaly" className={styles.back}>
-					← Wróć do uchwał
-				</Link>
 				<div className={styles.empty}>
 					<p className={styles.emptyTitle}>Nie znaleziono uchwały</p>
 					<p className={styles.emptyText}>
 						{errorMessage ||
 							"Uchwała mogła zostać usunięta lub zmienił się link."}
 					</p>
+					<Link to="/uchwaly" className={styles.btnOutline}>
+						Wróć do uchwał
+					</Link>
 				</div>
 			</div>
 		);
@@ -402,599 +361,507 @@ export default function ResolutionDetails() {
 	return (
 		<div className={styles.page}>
 			<header className={styles.topbar}>
-				<Link to="/uchwaly" className={styles.back}>
-					<svg
-						width="16"
-						height="16"
-						viewBox="0 0 24 24"
-						fill="none"
-						aria-hidden="true"
-					>
-						<path
-							d="M19 12H5M11 6l-6 6 6 6"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-						/>
-					</svg>
-					Wróć do uchwał
-				</Link>
-
-				{session && (
-					<div className={styles.session}>
-						<span className={styles.sessionLabel}>Posiedzenie</span>
-						<span className={styles.sessionCity}>{session.city}</span>
-						<span className={styles.sessionDate}>{session.date}</span>
-					</div>
+				<div className={styles.topbarMeta}>
+					{session && (
+						<span className={styles.topbarSession}>
+							{session.city}
+							{session.date && ` · ${session.date}`}
+						</span>
+					)}
+					<StatusPill status={resolution.status} />
+				</div>
+				{isEditing ? (
+					<textarea
+						className={styles.titleInput}
+						value={editedData.title}
+						onChange={(e) => updateField(["title"], e.target.value)}
+						rows={2}
+					/>
+				) : (
+					<h1 className={styles.title}>{resolution.title}</h1>
 				)}
+				<p className={styles.author}>
+					Autor: <strong>{resolution.author}</strong>
+					{resolution.party && (
+						<span className={styles.authorParty}> ({resolution.party})</span>
+					)}
+				</p>
 			</header>
 
-			<main className={styles.main}>
-				<div className={styles.head}>
-					<span className={styles.eyebrow}>Uchwała</span>
-
-					{isEditing ? (
-						<textarea
-							className={styles.title}
-							value={editedData.title}
-							onChange={(e) => updateField(["title"], e.target.value)}
-							rows={3}
-						/>
-					) : (
-						<h1 className={styles.title}>{resolution.title}</h1>
-					)}
-
-					<p className={styles.author}>
-						Autor: <strong>{resolution.author}</strong>
-						{resolution.party && (
-							<span className={styles.authorParty}> ({resolution.party})</span>
-						)}
-					</p>
-
-					{isEditing ? (
-						<div className={styles.preamble}>
-							<textarea
-								className={styles.textarea}
-								value={editedData.preamble || ""}
-								onChange={(e) => updateField(["preamble"], e.target.value)}
-								placeholder="Preambuła..."
-								rows={6}
-							/>
-						</div>
-					) : (
-						resolution.preamble && (
-							<div className={styles.preamble}>
-								<p>{resolution.preamble}</p>
-							</div>
-						)
-					)}
+			{isEditing ? (
+				<div className={styles.field}>
+					<label className={styles.label}>Preambuła</label>
+					<textarea
+						className={styles.textarea}
+						value={editedData.preamble || ""}
+						onChange={(e) => updateField(["preamble"], e.target.value)}
+						placeholder="Preambuła..."
+						rows={6}
+					/>
 				</div>
-
-				<div className={styles.grid}>
-					<section className={styles.card}>
-						<h2 className={styles.cardTitle}>Załącznik</h2>
-
-						{resolution.filePath ? (
-							<a
-								href={resolution.filePath}
-								className={styles.file}
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								<svg
-									width="18"
-									height="18"
-									viewBox="0 0 24 24"
-									fill="none"
-									aria-hidden="true"
-								>
-									<path
-										d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"
-										stroke="currentColor"
-										strokeWidth="2"
-										strokeLinecap="round"
-										strokeLinejoin="round"
-									/>
-								</svg>
-								{resolution.fileName || "Pobierz plik"}
-							</a>
-						) : resolution.fileName ? (
-							<a
-								href={`/uploads/resolutions/${resolution.fileName}`}
-								className={styles.file}
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								<svg
-									width="18"
-									height="18"
-									viewBox="0 0 24 24"
-									fill="none"
-									aria-hidden="true"
-								>
-									<path
-										d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"
-										stroke="currentColor"
-										strokeWidth="2"
-										strokeLinecap="round"
-										strokeLinejoin="round"
-									/>
-								</svg>
-								{resolution.fileName}
-							</a>
-						) : (
-							<span className={`${styles.file} ${styles.fileDisabled}`}>
-								Brak załącznika
-							</span>
-						)}
-					</section>
-
-					<section className={styles.card}>
-						<h2 className={styles.cardTitle}>Podpisy</h2>
-
-						<div className={styles.signatures}>
-							<div className={styles.signaturesCount}>
-								<span className={styles.signaturesNumber}>
-									{resolution.signatures}
-								</span>
-								<span className={styles.signaturesLabel}>
-									{resolution.signatures === 1 ? "podpis" : "podpisów"}
-								</span>
-							</div>
-
-							<button
-								type="button"
-								className={`${styles.btn} ${styles.btnGhost}`}
-								onClick={() => setShowSignatures(true)}
-							>
-								Sprawdź kto podpisał
-							</button>
-						</div>
-					</section>
-				</div>
-
-				{/* TREŚĆ / EDYTOR */}
-				<section className={styles.content}>
-					<div className={styles.contentHead}>
-						<h2 className={styles.contentTitle}>Treść uchwały</h2>
-						{isEditing && (
-							<button
-								type="button"
-								onClick={addChapter}
-								className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
-							>
-								+ Dodaj rozdział
-							</button>
-						)}
+			) : (
+				resolution.preamble && (
+					<div className={styles.preamble}>
+						<p>{resolution.preamble}</p>
 					</div>
+				)
+			)}
 
-					{isEditing ? (
-						<div className={styles.chapters}>
-							{editedData.chapters.map((chapter, chIndex) => (
-								<article key={chapter.id} className={styles.chapter}>
-									<header className={styles.chapterHead}>
-										<div className={styles.chapterTitles}>
-											<input
-												type="text"
-												className={styles.chapterTitle}
-												value={chapter.title}
-												onChange={(e) =>
-													updateField(
-														["chapters", chIndex, "title"],
-														e.target.value,
-													)
-												}
-												placeholder="Numer rozdziału"
-											/>
-											<input
-												type="text"
-												className={styles.chapterSubtitle}
-												value={chapter.subtitle || ""}
-												onChange={(e) =>
-													updateField(
-														["chapters", chIndex, "subtitle"],
-														e.target.value,
-													)
-												}
-												placeholder="Tytuł rozdziału"
-											/>
-										</div>
-										<button
-											type="button"
-											onClick={() => removeChapter(chIndex)}
-											className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
-										>
-											Usuń rozdział
-										</button>
-									</header>
-
-									<div className={styles.articles}>
-										{chapter.articles.map((article, artIndex) => (
-											<div key={article.id} className={styles.article}>
-												<div className={styles.articleHead}>
-													<input
-														type="text"
-														className={styles.articleNumber}
-														value={article.number}
-														onChange={(e) =>
-															updateField(
-																[
-																	"chapters",
-																	chIndex,
-																	"articles",
-																	artIndex,
-																	"number",
-																],
-																e.target.value,
-															)
-														}
-													/>
-													<button
-														type="button"
-														onClick={() => removeArticle(chIndex, artIndex)}
-														className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
-													>
-														Usuń
-													</button>
-												</div>
-
-												<div className={styles.articleLines}>
-													{article.contentLines.map((line, lineIndex) => {
-														const indent = "  ".repeat((line.level || 1) - 1);
-														const displayValue = line.marker
-															? `${indent}${line.marker} ${line.text}`
-															: `${indent}${line.text || ""}`;
-
-														return (
-															<div
-																key={lineIndex}
-																className={styles.articleLine}
-																data-level={line.level || 1}
-															>
-																<textarea
-																	className={styles.textarea}
-																	value={displayValue}
-																	onChange={(e) => {
-																		const raw = e.target.value;
-																		const parsedLine = parseLineBack(raw);
-																		const newLines = structuredClone(
-																			article.contentLines,
-																		);
-																		newLines[lineIndex] = parsedLine;
-
-																		updateField(
-																			[
-																				"chapters",
-																				chIndex,
-																				"articles",
-																				artIndex,
-																				"contentLines",
-																			],
-																			newLines,
-																		);
-																		updateField(
-																			[
-																				"chapters",
-																				chIndex,
-																				"articles",
-																				artIndex,
-																				"content",
-																			],
-																			newLines
-																				.map((l) =>
-																					l.marker
-																						? `${l.marker} ${l.text}`
-																						: l.text,
-																				)
-																				.join("\n"),
-																		);
-																	}}
-																	placeholder={`Punkt ${lineIndex + 1}...`}
-																	rows={Math.max(
-																		2,
-																		Math.ceil(displayValue.length / 80),
-																	)}
-																/>
-																<button
-																	type="button"
-																	onClick={() => {
-																		const newLines = structuredClone(
-																			article.contentLines,
-																		);
-																		newLines.splice(lineIndex, 1);
-																		if (newLines.length === 0) {
-																			newLines.push({
-																				marker: null,
-																				text: "",
-																				level: 1,
-																				type: "paragraph",
-																			});
-																		}
-																		updateField(
-																			[
-																				"chapters",
-																				chIndex,
-																				"articles",
-																				artIndex,
-																				"contentLines",
-																			],
-																			newLines,
-																		);
-																		updateField(
-																			[
-																				"chapters",
-																				chIndex,
-																				"articles",
-																				artIndex,
-																				"content",
-																			],
-																			newLines
-																				.map((l) =>
-																					l.marker
-																						? `${l.marker} ${l.text}`
-																						: l.text,
-																				)
-																				.join("\n"),
-																		);
-																	}}
-																	className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
-																	title="Usuń linię"
-																>
-																	×
-																</button>
-															</div>
-														);
-													})}
-
-													<button
-														type="button"
-														onClick={() => {
-															const newLines = structuredClone(
-																article.contentLines,
-															);
-															newLines.push({
-																marker: null,
-																text: "",
-																level: 1,
-																type: "paragraph",
-															});
-															updateField(
-																[
-																	"chapters",
-																	chIndex,
-																	"articles",
-																	artIndex,
-																	"contentLines",
-																],
-																newLines,
-															);
-															updateField(
-																[
-																	"chapters",
-																	chIndex,
-																	"articles",
-																	artIndex,
-																	"content",
-																],
-																newLines
-																	.map((l) =>
-																		l.marker ? `${l.marker} ${l.text}` : l.text,
-																	)
-																	.join("\n"),
-															);
-														}}
-														className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
-													>
-														+ Dodaj linię
-													</button>
-												</div>
-											</div>
-										))}
-
-										<button
-											type="button"
-											onClick={() => addArticle(chIndex)}
-											className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
-										>
-											+ Dodaj artykuł
-										</button>
-									</div>
-								</article>
-							))}
-						</div>
+			<div className={styles.metaRow}>
+				<div className={styles.metaCell}>
+					<span className={styles.metaLabel}>Załącznik</span>
+					{resolution.filePath ? (
+						<a
+							href={resolution.filePath}
+							className={styles.fileLink}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{resolution.fileName || "Pobierz plik"}
+						</a>
+					) : resolution.fileName ? (
+						<a
+							href={`/uploads/resolutions/${resolution.fileName}`}
+							className={styles.fileLink}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{resolution.fileName}
+						</a>
 					) : (
-						resolution.chapters &&
-						resolution.chapters.length > 0 && (
-							<>
-								{resolution.chapters.map((chapter, chIndex) => (
-									<article
-										key={chapter.id || chIndex}
-										className={styles.chapter}
+						<span className={styles.muted}>Brak załącznika</span>
+					)}
+				</div>
+
+				<div className={styles.metaCell}>
+					<span className={styles.metaLabel}>Podpisy</span>
+					<div className={styles.signaturesRow}>
+						<strong className={styles.signaturesCount}>
+							{resolution.signatures}
+						</strong>
+						<span className={styles.muted}>
+							{resolution.signatures === 1 ? "podpis" : "podpisów"}
+						</span>
+						<button
+							type="button"
+							className={styles.linkBtn}
+							onClick={() => setShowSignatures(true)}
+						>
+							Zobacz listę
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<section className={styles.content}>
+				<div className={styles.contentHead}>
+					<h2 className={styles.contentTitle}>Treść uchwały</h2>
+					{isEditing && (
+						<button
+							type="button"
+							onClick={addChapter}
+							className={styles.btnGhost}
+						>
+							+ Dodaj rozdział
+						</button>
+					)}
+				</div>
+
+				{isEditing ? (
+					<div className={styles.chapters}>
+						{editedData.chapters.map((chapter, chIndex) => (
+							<article key={chapter.id} className={styles.chapter}>
+								<header className={styles.chapterHead}>
+									<div className={styles.chapterTitles}>
+										<input
+											type="text"
+											className={styles.chapterTitleInput}
+											value={chapter.title}
+											onChange={(e) =>
+												updateField(
+													["chapters", chIndex, "title"],
+													e.target.value,
+												)
+											}
+											placeholder="Numer rozdziału"
+										/>
+										<input
+											type="text"
+											className={styles.chapterSubtitleInput}
+											value={chapter.subtitle || ""}
+											onChange={(e) =>
+												updateField(
+													["chapters", chIndex, "subtitle"],
+													e.target.value,
+												)
+											}
+											placeholder="Tytuł rozdziału"
+										/>
+									</div>
+									<button
+										type="button"
+										onClick={() => removeChapter(chIndex)}
+										className={styles.btnDangerSmall}
 									>
-										<header className={styles.chapterHead}>
-											<h3 className={styles.chapterTitle}>{chapter.title}</h3>
-											{chapter.subtitle && (
-												<p className={styles.chapterSubtitle}>
-													{chapter.subtitle}
-												</p>
-											)}
-										</header>
+										Usuń rozdział
+									</button>
+								</header>
 
-										{(chapter.articles || []).map((article, artIndex) => (
-											<div
-												key={article.id || artIndex}
-												className={styles.article}
-											>
-												<h4 className={styles.articleNumber}>
-													{article.number}
-												</h4>
+								<div className={styles.articles}>
+									{chapter.articles.map((article, artIndex) => (
+										<div key={article.id} className={styles.article}>
+											<div className={styles.articleHead}>
+												<input
+													type="text"
+													className={styles.articleNumberInput}
+													value={article.number}
+													onChange={(e) =>
+														updateField(
+															[
+																"chapters",
+																chIndex,
+																"articles",
+																artIndex,
+																"number",
+															],
+															e.target.value,
+														)
+													}
+												/>
+												<button
+													type="button"
+													onClick={() => removeArticle(chIndex, artIndex)}
+													className={styles.btnDangerSmall}
+												>
+													Usuń
+												</button>
+											</div>
 
-												<div className={styles.articleContent}>
-													{(() => {
-														// 1) jeśli są contentLines — użyj ich
-														if ((article.contentLines || []).length > 0) {
-															return article.contentLines.map(
-																(line, lineIndex) => {
-																	if (typeof line === "string") {
-																		return (
-																			<p
-																				key={lineIndex}
-																				className={styles.articleLine}
-																				data-level={1}
-																			>
-																				{line}
-																			</p>
-																		);
-																	}
+											<div className={styles.articleLines}>
+												{article.contentLines.map((line, lineIndex) => {
+													const indent = "  ".repeat((line.level || 1) - 1);
+													const displayValue = line.marker
+														? `${indent}${line.marker} ${line.text}`
+														: `${indent}${line.text || ""}`;
 
-																	const level = line.level || 1;
-																	const marker = line.marker;
-																	const text = line.text || "";
-
-																	return (
-																		<p
-																			key={lineIndex}
-																			className={styles.articleLine}
-																			data-level={level}
-																		>
-																			{marker && (
-																				<span className={styles.lineMarker}>
-																					{marker}
-																				</span>
-																			)}{" "}
-																			{text}
-																		</p>
+													return (
+														<div
+															key={lineIndex}
+															className={styles.articleLine}
+															data-level={line.level || 1}
+														>
+															<textarea
+																className={styles.textarea}
+																value={displayValue}
+																onChange={(e) => {
+																	const raw = e.target.value;
+																	const parsedLine = parseLineBack(raw);
+																	const newLines = structuredClone(
+																		article.contentLines,
 																	);
-																},
-															);
-														}
+																	newLines[lineIndex] = parsedLine;
 
-														// 2) fallback: rozbij content po \n ORAZ po markerach w środku
-														// 2) fallback: rozbij content po \n ORAZ po markerach w środku
-														// 2) fallback: użyj tej samej logiki co w edytorze
-														const lines = splitContentIntoLines(
-															article.content || "",
+																	updateField(
+																		[
+																			"chapters",
+																			chIndex,
+																			"articles",
+																			artIndex,
+																			"contentLines",
+																		],
+																		newLines,
+																	);
+																	updateField(
+																		[
+																			"chapters",
+																			chIndex,
+																			"articles",
+																			artIndex,
+																			"content",
+																		],
+																		newLines
+																			.map((l) =>
+																				l.marker
+																					? `${l.marker} ${l.text}`
+																					: l.text,
+																			)
+																			.join("\n"),
+																	);
+																}}
+																placeholder={`Punkt ${lineIndex + 1}...`}
+																rows={Math.max(
+																	2,
+																	Math.ceil(displayValue.length / 80),
+																)}
+															/>
+															<button
+																type="button"
+																onClick={() => {
+																	const newLines = structuredClone(
+																		article.contentLines,
+																	);
+																	newLines.splice(lineIndex, 1);
+																	if (newLines.length === 0) {
+																		newLines.push({
+																			marker: null,
+																			text: "",
+																			level: 1,
+																			type: "paragraph",
+																		});
+																	}
+																	updateField(
+																		[
+																			"chapters",
+																			chIndex,
+																			"articles",
+																			artIndex,
+																			"contentLines",
+																		],
+																		newLines,
+																	);
+																	updateField(
+																		[
+																			"chapters",
+																			chIndex,
+																			"articles",
+																			artIndex,
+																			"content",
+																		],
+																		newLines
+																			.map((l) =>
+																				l.marker
+																					? `${l.marker} ${l.text}`
+																					: l.text,
+																			)
+																			.join("\n"),
+																	);
+																}}
+																className={styles.btnDangerSmall}
+																title="Usuń linię"
+															>
+																×
+															</button>
+														</div>
+													);
+												})}
+
+												<button
+													type="button"
+													onClick={() => {
+														const newLines = structuredClone(
+															article.contentLines,
 														);
+														newLines.push({
+															marker: null,
+															text: "",
+															level: 1,
+															type: "paragraph",
+														});
+														updateField(
+															[
+																"chapters",
+																chIndex,
+																"articles",
+																artIndex,
+																"contentLines",
+															],
+															newLines,
+														);
+														updateField(
+															[
+																"chapters",
+																chIndex,
+																"articles",
+																artIndex,
+																"content",
+															],
+															newLines
+																.map((l) =>
+																	l.marker ? `${l.marker} ${l.text}` : l.text,
+																)
+																.join("\n"),
+														);
+													}}
+													className={styles.btnGhost}
+												>
+													+ Dodaj linię
+												</button>
+											</div>
+										</div>
+									))}
 
-														return lines.map((line, lineIndex) => {
-															if (line.marker) {
-																return (
-																	<p
-																		key={lineIndex}
-																		className={styles.articleLine}
-																		data-level={line.level}
-																	>
-																		<span className={styles.lineMarker}>
-																			{line.marker}
-																		</span>{" "}
-																		{line.text}
-																	</p>
-																);
-															}
+									<button
+										type="button"
+										onClick={() => addArticle(chIndex)}
+										className={styles.btnGhost}
+									>
+										+ Dodaj artykuł
+									</button>
+								</div>
+							</article>
+						))}
+					</div>
+				) : (
+					<>
+						{resolution.chapters?.map((chapter, chIndex) => (
+							<article key={chapter.id || chIndex} className={styles.chapter}>
+								<header className={styles.chapterHead}>
+									<h3 className={styles.chapterTitle}>{chapter.title}</h3>
+									{chapter.subtitle && (
+										<p className={styles.chapterSubtitle}>{chapter.subtitle}</p>
+									)}
+								</header>
 
+								{(chapter.articles || []).map((article, artIndex) => (
+									<div key={article.id || artIndex} className={styles.article}>
+										<h4 className={styles.articleNumber}>{article.number}</h4>
+
+										<div className={styles.articleContent}>
+											{(() => {
+												if ((article.contentLines || []).length > 0) {
+													return article.contentLines.map((line, lineIndex) => {
+														if (typeof line === "string") {
 															return (
 																<p
 																	key={lineIndex}
 																	className={styles.articleLine}
-																	data-level={line.level || 1}
+																	data-level={1}
 																>
-																	{line.text}
+																	{line}
 																</p>
 															);
-														});
-													})()}
-												</div>
-											</div>
-										))}
-									</article>
+														}
+														const level = line.level || 1;
+														const marker = line.marker;
+														const text = line.text || "";
+														return (
+															<p
+																key={lineIndex}
+																className={styles.articleLine}
+																data-level={level}
+															>
+																{marker && (
+																	<span className={styles.lineMarker}>
+																		{marker}
+																	</span>
+																)}{" "}
+																{text}
+															</p>
+														);
+													});
+												}
+
+												const lines = splitContentIntoLines(
+													article.content || "",
+												);
+												return lines.map((line, lineIndex) => {
+													if (line.marker) {
+														return (
+															<p
+																key={lineIndex}
+																className={styles.articleLine}
+																data-level={line.level}
+															>
+																<span className={styles.lineMarker}>
+																	{line.marker}
+																</span>{" "}
+																{line.text}
+															</p>
+														);
+													}
+													return (
+														<p
+															key={lineIndex}
+															className={styles.articleLine}
+															data-level={line.level || 1}
+														>
+															{line.text}
+														</p>
+													);
+												});
+											})()}
+										</div>
+									</div>
 								))}
-							</>
-						)
-					)}
-				</section>
+							</article>
+						))}
+					</>
+				)}
+			</section>
 
-				{/* AKCJE */}
-				<section className={styles.actions}>
-					{isEditing ? (
-						<>
+			<section className={styles.actions}>
+				{isEditing ? (
+					<>
+						<button
+							type="button"
+							className={styles.btnPrimary}
+							onClick={handleSaveResolution}
+							disabled={saving}
+						>
+							<Save size={16} />
+							{saving ? "Zapisywanie..." : "Zapisz zmiany"}
+						</button>
+						<button
+							type="button"
+							className={styles.btnGhost}
+							onClick={cancelEditing}
+							disabled={saving}
+						>
+							<X size={16} />
+							Anuluj edycję
+						</button>
+						{saveError && <p className={styles.error}>{saveError}</p>}
+					</>
+				) : (
+					<>
+						{currentUser?.isAuthor ? (
+							<span className={styles.muted}>Autor — podpis automatyczny</span>
+						) : (
 							<button
 								type="button"
-								className={`${styles.btn} ${styles.btnPrimary} ${styles.btnBlock}`}
-								onClick={handleSaveResolution}
-								disabled={saving}
+								className={styles.btnPrimary}
+								onClick={() => {
+									setActionType(currentUser?.hasSigned ? "remove" : "sign");
+									setShowConfirm(true);
+								}}
 							>
-								<Save size={16} />
-								{saving ? "Zapisywanie..." : "Zapisz zmiany"}
+								{currentUser?.hasSigned ? "Usuń podpis" : "Podpisz uchwałę"}
 							</button>
+						)}
+
+						<Link
+							to={`/${resolution.slug}/poprawki`}
+							className={styles.btnOutline}
+						>
+							Wyświetl poprawki
+						</Link>
+
+						{isAdminOrCoordinator && (
 							<button
 								type="button"
-								className={`${styles.btn} ${styles.btnGhost} ${styles.btnBlock}`}
-								onClick={cancelEditing}
-								disabled={saving}
+								className={styles.btnOutline}
+								onClick={startEditing}
 							>
-								<X size={16} />
-								Anuluj edycję
+								<Pencil size={16} />
+								Edytuj uchwałę
 							</button>
+						)}
 
-							{saveError && <p className={styles.modalError}>{saveError}</p>}
-						</>
-					) : (
-						<>
-							{currentUser?.isAuthor ? (
-								<button
-									type="button"
-									className={`${styles.btn} ${styles.btnMuted} ${styles.btnBlock}`}
-									disabled
-								>
-									Autor — podpis automatyczny
-								</button>
-							) : (
-								<button
-									type="button"
-									className={`${styles.btn} ${styles.btnPrimary} ${styles.btnBlock}`}
-									onClick={() => {
-										setActionType(currentUser?.hasSigned ? "remove" : "sign");
-										setShowConfirm(true);
-									}}
-								>
-									{currentUser?.hasSigned ? "Usuń podpis" : "Podpisz uchwałę"}
-								</button>
-							)}
-
-							<Link
-								to={`/${resolution.slug}/poprawki`}
-								className={`${styles.btn} ${styles.btnOutline} ${styles.btnBlock}`}
+						{isAdminOrCoordinator && (
+							<button
+								type="button"
+								className={styles.btnDanger}
+								onClick={() => setShowDeleteConfirm(true)}
 							>
-								Wyświetl poprawki
-							</Link>
+								<Trash2 size={16} />
+								Usuń uchwałę
+							</button>
+						)}
+					</>
+				)}
+			</section>
 
-							{isAdminOrCoordinator && (
-								<button
-									type="button"
-									className={`${styles.btn} ${styles.btnOutline} ${styles.btnBlock}`}
-									onClick={startEditing}
-								>
-									<Pencil size={16} />
-									Edytuj uchwałę
-								</button>
-							)}
-
-							{isAdminOrCoordinator && (
-								<button
-									type="button"
-									className={`${styles.btn} ${styles.btnDanger} ${styles.btnBlock}`}
-									onClick={() => setShowDeleteConfirm(true)}
-								>
-									<Trash2 size={16} />
-									Usuń uchwałę
-								</button>
-							)}
-						</>
-					)}
-				</section>
-			</main>
-
+			{/* Panel podpisów */}
 			{showSignatures &&
 				createPortal(
 					<>
@@ -1014,17 +881,15 @@ export default function ResolutionDetails() {
 									✕
 								</button>
 							</div>
-
 							<p className={styles.panelTotal}>
 								Liczba podpisów: <strong>{signedUsers.length}</strong>
 							</p>
-
 							<ul className={styles.panelList}>
 								{signedUsers.map((user, index) => (
 									<li className={styles.signature} key={index}>
-										<div className={styles.signatureAvatar}>
+										<span className={styles.signatureAvatar}>
 											{user.name.charAt(0).toUpperCase()}
-										</div>
+										</span>
 										<div className={styles.signatureInfo}>
 											<strong>{user.name}</strong>
 											<span className={styles.signatureClub}>{user.club}</span>
@@ -1040,6 +905,7 @@ export default function ResolutionDetails() {
 					document.body,
 				)}
 
+			{/* Modal podpisu */}
 			{showConfirm &&
 				createPortal(
 					<div className={styles.modalOverlay}>
@@ -1047,28 +913,23 @@ export default function ResolutionDetails() {
 							<h2 className={styles.modalTitle}>
 								{actionType === "sign" ? "Podpisać uchwałę?" : "Usunąć podpis?"}
 							</h2>
-
-							{errorMessage && (
-								<p className={styles.modalError}>{errorMessage}</p>
-							)}
-
+							{errorMessage && <p className={styles.error}>{errorMessage}</p>}
 							<p className={styles.modalText}>
 								{actionType === "sign"
 									? "Czy na pewno chcesz podpisać tę uchwałę?"
 									: "Czy na pewno chcesz usunąć swój podpis?"}
 							</p>
-
 							<div className={styles.modalActions}>
 								<button
 									type="button"
-									className={`${styles.btn} ${styles.btnPrimary}`}
+									className={styles.btnPrimary}
 									onClick={handleSignatureAction}
 								>
 									Potwierdź
 								</button>
 								<button
 									type="button"
-									className={`${styles.btn} ${styles.btnGhost}`}
+									className={styles.btnGhost}
 									onClick={() => setShowConfirm(false)}
 								>
 									Anuluj
@@ -1079,36 +940,29 @@ export default function ResolutionDetails() {
 					document.body,
 				)}
 
+			{/* Modal usuwania */}
 			{showDeleteConfirm &&
 				createPortal(
 					<div className={styles.modalOverlay}>
-						<div className={`${styles.modal} ${styles.modalDanger}`}>
+						<div className={styles.modal}>
 							<h2 className={styles.modalTitle}>Usunąć uchwałę?</h2>
-
-							{errorMessage && (
-								<p className={styles.modalError}>{errorMessage}</p>
-							)}
-
+							{errorMessage && <p className={styles.error}>{errorMessage}</p>}
 							<p className={styles.modalText}>
 								Czy na pewno chcesz usunąć uchwałę{" "}
-								<strong>„{resolution.title}”</strong>?
+								<strong>„{resolution.title}”</strong>? Tej operacji nie można
+								cofnąć.
 							</p>
-
-							<p className={styles.modalWarning}>
-								Tej operacji nie można cofnąć.
-							</p>
-
 							<div className={styles.modalActions}>
 								<button
 									type="button"
-									className={`${styles.btn} ${styles.btnDanger}`}
+									className={styles.btnDanger}
 									onClick={handleDeleteResolution}
 								>
 									Tak, usuń
 								</button>
 								<button
 									type="button"
-									className={`${styles.btn} ${styles.btnGhost}`}
+									className={styles.btnGhost}
 									onClick={() => setShowDeleteConfirm(false)}
 								>
 									Anuluj

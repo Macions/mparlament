@@ -1,17 +1,27 @@
 import ParlamentLogo from "../../../components/ParlamentLogo";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
 	Vote,
 	FileText,
 	FilePlus2,
 	ShieldCheck,
 	LayoutDashboard,
+	Settings2,
+	LogOut,
 } from "lucide-react";
 import { useAuth } from "../../auth/AuthContext";
 import styles from "./Sidebar.module.css";
+import mainLogo from "../../../assets/main-logo.png";
 
 export default function Sidebar() {
 	const { user, isAdmin } = useAuth();
+	const navigate = useNavigate();
+
+	const canCoordinate =
+		isAdmin ||
+		user?.role === "admin" ||
+		user?.role === "marshal" ||
+		user?.permissions?.some?.((p) => p?.startsWith("MANAGE_"));
 
 	const links = [
 		{ to: "/glosowania", label: "Głosowania", icon: Vote },
@@ -26,12 +36,32 @@ export default function Sidebar() {
 					},
 				]
 			: []),
+		...(canCoordinate
+			? [
+					{
+						to: "/koordynacja",
+						label: "Koordynacja",
+						icon: Settings2,
+					},
+				]
+			: []),
 	];
+
+	const handleLogout = () => {
+		localStorage.removeItem("token");
+		localStorage.removeItem("tokenExpiresAt");
+		localStorage.removeItem("user");
+		navigate("/zaloguj", { replace: true });
+	};
 
 	return (
 		<aside className={styles.sidebar}>
 			<div className={styles.brand}>
-				<ParlamentLogo />
+				<img
+					src={mainLogo}
+					alt="Parlament Młodych RP"
+					className={styles.brandLogo}
+				/>
 			</div>
 
 			<nav className={styles.nav}>
@@ -73,6 +103,15 @@ export default function Sidebar() {
 						<span className={styles.identityClub}>{user.club}</span>
 					)}
 				</div>
+				<button
+					type="button"
+					className={styles.logoutBtn}
+					onClick={handleLogout}
+					title="Wyloguj"
+					aria-label="Wyloguj"
+				>
+					<LogOut size={16} />
+				</button>
 			</div>
 		</aside>
 	);

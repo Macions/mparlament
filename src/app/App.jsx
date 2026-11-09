@@ -1,7 +1,10 @@
 import { useLocation } from "react-router-dom";
+
+import { NotificationsProvider } from "../features/notifications/NotificationsContext";
+import NotificationsModal from "../features/notifications/NotificationsModal";
+import NotificationsToast from "../features/notifications/NotificationsToast";
 import AppRoutes from "../routes/AppRoutes";
 import AppLayout from "./AppLayout";
-import SocialFooter from "../components/SocialFooter";
 import { AuthProvider } from "../features/auth/AuthContext";
 import useReveal from "../hooks/useReveal";
 import { MaintenancePage } from "../components/MaintenancePage";
@@ -13,28 +16,45 @@ export default function App() {
 	const { loading, maintenance, message, until } = useSystemStatus();
 	useReveal();
 
-	if (loading)
+	const isLoginPage = location.pathname === "/zaloguj";
+
+	if (loading) {
 		return (
 			<div
-				style={
-					{
-						/* ... */
-					}
-				}
+				style={{
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					height: "100vh",
+					background: "#fafaf9",
+					color: "#6b7280",
+					fontFamily: "IBM Plex Sans, system-ui, sans-serif",
+				}}
 			>
 				Ładowanie…
 			</div>
 		);
+	}
+
 	if (maintenance) return <MaintenancePage message={message} until={until} />;
 
 	return (
 		<AuthProvider>
-			<div className="app" key={location.pathname}>
-				<AppLayout>
-					<AppRoutes />
-				</AppLayout>
-				<SocialFooter />
-			</div>
+			<NotificationsProvider>
+				{isLoginPage ? (
+					<div className="app" key={location.pathname}>
+						<AppRoutes />
+					</div>
+				) : (
+					<div className="app" key={location.pathname}>
+						<AppLayout>
+							<AppRoutes />
+						</AppLayout>
+					</div>
+				)}
+				<NotificationsModal />
+				<NotificationsToast />
+			</NotificationsProvider>
 		</AuthProvider>
 	);
 }

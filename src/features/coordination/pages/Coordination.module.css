@@ -1,0 +1,330 @@
+/* ─────────────────────────────────────────────
+   Coordination — panel koordynacji
+   Atrament + papier + mosiądz, bez ozdób.
+   ───────────────────────────────────────────── */
+
+.page {
+	--ink: #111827;
+	--ink-soft: #374151;
+	--ink-muted: #6b7280;
+	--line: #e5e7eb;
+	--line-strong: #d1d5db;
+	--paper: #fafaf9;
+	--paper-2: #f4f3f0;
+	--accent: #7c5e10;
+
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	color: var(--ink);
+}
+
+.topbar {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid var(--line);
+}
+
+.title {
+	margin: 0;
+	font-size: 1.5rem;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+
+.subtitle {
+	margin: 0;
+	font-size: 0.92rem;
+	color: var(--ink-muted);
+	line-height: 1.55;
+}
+
+/* ───── Tabs ───── */
+
+.tabs {
+	display: flex;
+	gap: 0;
+	border-bottom: 1px solid var(--line);
+}
+
+.tab {
+	padding: 10px 16px;
+	border: none;
+	border-bottom: 2px solid transparent;
+	background: transparent;
+	color: var(--ink-muted);
+	font-family: inherit;
+	font-size: 0.88rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition:
+		color 0.15s ease,
+		border-color 0.15s ease;
+}
+
+.tab:hover,
+.tab:focus-visible {
+	color: var(--ink);
+	outline: none;
+}
+
+.tabActive {
+	color: var(--ink);
+	border-bottom-color: var(--accent);
+}
+
+/* ───── Panel ───── */
+
+.panel {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.panelGrid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 32px;
+}
+
+.panelMain,
+.panelSide {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	min-width: 0;
+}
+
+.sectionTitle {
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--ink);
+}
+
+/* ───── Tabela ───── */
+
+.table {
+	width: 100%;
+	border-collapse: collapse;
+	border: 1px solid var(--line);
+	border-radius: 2px;
+	overflow: hidden;
+	font-size: 0.85rem;
+}
+
+.th {
+	padding: 10px 12px;
+	text-align: left;
+	font-size: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--ink-muted);
+	background: var(--paper-2);
+	border-bottom: 1px solid var(--line);
+}
+
+.tr {
+	border-bottom: 1px solid var(--line);
+}
+
+.tr:last-child {
+	border-bottom: none;
+}
+
+.td {
+	padding: 10px 12px;
+	color: var(--ink-soft);
+	vertical-align: middle;
+}
+
+.actions {
+	display: flex;
+	gap: 6px;
+}
+
+/* ───── Formularze ───── */
+
+.form {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 16px 18px;
+	border: 1px solid var(--line);
+	border-radius: 2px;
+	background: var(--paper);
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.fieldRow {
+	display: flex;
+	gap: 12px;
+	align-items: flex-end;
+	max-width: 480px;
+}
+
+.label {
+	font-size: 0.78rem;
+	font-weight: 500;
+	color: var(--ink);
+}
+
+.input,
+.select {
+	padding: 8px 10px;
+	border: 1px solid var(--line-strong);
+	border-radius: 2px;
+	background: #fff;
+	color: var(--ink);
+	font-family: inherit;
+	font-size: 0.88rem;
+	outline: none;
+	transition: border-color 0.15s ease;
+}
+
+.input:focus,
+.select:focus {
+	border-color: var(--accent);
+}
+
+/* ───── Przyciski ───── */
+
+.btnPrimary,
+.btnGhost,
+.btnDanger {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 8px 14px;
+	border: 1px solid transparent;
+	border-radius: 2px;
+	font-family: inherit;
+	font-size: 0.82rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition:
+		background-color 0.15s ease,
+		color 0.15s ease,
+		border-color 0.15s ease;
+	white-space: nowrap;
+}
+
+.btnPrimary {
+	background: var(--ink);
+	border-color: var(--ink);
+	color: #fff;
+}
+
+.btnPrimary:hover:not(:disabled),
+.btnPrimary:focus-visible:not(:disabled) {
+	background: transparent;
+	color: var(--ink);
+	outline: none;
+}
+
+.btnGhost {
+	background: transparent;
+	border-color: transparent;
+	color: var(--ink-muted);
+}
+
+.btnGhost:hover,
+.btnGhost:focus-visible {
+	color: var(--ink);
+	outline: none;
+}
+
+.btnDanger {
+	background: transparent;
+	border-color: var(--line-strong);
+	color: #991b1b;
+}
+
+.btnDanger:hover,
+.btnDanger:focus-visible {
+	border-color: #991b1b;
+	outline: none;
+}
+
+.btnPrimary:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+/* ───── Komunikaty ───── */
+
+.error {
+	padding: 10px 14px;
+	border-left: 3px solid #991b1b;
+	background: #fef2f2;
+	color: #991b1b;
+	font-size: 0.85rem;
+}
+
+.success {
+	padding: 10px 14px;
+	border-left: 3px solid #166534;
+	background: #ecfdf5;
+	color: #166534;
+	font-size: 0.85rem;
+}
+
+.muted {
+	margin: 0;
+	font-size: 0.88rem;
+	color: var(--ink-muted);
+}
+
+/* ───── Assign ───── */
+
+.assignHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 12px 0;
+}
+
+/* ───── Responsywność ───── */
+
+@media (min-width: 1024px) {
+	.panelGrid {
+		grid-template-columns: 1fr 320px;
+	}
+}
+
+@media (max-width: 640px) {
+	.title {
+		font-size: 1.3rem;
+	}
+	.fieldRow {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.assignHeader {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.btnPrimary {
+		width: 100%;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tab,
+	.input,
+	.select,
+	.btnPrimary,
+	.btnGhost,
+	.btnDanger {
+		transition: none;
+	}
+}

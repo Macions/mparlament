@@ -1,153 +1,244 @@
 .header {
-	position: fixed;
-	top: 0;
-	left: 240px;
-	right: 0;
-	height: 88px;
-	z-index: 200;
-
-	background: rgba(255, 255, 255, 0.85);
-	backdrop-filter: blur(16px);
-	-webkit-backdrop-filter: blur(16px);
-	color: #16302f;
-	border-radius: 0 0 1.75rem 0;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.9);
-	box-shadow: 0 4px 12px rgba(21, 94, 99, 0.08);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 16px 20px;
+	border-bottom: 1px solid var(--line, #e5e7eb);
+	background: var(--paper, #fafaf9);
 }
 
 .inner {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 2rem;
-	height: 100%;
-	padding: 0 2rem 0 30px; /* zero po lewej, 2rem po prawej dla badge/dzwonka */
-	/* brak max-width i margin: auto */
+	gap: 16px;
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
 }
-/* LEWO — powitanie */
+
 .textBlock {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: 2px;
 	min-width: 0;
 }
 
 .greeting {
 	margin: 0;
-	font-size: 1.55rem;
-	font-weight: 800;
-	letter-spacing: -0.02em;
-	color: #16302f;
-	line-height: 1.1;
+	font-size: 0.95rem;
+	font-weight: 500;
+	line-height: 1.3;
+	color: var(--ink, #111827);
 }
 
 .subtitle {
 	margin: 0;
-	font-size: 0.9rem;
-	font-weight: 500;
-	color: #6b8584;
-	line-height: 1.25;
+	font-size: 0.8rem;
+	line-height: 1.4;
+	color: var(--ink-muted, #6b7280);
 }
 
-/* PRAWO — badge + przycisk powiadomień */
 .right {
 	display: flex;
 	align-items: center;
-	gap: 16px;
-	flex-shrink: 0;
+	gap: 10px;
 }
 
 .badge {
 	display: inline-flex;
 	align-items: center;
-	padding: 8px 18px;
-	border-radius: 999px;
-	font-size: 0.82rem;
-	font-weight: 700;
-	color: #0b7c80;
-	background: #d7f1ee;
-	border: 1px solid rgba(11, 124, 128, 0.15);
+	padding: 4px 10px;
+	border: 1px solid var(--line-strong, #d1d5db);
+	border-radius: 2px;
+	font-size: 0.75rem;
+	font-weight: 500;
+	color: var(--ink-soft, #374151);
+	background: var(--paper-2, #f4f3f0);
 	white-space: nowrap;
 }
 
 .notificationsBtn {
-	position: relative;
 	display: grid;
 	place-items: center;
-	width: 46px;
-	height: 46px;
-	flex-shrink: 0;
-	border-radius: 14px;
-	border: 1px solid rgba(11, 124, 128, 0.15);
-	background: #d7f1ee;
-	color: #0b7c80;
+	width: 36px;
+	height: 36px;
+	border: 1px solid var(--line, #e5e7eb);
+	border-radius: 2px;
+	background: transparent;
+	color: var(--ink-soft, #374151);
 	cursor: pointer;
 	transition:
-		background 0.15s ease,
-		transform 0.15s ease;
+		background-color 0.15s ease,
+		border-color 0.15s ease;
 }
 
 .notificationsBtn:hover,
 .notificationsBtn:focus-visible {
-	background: #c8ebe7;
-	transform: translateY(-1px);
+	background: var(--paper-2, #f4f3f0);
+	border-color: var(--line-strong, #d1d5db);
 	outline: none;
 }
 
-.notificationsBtn:active {
-	transform: translateY(0);
-}
-
-/* opcjonalna czerwona kropka */
-.notificationsBtn::after {
-	content: "";
-	position: absolute;
-	top: 10px;
-	right: 10px;
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background: #ff7b7b;
-	box-shadow: 0 0 0 2px #fff;
-}
-
-@media (max-width: 1023px) {
+@media (min-width: 768px) {
 	.header {
-		left: 0;
+		padding: 20px 32px;
 	}
 }
 
-@media (max-width: 767px) {
-	.header {
-		height: 72px;
-	}
-	.inner {
-		padding: 0 1rem;
-		gap: 1rem;
-	}
+@media (prefers-reduced-motion: reduce) {
 	.notificationsBtn {
-		width: 40px;
-		height: 40px;
-	}
-	.greeting {
-		font-size: 1.2rem;
-	}
-	.subtitle {
-		font-size: 0.78rem;
-	}
-	.badge {
-		display: none;
+		transition: none;
 	}
 }
+/* ───── Powiadomienia (dzwonek + panel) ───── */
 
-@media (max-width: 479px) {
-	.header {
-		height: 64px;
-	}
-	.greeting {
-		font-size: 1.05rem;
-	}
-	.subtitle {
-		display: none;
-	}
+.notifWrap {
+	position: relative;
+}
+
+.notificationsBtn {
+	position: relative;
+}
+
+.notifBadge {
+	position: absolute;
+	top: -4px;
+	right: -4px;
+	display: grid;
+	place-items: center;
+	min-width: 16px;
+	height: 16px;
+	padding: 0 4px;
+	border-radius: 8px;
+	background: #7c5e10;
+	color: #fff;
+	font-size: 0.65rem;
+	font-weight: 600;
+	line-height: 1;
+}
+
+.notifPanel {
+	position: absolute;
+	top: calc(100% + 8px);
+	right: 0;
+	width: 320px;
+	max-width: calc(100vw - 32px);
+	background: #fafaf9;
+	border: 1px solid #e5e7eb;
+	border-radius: 2px;
+	box-shadow: 0 12px 32px rgba(17, 24, 39, 0.18);
+	z-index: 1500;
+	overflow: hidden;
+}
+
+.notifHead {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 16px;
+	border-bottom: 1px solid #e5e7eb;
+	background: #f4f3f0;
+}
+
+.notifTitle {
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: #111827;
+}
+
+.notifCount {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 6px;
+	border-radius: 9px;
+	background: #7c5e10;
+	color: #fff;
+	font-size: 0.7rem;
+	font-weight: 600;
+}
+
+.notifEmpty {
+	margin: 0;
+	padding: 20px 16px;
+	font-size: 0.85rem;
+	color: #6b7280;
+	text-align: center;
+}
+
+.notifList {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	max-height: 360px;
+	overflow-y: auto;
+}
+
+.notifItem {
+	border-bottom: 1px solid #e5e7eb;
+}
+
+.notifItem:last-child {
+	border-bottom: none;
+}
+
+.notifItemBtn {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	width: 100%;
+	padding: 12px 16px;
+	border: none;
+	background: transparent;
+	text-align: left;
+	cursor: pointer;
+	font-family: inherit;
+	transition: background-color 0.15s ease;
+}
+
+.notifItemBtn:hover,
+.notifItemBtn:focus-visible {
+	background: #f4f3f0;
+	outline: none;
+}
+
+.notifItemIcon {
+	display: grid;
+	place-items: center;
+	width: 28px;
+	height: 28px;
+	flex-shrink: 0;
+	background: #fbf3dc;
+	border: 1px solid #f3e4bb;
+	border-radius: 2px;
+	color: #7c5e10;
+}
+
+.notifItemBody {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	min-width: 0;
+	flex: 1;
+}
+
+.notifItemTitle {
+	font-size: 0.85rem;
+	font-weight: 500;
+	color: #111827;
+	line-height: 1.35;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+}
+
+.notifItemMeta {
+	font-size: 0.75rem;
+	color: #6b7280;
 }

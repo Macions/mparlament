@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { parseDocx } from "../../../utils/docxParser";
 import styles from "./SubmitResolution.module.css";
 import SuccessModal from "../../../components/SuccessModal";
@@ -9,26 +9,15 @@ function parseLineBack(raw) {
 		/^(\s*)(\d+\.|\d+\)|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)]|–)\s+(.*)$/i,
 	);
 	if (match) {
-		// Level wyłącznie z wcięcia — użytkownik ma pełną kontrolę.
 		const indent = match[1].replace(/\t/g, "  ").length;
 		const level = Math.floor(indent / 2) + 1;
-
-		return {
-			marker: match[2],
-			text: match[3],
-			level,
-			type: "list-item",
-		};
+		return { marker: match[2], text: match[3], level, type: "list-item" };
 	}
-	return {
-		marker: null,
-		text: raw,
-		level: 1,
-		type: "paragraph",
-	};
+	return { marker: null, text: raw, level: 1, type: "paragraph" };
 }
+
 export default function SubmitResolution() {
-	const location = useLocation();
+	const navigate = useNavigate();
 	const [file, setFile] = useState(null);
 	const [fileName, setFileName] = useState("");
 	const [parsed, setParsed] = useState(null);
@@ -44,45 +33,48 @@ export default function SubmitResolution() {
 	const [isDragging, setIsDragging] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
 	const [uploadProgress, setUploadProgress] = useState(0);
-	const navigate = useNavigate();
 	const [sessions, setSessions] = useState([]);
 	const [selectedSessionId, setSelectedSessionId] = useState("");
 
 	useEffect(() => {
 		async function fetchSessions() {
 			try {
-				const response = await fetch("/newapp/api/sessions");
-				if (!response.ok) throw new Error("Nie udało się pobrać posiedzeń");
-				const data = await response.json();
-				setSessions(data);
-			} catch (error) {
-				console.error("Błąd pobierania sesji:", error);
+				const res = await fetch("/newapp/api/sessions");
+				if (!res.ok) throw new Error("Nie udało się pobrać posiedzeń");
+				const data = await res.json();
+				setSessions(Array.isArray(data) ? data : (data.sessions ?? []));
+			} catch (err) {
+				console.error("Błąd pobierania sesji:", err);
 			}
 		}
 		fetchSessions();
 	}, []);
+
+	/* ── Wybór pliku (drop + input) ── */
+
+	const acceptFile = (f) => {
+		if (!f) return;
+		if (!f.name.endsWith(".docx")) {
+			setError("Proszę wybrać plik .docx");
+			return;
+		}
+		setFile(f);
+		setFileName(f.name);
+		setError("");
+		setParsed(null);
+		setEditedData((prev) => ({
+			title: prev?.title || "",
+			preamble: prev?.preamble || "",
+			chapters: [],
+		}));
+		setAnalyzed(false);
+		setUploadProgress(0);
+	};
+
 	const handleDrop = (e) => {
 		e.preventDefault();
 		setIsDragging(false);
-
-		const droppedFile = e.dataTransfer.files[0];
-		if (!droppedFile) return;
-
-		if (droppedFile.name.endsWith(".docx")) {
-			setFile(droppedFile);
-			setFileName(droppedFile.name);
-			setError("");
-			setParsed(null);
-			setEditedData((prev) => ({
-				title: prev?.title || "",
-				preamble: prev?.preamble || "",
-				chapters: [],
-			}));
-			setAnalyzed(false);
-			setUploadProgress(0);
-		} else {
-			setError("Proszę wybrać plik .docx");
-		}
+		acceptFile(e.dataTransfer.files[0]);
 	};
 
 	const handleDragOver = (e) => {
@@ -94,47 +86,28 @@ export default function SubmitResolution() {
 		e.preventDefault();
 		setIsDragging(false);
 	};
+
 	const handleFileChange = (e) => {
-		const f = e.target.files[0];
-		if (f && f.name.endsWith(".docx")) {
-			setFile(f);
-			setFileName(f.name);
-			setError("");
-			setParsed(null);
-			setEditedData((prev) => ({
-				title: prev?.title || "",
-				preamble: prev?.preamble || "",
-				chapters: [],
-			}));
-			setAnalyzed(false);
-			setUploadProgress(0);
-		} else {
-			setError("Proszę wybrać plik .docx");
-		}
+		acceptFile(e.target.files[0]);
 	};
+
+	/* ── Parsowanie DOCX ── */
 
 	const handleParse = async () => {
 		if (!file) return;
-
 		setLoading(true);
 		setError("");
-
 		try {
 			const arrayBuffer = await file.arrayBuffer();
 			const mammoth = await import("mammoth");
-			const result = await mammoth.default.convertToHtml({ arrayBuffer });
-			console.log("=== SUROWY HTML ===");
-			console.log(result.value);
-			console.log("=== KONIEC HTML ===");
+			await mammoth.default.convertToHtml({ arrayBuffer });
 
 			const data = await parseDocx(file);
 			setParsed(data);
 
 			setEditedData((prev) => {
-				// zachowaj to, co user wpisał RĘCZNIE przed analizą
 				const userTitle = prev?.title?.trim();
 				const userPreamble = prev?.preamble?.trim();
-
 				return {
 					...data,
 					title: userTitle || data.title || "",
@@ -150,6 +123,8 @@ export default function SubmitResolution() {
 		}
 	};
 
+	/* ── Edycja pól ── */
+
 	const updateField = (path, value) => {
 		setEditedData((prev) => {
 			const newData = structuredClone(
@@ -157,9 +132,7 @@ export default function SubmitResolution() {
 			);
 			let target = newData;
 			for (let i = 0; i < path.length - 1; i++) {
-				if (target[path[i]] == null) {
-					target[path[i]] = {};
-				}
+				if (target[path[i]] == null) target[path[i]] = {};
 				target = target[path[i]];
 			}
 			target[path[path.length - 1]] = value;
@@ -200,6 +173,7 @@ export default function SubmitResolution() {
 			return newData;
 		});
 	};
+
 	const removeArticle = (chIndex, artIndex) => {
 		setEditedData((prev) => {
 			const newData = structuredClone(prev);
@@ -208,18 +182,13 @@ export default function SubmitResolution() {
 		});
 	};
 
+	/* ── Wysyłka ── */
+
 	const handleSubmit = async () => {
 		if (!editedData || submitting) return;
-
-		if (!file) {
-			setError("Nie wybrano pliku");
-			return;
-		}
-
-		if (!selectedSessionId || selectedSessionId === "all") {
-			setError("Wybierz posiedzenie");
-			return;
-		}
+		if (!file) return setError("Nie wybrano pliku");
+		if (!selectedSessionId || selectedSessionId === "all")
+			return setError("Wybierz posiedzenie");
 
 		setSubmitting(true);
 		setError("");
@@ -235,16 +204,13 @@ export default function SubmitResolution() {
 				jwt = tokenData;
 			}
 
-			const userResponse = await fetch("/newapp/api/auth/me", {
+			const userRes = await fetch("/newapp/api/auth/me", {
 				headers: jwt ? { Authorization: `Bearer ${jwt}` } : {},
 			});
-			if (!userResponse.ok) {
-				throw new Error("Nie można pobrać danych użytkownika");
-			}
-			const userData = await userResponse.json();
+			if (!userRes.ok) throw new Error("Nie można pobrać danych użytkownika");
+			const userData = await userRes.json();
 
 			const formData = new FormData();
-
 			formData.append("file", file);
 
 			const bill = {
@@ -256,43 +222,32 @@ export default function SubmitResolution() {
 				sessionId:
 					selectedSessionId !== "all" ? Number(selectedSessionId) : null,
 			};
-
 			formData.append("data", JSON.stringify(bill));
 
 			const response = await new Promise((resolve, reject) => {
 				const xhr = new XMLHttpRequest();
-
 				xhr.upload.addEventListener("progress", (event) => {
 					if (event.lengthComputable) {
-						const percent = (event.loaded / event.total) * 100;
-						setUploadProgress(percent);
+						setUploadProgress((event.loaded / event.total) * 100);
 					}
 				});
-
 				xhr.open("POST", "/newapp/api/resolutions");
-
 				xhr.onload = () => {
 					if (xhr.status >= 200 && xhr.status < 300) {
+						let data = {};
 						try {
-							const data = JSON.parse(xhr.responseText);
-							resolve({ ok: true, status: xhr.status, data });
-						} catch (e) {
-							resolve({ ok: true, status: xhr.status, data: {} });
-						}
+							data = JSON.parse(xhr.responseText);
+						} catch {}
+						resolve({ ok: true, status: xhr.status, data });
 					} else {
+						let message = `Błąd ${xhr.status}`;
 						try {
-							const error = JSON.parse(xhr.responseText);
-							reject(new Error(error.message || `Błąd ${xhr.status}`));
-						} catch (e) {
-							reject(new Error(`Błąd ${xhr.status}`));
-						}
+							message = JSON.parse(xhr.responseText).message || message;
+						} catch {}
+						reject(new Error(message));
 					}
 				};
-
-				xhr.onerror = () => {
-					reject(new Error("Błąd połączenia z serwerem"));
-				};
-
+				xhr.onerror = () => reject(new Error("Błąd połączenia z serwerem"));
 				xhr.send(formData);
 			});
 
@@ -309,458 +264,412 @@ export default function SubmitResolution() {
 		}
 	};
 
+	/* ── Render ── */
+
+	const disabled = !selectedSessionId;
+
 	return (
 		<div className={styles.page}>
 			<header className={styles.topbar}>
-				<button
-					type="button"
-					className={styles.back}
-					onClick={() => navigate("/panel")}
-				>
-					<svg
-						width="16"
-						height="16"
-						viewBox="0 0 24 24"
-						fill="none"
-						aria-hidden="true"
-					>
-						<path
-							d="M15 18L9 12L15 6"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-						/>
-					</svg>
-					Panel
-				</button>
-
-				<div className={styles.session}>
-					<label htmlFor="session-select" className={styles.sessionLabel}>
-						Posiedzenie
-					</label>
-					<select
-						id="session-select"
-						value={selectedSessionId}
-						onChange={(e) => setSelectedSessionId(e.target.value)}
-						className={styles.select}
-					>
-						<option value="all">Wybierz posiedzenie</option>
-						{sessions.map((session) => (
-							<option key={session.id} value={session.id}>
-								{session.name} — {session.date}
-							</option>
-						))}
-					</select>
-				</div>
+				<h1 className={styles.title}>Złóż uchwałę</h1>
+				<p className={styles.subtitle}>
+					Wgraj plik DOCX, uzupełnij treść i złóż uchwałę na wybrane
+					posiedzenie.
+				</p>
 			</header>
 
-			<main className={styles.main}>
-				<div className={styles.head}>
-					<span className={styles.eyebrow}>Nowa uchwała</span>
-					<h1 className={styles.title}>Złóż uchwałę</h1>
-					<p className={styles.subtitle}>
-						Wgraj plik DOCX, uzupełnij treść i złóż uchwałę na wybrane
-						posiedzenie.
-					</p>
+			<div className={styles.sessionRow}>
+				<label htmlFor="session-select" className={styles.sessionLabel}>
+					Posiedzenie
+				</label>
+				<select
+					id="session-select"
+					value={selectedSessionId}
+					onChange={(e) => setSelectedSessionId(e.target.value)}
+					className={styles.select}
+				>
+					<option value="">Wybierz posiedzenie</option>
+					{sessions.map((s) => (
+						<option key={s.id} value={s.id}>
+							{s.name} — {s.date}
+						</option>
+					))}
+				</select>
+			</div>
+
+			<form className={styles.form} onSubmit={(e) => e.preventDefault()}>
+				<div className={styles.field}>
+					<label className={styles.label} htmlFor="resolution-title">
+						Nazwa uchwały
+					</label>
+					<textarea
+						id="resolution-title"
+						className={styles.textarea}
+						value={editedData?.title || ""}
+						onChange={(e) => updateField(["title"], e.target.value)}
+						placeholder="Wpisz nazwę uchwały..."
+						disabled={disabled}
+						rows={3}
+					/>
 				</div>
 
-				<form
-					className={`${styles.form} ${!selectedSessionId ? styles.formDisabled : ""
-						}`}
-					onSubmit={(e) => e.preventDefault()}
-				>
+				{editedData?.preamble && (
 					<div className={styles.field}>
-						<label className={styles.label} htmlFor="resolution-title">
-							Nazwa uchwały
+						<label className={styles.label} htmlFor="resolution-preamble">
+							Preambuła
 						</label>
 						<textarea
-							id="resolution-title"
-							className={styles.input}
-							value={editedData?.title || ""}
-							onChange={(e) => updateField(["title"], e.target.value)}
-							placeholder="Wpisz nazwę uchwały..."
-							disabled={!selectedSessionId}
-							rows={5}
+							id="resolution-preamble"
+							className={styles.textarea}
+							value={editedData.preamble}
+							onChange={(e) => updateField(["preamble"], e.target.value)}
+							placeholder="Preambuła uchwały..."
+							disabled={disabled}
+							rows={6}
 						/>
 					</div>
-					{editedData?.preamble && (
-						<div className={styles.field}>
-							<label className={styles.label} htmlFor="resolution-preamble">
-								Preambuła
-							</label>
-							<textarea
-								id="resolution-preamble"
-								className={styles.input}
-								value={editedData.preamble}
-								onChange={(e) => updateField(["preamble"], e.target.value)}
-								placeholder="Preambuła uchwały..."
-								disabled={!selectedSessionId}
-								rows={8}
-							/>
-						</div>
-					)}
-					<div className={styles.field}>
-						<label className={styles.label}>Plik DOCX</label>
+				)}
 
-						<label
-							className={`${styles.fileDrop} ${fileName ? styles.fileDropActive : ""
-								} ${isDragging ? styles.fileDropDragging : ""}`}
-							onDragOver={handleDragOver}
-							onDragLeave={handleDragLeave}
-							onDrop={handleDrop}
-						>
-							<input
-								type="file"
-								accept=".docx"
-								hidden
-								onChange={handleFileChange}
-								disabled={!selectedSessionId}
-							/>
-							<span className={styles.fileDropIcon} aria-hidden="true">
-								<svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-									<path
-										d="M12 16V4m0 0l-4 4m4-4l4 4M5 20h14"
-										stroke="currentColor"
-										strokeWidth="2"
-										strokeLinecap="round"
-										strokeLinejoin="round"
-									/>
-								</svg>
-							</span>
-
-							<span className={styles.fileDropTitle}>
-								{fileName ? "Zmień plik" : "Wybierz plik"}
-							</span>
-							<span className={styles.fileDropHint}>
-								{fileName ? fileName : "Kliknij, aby wybrać plik .docx"}
-							</span>
-						</label>
-
-						{file && (
-							<p className={styles.fileMeta}>
-								{file.name} · {(file.size / 1024).toFixed(1)} KB
-							</p>
-						)}
-					</div>
-
-					{error && <div className={styles.error}>{error}</div>}
-
-					<button
-						type="button"
-						onClick={handleParse}
-						disabled={!file || loading || !selectedSessionId}
-						className={`${styles.btn} ${styles.btnOutline} ${styles.btnBlock}`}
+				<div className={styles.field}>
+					<span className={styles.label}>Plik DOCX</span>
+					<label
+						className={`${styles.drop} ${fileName ? styles.dropActive : ""} ${
+							isDragging ? styles.dropDragging : ""
+						} ${disabled ? styles.dropDisabled : ""}`}
+						onDragOver={handleDragOver}
+						onDragLeave={handleDragLeave}
+						onDrop={handleDrop}
 					>
-						{loading
-							? "Analizowanie..."
-							: analyzed
-								? "Przeanalizowano"
-								: "Analizuj ustawę"}
-					</button>
+						<input
+							type="file"
+							accept=".docx"
+							hidden
+							onChange={handleFileChange}
+							disabled={disabled}
+						/>
+						<span className={styles.dropTitle}>
+							{fileName ? "Zmień plik" : "Wybierz plik"}
+						</span>
+						<span className={styles.dropHint}>
+							{fileName ? fileName : "Kliknij lub przeciągnij plik .docx"}
+						</span>
+					</label>
 
-					{submitting && uploadProgress > 0 && uploadProgress < 100 && (
-						<div className={styles.progress}>
-							<div className={styles.progressTrack}>
-								<div
-									className={styles.progressFill}
-									style={{ width: `${Math.round(uploadProgress)}%` }}
-								/>
-							</div>
-							<span className={styles.progressText}>
-								Wysyłanie pliku: {Math.round(uploadProgress)}%
-							</span>
-						</div>
+					{file && (
+						<p className={styles.fileMeta}>
+							{file.name} · {(file.size / 1024).toFixed(1)} KB
+						</p>
 					)}
+				</div>
 
-					{editedData?.chapters && editedData.chapters.length > 0 && (
-						<section className={styles.editor}>
-							<div className={styles.editorHead}>
-								<h2 className={styles.editorTitle}>Edytuj treść uchwały</h2>
-								<button
-									type="button"
-									onClick={addChapter}
-									className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
-								>
-									+ Dodaj rozdział
-								</button>
-							</div>
+				{error && <div className={styles.error}>{error}</div>}
 
-							<div className={styles.chapters}>
-								{editedData.chapters.map((chapter, chIndex) => (
-									<article key={chapter.id} className={styles.chapter}>
-										<header className={styles.chapterHead}>
-											<div className={styles.chapterTitles}>
-												<input
-													type="text"
-													className={styles.chapterTitle}
-													value={chapter.title}
-													onChange={(e) =>
-														updateField(
-															["chapters", chIndex, "title"],
-															e.target.value,
-														)
-													}
-													placeholder="Numer rozdziału"
-												/>
-												<input
-													type="text"
-													className={styles.chapterSubtitle}
-													value={chapter.subtitle || ""}
-													onChange={(e) =>
-														updateField(
-															["chapters", chIndex, "subtitle"],
-															e.target.value,
-														)
-													}
-													placeholder="Tytuł rozdziału"
-												/>
-											</div>
-											<button
-												type="button"
-												onClick={() => removeChapter(chIndex)}
-												className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
-											>
-												Usuń rozdział
-											</button>
-										</header>
+				<button
+					type="button"
+					onClick={handleParse}
+					disabled={!file || loading || disabled}
+					className={`${styles.btn} ${styles.btnOutline}`}
+				>
+					{loading
+						? "Analizowanie..."
+						: analyzed
+							? "Przeanalizowano"
+							: "Analizuj ustawę"}
+				</button>
 
-										<div className={styles.articles}>
-											{chapter.articles.map((article, artIndex) => (
-												<div key={article.id} className={styles.article}>
-													<div className={styles.articleHead}>
-														<input
-															type="text"
-															className={styles.articleNumber}
-															value={article.number}
-															onChange={(e) =>
-																updateField(
-																	[
-																		"chapters",
-																		chIndex,
-																		"articles",
-																		artIndex,
-																		"number",
-																	],
-																	e.target.value,
-																)
-															}
-														/>
-														<button
-															type="button"
-															onClick={() => removeArticle(chIndex, artIndex)}
-															className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
-														>
-															Usuń
-														</button>
-													</div>
+				{submitting && uploadProgress > 0 && uploadProgress < 100 && (
+					<div className={styles.progress}>
+						<div className={styles.progressTrack}>
+							<div
+								className={styles.progressFill}
+								style={{ width: `${Math.round(uploadProgress)}%` }}
+							/>
+						</div>
+						<span className={styles.progressText}>
+							Wysyłanie pliku: {Math.round(uploadProgress)}%
+						</span>
+					</div>
+				)}
 
-													<div className={styles.articleLines}>
-														{(
-															article.contentLines || [
-																{
-																	marker: null,
-																	text: "",
-																	level: 1,
-																	type: "paragraph",
-																},
-															]
-														).map((line, lineIndex) => {
-															const normalizedLine =
-																typeof line === "string"
-																	? {
+				{editedData?.chapters && editedData.chapters.length > 0 && (
+					<section className={styles.editor}>
+						<div className={styles.editorHead}>
+							<h2 className={styles.editorTitle}>Edytuj treść uchwały</h2>
+							<button
+								type="button"
+								onClick={addChapter}
+								className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
+							>
+								+ Dodaj rozdział
+							</button>
+						</div>
+
+						<div className={styles.chapters}>
+							{editedData.chapters.map((chapter, chIndex) => (
+								<article key={chapter.id} className={styles.chapter}>
+									<header className={styles.chapterHead}>
+										<div className={styles.chapterTitles}>
+											<input
+												type="text"
+												className={styles.chapterTitle}
+												value={chapter.title}
+												onChange={(e) =>
+													updateField(
+														["chapters", chIndex, "title"],
+														e.target.value,
+													)
+												}
+												placeholder="Numer rozdziału"
+											/>
+											<input
+												type="text"
+												className={styles.chapterSubtitle}
+												value={chapter.subtitle || ""}
+												onChange={(e) =>
+													updateField(
+														["chapters", chIndex, "subtitle"],
+														e.target.value,
+													)
+												}
+												placeholder="Tytuł rozdziału"
+											/>
+										</div>
+										<button
+											type="button"
+											onClick={() => removeChapter(chIndex)}
+											className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
+										>
+											Usuń rozdział
+										</button>
+									</header>
+
+									<div className={styles.articles}>
+										{chapter.articles.map((article, artIndex) => (
+											<div key={article.id} className={styles.article}>
+												<div className={styles.articleHead}>
+													<input
+														type="text"
+														className={styles.articleNumber}
+														value={article.number}
+														onChange={(e) =>
+															updateField(
+																[
+																	"chapters",
+																	chIndex,
+																	"articles",
+																	artIndex,
+																	"number",
+																],
+																e.target.value,
+															)
+														}
+													/>
+													<button
+														type="button"
+														onClick={() => removeArticle(chIndex, artIndex)}
+														className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
+													>
+														Usuń
+													</button>
+												</div>
+
+												<div className={styles.articleLines}>
+													{(
+														article.contentLines || [
+															{
+																marker: null,
+																text: "",
+																level: 1,
+																type: "paragraph",
+															},
+														]
+													).map((line, lineIndex) => {
+														const normalizedLine =
+															typeof line === "string"
+																? {
 																		marker: null,
 																		text: line,
 																		level: 1,
 																		type: "paragraph",
 																	}
-																	: line;
+																: line;
 
-															const indent = "  ".repeat(
-																(normalizedLine.level || 1) - 1,
-															);
-															const displayValue = normalizedLine.marker
-																? `${indent}${normalizedLine.marker} ${normalizedLine.text}`
-																: `${indent}${normalizedLine.text || ""}`;
+														const indent = "  ".repeat(
+															(normalizedLine.level || 1) - 1,
+														);
+														const displayValue = normalizedLine.marker
+															? `${indent}${normalizedLine.marker} ${normalizedLine.text}`
+															: `${indent}${normalizedLine.text || ""}`;
 
-															return (
-																<div
-																	key={lineIndex}
-																	className={styles.articleLine}
-																	data-level={normalizedLine.level || 1}
+														return (
+															<div
+																key={lineIndex}
+																className={styles.articleLine}
+																data-level={normalizedLine.level || 1}
+															>
+																<textarea
+																	className={styles.textarea}
+																	value={displayValue}
+																	onChange={(e) => {
+																		const raw = e.target.value;
+																		const parsedLine = parseLineBack(raw);
+																		const newLines = structuredClone(
+																			article.contentLines || [],
+																		);
+																		newLines[lineIndex] = parsedLine;
+
+																		updateField(
+																			[
+																				"chapters",
+																				chIndex,
+																				"articles",
+																				artIndex,
+																				"contentLines",
+																			],
+																			newLines,
+																		);
+																		updateField(
+																			[
+																				"chapters",
+																				chIndex,
+																				"articles",
+																				artIndex,
+																				"content",
+																			],
+																			newLines
+																				.map((l) =>
+																					l.marker
+																						? `${l.marker} ${l.text}`
+																						: l.text,
+																				)
+																				.join("\n"),
+																		);
+																	}}
+																	placeholder={`Punkt ${lineIndex + 1}...`}
+																	rows={Math.max(
+																		2,
+																		Math.ceil(displayValue.length / 80),
+																	)}
+																/>
+																<button
+																	type="button"
+																	onClick={() => {
+																		const newLines = structuredClone(
+																			article.contentLines || [],
+																		);
+																		newLines.splice(lineIndex, 1);
+																		if (newLines.length === 0) {
+																			newLines.push({
+																				marker: null,
+																				text: "",
+																				level: 1,
+																				type: "paragraph",
+																			});
+																		}
+																		updateField(
+																			[
+																				"chapters",
+																				chIndex,
+																				"articles",
+																				artIndex,
+																				"contentLines",
+																			],
+																			newLines,
+																		);
+																		updateField(
+																			[
+																				"chapters",
+																				chIndex,
+																				"articles",
+																				artIndex,
+																				"content",
+																			],
+																			newLines
+																				.map((l) =>
+																					l.marker
+																						? `${l.marker} ${l.text}`
+																						: l.text,
+																				)
+																				.join("\n"),
+																		);
+																	}}
+																	className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
+																	title="Usuń linię"
 																>
-																	<textarea
-																		className={styles.textarea}
-																		value={displayValue}
-																		onChange={(e) => {
-																			const raw = e.target.value;
-																			const parsedLine = parseLineBack(raw);
-																			const newLines = structuredClone(
-																				article.contentLines || [],
-																			);
-																			newLines[lineIndex] = parsedLine;
+																	×
+																</button>
+															</div>
+														);
+													})}
 
-																			updateField(
-																				[
-																					"chapters",
-																					chIndex,
-																					"articles",
-																					artIndex,
-																					"contentLines",
-																				],
-																				newLines,
-																			);
-																			updateField(
-																				[
-																					"chapters",
-																					chIndex,
-																					"articles",
-																					artIndex,
-																					"content",
-																				],
-																				newLines
-																					.map((l) =>
-																						l.marker
-																							? `${l.marker} ${l.text}`
-																							: l.text,
-																					)
-																					.join("\n"),
-																			);
-																		}}
-																		placeholder={`Punkt ${lineIndex + 1}...`}
-																		rows={Math.max(
-																			2,
-																			Math.ceil(displayValue.length / 80),
-																		)}
-																	/>
-																	<button
-																		type="button"
-																		onClick={() => {
-																			const newLines = structuredClone(
-																				article.contentLines || [],
-																			);
-																			newLines.splice(lineIndex, 1);
-																			if (newLines.length === 0) {
-																				newLines.push({
-																					marker: null,
-																					text: "",
-																					level: 1,
-																					type: "paragraph",
-																				});
-																			}
-																			updateField(
-																				[
-																					"chapters",
-																					chIndex,
-																					"articles",
-																					artIndex,
-																					"contentLines",
-																				],
-																				newLines,
-																			);
-																			updateField(
-																				[
-																					"chapters",
-																					chIndex,
-																					"articles",
-																					artIndex,
-																					"content",
-																				],
-																				newLines
-																					.map((l) =>
-																						l.marker
-																							? `${l.marker} ${l.text}`
-																							: l.text,
-																					)
-																					.join("\n"),
-																			);
-																		}}
-																		className={`${styles.btn} ${styles.btnDanger} ${styles.btnSmall}`}
-																		title="Usuń linię"
-																	>
-																		×
-																	</button>
-																</div>
+													<button
+														type="button"
+														onClick={() => {
+															const newLines = structuredClone(
+																article.contentLines || [],
 															);
-														})}
-
-														<button
-															type="button"
-															onClick={() => {
-																const newLines = structuredClone(
-																	article.contentLines || [],
-																);
-																newLines.push({
-																	marker: null,
-																	text: "",
-																	level: 1,
-																	type: "paragraph",
-																});
-																updateField(
-																	[
-																		"chapters",
-																		chIndex,
-																		"articles",
-																		artIndex,
-																		"contentLines",
-																	],
-																	newLines,
-																);
-																updateField(
-																	[
-																		"chapters",
-																		chIndex,
-																		"articles",
-																		artIndex,
-																		"content",
-																	],
-																	newLines
-																		.map((l) =>
-																			l.marker
-																				? `${l.marker} ${l.text}`
-																				: l.text,
-																		)
-																		.join("\n"),
-																);
-															}}
-															className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
-														>
-															+ Dodaj linię
-														</button>
-													</div>
+															newLines.push({
+																marker: null,
+																text: "",
+																level: 1,
+																type: "paragraph",
+															});
+															updateField(
+																[
+																	"chapters",
+																	chIndex,
+																	"articles",
+																	artIndex,
+																	"contentLines",
+																],
+																newLines,
+															);
+															updateField(
+																[
+																	"chapters",
+																	chIndex,
+																	"articles",
+																	artIndex,
+																	"content",
+																],
+																newLines
+																	.map((l) =>
+																		l.marker ? `${l.marker} ${l.text}` : l.text,
+																	)
+																	.join("\n"),
+															);
+														}}
+														className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
+													>
+														+ Dodaj linię
+													</button>
 												</div>
-											))}
+											</div>
+										))}
 
-											<button
-												type="button"
-												onClick={() => addArticle(chIndex)}
-												className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
-											>
-												+ Dodaj artykuł
-											</button>
-										</div>
-									</article>
-								))}
-							</div>
-						</section>
-					)}
-
-					<button
-						type="button"
-						className={`${styles.btn} ${styles.btnPrimary} ${styles.btnBlock}`}
-						onClick={handleSubmit}
-						disabled={!selectedSessionId || submitting}
-					>
-						{submitting ? "Wysyłanie..." : "Złóż uchwałę"}
-					</button>
-
-					{!selectedSessionId && (
-						<div className={styles.overlay}>
-							<p>Wybierz posiedzenie, aby rozpocząć</p>
+										<button
+											type="button"
+											onClick={() => addArticle(chIndex)}
+											className={`${styles.btn} ${styles.btnGhost} ${styles.btnSmall}`}
+										>
+											+ Dodaj artykuł
+										</button>
+									</div>
+								</article>
+							))}
 						</div>
-					)}
-				</form>
-			</main>
+					</section>
+				)}
+
+				<button
+					type="button"
+					className={`${styles.btn} ${styles.btnPrimary} ${styles.btnBlock}`}
+					onClick={handleSubmit}
+					disabled={disabled || submitting}
+				>
+					{submitting ? "Wysyłanie..." : "Złóż uchwałę"}
+				</button>
+			</form>
 
 			{showSuccess && (
 				<SuccessModal
