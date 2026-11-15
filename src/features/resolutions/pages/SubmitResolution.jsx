@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { parseDocx } from "../../../utils/docxParser";
 import styles from "./SubmitResolution.module.css";
 import SuccessModal from "../../../components/SuccessModal";
 
@@ -14,6 +13,28 @@ function parseLineBack(raw) {
 		return { marker: match[2], text: match[3], level, type: "list-item" };
 	}
 	return { marker: null, text: raw, level: 1, type: "paragraph" };
+}
+
+function estimateSeconds(file) {
+	if (!file) return { min: 0, max: 0, text: "" };
+	const upload = Math.ceil(file.size / 50000);
+	const aiMin = 15;
+	const aiMax = 45;
+	const min = upload + aiMin;
+	const max = upload + aiMax;
+	return { min, max, text: `${min}–${max} s` };
+}
+
+// Ekstrakcja tokenu (obsługa JSON i string)
+function getToken() {
+	const raw = localStorage.getItem("token");
+	if (!raw) return null;
+	try {
+		const parsed = JSON.parse(raw);
+		return parsed?.token ?? raw;
+	} catch {
+		return raw;
+	}
 }
 
 export default function SubmitResolution() {
@@ -33,13 +54,20 @@ export default function SubmitResolution() {
 	const [isDragging, setIsDragging] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
 	const [uploadProgress, setUploadProgress] = useState(0);
+	const [aiElapsed, setAiElapsed] = useState(0);
+	const [aiProgress, setAiProgress] = useState(0);
 	const [sessions, setSessions] = useState([]);
 	const [selectedSessionId, setSelectedSessionId] = useState("");
+
+	const estimated = useMemo(() => estimateSeconds(file), [file]);
 
 	useEffect(() => {
 		async function fetchSessions() {
 			try {
-				const res = await fetch("/newapp/api/sessions");
+				const token = getToken();
+				const res = await fetch("/newapp/api/sessions", {
+					headers: token ? { Authorization: `Bearer ${token}` } : {},
+				});
 				if (!res.ok) throw new Error("Nie udało się pobrać posiedzeń");
 				const data = await res.json();
 				setSessions(Array.isArray(data) ? data : (data.sessions ?? []));
@@ -50,12 +78,30 @@ export default function SubmitResolution() {
 		fetchSessions();
 	}, []);
 
-	/* ── Wybór pliku (drop + input) ── */
+	// Licznik AI – rośnie co sekundę, progress do 95%
+	useEffect(() => {
+		if (!loading) {
+			setAiElapsed(0);
+			setAiProgress(0);
+			return;
+		}
+		const interval = setInterval(() => {
+			setAiElapsed((s) => s + 1);
+			setAiProgress((prev) => {
+				if (uploadProgress < 100) return 0;
+				const max = estimated.max || 30;
+				const step = 45 / max;
+				return Math.min(prev + step, 45);
+			});
+		}, 1000);
+		return () => clearInterval(interval);
+	}, [loading, uploadProgress, estimated.max]);
 
 	const acceptFile = (f) => {
 		if (!f) return;
-		if (!f.name.endsWith(".docx")) {
-			setError("Proszę wybrać plik .docx");
+		const ext = f.name.split(".").pop()?.toLowerCase();
+		if (ext !== "docx" && ext !== "pdf") {
+			setError("Proszę wybrać plik .docx lub .pdf");
 			return;
 		}
 		setFile(f);
@@ -69,6 +115,8 @@ export default function SubmitResolution() {
 		}));
 		setAnalyzed(false);
 		setUploadProgress(0);
+		setAiElapsed(0);
+		setAiProgress(0);
 	};
 
 	const handleDrop = (e) => {
@@ -91,39 +139,67 @@ export default function SubmitResolution() {
 		acceptFile(e.target.files[0]);
 	};
 
-	/* ── Parsowanie DOCX ── */
-
 	const handleParse = async () => {
 		if (!file) return;
 		setLoading(true);
 		setError("");
-		try {
-			const arrayBuffer = await file.arrayBuffer();
-			const mammoth = await import("mammoth");
-			await mammoth.default.convertToHtml({ arrayBuffer });
+		setAiElapsed(0);
+		setAiProgress(0);
 
-			const data = await parseDocx(file);
-			setParsed(data);
+		try {
+			const token = getToken();
+			const formData = new FormData();
+			formData.append("file", file);
+
+			const result = await new Promise((resolve, reject) => {
+				const xhr = new XMLHttpRequest();
+				xhr.upload.addEventListener("progress", (event) => {
+					if (event.lengthComputable) {
+						setUploadProgress((event.loaded / event.total) * 100);
+					}
+				});
+				xhr.open("POST", "/newapp/api/resolutions/parse");
+				if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+				xhr.onload = () => {
+					if (xhr.status >= 200 && xhr.status < 300) {
+						try {
+							resolve(JSON.parse(xhr.responseText));
+						} catch {
+							reject(new Error("Nieprawidłowa odpowiedź serwera"));
+						}
+					} else {
+						let message = `Błąd ${xhr.status}`;
+						try {
+							message = JSON.parse(xhr.responseText).message || message;
+						} catch {}
+						reject(new Error(message));
+					}
+				};
+				xhr.onerror = () => reject(new Error("Błąd połączenia z serwerem"));
+				xhr.send(formData);
+			});
+
+			setUploadProgress(100);
+			setAiProgress(45);
+			setParsed(result);
 
 			setEditedData((prev) => {
 				const userTitle = prev?.title?.trim();
 				const userPreamble = prev?.preamble?.trim();
 				return {
-					...data,
-					title: userTitle || data.title || "",
-					preamble: userPreamble || data.preamble || "",
+					...result,
+					title: userTitle || result.title || "",
+					preamble: userPreamble || result.preamble || "",
 				};
 			});
 
 			setAnalyzed(true);
 		} catch (err) {
-			setError("Błąd parsowania: " + err.message);
+			setError("Błąd analizy: " + err.message);
 		} finally {
 			setLoading(false);
 		}
 	};
-
-	/* ── Edycja pól ── */
 
 	const updateField = (path, value) => {
 		setEditedData((prev) => {
@@ -182,8 +258,6 @@ export default function SubmitResolution() {
 		});
 	};
 
-	/* ── Wysyłka ── */
-
 	const handleSubmit = async () => {
 		if (!editedData || submitting) return;
 		if (!file) return setError("Nie wybrano pliku");
@@ -195,17 +269,9 @@ export default function SubmitResolution() {
 		setUploadProgress(0);
 
 		try {
-			const tokenData = localStorage.getItem("token");
-			let jwt = null;
-			try {
-				const parsed = JSON.parse(tokenData);
-				jwt = parsed?.token;
-			} catch {
-				jwt = tokenData;
-			}
-
+			const token = getToken();
 			const userRes = await fetch("/newapp/api/auth/me", {
-				headers: jwt ? { Authorization: `Bearer ${jwt}` } : {},
+				headers: token ? { Authorization: `Bearer ${token}` } : {},
 			});
 			if (!userRes.ok) throw new Error("Nie można pobrać danych użytkownika");
 			const userData = await userRes.json();
@@ -232,6 +298,7 @@ export default function SubmitResolution() {
 					}
 				});
 				xhr.open("POST", "/newapp/api/resolutions");
+				if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
 				xhr.onload = () => {
 					if (xhr.status >= 200 && xhr.status < 300) {
 						let data = {};
@@ -264,17 +331,26 @@ export default function SubmitResolution() {
 		}
 	};
 
-	/* ── Render ── */
-
 	const disabled = !selectedSessionId;
+
+	const progressPercent = loading
+		? uploadProgress < 100
+			? uploadProgress * 0.5
+			: 50 + aiProgress
+		: submitting
+			? uploadProgress
+			: 0;
 
 	return (
 		<div className={styles.page}>
 			<header className={styles.topbar}>
-				<h1 className={styles.title}>Złóż uchwałę</h1>
+				<div className={styles.topbarMain}>
+					<p className={styles.eyebrow}>Parlament Młodych RP</p>
+					<h1 className={styles.title}>Złóż uchwałę</h1>
+				</div>
 				<p className={styles.subtitle}>
-					Wgraj plik DOCX, uzupełnij treść i złóż uchwałę na wybrane
-					posiedzenie.
+					Wgraj plik DOCX lub PDF – AI podzieli treść na rozdziały, artykuły i
+					punkty.
 				</p>
 			</header>
 
@@ -291,7 +367,8 @@ export default function SubmitResolution() {
 					<option value="">Wybierz posiedzenie</option>
 					{sessions.map((s) => (
 						<option key={s.id} value={s.id}>
-							{s.name} — {s.date}
+							{s.name}
+							{s.date ? ` — ${s.date}` : ""}
 						</option>
 					))}
 				</select>
@@ -307,7 +384,7 @@ export default function SubmitResolution() {
 						className={styles.textarea}
 						value={editedData?.title || ""}
 						onChange={(e) => updateField(["title"], e.target.value)}
-						placeholder="Wpisz nazwę uchwały..."
+						placeholder="Wpisz nazwę uchwały…"
 						disabled={disabled}
 						rows={3}
 					/>
@@ -323,7 +400,7 @@ export default function SubmitResolution() {
 							className={styles.textarea}
 							value={editedData.preamble}
 							onChange={(e) => updateField(["preamble"], e.target.value)}
-							placeholder="Preambuła uchwały..."
+							placeholder="Preambuła uchwały…"
 							disabled={disabled}
 							rows={6}
 						/>
@@ -331,7 +408,7 @@ export default function SubmitResolution() {
 				)}
 
 				<div className={styles.field}>
-					<span className={styles.label}>Plik DOCX</span>
+					<span className={styles.label}>Plik DOCX / PDF</span>
 					<label
 						className={`${styles.drop} ${fileName ? styles.dropActive : ""} ${
 							isDragging ? styles.dropDragging : ""
@@ -342,22 +419,25 @@ export default function SubmitResolution() {
 					>
 						<input
 							type="file"
-							accept=".docx"
+							accept=".docx,.pdf"
 							hidden
 							onChange={handleFileChange}
-							disabled={disabled}
+							disabled={disabled || loading}
 						/>
 						<span className={styles.dropTitle}>
 							{fileName ? "Zmień plik" : "Wybierz plik"}
 						</span>
 						<span className={styles.dropHint}>
-							{fileName ? fileName : "Kliknij lub przeciągnij plik .docx"}
+							{fileName
+								? fileName
+								: "Kliknij lub przeciągnij plik .docx / .pdf"}
 						</span>
 					</label>
 
 					{file && (
 						<p className={styles.fileMeta}>
 							{file.name} · {(file.size / 1024).toFixed(1)} KB
+							{estimated.text && ` · szacowany czas: ~${estimated.text}`}
 						</p>
 					)}
 				</div>
@@ -371,22 +451,30 @@ export default function SubmitResolution() {
 					className={`${styles.btn} ${styles.btnOutline}`}
 				>
 					{loading
-						? "Analizowanie..."
+						? `Analizowanie… (${aiElapsed}s / ~${estimated.text})`
 						: analyzed
-							? "Przeanalizowano"
-							: "Analizuj ustawę"}
+							? "✓ Przeanalizowano – możesz edytować"
+							: "Analizuj uchwałę (AI)"}
 				</button>
 
-				{submitting && uploadProgress > 0 && uploadProgress < 100 && (
+				{(loading || submitting) && (
 					<div className={styles.progress}>
 						<div className={styles.progressTrack}>
 							<div
 								className={styles.progressFill}
-								style={{ width: `${Math.round(uploadProgress)}%` }}
+								style={{ width: `${Math.min(progressPercent, 100)}%` }}
 							/>
 						</div>
 						<span className={styles.progressText}>
-							Wysyłanie pliku: {Math.round(uploadProgress)}%
+							{loading
+								? uploadProgress < 100
+									? `Wysyłanie pliku: ${Math.round(uploadProgress)}%`
+									: aiElapsed > estimated.max
+										? `AI analizuje… (${aiElapsed}s – to może potrwać dłużej)`
+										: `AI analizuje… (${aiElapsed}s / ~${estimated.text})`
+								: submitting
+									? `Wysyłanie uchwały: ${Math.round(uploadProgress)}%`
+									: ""}
 						</span>
 					</div>
 				)}
@@ -545,7 +633,7 @@ export default function SubmitResolution() {
 																				.join("\n"),
 																		);
 																	}}
-																	placeholder={`Punkt ${lineIndex + 1}...`}
+																	placeholder={`Punkt ${lineIndex + 1}…`}
 																	rows={Math.max(
 																		2,
 																		Math.ceil(displayValue.length / 80),
@@ -667,7 +755,7 @@ export default function SubmitResolution() {
 					onClick={handleSubmit}
 					disabled={disabled || submitting}
 				>
-					{submitting ? "Wysyłanie..." : "Złóż uchwałę"}
+					{submitting ? "Wysyłanie…" : "Złóż uchwałę"}
 				</button>
 			</form>
 

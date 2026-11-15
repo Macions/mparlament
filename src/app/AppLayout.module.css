@@ -139,3 +139,17 @@
 		transition: none;
 	}
 }
+/* ───── Overlay dla mobile sidebar ───── */
+
+.overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(17, 24, 39, 0.4);
+	z-index: 30;
+}
+
+@media (min-width: 1024px) {
+	.overlay {
+		display: none;
+	}
+}

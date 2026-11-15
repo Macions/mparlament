@@ -1,8 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import styles from "./ResolutionDetails.module.css";
 import { createPortal } from "react-dom";
-import { Trash2, Pencil, Save, X } from "lucide-react";
+import {
+	Trash2,
+	Pencil,
+	Save,
+	X,
+	FileText,
+	Users,
+	MessageSquare,
+} from "lucide-react";
+import AmendmentPanel from "../components/AmendmentPanel";
 
 const STATUS_LABEL = {
 	pending: "Oczekuje",
@@ -25,6 +34,13 @@ function StatusPill({ status }) {
 	);
 }
 
+function formatDate(iso) {
+	if (!iso) return null;
+	const [y, m, d] = iso.split("-");
+	if (!y || !m || !d) return iso;
+	return `${d}.${m}.${y}`;
+}
+
 function parseLineBack(raw) {
 	const match = raw.match(
 		/^(\s*)(\d+\.|\d+\)|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)]|–)\s+(.*)$/i,
@@ -37,6 +53,28 @@ function parseLineBack(raw) {
 	return { marker: null, text: raw, level: 1, type: "paragraph" };
 }
 
+function parseChanges(raw) {
+	if (Array.isArray(raw)) return raw;
+	if (typeof raw !== "string") return [];
+	try {
+		const parsed = JSON.parse(raw);
+		return Array.isArray(parsed) ? parsed : [];
+	} catch {
+		return [];
+	}
+}
+
+/** Bezpieczne parsowanie `target` (string JSON albo obiekt) */
+function parseTarget(raw) {
+	if (!raw) return null;
+	if (typeof raw === "object") return raw;
+	try {
+		return JSON.parse(raw);
+	} catch {
+		return null;
+	}
+}
+
 export default function ResolutionDetails() {
 	const { slug } = useParams();
 	const navigate = useNavigate();
@@ -45,6 +83,7 @@ export default function ResolutionDetails() {
 	const [signedUsers, setSignedUsers] = useState([]);
 	const [session, setSession] = useState(null);
 	const [currentUser, setCurrentUser] = useState(null);
+	const [amendments, setAmendments] = useState([]);
 	const [showConfirm, setShowConfirm] = useState(false);
 	const [actionType, setActionType] = useState(null);
 	const [showSignatures, setShowSignatures] = useState(false);
@@ -57,36 +96,60 @@ export default function ResolutionDetails() {
 	const [saving, setSaving] = useState(false);
 	const [saveError, setSaveError] = useState(null);
 
+	// Panel poprawek – kontekst (article / point)
+	const [panelContext, setPanelContext] = useState(null);
+
 	useEffect(() => {
 		window.scrollTo({ top: 0, behavior: "instant" });
 	}, []);
 
 	useEffect(() => {
+		if (!slug) return;
 		fetchResolution();
 	}, [slug]);
 
 	const fetchResolution = async () => {
+		if (!slug) return;
 		setLoading(true);
 		setErrorMessage(null);
 		try {
-			const res = await fetch(`/newapp/api/resolutions/${slug}`);
+			const token = localStorage.getItem("token");
+			const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
+			const [res, amendRes] = await Promise.all([
+				fetch(`/newapp/api/resolutions/${encodeURIComponent(slug)}`, {
+					headers: authHeaders,
+				}),
+				fetch(
+					`/newapp/api/resolutions/${encodeURIComponent(slug)}/amendments`,
+					{ headers: authHeaders },
+				),
+			]);
+
 			if (!res.ok) throw new Error("Nie znaleziono uchwały");
 			const data = await res.json();
 			setResolution(data.resolution);
 			setSignedUsers(data.signedUsers ?? []);
 			setSession(data.session);
 
+			if (amendRes.ok) {
+				const amendData = await amendRes.json();
+				setAmendments(amendData.amendments ?? []);
+			} else {
+				setAmendments([]);
+			}
+
 			try {
 				const tokenData = localStorage.getItem("token");
-				let token = null;
+				let token2 = null;
 				try {
 					const parsed = JSON.parse(tokenData);
-					token = parsed?.token;
+					token2 = parsed?.token;
 				} catch {
-					token = tokenData;
+					token2 = tokenData;
 				}
 				const meRes = await fetch("/newapp/api/auth/me", {
-					headers: token ? { Authorization: `Bearer ${token}` } : {},
+					headers: token2 ? { Authorization: `Bearer ${token2}` } : {},
 				});
 				if (meRes.ok) {
 					const me = await meRes.json();
@@ -327,6 +390,30 @@ export default function ResolutionDetails() {
 		}
 	};
 
+	/**
+	 * Grupowanie poprawek po `target.section_id` (albo `articleId` z `changes`).
+	 * Klucz:
+	 *  - "art_1"          → poprawki do całego artykułu
+	 *  - "art_1__line_2"  → poprawki do punktu 2 w Art. 1
+	 */
+	const amendmentsByKey = useMemo(() => {
+		const map = new Map();
+		for (const a of amendments) {
+			const target = parseTarget(a.target);
+			const changes = parseChanges(a.changes);
+
+			// Priorytet: target.section_id; fallback: changes[0].articleId
+			const key = target?.section_id ?? changes[0]?.articleId ?? "general";
+
+			if (!map.has(key)) map.set(key, []);
+			map.get(key).push({
+				...a,
+				changes: changes.length > 0 ? [changes[0]] : [],
+			});
+		}
+		return map;
+	}, [amendments]);
+
 	/* ── Render ── */
 
 	if (loading) {
@@ -358,18 +445,38 @@ export default function ResolutionDetails() {
 	const isAdminOrCoordinator =
 		userRole === "admin" || userRole === "coordinator";
 
+	const panelAmendments = panelContext
+		? (amendmentsByKey.get(
+				panelContext.type === "point"
+					? `${panelContext.articleId}__line_${panelContext.pointIndex}`
+					: panelContext.articleId,
+			) ?? [])
+		: [];
+
 	return (
 		<div className={styles.page}>
-			<header className={styles.topbar}>
-				<div className={styles.topbarMeta}>
-					{session && (
-						<span className={styles.topbarSession}>
-							{session.city}
-							{session.date && ` · ${session.date}`}
-						</span>
-					)}
+			{/* ── Breadcrumb / meta ── */}
+			<div className={styles.breadcrumb}>
+				<Link to="/uchwaly" className={styles.breadcrumbLink}>
+					← Wróć do uchwał
+				</Link>
+				{session && (
+					<span className={styles.breadcrumbSession}>
+						{session.city}
+						{session.date && ` · ${formatDate(session.date)}`}
+					</span>
+				)}
+			</div>
+
+			{/* ── Nagłówek ── */}
+			<header className={styles.header}>
+				<div className={styles.headerMeta}>
 					<StatusPill status={resolution.status} />
+					{resolution.party && (
+						<span className={styles.headerParty}>{resolution.party}</span>
+					)}
 				</div>
+
 				{isEditing ? (
 					<textarea
 						className={styles.titleInput}
@@ -380,79 +487,93 @@ export default function ResolutionDetails() {
 				) : (
 					<h1 className={styles.title}>{resolution.title}</h1>
 				)}
-				<p className={styles.author}>
+
+				<p className={styles.byline}>
 					Autor: <strong>{resolution.author}</strong>
-					{resolution.party && (
-						<span className={styles.authorParty}> ({resolution.party})</span>
+					{resolution.createdAt && (
+						<span> · {formatDate(resolution.createdAt)}</span>
 					)}
 				</p>
 			</header>
 
+			{/* ── Preambuła ── */}
 			{isEditing ? (
-				<div className={styles.field}>
-					<label className={styles.label}>Preambuła</label>
+				<section className={styles.editorSection}>
+					<label className={styles.editorLabel}>Preambuła</label>
 					<textarea
 						className={styles.textarea}
 						value={editedData.preamble || ""}
 						onChange={(e) => updateField(["preamble"], e.target.value)}
-						placeholder="Preambuła..."
+						placeholder="Preambuła…"
 						rows={6}
 					/>
-				</div>
+				</section>
 			) : (
 				resolution.preamble && (
-					<div className={styles.preamble}>
-						<p>{resolution.preamble}</p>
-					</div>
+					<blockquote className={styles.preamble}>
+						{resolution.preamble}
+					</blockquote>
 				)
 			)}
 
-			<div className={styles.metaRow}>
-				<div className={styles.metaCell}>
-					<span className={styles.metaLabel}>Załącznik</span>
-					{resolution.filePath ? (
-						<a
-							href={resolution.filePath}
-							className={styles.fileLink}
-							target="_blank"
-							rel="noopener noreferrer"
-						>
-							{resolution.fileName || "Pobierz plik"}
-						</a>
-					) : resolution.fileName ? (
-						<a
-							href={`/uploads/resolutions/${resolution.fileName}`}
-							className={styles.fileLink}
-							target="_blank"
-							rel="noopener noreferrer"
-						>
-							{resolution.fileName}
-						</a>
-					) : (
-						<span className={styles.muted}>Brak załącznika</span>
-					)}
-				</div>
-
-				<div className={styles.metaCell}>
-					<span className={styles.metaLabel}>Podpisy</span>
-					<div className={styles.signaturesRow}>
-						<strong className={styles.signaturesCount}>
-							{resolution.signatures}
-						</strong>
-						<span className={styles.muted}>
-							{resolution.signatures === 1 ? "podpis" : "podpisów"}
-						</span>
-						<button
-							type="button"
-							className={styles.linkBtn}
-							onClick={() => setShowSignatures(true)}
-						>
-							Zobacz listę
-						</button>
+			{/* ── Meta: załącznik + podpisy ── */}
+			<section className={styles.metaGrid}>
+				<div className={styles.metaCard}>
+					<div className={styles.metaIcon}>
+						<FileText size={16} aria-hidden="true" />
+					</div>
+					<div className={styles.metaBody}>
+						<span className={styles.metaLabel}>Załącznik</span>
+						{resolution.filePath ? (
+							<a
+								href={resolution.filePath}
+								className={styles.metaValueLink}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								{resolution.fileName || "Pobierz plik"}
+							</a>
+						) : resolution.fileName ? (
+							<a
+								href={`/uploads/resolutions/${resolution.fileName}`}
+								className={styles.metaValueLink}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								{resolution.fileName}
+							</a>
+						) : (
+							<span className={styles.metaValueMuted}>Brak załącznika</span>
+						)}
 					</div>
 				</div>
-			</div>
 
+				<div className={styles.metaCard}>
+					<div className={styles.metaIcon}>
+						<Users size={16} aria-hidden="true" />
+					</div>
+					<div className={styles.metaBody}>
+						<span className={styles.metaLabel}>Podpisy</span>
+						<div className={styles.signaturesRow}>
+							<strong className={styles.signaturesCount}>
+								{resolution.signatures}
+							</strong>
+							<span className={styles.metaValueMuted}>
+								{resolution.signatures === 1 ? "podpis" : "podpisów"}
+							</span>
+							<button
+								type="button"
+								className={styles.linkBtn}
+								onClick={() => setShowSignatures(true)}
+							>
+								Zobacz listę
+							</button>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			{/* ── Treść ── */}
 			<section className={styles.content}>
 				<div className={styles.contentHead}>
 					<h2 className={styles.contentTitle}>Treść uchwały</h2>
@@ -588,7 +709,7 @@ export default function ResolutionDetails() {
 																			.join("\n"),
 																	);
 																}}
-																placeholder={`Punkt ${lineIndex + 1}...`}
+																placeholder={`Punkt ${lineIndex + 1}…`}
 																rows={Math.max(
 																	2,
 																	Math.ceil(displayValue.length / 80),
@@ -712,83 +833,149 @@ export default function ResolutionDetails() {
 									)}
 								</header>
 
-								{(chapter.articles || []).map((article, artIndex) => (
-									<div key={article.id || artIndex} className={styles.article}>
-										<h4 className={styles.articleNumber}>{article.number}</h4>
+								{(chapter.articles || []).map((article, artIndex) => {
+									const articleAmendments =
+										amendmentsByKey.get(article.id) ?? [];
+									return (
+										<div
+											key={article.id || artIndex}
+											className={styles.article}
+										>
+											<div className={styles.articleHeaderRow}>
+												<h4 className={styles.articleNumber}>
+													{article.number}
+												</h4>
+												<button
+													type="button"
+													className={styles.amendmentsBtn}
+													onClick={() =>
+														setPanelContext({
+															type: "article",
+															articleId: article.id,
+															articleNumber: article.number,
+															chapterId: chapter.id,
+															articleText: article.content,
+														})
+													}
+												>
+													<MessageSquare size={14} aria-hidden="true" />
+													{articleAmendments.length > 0
+														? `Poprawki (${articleAmendments.length})`
+														: "Dodaj poprawkę"}
+												</button>
+											</div>
 
-										<div className={styles.articleContent}>
-											{(() => {
-												if ((article.contentLines || []).length > 0) {
-													return article.contentLines.map((line, lineIndex) => {
-														if (typeof line === "string") {
+											<div className={styles.articleContent}>
+												{(() => {
+													if ((article.contentLines || []).length > 0) {
+														return article.contentLines.map(
+															(line, lineIndex) => {
+																if (typeof line === "string") {
+																	return (
+																		<p
+																			key={lineIndex}
+																			className={styles.articleLine}
+																			data-level={1}
+																		>
+																			{line}
+																		</p>
+																	);
+																}
+																const level = line.level || 1;
+																const marker = line.marker;
+																const text = line.text || "";
+
+																// Poprawki do punktu
+																const pointKey = `${article.id}__line_${lineIndex}`;
+																const pointAmendments =
+																	amendmentsByKey.get(pointKey) ?? [];
+																const isListPoint =
+																	line.type === "list-item" && marker;
+
+																return (
+																	<p
+																		key={lineIndex}
+																		className={styles.articleLine}
+																		data-level={level}
+																	>
+																		{marker && (
+																			<span className={styles.lineMarker}>
+																				{marker}
+																			</span>
+																		)}{" "}
+																		{text}
+																		{isListPoint && (
+																			<button
+																				type="button"
+																				className={styles.pointAmendBtn}
+																				title={
+																					pointAmendments.length > 0
+																						? `Poprawki (${pointAmendments.length})`
+																						: "Dodaj poprawkę do punktu"
+																				}
+																				onClick={() =>
+																					setPanelContext({
+																						type: "point",
+																						articleId: article.id,
+																						articleNumber: article.number,
+																						chapterId: chapter.id,
+																						pointIndex: lineIndex,
+																						pointMarker: marker,
+																						pointText: text,
+																					})
+																				}
+																			>
+																				{pointAmendments.length > 0
+																					? pointAmendments.length
+																					: "+"}
+																			</button>
+																		)}
+																	</p>
+																);
+															},
+														);
+													}
+
+													const lines = splitContentIntoLines(
+														article.content || "",
+													);
+													return lines.map((line, lineIndex) => {
+														if (line.marker) {
 															return (
 																<p
 																	key={lineIndex}
 																	className={styles.articleLine}
-																	data-level={1}
+																	data-level={line.level}
 																>
-																	{line}
+																	<span className={styles.lineMarker}>
+																		{line.marker}
+																	</span>{" "}
+																	{line.text}
 																</p>
 															);
 														}
-														const level = line.level || 1;
-														const marker = line.marker;
-														const text = line.text || "";
 														return (
 															<p
 																key={lineIndex}
 																className={styles.articleLine}
-																data-level={level}
+																data-level={line.level || 1}
 															>
-																{marker && (
-																	<span className={styles.lineMarker}>
-																		{marker}
-																	</span>
-																)}{" "}
-																{text}
-															</p>
-														);
-													});
-												}
-
-												const lines = splitContentIntoLines(
-													article.content || "",
-												);
-												return lines.map((line, lineIndex) => {
-													if (line.marker) {
-														return (
-															<p
-																key={lineIndex}
-																className={styles.articleLine}
-																data-level={line.level}
-															>
-																<span className={styles.lineMarker}>
-																	{line.marker}
-																</span>{" "}
 																{line.text}
 															</p>
 														);
-													}
-													return (
-														<p
-															key={lineIndex}
-															className={styles.articleLine}
-															data-level={line.level || 1}
-														>
-															{line.text}
-														</p>
-													);
-												});
-											})()}
+													});
+												})()}
+											</div>
 										</div>
-									</div>
-								))}
+									);
+								})}
 							</article>
 						))}
 					</>
 				)}
 			</section>
 
+			{/* ── Akcje ── */}
 			<section className={styles.actions}>
 				{isEditing ? (
 					<>
@@ -799,7 +986,7 @@ export default function ResolutionDetails() {
 							disabled={saving}
 						>
 							<Save size={16} />
-							{saving ? "Zapisywanie..." : "Zapisz zmiany"}
+							{saving ? "Zapisywanie…" : "Zapisz zmiany"}
 						</button>
 						<button
 							type="button"
@@ -828,14 +1015,6 @@ export default function ResolutionDetails() {
 								{currentUser?.hasSigned ? "Usuń podpis" : "Podpisz uchwałę"}
 							</button>
 						)}
-
-						<Link
-							to={`/${resolution.slug}/poprawki`}
-							className={styles.btnOutline}
-						>
-							Wyświetl poprawki
-						</Link>
-
 						{isAdminOrCoordinator && (
 							<button
 								type="button"
@@ -860,6 +1039,17 @@ export default function ResolutionDetails() {
 					</>
 				)}
 			</section>
+
+			{/* ── Panel poprawek ── */}
+			<AmendmentPanel
+				open={panelContext !== null}
+				onClose={() => setPanelContext(null)}
+				resolutionSlug={slug}
+				context={panelContext}
+				amendments={panelAmendments}
+				currentUser={currentUser}
+				onCreated={fetchResolution}
+			/>
 
 			{/* Panel podpisów */}
 			{showSignatures &&

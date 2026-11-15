@@ -1,3 +1,4 @@
+// src/features/dashboard/components/Sidebar.jsx
 import ParlamentLogo from "../../../components/ParlamentLogo";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
@@ -8,12 +9,13 @@ import {
 	LayoutDashboard,
 	Settings2,
 	LogOut,
+	X,
 } from "lucide-react";
 import { useAuth } from "../../auth/AuthContext";
 import styles from "./Sidebar.module.css";
 import mainLogo from "../../../assets/main-logo.png";
 
-export default function Sidebar() {
+export default function Sidebar({ mobileOpen = false, onClose }) {
 	const { user, isAdmin } = useAuth();
 	const navigate = useNavigate();
 
@@ -55,19 +57,33 @@ export default function Sidebar() {
 	};
 
 	return (
-		<aside className={styles.sidebar}>
+		<aside
+			className={`${styles.sidebar} ${mobileOpen ? styles.sidebarOpen : ""}`}
+			aria-label="Nawigacja"
+		>
 			<div className={styles.brand}>
 				<img
 					src={mainLogo}
 					alt="Parlament Młodych RP"
 					className={styles.brandLogo}
 				/>
+				{onClose && (
+					<button
+						type="button"
+						className={styles.closeBtn}
+						onClick={onClose}
+						aria-label="Zamknij menu"
+					>
+						<X size={18} />
+					</button>
+				)}
 			</div>
 
 			<nav className={styles.nav}>
 				<NavLink
 					to="/panel"
 					end
+					onClick={onClose}
 					className={({ isActive }) =>
 						isActive
 							? `${styles.navItem} ${styles.navItemActive}`
@@ -81,6 +97,7 @@ export default function Sidebar() {
 					<NavLink
 						key={to}
 						to={to}
+						onClick={onClose}
 						className={({ isActive }) =>
 							isActive
 								? `${styles.navItem} ${styles.navItemActive}`

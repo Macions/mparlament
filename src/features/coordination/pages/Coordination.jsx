@@ -132,8 +132,10 @@ function SessionsPanel() {
 		try {
 			await apiFetch(`/coordination/sessions/${id}/activate`, {
 				method: "POST",
+				body: JSON.stringify({}), // ← DODAJ
 			});
 			setMessage("Posiedzenie aktywowane.");
+			await load(); // ← DODAJ (żeby lista się odświeżyła)
 		} catch (e) {
 			setError(e.message);
 		}

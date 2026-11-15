@@ -291,3 +291,35 @@
 	border-radius: 4px;
 	object-fit: contain;
 }
+.success {
+	padding: 12px 14px;
+	background: #ecfdf5;
+	border: 1px solid #a7f3d0;
+	border-radius: 4px;
+	color: #065f46;
+	font-size: 0.9rem;
+}
+
+.backLink {
+	display: block;
+	width: 100%;
+	margin-top: 12px;
+	padding: 8px 12px;
+	background: transparent;
+	border: none;
+	color: #6b7280;
+	font-size: 0.85rem;
+	font-weight: 500;
+	cursor: pointer;
+	text-align: center;
+	transition: color 0.15s ease;
+}
+
+.backLink:hover {
+	color: #111827;
+}
+
+.backLink:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
