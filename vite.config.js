@@ -9,6 +9,7 @@ export default defineConfig({
       "/newapp/api": {
         target: "http://localhost:4001",
         changeOrigin: true,
+        timeout: 120000, // 2 minuty
         rewrite: (path) => path.replace(/^\/newapp/, ""),
       },
       "/newapp/socket.io": {
@@ -16,6 +17,10 @@ export default defineConfig({
         ws: true,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/newapp/, ""),
+      },
+      "/uploads": {
+        target: "http://localhost:4001",
+        changeOrigin: true,
       },
     },
   },
