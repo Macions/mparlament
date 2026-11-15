@@ -135,11 +135,11 @@ export default function Login() {
 					/>
 					<h1 className={styles.heading}>Panel organizacyjny</h1>
 					<p className={styles.lead}>
-						Dostęp wyłącznie dla członków zespołu organizacyjnego, posłów oraz
-						współpracowników z uprawnieniami do uchwał i głosowań.
+						Dostęp wyłącznie dla członków zespołu organizacyjnego i
+						parlamentarzystów.
 					</p>
 					<p className={styles.help}>
-						Nie masz konta? Skontaktuj się z Działem Technicznym PMRP.
+						Nie masz konta? Skontaktuj się z Zespołem Technicznym PMRP.
 					</p>
 				</aside>
 
