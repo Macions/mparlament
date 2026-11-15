@@ -1,3 +1,4 @@
+// src/features/dashboard/pages/Dashboard.jsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -53,6 +54,16 @@ function StatusPill({ status }) {
 	);
 }
 
+function Skeleton({ rows = 3 }) {
+	return (
+		<div className={styles.skeleton} aria-hidden="true">
+			{Array.from({ length: rows }).map((_, i) => (
+				<div key={i} className={styles.skeletonRow} />
+			))}
+		</div>
+	);
+}
+
 export default function Dashboard() {
 	const navigate = useNavigate();
 	const { user, isAdmin, loading: authLoading } = useAuth();
@@ -62,45 +73,97 @@ export default function Dashboard() {
 	const [amendments, setAmendments] = useState([]);
 	const [votings, setVotings] = useState([]);
 	const [resolutions, setResolutions] = useState([]);
-	const [loading, setLoading] = useState(true);
 
+	// Osobne loading dla każdej sekcji
+	const [sessionsLoading, setSessionsLoading] = useState(true);
+	const [amendmentsLoading, setAmendmentsLoading] = useState(true);
+	const [votingsLoading, setVotingsLoading] = useState(true);
+	const [resolutionsLoading, setResolutionsLoading] = useState(true);
+
+	// 1. Sessions (current + next)
 	useEffect(() => {
-		const fetchAll = async () => {
-			try {
-				const token = localStorage.getItem("token");
-				if (!token) {
-					navigate("/zaloguj");
-					return;
-				}
-				const headers = { Authorization: `Bearer ${token}` };
+		const token = localStorage.getItem("token");
+		if (!token) return;
+		const headers = { Authorization: `Bearer ${token}` };
 
-				const [curRes, nextRes, amendRes, votRes, resRes] = await Promise.all([
+		(async () => {
+			try {
+				const [curRes, nextRes] = await Promise.all([
 					fetch("/newapp/api/sessions/current", { headers }),
 					fetch("/newapp/api/sessions/next", { headers }),
-					fetch("/newapp/api/amendments", { headers }),
-					fetch("/newapp/api/votings", { headers }),
-					fetch("/newapp/api/resolutions", { headers }),
 				]);
-
 				if (curRes.ok) setCurrentSession(await curRes.json());
 				if (nextRes.ok) setNextSession(await nextRes.json());
-				if (amendRes.ok)
-					setAmendments((await amendRes.json()).amendments ?? []);
-				if (votRes.ok) setVotings((await votRes.json()).votings ?? []);
-				if (resRes.ok) setResolutions((await resRes.json()).resolutions ?? []);
-			} catch {
-				localStorage.removeItem("token");
-				localStorage.removeItem("user");
-				navigate("/zaloguj");
+			} catch (e) {
+				console.error("[Dashboard] sessions:", e);
 			} finally {
-				setLoading(false);
+				setSessionsLoading(false);
 			}
-		};
+		})();
+	}, []);
 
-		fetchAll();
-	}, [navigate]);
+	// 2. Amendments
+	useEffect(() => {
+		const token = localStorage.getItem("token");
+		if (!token) return;
+		const headers = { Authorization: `Bearer ${token}` };
 
-	if (authLoading || loading) return null;
+		(async () => {
+			try {
+				const res = await fetch("/newapp/api/amendments", { headers });
+				if (res.ok) setAmendments((await res.json()).amendments ?? []);
+			} catch (e) {
+				console.error("[Dashboard] amendments:", e);
+			} finally {
+				setAmendmentsLoading(false);
+			}
+		})();
+	}, []);
+
+	// 3. Votings
+	useEffect(() => {
+		const token = localStorage.getItem("token");
+		if (!token) return;
+		const headers = { Authorization: `Bearer ${token}` };
+
+		(async () => {
+			try {
+				const res = await fetch("/newapp/api/votings", { headers });
+				if (res.ok) setVotings((await res.json()).votings ?? []);
+			} catch (e) {
+				console.error("[Dashboard] votings:", e);
+			} finally {
+				setVotingsLoading(false);
+			}
+		})();
+	}, []);
+
+	// 4. Resolutions
+	useEffect(() => {
+		const token = localStorage.getItem("token");
+		if (!token) return;
+		const headers = { Authorization: `Bearer ${token}` };
+
+		(async () => {
+			try {
+				const res = await fetch("/newapp/api/resolutions", { headers });
+				if (res.ok) setResolutions((await res.json()).resolutions ?? []);
+			} catch (e) {
+				console.error("[Dashboard] resolutions:", e);
+			} finally {
+				setResolutionsLoading(false);
+			}
+		})();
+	}, []);
+
+	// Tylko authLoading blokuje render (krótko, bo AuthProvider ma user z localStorage)
+	if (authLoading) {
+		return (
+			<div className={styles.page}>
+				<Skeleton rows={6} />
+			</div>
+		);
+	}
 
 	const myId = user?.id ?? user?.userId ?? user?.parliamentarianId;
 
@@ -163,15 +226,22 @@ export default function Dashboard() {
 				</p>
 				<div className={styles.stats}>
 					<span>
-						<strong>{myPendingAmendments.length}</strong> Twoje poprawki
+						<strong>
+							{amendmentsLoading ? "…" : myPendingAmendments.length}
+						</strong>{" "}
+						Twoje poprawki
 					</span>
 					<span className={styles.statsSep}>·</span>
 					<span>
-						<strong>{votingsToCast.length}</strong> Głosowania do oddania
+						<strong>{votingsLoading ? "…" : votingsToCast.length}</strong>{" "}
+						Głosowania do oddania
 					</span>
 					<span className={styles.statsSep}>·</span>
 					<span>
-						<strong>{pendingResolutions.length}</strong> Uchwały w toku
+						<strong>
+							{resolutionsLoading ? "…" : pendingResolutions.length}
+						</strong>{" "}
+						Uchwały w toku
 					</span>
 				</div>
 			</header>
@@ -194,7 +264,17 @@ export default function Dashboard() {
 			</section>
 
 			<div className={styles.row}>
-				{currentSession && currentSession.active ? (
+				{sessionsLoading ? (
+					<section className={styles.hero}>
+						<div className={styles.heroBody}>
+							<div className={styles.skeletonRow} style={{ width: "40%" }} />
+							<div
+								className={styles.skeletonRow}
+								style={{ width: "70%", marginTop: 12 }}
+							/>
+						</div>
+					</section>
+				) : currentSession && currentSession.active ? (
 					<LiveHero session={currentSession} />
 				) : nextSession ? (
 					<UpcomingHero session={nextSession} />
@@ -220,7 +300,7 @@ export default function Dashboard() {
 				</section>
 			</div>
 
-			{/* ─── Twoje poprawki ─── */}
+			{/* Twoje poprawki */}
 			<section className={styles.panel}>
 				<header className={styles.panelHeader}>
 					<h2 className={styles.panelTitle}>Twoje ostatnie poprawki</h2>
@@ -229,7 +309,9 @@ export default function Dashboard() {
 					</Link>
 				</header>
 
-				{myAmendments.length === 0 ? (
+				{amendmentsLoading ? (
+					<Skeleton rows={3} />
+				) : myAmendments.length === 0 ? (
 					<p className={styles.empty}>Nie złożyłeś jeszcze żadnych poprawek.</p>
 				) : (
 					<ul className={styles.list}>
@@ -252,7 +334,7 @@ export default function Dashboard() {
 				)}
 			</section>
 
-			{/* ─── Głosowania do oddania ─── */}
+			{/* Głosowania do oddania */}
 			<section className={styles.panel}>
 				<header className={styles.panelHeader}>
 					<h2 className={styles.panelTitle}>Głosowania do oddania</h2>
@@ -261,7 +343,9 @@ export default function Dashboard() {
 					</Link>
 				</header>
 
-				{votingsToCast.length === 0 ? (
+				{votingsLoading ? (
+					<Skeleton rows={2} />
+				) : votingsToCast.length === 0 ? (
 					<p className={styles.empty}>Brak głosowań do oddania.</p>
 				) : (
 					<ul className={styles.list}>
