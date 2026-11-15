@@ -38,6 +38,21 @@ export default function Header({ onMenuClick }) {
 
 	const firstName = user?.name?.split(" ")[0] || "";
 
+	// Odporne sprawdzenie: string lub tablica, bez wrażliwości na wielkość liter
+	const isOrganizationalTeam = (() => {
+		const normalize = (v) => String(v ?? "").trim().toLowerCase();
+		const target = "zespół organizacyjny";
+
+		const candidates = [
+			user?.club,
+			user?.team,
+			user?.role,
+			...(Array.isArray(user?.clubs) ? user.clubs : []),
+			...(Array.isArray(user?.teams) ? user.teams : []),
+		];
+
+		return candidates.some((c) => normalize(c) === target);
+	})();
 	useEffect(() => {
 		if (!open) return;
 		const onClick = (e) => {
@@ -92,7 +107,9 @@ export default function Header({ onMenuClick }) {
 							Cześć{firstName ? `, ${firstName}` : ""}!
 						</h1>
 						<p className={styles.subtitle}>
-							Jesteś członkiem zespołu organizacyjnego
+							{isOrganizationalTeam
+								? "Jesteś w zespole organizacyjnym"
+								: "Jesteś parlamentarzystą"}
 						</p>
 					</div>
 				</div>
