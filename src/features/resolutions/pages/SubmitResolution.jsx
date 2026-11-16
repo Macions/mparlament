@@ -1,3 +1,4 @@
+// src/features/resolutions/pages/SubmitResolution.jsx
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./SubmitResolution.module.css";
@@ -25,7 +26,6 @@ function estimateSeconds(file) {
 	return { min, max, text: `${min}–${max} s` };
 }
 
-// Ekstrakcja tokenu (obsługa JSON i string)
 function getToken() {
 	const raw = localStorage.getItem("token");
 	if (!raw) return null;
@@ -78,7 +78,6 @@ export default function SubmitResolution() {
 		fetchSessions();
 	}, []);
 
-	// Licznik AI – rośnie co sekundę, progress do 95%
 	useEffect(() => {
 		if (!loading) {
 			setAiElapsed(0);
@@ -100,8 +99,8 @@ export default function SubmitResolution() {
 	const acceptFile = (f) => {
 		if (!f) return;
 		const ext = f.name.split(".").pop()?.toLowerCase();
-		if (ext !== "docx" && ext !== "pdf") {
-			setError("Proszę wybrać plik .docx lub .pdf");
+		if (ext !== "pdf") {
+			setError("Proszę wybrać plik .pdf");
 			return;
 		}
 		setFile(f);
@@ -349,8 +348,7 @@ export default function SubmitResolution() {
 					<h1 className={styles.title}>Złóż uchwałę</h1>
 				</div>
 				<p className={styles.subtitle}>
-					Wgraj plik DOCX lub PDF – AI podzieli treść na rozdziały, artykuły i
-					punkty.
+					Wgraj plik PDF – AI podzieli treść na rozdziały, artykuły i punkty.
 				</p>
 			</header>
 
@@ -408,7 +406,7 @@ export default function SubmitResolution() {
 				)}
 
 				<div className={styles.field}>
-					<span className={styles.label}>Plik DOCX / PDF</span>
+					<span className={styles.label}>Plik PDF</span>
 					<label
 						className={`${styles.drop} ${fileName ? styles.dropActive : ""} ${
 							isDragging ? styles.dropDragging : ""
@@ -419,7 +417,7 @@ export default function SubmitResolution() {
 					>
 						<input
 							type="file"
-							accept=".docx,.pdf"
+							accept=".pdf"
 							hidden
 							onChange={handleFileChange}
 							disabled={disabled || loading}
@@ -428,9 +426,7 @@ export default function SubmitResolution() {
 							{fileName ? "Zmień plik" : "Wybierz plik"}
 						</span>
 						<span className={styles.dropHint}>
-							{fileName
-								? fileName
-								: "Kliknij lub przeciągnij plik .docx / .pdf"}
+							{fileName ? fileName : "Kliknij lub przeciągnij plik .pdf"}
 						</span>
 					</label>
 
