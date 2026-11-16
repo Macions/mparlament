@@ -251,7 +251,7 @@ export default function EditVoting() {
 				setLoading(true);
 
 				// Głosowanie
-				const votingRes = await fetch(`/newapp/api/votings/${id}`, {
+				const votingRes = await fetch(`/api/votings/${id}`, {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (!votingRes.ok) {
@@ -261,7 +261,7 @@ export default function EditVoting() {
 
 				// Grupy
 				try {
-					const groupsRes = await fetch("/newapp/api/groups", {
+					const groupsRes = await fetch("/api/groups", {
 						headers: { Authorization: `Bearer ${token}` },
 					});
 					if (groupsRes.ok) {
@@ -272,7 +272,7 @@ export default function EditVoting() {
 
 				// Członkowie (members)
 				try {
-					const membersRes = await fetch("/newapp/api/members", {
+					const membersRes = await fetch("/api/members", {
 						headers: { Authorization: `Bearer ${token}` },
 					});
 					if (membersRes.ok) {
@@ -283,7 +283,7 @@ export default function EditVoting() {
 
 				// Users (do maili i managers)
 				try {
-					const usersRes = await fetch("/newapp/api/users", {
+					const usersRes = await fetch("/api/users", {
 						headers: { Authorization: `Bearer ${token}` },
 					});
 					if (usersRes.ok) {
@@ -295,7 +295,7 @@ export default function EditVoting() {
 				// Uchwały
 				let resolutionsArray = [];
 				try {
-					const resolutionsRes = await fetch("/newapp/api/resolutions", {
+					const resolutionsRes = await fetch("/api/resolutions", {
 						headers: { Authorization: `Bearer ${token}` },
 					});
 					if (resolutionsRes.ok) {
@@ -320,7 +320,7 @@ export default function EditVoting() {
 				// Poprawki
 				let amendmentsArray = [];
 				try {
-					const amendmentsRes = await fetch("/newapp/api/amendments", {
+					const amendmentsRes = await fetch("/api/amendments", {
 						headers: { Authorization: `Bearer ${token}` },
 					});
 					if (amendmentsRes.ok) {
@@ -667,7 +667,7 @@ export default function EditVoting() {
 				notifyPush: false,
 			};
 
-			const response = await fetch(`/newapp/api/votings/${id}`, {
+			const response = await fetch(`/api/votings/${id}`, {
 				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
@@ -704,7 +704,7 @@ export default function EditVoting() {
 					}
 				});
 
-				const attRes = await fetch(`/newapp/api/votings/${id}/attachments`, {
+				const attRes = await fetch(`/api/votings/${id}/attachments`, {
 					method: "POST",
 					headers: { Authorization: `Bearer ${token}` },
 					body: fd,

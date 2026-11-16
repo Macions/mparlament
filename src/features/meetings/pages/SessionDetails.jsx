@@ -323,7 +323,7 @@ export default function SessionDetails() {
 			};
 			setSpeakers(updatedSpeakers);
 
-			fetch("/newapp/api/speakers", {
+			fetch("/api/speakers", {
 				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
@@ -345,7 +345,7 @@ export default function SessionDetails() {
 	useEffect(() => {
 		async function fetchUser() {
 			try {
-				const response = await fetch("/newapp/api/auth/me", {
+				const response = await fetch("/api/auth/me", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (response.ok) {
@@ -414,21 +414,21 @@ export default function SessionDetails() {
 			try {
 				setLoading(true);
 
-				const sessionRes = await fetch("/newapp/api/session/current", {
+				const sessionRes = await fetch("/api/session/current", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (!sessionRes.ok) throw new Error("Nie udało się pobrać sesji");
 				const sessionData = await sessionRes.json();
 				setSession(sessionData);
 
-				const speakersRes = await fetch("/newapp/api/speakers", {
+				const speakersRes = await fetch("/api/speakers", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (!speakersRes.ok) throw new Error("Nie udało się pobrać mówców");
 				const speakersData = await speakersRes.json();
 				setSpeakers(speakersData);
 
-				const parlRes = await fetch("/newapp/api/parliamentarians", {
+				const parlRes = await fetch("/api/parliamentarians", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (!parlRes.ok)
@@ -450,7 +450,7 @@ export default function SessionDetails() {
 	const updateSession = async (updatedData) => {
 		isLocalUpdate.current = true;
 		try {
-			const response = await fetch("/newapp/api/session/current", {
+			const response = await fetch("/api/session/current", {
 				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
@@ -471,7 +471,7 @@ export default function SessionDetails() {
 	};
 	const addSpeaker = async (speakerData) => {
 		try {
-			const response = await fetch("/newapp/api/speakers", {
+			const response = await fetch("/api/speakers", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -507,7 +507,7 @@ export default function SessionDetails() {
 		const alreadyInRegistry = speakers.some((s) => s.name === trimmed);
 		if (!alreadyInRegistry) {
 			try {
-				const response = await fetch("/newapp/api/speakers", {
+				const response = await fetch("/api/speakers", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",

@@ -93,7 +93,7 @@ export default function VotingDetailsPage() {
 	useEffect(() => {
 		async function fetchUser() {
 			try {
-				const res = await fetch("/newapp/api/auth/me", {
+				const res = await fetch("/api/auth/me", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (!res.ok) throw new Error();
@@ -112,7 +112,7 @@ export default function VotingDetailsPage() {
 	useEffect(() => {
 		async function fetchVote() {
 			try {
-				const res = await fetch(`/newapp/api/votings/${id}`, {
+				const res = await fetch(`/api/votings/${id}`, {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				const data = await res.json();
@@ -123,7 +123,7 @@ export default function VotingDetailsPage() {
 
 				if (data.recipientsType === "groups" && data.selectedGroups) {
 					try {
-						const groupsRes = await fetch("/newapp/api/groups", {
+						const groupsRes = await fetch("/api/groups", {
 							headers: { Authorization: `Bearer ${token}` },
 						});
 						const groupsData = await groupsRes.json();
@@ -144,7 +144,7 @@ export default function VotingDetailsPage() {
 					}
 				} else if (data.recipientsType === "members" && data.selectedMembers) {
 					try {
-						const membersRes = await fetch("/newapp/api/users", {
+						const membersRes = await fetch("/api/users", {
 							headers: { Authorization: `Bearer ${token}` },
 						});
 						const membersData = await membersRes.json();

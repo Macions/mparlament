@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import styles from "./Coordination.module.css";
 
-const API = "/newapp/api";
+const API = "/api";
 
 async function apiFetch(path, options = {}) {
 	const token = localStorage.getItem("token");

@@ -114,7 +114,7 @@ export default function AmendmentPanel({
 			];
 
 			const res = await fetch(
-				`/newapp/api/resolutions/${encodeURIComponent(resolutionSlug)}/amendments`,
+				`/api/resolutions/${encodeURIComponent(resolutionSlug)}/amendments`,
 				{
 					method: "POST",
 					headers: {

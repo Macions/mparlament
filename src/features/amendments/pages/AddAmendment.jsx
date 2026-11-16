@@ -87,8 +87,8 @@ export default function AddAmendment() {
 				const authHeaders = getAuthHeaders();
 
 				const [resRes, amdRes] = await Promise.all([
-					fetch(`/newapp/api/resolutions/${slug}`, { headers: authHeaders }),
-					fetch(`/newapp/api/resolutions/${slug}/amendments`, {
+					fetch(`/api/resolutions/${slug}`, { headers: authHeaders }),
+					fetch(`/api/resolutions/${slug}/amendments`, {
 						headers: authHeaders,
 					}),
 				]);
@@ -887,7 +887,7 @@ export default function AddAmendment() {
 			};
 
 			const response = await fetch(
-				`/newapp/api/resolutions/${slug}/amendments`,
+				`/api/resolutions/${slug}/amendments`,
 				{
 					method: "POST",
 					headers: {

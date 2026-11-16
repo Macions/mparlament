@@ -108,7 +108,7 @@ export default function LiveVoting() {
 	useEffect(() => {
 		async function fetchUser() {
 			try {
-				const response = await fetch("/newapp/api/auth/me", {
+				const response = await fetch("/api/auth/me", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (response.ok) {
@@ -133,7 +133,7 @@ export default function LiveVoting() {
 		async function fetchVoting() {
 			try {
 				setLoading(true);
-				const response = await fetch(`/newapp/api/votings/${id}`, {
+				const response = await fetch(`/api/votings/${id}`, {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (!response.ok) throw new Error("Nie udało się pobrać głosowania");
@@ -209,7 +209,7 @@ export default function LiveVoting() {
 
 		const interval = setInterval(async () => {
 			try {
-				const response = await fetch(`/newapp/api/votings/${id}`, {
+				const response = await fetch(`/api/votings/${id}`, {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (response.ok) {

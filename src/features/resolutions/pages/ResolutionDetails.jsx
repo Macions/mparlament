@@ -117,11 +117,11 @@ export default function ResolutionDetails() {
 			const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
 			const [res, amendRes] = await Promise.all([
-				fetch(`/newapp/api/resolutions/${encodeURIComponent(slug)}`, {
+				fetch(`/api/resolutions/${encodeURIComponent(slug)}`, {
 					headers: authHeaders,
 				}),
 				fetch(
-					`/newapp/api/resolutions/${encodeURIComponent(slug)}/amendments`,
+					`/api/resolutions/${encodeURIComponent(slug)}/amendments`,
 					{ headers: authHeaders },
 				),
 			]);
@@ -148,7 +148,7 @@ export default function ResolutionDetails() {
 				} catch {
 					token2 = tokenData;
 				}
-				const meRes = await fetch("/newapp/api/auth/me", {
+				const meRes = await fetch("/api/auth/me", {
 					headers: token2 ? { Authorization: `Bearer ${token2}` } : {},
 				});
 				if (meRes.ok) {
@@ -174,7 +174,7 @@ export default function ResolutionDetails() {
 	};
 
 	const handleSignatureAction = async () => {
-		const endpoint = `/newapp/api/resolutions/${resolution.id}/sign`;
+		const endpoint = `/api/resolutions/${resolution.id}/sign`;
 		const method = actionType === "sign" ? "POST" : "DELETE";
 		const token = localStorage.getItem("token");
 		if (!token) {
@@ -201,7 +201,7 @@ export default function ResolutionDetails() {
 	const handleDeleteResolution = async () => {
 		try {
 			const token = localStorage.getItem("token");
-			const res = await fetch(`/newapp/api/resolutions/${resolution.id}`, {
+			const res = await fetch(`/api/resolutions/${resolution.id}`, {
 				method: "DELETE",
 				headers: { Authorization: `Bearer ${token}` },
 			});
@@ -364,7 +364,7 @@ export default function ResolutionDetails() {
 		setSaveError(null);
 		try {
 			const token = localStorage.getItem("token");
-			const res = await fetch(`/newapp/api/resolutions/${resolution.id}`, {
+			const res = await fetch(`/api/resolutions/${resolution.id}`, {
 				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",

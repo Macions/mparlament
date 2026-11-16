@@ -17,7 +17,7 @@ export function AuthProvider({ children }) {
 					navigate("/zaloguj");
 					return;
 				}
-				const res = await fetch("/newapp/api/auth/me", {
+				const res = await fetch("/api/auth/me", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (!res.ok) throw new Error("Unauthorized");

@@ -35,8 +35,8 @@ export const SocketProvider = ({ children }) => {
 			: window.location.origin;
 
 		const socketPath = import.meta.env.DEV
-			? "/newapp/socket.io"
-			: "/newapp/socket.io";
+			? (import.meta.env.VITE_SOCKET_URL ?? "/socket.io")
+			: (import.meta.env.VITE_SOCKET_URL ?? "/socket.io");
 
 		const socket = io(socketUrl, {
 			path: socketPath,

@@ -65,7 +65,7 @@ export default function SubmitResolution() {
 		async function fetchSessions() {
 			try {
 				const token = getToken();
-				const res = await fetch("/newapp/api/sessions", {
+				const res = await fetch("/api/sessions", {
 					headers: token ? { Authorization: `Bearer ${token}` } : {},
 				});
 				if (!res.ok) throw new Error("Nie udało się pobrać posiedzeń");
@@ -158,7 +158,7 @@ export default function SubmitResolution() {
 						setUploadProgress((event.loaded / event.total) * 100);
 					}
 				});
-				xhr.open("POST", "/newapp/api/resolutions/parse");
+				xhr.open("POST", "/api/resolutions/parse");
 				if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
 				xhr.onload = () => {
 					if (xhr.status >= 200 && xhr.status < 300) {
@@ -270,7 +270,7 @@ export default function SubmitResolution() {
 
 		try {
 			const token = getToken();
-			const userRes = await fetch("/newapp/api/auth/me", {
+			const userRes = await fetch("/api/auth/me", {
 				headers: token ? { Authorization: `Bearer ${token}` } : {},
 			});
 			if (!userRes.ok) throw new Error("Nie można pobrać danych użytkownika");
@@ -297,7 +297,7 @@ export default function SubmitResolution() {
 						setUploadProgress((event.loaded / event.total) * 100);
 					}
 				});
-				xhr.open("POST", "/newapp/api/resolutions");
+				xhr.open("POST", "/api/resolutions");
 				if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
 				xhr.onload = () => {
 					if (xhr.status >= 200 && xhr.status < 300) {

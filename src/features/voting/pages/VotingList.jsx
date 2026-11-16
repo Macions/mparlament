@@ -113,7 +113,7 @@ export default function Votings() {
 		async function fetchMe() {
 			if (!token) return;
 			try {
-				const res = await fetch("/newapp/api/auth/me", {
+				const res = await fetch("/api/auth/me", {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (!res.ok) return;
@@ -135,9 +135,9 @@ export default function Votings() {
 	const fetchVotings = useCallback(async () => {
 		if (!token) return;
 		try {
-			let url = "/newapp/api/votings";
+			let url = "/api/votings";
 			if (!isAdmin && user?.id) {
-				url = `/newapp/api/votings?userId=${user.id}&role=${user.role}`;
+				url = `/api/votings?userId=${user.id}&role=${user.role}`;
 			}
 			const res = await fetch(url, {
 				headers: { Authorization: `Bearer ${token}` },
@@ -176,7 +176,7 @@ export default function Votings() {
 	/* Akcje */
 	const handleArchive = async (voteId) => {
 		try {
-			const res = await fetch(`/newapp/api/votings/${voteId}/archive`, {
+			const res = await fetch(`/api/votings/${voteId}/archive`, {
 				method: "POST",
 				headers: { Authorization: `Bearer ${token}` },
 			});
@@ -192,7 +192,7 @@ export default function Votings() {
 	const handleFinish = async (voteId) => {
 		if (!confirm("Czy na pewno zakończyć to głosowanie przed czasem?")) return;
 		try {
-			const res = await fetch(`/newapp/api/votings/${voteId}/finish`, {
+			const res = await fetch(`/api/votings/${voteId}/finish`, {
 				method: "POST",
 				headers: { Authorization: `Bearer ${token}` },
 			});
@@ -209,7 +209,7 @@ export default function Votings() {
 			const endTime = new Date(
 				startTime.getTime() + activationDuration * 3600000,
 			);
-			const res = await fetch(`/newapp/api/votings/${voteId}/activate`, {
+			const res = await fetch(`/api/votings/${voteId}/activate`, {
 				method: "POST",
 				headers: {
 					Authorization: `Bearer ${token}`,

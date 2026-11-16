@@ -29,7 +29,7 @@ export default function AmendmentsPage() {
 						token = tokenData;
 					}
 
-					const userResponse = await fetch("/newapp/api/auth/me", {
+					const userResponse = await fetch("/api/auth/me", {
 						headers: token ? { Authorization: `Bearer ${token}` } : {},
 					});
 					if (userResponse.ok) {
@@ -41,7 +41,7 @@ export default function AmendmentsPage() {
 				}
 
 				const response = await fetch(
-					`/newapp/api/resolutions/${slug}/amendments`,
+					`/api/resolutions/${slug}/amendments`,
 				);
 
 				if (!response.ok) {
@@ -95,7 +95,7 @@ export default function AmendmentsPage() {
 
 		try {
 			const response = await fetch(
-				`/newapp/api/amendments/${selectedAmendmentId}/withdraw`,
+				`/api/amendments/${selectedAmendmentId}/withdraw`,
 				{
 					method: "POST",
 					headers: {
@@ -112,7 +112,7 @@ export default function AmendmentsPage() {
 			}
 
 			const updatedResponse = await fetch(
-				`/newapp/api/resolutions/${slug}/amendments`,
+				`/api/resolutions/${slug}/amendments`,
 			);
 			const data = await updatedResponse.json();
 			setAmendments(data.amendments);

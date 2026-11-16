@@ -457,7 +457,7 @@ const buildResolutionResponse = (resolution, currentUser = null) => {
 	};
 };
 export const handlers = [
-	http.post("/newapp/api/auth/login", async ({ request }) => {
+	http.post("/api/auth/login", async ({ request }) => {
 		const body = await request.json();
 		const foundUser = users.find(
 			(u) => u.username === body.username && u.password === body.password,
@@ -486,7 +486,7 @@ export const handlers = [
 		);
 	}),
 
-	http.get("/newapp/api/auth/me", () => {
+	http.get("/api/auth/me", () => {
 		if (currentUser) return HttpResponse.json(currentUser);
 		if (typeof localStorage !== "undefined") {
 			const savedUser = localStorage.getItem("msw_current_user");
@@ -500,31 +500,31 @@ export const handlers = [
 		return HttpResponse.json({ message: "Nie zalogowany" }, { status: 401 });
 	}),
 
-	http.get("/newapp/api/parliamentarians", () =>
+	http.get("/api/parliamentarians", () =>
 		HttpResponse.json({
 			parliamentarians: parliamentarians.filter((p) => p.clubId !== null),
 			unaffiliated: parliamentarians.filter((p) => p.clubId === null),
 		}),
 	),
 
-	http.get("/newapp/api/session/current", () =>
+	http.get("/api/session/current", () =>
 		HttpResponse.json(currentSession),
 	),
 
-	http.put("/newapp/api/session/current", async ({ request }) => {
+	http.put("/api/session/current", async ({ request }) => {
 		const body = await request.json();
 		Object.assign(currentSession, body);
 		return HttpResponse.json(currentSession);
 	}),
 
-	http.get("/newapp/api/speakers", () => HttpResponse.json(speakers)),
+	http.get("/api/speakers", () => HttpResponse.json(speakers)),
 
-	http.post("/newapp/api/speakers", async ({ request }) => {
+	http.post("/api/speakers", async ({ request }) => {
 		const body = await request.json();
 		return HttpResponse.json({ id: Date.now(), ...body }, { status: 201 });
 	}),
 
-	http.post("/newapp/api/parliamentarians", async ({ request }) => {
+	http.post("/api/parliamentarians", async ({ request }) => {
 		const body = await request.json();
 		const newMember = {
 			id: Date.now(),
@@ -554,7 +554,7 @@ export const handlers = [
 		return HttpResponse.json(newMember, { status: 201 });
 	}),
 
-	http.put("/newapp/api/parliamentarians/:id", async ({ params, request }) => {
+	http.put("/api/parliamentarians/:id", async ({ params, request }) => {
 		const id = Number(params.id);
 		const body = await request.json();
 		const index = parliamentarians.findIndex((p) => p.id === id);
@@ -587,7 +587,7 @@ export const handlers = [
 		return HttpResponse.json(updated);
 	}),
 
-	http.delete("/newapp/api/parliamentarians/:id", ({ params }) => {
+	http.delete("/api/parliamentarians/:id", ({ params }) => {
 		const id = Number(params.id);
 		const member = parliamentarians.find((p) => p.id === id);
 		if (member?.clubId) {
@@ -603,16 +603,16 @@ export const handlers = [
 		return HttpResponse.json({ success: true });
 	}),
 
-	http.get("/newapp/api/clubs", () => HttpResponse.json(clubs)),
+	http.get("/api/clubs", () => HttpResponse.json(clubs)),
 
-	http.post("/newapp/api/clubs", async ({ request }) => {
+	http.post("/api/clubs", async ({ request }) => {
 		const body = await request.json();
 		const newClub = { id: Date.now(), ...body, members: [] };
 		clubs.push(newClub);
 		return HttpResponse.json(newClub, { status: 201 });
 	}),
 
-	http.put("/newapp/api/clubs/:id", async ({ params, request }) => {
+	http.put("/api/clubs/:id", async ({ params, request }) => {
 		const id = Number(params.id);
 		const body = await request.json();
 		const index = clubs.findIndex((c) => c.id === id);
@@ -623,7 +623,7 @@ export const handlers = [
 		return HttpResponse.json(clubs[index]);
 	}),
 
-	http.delete("/newapp/api/clubs/:id", ({ params }) => {
+	http.delete("/api/clubs/:id", ({ params }) => {
 		const id = Number(params.id);
 		const clubIndex = clubs.findIndex((c) => c.id === id);
 		if (clubIndex !== -1) {
@@ -639,7 +639,7 @@ export const handlers = [
 		return HttpResponse.json({ success: true });
 	}),
 
-	http.post("/newapp/api/clubs/:id/members", async ({ params, request }) => {
+	http.post("/api/clubs/:id/members", async ({ params, request }) => {
 		const clubId = Number(params.id);
 		const { memberId } = await request.json();
 
@@ -685,7 +685,7 @@ export const handlers = [
 		});
 	}),
 
-	http.delete("/newapp/api/clubs/:id/members/:memberId", ({ params }) => {
+	http.delete("/api/clubs/:id/members/:memberId", ({ params }) => {
 		const clubId = Number(params.id);
 		const memberId = Number(params.memberId);
 
@@ -708,10 +708,10 @@ export const handlers = [
 		});
 	}),
 
-	http.get("/newapp/api/sessions/current", () =>
+	http.get("/api/sessions/current", () =>
 		HttpResponse.json(currentSession),
 	),
-	http.get("/newapp/api/sessions/next", () => {
+	http.get("/api/sessions/next", () => {
 		const now = Date.now();
 
 		const upcoming = sessions
@@ -729,7 +729,7 @@ export const handlers = [
 			city: upcoming.city,
 		});
 	}),
-	http.post("/newapp/api/votings", async ({ request }) => {
+	http.post("/api/votings", async ({ request }) => {
 		let body;
 		try {
 			body = await request.json();
@@ -779,7 +779,7 @@ export const handlers = [
 		votings.push(newVoting);
 		return HttpResponse.json(newVoting, { status: 201 });
 	}),
-	http.patch("/newapp/api/votings/:id", async ({ params, request }) => {
+	http.patch("/api/votings/:id", async ({ params, request }) => {
 		const index = findVotingIndex(params.id);
 		if (index === -1) {
 			return HttpResponse.json(
@@ -792,7 +792,7 @@ export const handlers = [
 		return HttpResponse.json(votings[index]);
 	}),
 
-	http.delete("/newapp/api/votings/:id", ({ params }) => {
+	http.delete("/api/votings/:id", ({ params }) => {
 		const index = findVotingIndex(params.id);
 		if (index === -1) {
 			return HttpResponse.json(
@@ -804,11 +804,11 @@ export const handlers = [
 		return HttpResponse.json({ success: true });
 	}),
 
-	http.get("/newapp/api/resolutions", () => HttpResponse.json({ resolutions })),
+	http.get("/api/resolutions", () => HttpResponse.json({ resolutions })),
 
-	http.get("/newapp/api/sessions", () => HttpResponse.json(sessions)),
+	http.get("/api/sessions", () => HttpResponse.json(sessions)),
 
-	http.get("/newapp/api/resolutions/:slug", ({ params }) => {
+	http.get("/api/resolutions/:slug", ({ params }) => {
 		const resolution = getResolutionBySlug(params.slug);
 		if (!resolution) {
 			return HttpResponse.json(
@@ -820,7 +820,7 @@ export const handlers = [
 		return HttpResponse.json(buildResolutionResponse(resolution, user));
 	}),
 
-	http.post("/newapp/api/resolutions/:id/sign", ({ params }) => {
+	http.post("/api/resolutions/:id/sign", ({ params }) => {
 		const resolution = getResolutionById(params.id);
 		if (!resolution) {
 			return HttpResponse.json(
@@ -842,7 +842,7 @@ export const handlers = [
 		return HttpResponse.json({ success: true });
 	}),
 
-	http.delete("/newapp/api/resolutions/:id/sign", ({ params }) => {
+	http.delete("/api/resolutions/:id/sign", ({ params }) => {
 		const resolution = getResolutionById(params.id);
 		if (!resolution) {
 			return HttpResponse.json(
@@ -867,7 +867,7 @@ export const handlers = [
 		);
 	}),
 
-	http.get("/newapp/api/resolutions/:slug/amendments", ({ params }) => {
+	http.get("/api/resolutions/:slug/amendments", ({ params }) => {
 		const resolution = resolutions.find((r) => r.slug === params.slug);
 		if (!resolution) {
 			return HttpResponse.json(
@@ -888,7 +888,7 @@ export const handlers = [
 		});
 	}),
 
-	http.post("/newapp/api/resolutions", async ({ request }) => {
+	http.post("/api/resolutions", async ({ request }) => {
 		try {
 			const formData = await request.formData();
 			const file = formData.get("file");
@@ -935,7 +935,7 @@ export const handlers = [
 	}),
 
 	http.get(
-		"/newapp/api/resolutions/:slug/amendments/:amendmentId",
+		"/api/resolutions/:slug/amendments/:amendmentId",
 		({ params }) => {
 			const resolution = resolutions.find((r) => r.slug === params.slug);
 			if (!resolution) {
@@ -967,7 +967,7 @@ export const handlers = [
 	),
 
 	http.post(
-		"/newapp/api/resolutions/:slug/amendments",
+		"/api/resolutions/:slug/amendments",
 		async ({ params, request }) => {
 			const resolution = resolutions.find((r) => r.slug === params.slug);
 			if (!resolution) {
@@ -1022,7 +1022,7 @@ export const handlers = [
 	),
 
 	http.post(
-		"/newapp/api/amendments/:id/withdraw",
+		"/api/amendments/:id/withdraw",
 		async ({ params, request }) => {
 			const amendmentId = Number(params.id);
 			const amendment = amendments.find((a) => a.id === amendmentId);
@@ -1061,7 +1061,7 @@ export const handlers = [
 		},
 	),
 
-	http.post("/newapp/api/votings/:id/activate", async ({ params, request }) => {
+	http.post("/api/votings/:id/activate", async ({ params, request }) => {
 		const votingId = Number(params.id);
 		const voting = votings.find((v) => v.id === votingId);
 		if (!voting) {
@@ -1081,13 +1081,13 @@ export const handlers = [
 		});
 	}),
 
-	http.get("/newapp/api/groups", () => HttpResponse.json(groups)),
+	http.get("/api/groups", () => HttpResponse.json(groups)),
 
-	http.get("/newapp/api/members", () => HttpResponse.json(members)),
+	http.get("/api/members", () => HttpResponse.json(members)),
 
-	http.get("/newapp/api/users", () => HttpResponse.json(users)),
+	http.get("/api/users", () => HttpResponse.json(users)),
 
-	http.put("/newapp/api/votings/:id", async ({ params, request }) => {
+	http.put("/api/votings/:id", async ({ params, request }) => {
 		const votingId = Number(params.id);
 		const voting = votings.find((v) => v.id === votingId);
 		if (!voting) {
@@ -1160,7 +1160,7 @@ export const handlers = [
 		});
 	}),
 
-	http.get("/newapp/api/resolutions/session/:sessionId", ({ params }) => {
+	http.get("/api/resolutions/session/:sessionId", ({ params }) => {
 		const sessionId = Number(params.sessionId);
 		const sessionResolutions = resolutions.filter(
 			(r) => r.sessionId === sessionId,
@@ -1176,7 +1176,7 @@ export const handlers = [
 		HttpResponse.json({ message: "Strona finalizacji" }),
 	),
 	http.post(
-		"/newapp/api/votings/:id/attachments",
+		"/api/votings/:id/attachments",
 		async ({ params, request }) => {
 			const votingId = Number(params.id);
 			const voting = votings.find((v) => v.id === votingId);
@@ -1220,7 +1220,7 @@ export const handlers = [
 			}
 		},
 	),
-	http.post("/newapp/api/votings/:id/archive", ({ params }) => {
+	http.post("/api/votings/:id/archive", ({ params }) => {
 		const votingId = Number(params.id);
 
 		const voting = votings.find((v) => v.id === votingId);
@@ -1238,7 +1238,7 @@ export const handlers = [
 			voting,
 		});
 	}),
-	http.post("/newapp/api/votings/:id/finish", ({ params }) => {
+	http.post("/api/votings/:id/finish", ({ params }) => {
 		const votingId = Number(params.id);
 		const voting = votings.find((v) => v.id === votingId);
 
@@ -1270,12 +1270,12 @@ export const handlers = [
 			voting,
 		});
 	}),
-	http.get("/newapp/api/votings", ({ request }) => {
+	http.get("/api/votings", ({ request }) => {
 		const url = new URL(request.url);
 		const userId = url.searchParams.get("userId");
 		const role = url.searchParams.get("role");
 
-		// console.log("🔍 [HANDLER] GET /newapp/api/votings");
+		// console.log("🔍 [HANDLER] GET /api/votings");
 		// console.log("📌 userId:", userId);
 		// console.log("📌 role:", role);
 
@@ -1354,7 +1354,7 @@ export const handlers = [
 
 	// NOWE !!!
 
-	http.put("/newapp/api/speakers/:id", async ({ params, request }) => {
+	http.put("/api/speakers/:id", async ({ params, request }) => {
 		const id = Number(params.id);
 		const body = await request.json();
 
@@ -1371,7 +1371,7 @@ export const handlers = [
 		return HttpResponse.json(speakers[index], { status: 200 });
 	}),
 
-	http.patch("/newapp/api/speakers/:id/status", async ({ params, request }) => {
+	http.patch("/api/speakers/:id/status", async ({ params, request }) => {
 		const id = Number(params.id);
 		const { status } = await request.json();
 
@@ -1384,7 +1384,7 @@ export const handlers = [
 		return HttpResponse.json(speaker);
 	}),
 
-	http.delete("/newapp/api/speakers/:id", ({ params }) => {
+	http.delete("/api/speakers/:id", ({ params }) => {
 		const id = Number(params.id);
 		const index = speakers.findIndex((s) => s.id === id);
 		if (index === -1) {
@@ -1393,7 +1393,7 @@ export const handlers = [
 		speakers.splice(index, 1);
 		return HttpResponse.json({ success: true });
 	}),
-	http.get("/newapp/api/votings/:id", ({ params }) => {
+	http.get("/api/votings/:id", ({ params }) => {
 		const voting = votings.find((v) => v.id === Number(params.id));
 		if (!voting) {
 			return HttpResponse.json(
@@ -1551,11 +1551,11 @@ export const handlers = [
 			resultsPerQuestion, // ← NOWE
 		});
 	}),
-	http.get("/newapp/api/amendments", () => {
+	http.get("/api/amendments", () => {
 		const amendmentsWithConflicts = detectAllConflicts(amendments);
 		return HttpResponse.json(amendmentsWithConflicts);
 	}),
-	http.get("/newapp/api/amendments/:id", ({ params }) => {
+	http.get("/api/amendments/:id", ({ params }) => {
 		const allWithConflicts = detectAllConflicts(amendments);
 		const result = allWithConflicts.find((a) => a.id === Number(params.id));
 
@@ -1568,7 +1568,7 @@ export const handlers = [
 
 		return HttpResponse.json(result);
 	}),
-	http.post("/newapp/api/votings/:id/vote", async ({ params, request }) => {
+	http.post("/api/votings/:id/vote", async ({ params, request }) => {
 		const votingId = Number(params.id);
 		const voting = votings.find((v) => v.id === votingId);
 		if (!voting) {
@@ -1657,7 +1657,7 @@ export const handlers = [
 		return HttpResponse.json({ success: true, vote: body.vote });
 	}),
 
-	http.delete("/newapp/api/resolutions/:id", ({ params }) => {
+	http.delete("/api/resolutions/:id", ({ params }) => {
 		const id = Number(params.id);
 		const resolutionIndex = resolutions.findIndex((r) => r.id === id);
 
@@ -1684,7 +1684,7 @@ export const handlers = [
 			{ status: 200 },
 		);
 	}),
-	http.get("/newapp/api/current-user", () => {
+	http.get("/api/current-user", () => {
 		const user = getCurrentUser();
 		if (user) {
 			return HttpResponse.json(user);

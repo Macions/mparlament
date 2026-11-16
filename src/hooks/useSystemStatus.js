@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
-// Domyślnie /newapp/api — bo frontend jest hostowany pod /newapp/,
-// a nginx proxuje /newapp/api/* na nowy backend (mparlament-backend:4000).
-const API_BASE = import.meta.env.VITE_API_URL ?? "/newapp/api";
+// Domyślnie /api — bo frontend jest hostowany pod /newapp/,
+// a nginx proxuje /api/* na nowy backend (mparlament-backend:4000).
+const API_BASE = import.meta.env.VITE_API_URL ?? "/api";
 
 export function useSystemStatus() {
 	return { loading: false, maintenance: false, message: null, until: null };

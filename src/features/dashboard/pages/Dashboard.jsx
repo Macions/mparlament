@@ -89,8 +89,8 @@ export default function Dashboard() {
 		(async () => {
 			try {
 				const [curRes, nextRes] = await Promise.all([
-					fetch("/newapp/api/sessions/current", { headers }),
-					fetch("/newapp/api/sessions/next", { headers }),
+					fetch("/api/sessions/current", { headers }),
+					fetch("/api/sessions/next", { headers }),
 				]);
 				if (curRes.ok) setCurrentSession(await curRes.json());
 				if (nextRes.ok) setNextSession(await nextRes.json());
@@ -110,7 +110,7 @@ export default function Dashboard() {
 
 		(async () => {
 			try {
-				const res = await fetch("/newapp/api/amendments", { headers });
+				const res = await fetch("/api/amendments", { headers });
 				if (res.ok) setAmendments((await res.json()).amendments ?? []);
 			} catch (e) {
 				console.error("[Dashboard] amendments:", e);
@@ -128,7 +128,7 @@ export default function Dashboard() {
 
 		(async () => {
 			try {
-				const res = await fetch("/newapp/api/votings", { headers });
+				const res = await fetch("/api/votings", { headers });
 				if (res.ok) setVotings((await res.json()).votings ?? []);
 			} catch (e) {
 				console.error("[Dashboard] votings:", e);
@@ -146,7 +146,7 @@ export default function Dashboard() {
 
 		(async () => {
 			try {
-				const res = await fetch("/newapp/api/resolutions", { headers });
+				const res = await fetch("/api/resolutions", { headers });
 				if (res.ok) setResolutions((await res.json()).resolutions ?? []);
 			} catch (e) {
 				console.error("[Dashboard] resolutions:", e);
@@ -222,7 +222,8 @@ export default function Dashboard() {
 			<header className={styles.topbar}>
 				<h1 className={styles.pageTitle}>Przegląd</h1>
 				<p className={styles.pageSubtitle}>
-					Witaj, {user?.name?.split(" ")[0]}. Oto co dzieje się w Twojej radzie.
+					Witaj, {user?.name?.split(" ")[0]}. Oto co dzieje się w Parlamencie
+					Młodych.
 				</p>
 				<div className={styles.stats}>
 					<span>

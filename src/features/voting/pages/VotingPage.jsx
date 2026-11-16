@@ -91,7 +91,7 @@ export default function VotingPage() {
 	useEffect(() => {
 		async function fetchVote() {
 			try {
-				const response = await fetch(`/newapp/api/votings/${id}`, {
+				const response = await fetch(`/api/votings/${id}`, {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 
@@ -127,9 +127,9 @@ export default function VotingPage() {
 	async function fetchLinkedItemForSingle(data) {
 		let endpoint = "";
 		if (data.linkedItemType === "resolution") {
-			endpoint = `/newapp/api/resolutions/${data.linkedItemId}`;
+			endpoint = `/api/resolutions/${data.linkedItemId}`;
 		} else if (data.linkedItemType === "amendment") {
-			endpoint = `/newapp/api/amendments/${data.linkedItemId}`;
+			endpoint = `/api/amendments/${data.linkedItemId}`;
 		}
 		if (!endpoint) return;
 
@@ -158,9 +158,9 @@ export default function VotingPage() {
 
 				let endpoint = "";
 				if (q.linkedItemType === "resolution") {
-					endpoint = `/newapp/api/resolutions/${q.linkedItemId}`;
+					endpoint = `/api/resolutions/${q.linkedItemId}`;
 				} else if (q.linkedItemType === "amendment") {
-					endpoint = `/newapp/api/amendments/${q.linkedItemId}`;
+					endpoint = `/api/amendments/${q.linkedItemId}`;
 				}
 				if (!endpoint) return;
 
@@ -190,7 +190,7 @@ export default function VotingPage() {
 
 		const interval = setInterval(async () => {
 			try {
-				const response = await fetch(`/newapp/api/votings/${id}`, {
+				const response = await fetch(`/api/votings/${id}`, {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				if (!response.ok) return;
@@ -232,7 +232,7 @@ export default function VotingPage() {
 
 	async function confirmVote() {
 		try {
-			const response = await fetch(`/newapp/api/votings/${id}/vote`, {
+			const response = await fetch(`/api/votings/${id}/vote`, {
 				method: "POST",
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -255,7 +255,7 @@ export default function VotingPage() {
 				if (response.status === 403 || response.status === 400) {
 					setPendingVote(null);
 					setError(data.message || "Głosowanie zostało zakończone");
-					const refresh = await fetch(`/newapp/api/votings/${id}`, {
+					const refresh = await fetch(`/api/votings/${id}`, {
 						headers: { Authorization: `Bearer ${token}` },
 					});
 					if (refresh.ok) setVote(await refresh.json());
@@ -311,7 +311,7 @@ export default function VotingPage() {
 				}),
 			);
 
-			const response = await fetch(`/newapp/api/votings/${id}/vote`, {
+			const response = await fetch(`/api/votings/${id}/vote`, {
 				method: "POST",
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -334,7 +334,7 @@ export default function VotingPage() {
 				if (response.status === 403 || response.status === 400) {
 					setShowBatchConfirm(false);
 					setError(data.message || "Głosowanie zostało zakończone");
-					const refresh = await fetch(`/newapp/api/votings/${id}`, {
+					const refresh = await fetch(`/api/votings/${id}`, {
 						headers: { Authorization: `Bearer ${token}` },
 					});
 					if (refresh.ok) setVote(await refresh.json());

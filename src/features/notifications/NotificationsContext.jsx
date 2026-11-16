@@ -31,7 +31,7 @@ async function apiFetch(path, options = {}) {
 		...(options.headers || {}),
 		...(token ? { Authorization: `Bearer ${token}` } : {}),
 	};
-	return fetch(`/newapp/api${path}`, { ...options, headers });
+	return fetch(`/api${path}`, { ...options, headers });
 }
 
 export function NotificationsProvider({ children }) {

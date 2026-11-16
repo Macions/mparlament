@@ -60,7 +60,7 @@ export default function Resolutions() {
 				const token = localStorage.getItem("token");
 				const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
-				const sessionsRes = await fetch("/newapp/api/sessions", {
+				const sessionsRes = await fetch("/api/sessions", {
 					headers: authHeaders,
 				});
 				if (!sessionsRes.ok) throw new Error("Nie udało się pobrać posiedzeń");
@@ -71,7 +71,7 @@ export default function Resolutions() {
 						: (sessionsData.sessions ?? []),
 				);
 
-				const resolutionsRes = await fetch("/newapp/api/resolutions", {
+				const resolutionsRes = await fetch("/api/resolutions", {
 					headers: authHeaders,
 				});
 				if (!resolutionsRes.ok) throw new Error("Nie udało się pobrać uchwał");

@@ -12,7 +12,8 @@ type Props = {
 
 export function MaintenancePage({
 	message,
-	submitUrl = "/newapp/api/ideas",
+	submitUrl = `${import.meta.env.VITE_API_URL ?? "/api"}/ideas`,
+
 	contactEmail = "maciej.czarnecki@parlamentmlodych.eu",
 }: Props) {
 	const [idea, setIdea] = useState("");
