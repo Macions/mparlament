@@ -1,0 +1,526 @@
+/* ─────────────────────────────────────────────
+   Baza – spójna z listą uchwał
+   ───────────────────────────────────────────── */
+.page {
+	max-width: 960px;
+	margin: 0 auto;
+	padding: 40px 24px 80px;
+	color: #1a1a1a;
+	background: #fbfaf7;
+	font-family:
+		"Inter",
+		"Segoe UI",
+		system-ui,
+		-apple-system,
+		sans-serif;
+	font-feature-settings: "ss01", "cv11";
+}
+
+/* ─────────────────────────────────────────────
+   Nagłówek
+   ───────────────────────────────────────────── */
+.topbar {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 24px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid #e6e2da;
+	margin-bottom: 32px;
+	flex-wrap: wrap;
+}
+
+.topbarMain {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.eyebrow {
+	margin: 0;
+	font-size: 12px;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: #8a8378;
+	font-weight: 500;
+}
+
+.title {
+	margin: 0;
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 40px;
+	line-height: 1.1;
+	font-weight: 600;
+	letter-spacing: -0.02em;
+	color: #14110c;
+}
+
+.subtitle {
+	margin: 0;
+	font-size: 14px;
+	color: #5e574d;
+	max-width: 420px;
+	text-align: right;
+	line-height: 1.5;
+}
+
+/* ─────────────────────────────────────────────
+   Sesja
+   ───────────────────────────────────────────── */
+.sessionRow {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 28px;
+	flex-wrap: wrap;
+}
+
+.sessionLabel {
+	font-size: 12px;
+	font-weight: 500;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #8a8378;
+}
+
+.select {
+	height: 40px;
+	padding: 0 12px;
+	border: 1px solid #d9d3c8;
+	border-radius: 6px;
+	background: #fff;
+	font-size: 14px;
+	color: #1a1a1a;
+	cursor: pointer;
+	min-width: 260px;
+	transition: border-color 120ms ease;
+}
+
+.select:focus {
+	outline: none;
+	border-color: #14110c;
+	box-shadow: 0 0 0 3px rgba(20, 17, 12, 0.08);
+}
+
+/* ─────────────────────────────────────────────
+   Formularz
+   ───────────────────────────────────────────── */
+.form {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.label {
+	font-size: 12px;
+	font-weight: 500;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #8a8378;
+}
+
+.textarea {
+	width: 100%;
+	font-family: "Inter", system-ui, sans-serif;
+	font-size: 14px;
+	line-height: 1.6;
+	color: #2a2620;
+	padding: 10px 12px;
+	border: 1px solid #d9d3c8;
+	border-radius: 6px;
+	background: #fff;
+	resize: vertical;
+	min-height: 60px;
+}
+
+.textarea:focus {
+	outline: none;
+	border-color: #14110c;
+	box-shadow: 0 0 0 3px rgba(20, 17, 12, 0.08);
+}
+
+.textarea:disabled {
+	background: #f6f2ea;
+	cursor: not-allowed;
+}
+
+/* ─────────────────────────────────────────────
+   Dropzone
+   ───────────────────────────────────────────── */
+.drop {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 32px 24px;
+	border: 2px dashed #d9d3c8;
+	border-radius: 8px;
+	background: #fff;
+	cursor: pointer;
+	transition:
+		border-color 120ms ease,
+		background 120ms ease;
+	text-align: center;
+}
+
+.drop:hover {
+	border-color: #cfc7b8;
+	background: #fbfaf7;
+}
+
+.dropActive {
+	border-style: solid;
+	border-color: #14110c;
+	background: #f6f2ea;
+}
+
+.dropDragging {
+	border-color: #14110c;
+	background: #f0ece4;
+}
+
+.dropDisabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.dropTitle {
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 18px;
+	font-weight: 600;
+	color: #14110c;
+}
+
+.dropHint {
+	font-size: 13px;
+	color: #6b655b;
+}
+
+.fileMeta {
+	margin: 0;
+	font-size: 12px;
+	color: #6b655b;
+	font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────────────────────────────────────
+   Progress
+   ───────────────────────────────────────────── */
+.progress {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.progressTrack {
+	width: 100%;
+	height: 6px;
+	background: #f0ece4;
+	border-radius: 3px;
+	overflow: hidden;
+}
+
+.progressFill {
+	height: 100%;
+	background: #14110c;
+	border-radius: 3px;
+	transition: width 200ms ease;
+}
+
+.progressText {
+	font-size: 12px;
+	color: #5e574d;
+	font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────────────────────────────────────
+   Przyciski
+   ───────────────────────────────────────────── */
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	height: 40px;
+	padding: 0 16px;
+	border-radius: 6px;
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	transition:
+		background 120ms ease,
+		border-color 120ms ease,
+		color 120ms ease,
+		box-shadow 120ms ease;
+	white-space: nowrap;
+}
+
+.btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.btnPrimary {
+	background: #14110c;
+	border: 1px solid #14110c;
+	color: #fbfaf7;
+}
+
+.btnPrimary:hover:not(:disabled) {
+	background: #2a2620;
+}
+
+.btnOutline {
+	background: #fff;
+	border: 1px solid #d9d3c8;
+	color: #14110c;
+}
+
+.btnOutline:hover:not(:disabled) {
+	background: #f6f2ea;
+	border-color: #cfc7b8;
+}
+
+.btnGhost {
+	background: transparent;
+	border: 1px solid transparent;
+	color: #5e574d;
+}
+
+.btnGhost:hover:not(:disabled) {
+	background: #f0ece4;
+	color: #14110c;
+}
+
+.btnDanger {
+	background: transparent;
+	border: 1px solid #e0c8c1;
+	color: #8a2f24;
+}
+
+.btnDanger:hover:not(:disabled) {
+	background: #f4e6e2;
+}
+
+.btnSmall {
+	height: 32px;
+	padding: 0 12px;
+	font-size: 13px;
+}
+
+.btnBlock {
+	width: 100%;
+	height: 46px;
+	font-size: 15px;
+}
+
+.btn:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(20, 17, 12, 0.16);
+}
+
+/* ─────────────────────────────────────────────
+   Edytor
+   ───────────────────────────────────────────── */
+.editor {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	padding: 24px;
+	background: #f6f2ea;
+	border: 1px solid #e6e2da;
+	border-radius: 8px;
+	margin-top: 12px;
+}
+
+.editorHead {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid #e6e2da;
+}
+
+.editorTitle {
+	margin: 0;
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 20px;
+	font-weight: 600;
+	color: #14110c;
+}
+
+.chapters {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.chapter {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 16px;
+	background: #fff;
+	border: 1px solid #e6e2da;
+	border-radius: 6px;
+}
+
+.chapterHead {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.chapterTitles {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	flex: 1;
+	min-width: 0;
+}
+
+.chapterTitle {
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 16px;
+	font-weight: 600;
+	color: #14110c;
+	padding: 6px 10px;
+	border: 1px solid #d9d3c8;
+	border-radius: 6px;
+	background: #fff;
+}
+
+.chapterSubtitle {
+	font-size: 13px;
+	color: #3d372f;
+	padding: 6px 10px;
+	border: 1px solid #d9d3c8;
+	border-radius: 6px;
+	background: #fff;
+	font-style: italic;
+}
+
+.articles {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding-left: 8px;
+	border-left: 2px solid #e6e2da;
+}
+
+.article {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.articleHead {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.articleNumber {
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 14px;
+	font-weight: 600;
+	color: #3d372f;
+	padding: 4px 8px;
+	border: 1px solid #d9d3c8;
+	border-radius: 4px;
+	background: #fff;
+	width: 100px;
+}
+
+.articleLines {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.articleLine {
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+}
+
+.articleLine[data-level="2"] {
+	margin-left: 16px;
+}
+
+.articleLine[data-level="3"] {
+	margin-left: 32px;
+}
+
+.articleLine[data-level="4"] {
+	margin-left: 48px;
+}
+
+.articleLine .textarea {
+	flex: 1;
+}
+
+/* ─────────────────────────────────────────────
+   Stany
+   ───────────────────────────────────────────── */
+.error {
+	padding: 12px 14px;
+	background: #f4e6e2;
+	border: 1px solid #e0c8c1;
+	border-radius: 6px;
+	color: #8a2f24;
+	font-size: 13px;
+}
+
+/* ─────────────────────────────────────────────
+   Responsywność
+   ───────────────────────────────────────────── */
+@media (max-width: 720px) {
+	.page {
+		padding: 24px 16px 56px;
+	}
+
+	.title {
+		font-size: 30px;
+	}
+
+	.topbar {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.subtitle {
+		text-align: left;
+	}
+
+	.select {
+		min-width: 0;
+		width: 100%;
+	}
+
+	.chapterHead {
+		flex-direction: column;
+	}
+}
+
+/* ─────────────────────────────────────────────
+   Prefers-reduced-motion
+   ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+	.select,
+	.textarea,
+	.drop,
+	.btn,
+	.progressFill {
+		transition: none;
+	}
+}

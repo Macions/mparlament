@@ -1,0 +1,1039 @@
+/* ─────────────────────────────────────────────
+   Baza – spójna z listą uchwał
+   ───────────────────────────────────────────── */
+.page {
+	margin: 0 auto;
+	padding: 40px 24px 96px;
+	color: #1a1a1a;
+	background: #fbfaf7;
+	font-family:
+		"Inter",
+		"Segoe UI",
+		system-ui,
+		-apple-system,
+		sans-serif;
+	font-feature-settings: "ss01", "cv11";
+}
+
+/* ─────────────────────────────────────────────
+   Breadcrumb
+   ───────────────────────────────────────────── */
+.breadcrumb {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding-bottom: 16px;
+	margin-bottom: 32px;
+	border-bottom: 1px solid #e6e2da;
+	font-size: 13px;
+}
+
+.breadcrumbLink {
+	color: #5e574d;
+	text-decoration: none;
+	transition: color 120ms ease;
+}
+
+.breadcrumbLink:hover {
+	color: #14110c;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+.breadcrumbLink:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(20, 17, 12, 0.12);
+	border-radius: 3px;
+}
+
+.breadcrumbSession {
+	color: #8a8378;
+	font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────────────────────────────────────
+   Nagłówek
+   ───────────────────────────────────────────── */
+.header {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	margin-bottom: 36px;
+}
+
+.headerMeta {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.headerParty {
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #5e574d;
+}
+
+.title {
+	margin: 0;
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 40px;
+	line-height: 1.15;
+	font-weight: 600;
+	letter-spacing: -0.02em;
+	color: #14110c;
+}
+
+.byline {
+	margin: 0;
+	font-size: 14px;
+	color: #6b655b;
+}
+
+.byline strong {
+	color: #3d372f;
+	font-weight: 600;
+}
+
+/* ─────────────────────────────────────────────
+   Preambuła – jako cytat
+   ───────────────────────────────────────────── */
+.preamble {
+	margin: 0 0 36px;
+	padding: 20px 24px;
+	border-left: 3px solid #cfc7b8;
+	background: #f6f2ea;
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 16px;
+	line-height: 1.6;
+	color: #3d372f;
+	border-radius: 0 6px 6px 0;
+}
+
+/* ─────────────────────────────────────────────
+   Meta karty (załącznik + podpisy)
+   ───────────────────────────────────────────── */
+.metaGrid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+	margin-bottom: 40px;
+}
+
+.metaCard {
+	display: flex;
+	gap: 12px;
+	align-items: flex-start;
+	padding: 16px;
+	background: #fff;
+	border: 1px solid #e6e2da;
+	border-radius: 6px;
+}
+
+.metaIcon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 6px;
+	background: #f0ece4;
+	color: #5e574d;
+	flex-shrink: 0;
+}
+
+.metaBody {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+}
+
+.metaLabel {
+	font-size: 11px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #8a8378;
+	font-weight: 500;
+}
+
+.metaValueLink {
+	font-size: 14px;
+	font-weight: 500;
+	color: #14110c;
+	text-decoration: none;
+	border-bottom: 1px solid #d9d3c8;
+	padding-bottom: 1px;
+	transition: border-color 120ms ease;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.metaValueLink:hover {
+	border-bottom-color: #14110c;
+}
+
+.metaValueMuted {
+	font-size: 14px;
+	color: #8a8378;
+}
+
+.signaturesRow {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.signaturesCount {
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 22px;
+	font-weight: 600;
+	color: #14110c;
+	line-height: 1;
+}
+
+.linkBtn {
+	appearance: none;
+	background: transparent;
+	border: none;
+	padding: 0;
+	font-size: 12px;
+	font-weight: 500;
+	color: #5c4a1e;
+	cursor: pointer;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+	transition: color 120ms ease;
+}
+
+.linkBtn:hover {
+	color: #14110c;
+}
+
+.linkBtn:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(20, 17, 12, 0.12);
+	border-radius: 3px;
+}
+
+/* ─────────────────────────────────────────────
+   Treść uchwały
+   ───────────────────────────────────────────── */
+.content {
+	margin-bottom: 48px;
+}
+
+.contentHead {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 16px;
+	padding-bottom: 12px;
+	margin-bottom: 24px;
+	border-bottom: 1px solid #e6e2da;
+}
+
+.contentTitle {
+	margin: 0;
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 24px;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+	color: #14110c;
+}
+
+/* ─────────────────────────────────────────────
+   Rozdziały i artykuły (tryb czytania)
+   ───────────────────────────────────────────── */
+.chapter {
+	margin-bottom: 40px;
+}
+
+.chapter:last-child {
+	margin-bottom: 0;
+}
+
+.chapterHead {
+	margin-bottom: 18px;
+}
+
+.chapterTitle {
+	margin: 0;
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 20px;
+	font-weight: 600;
+	letter-spacing: -0.005em;
+	color: #14110c;
+}
+
+.chapterSubtitle {
+	margin: 4px 0 0;
+	font-size: 14px;
+	color: #6b655b;
+	font-style: italic;
+}
+
+.article {
+	margin-bottom: 24px;
+}
+
+.article:last-child {
+	margin-bottom: 0;
+}
+
+.articleNumber {
+	margin: 0 0 8px;
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 16px;
+	font-weight: 600;
+	color: #3d372f;
+	letter-spacing: 0.01em;
+}
+
+.articleContent {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: 15px;
+	line-height: 1.65;
+	color: #2a2620;
+}
+
+.articleLine {
+	margin: 0;
+	padding-left: 0;
+	text-align: justify;
+	hyphens: auto;
+}
+
+.articleLine[data-level="2"] {
+	padding-left: 20px;
+}
+
+.articleLine[data-level="3"] {
+	padding-left: 40px;
+}
+
+.articleLine[data-level="4"] {
+	padding-left: 60px;
+}
+
+.lineMarker {
+	font-weight: 600;
+	color: #14110c;
+	font-variant-numeric: tabular-nums;
+	margin-right: 4px;
+}
+
+/* ─────────────────────────────────────────────
+   Tryb edycji
+   ───────────────────────────────────────────── */
+.editorSection {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-bottom: 36px;
+}
+
+.editorLabel {
+	font-size: 12px;
+	font-weight: 500;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #8a8378;
+}
+
+.titleInput {
+	width: 100%;
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 32px;
+	font-weight: 600;
+	line-height: 1.2;
+	color: #14110c;
+	padding: 8px 12px;
+	border: 1px solid #d9d3c8;
+	border-radius: 6px;
+	background: #fff;
+	resize: vertical;
+	letter-spacing: -0.02em;
+}
+
+.titleInput:focus {
+	outline: none;
+	border-color: #14110c;
+	box-shadow: 0 0 0 3px rgba(20, 17, 12, 0.08);
+}
+
+.textarea {
+	width: 100%;
+	font-family: "Inter", system-ui, sans-serif;
+	font-size: 14px;
+	line-height: 1.6;
+	color: #2a2620;
+	padding: 10px 12px;
+	border: 1px solid #d9d3c8;
+	border-radius: 6px;
+	background: #fff;
+	resize: vertical;
+	min-height: 60px;
+}
+
+.textarea:focus {
+	outline: none;
+	border-color: #14110c;
+	box-shadow: 0 0 0 3px rgba(20, 17, 12, 0.08);
+}
+
+.chapters {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.chapterHead {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.chapterTitles {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	flex: 1;
+	min-width: 0;
+}
+
+.chapterTitleInput {
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 18px;
+	font-weight: 600;
+	color: #14110c;
+	padding: 6px 10px;
+	border: 1px solid #d9d3c8;
+	border-radius: 6px;
+	background: #fff;
+}
+
+.chapterSubtitleInput {
+	font-size: 14px;
+	color: #3d372f;
+	padding: 6px 10px;
+	border: 1px solid #d9d3c8;
+	border-radius: 6px;
+	background: #fff;
+	font-style: italic;
+}
+
+.articles {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding-left: 8px;
+	border-left: 2px solid #e6e2da;
+}
+
+.articleHead {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.articleNumberInput {
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 15px;
+	font-weight: 600;
+	color: #3d372f;
+	padding: 4px 8px;
+	border: 1px solid #d9d3c8;
+	border-radius: 4px;
+	background: #fff;
+	width: 120px;
+}
+
+.articleLines {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.articleLine {
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+}
+
+.articleLine .textarea {
+	flex: 1;
+}
+
+/* ─────────────────────────────────────────────
+   Przyciski
+   ───────────────────────────────────────────── */
+.btnPrimary,
+.btnOutline,
+.btnGhost,
+.btnDanger,
+.btnDangerSmall {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 38px;
+	padding: 0 14px;
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	text-decoration: none;
+	transition:
+		background 120ms ease,
+		border-color 120ms ease,
+		color 120ms ease,
+		box-shadow 120ms ease;
+	white-space: nowrap;
+}
+
+.btnPrimary {
+	background: #14110c;
+	border: 1px solid #14110c;
+	color: #fbfaf7;
+}
+
+.btnPrimary:hover {
+	background: #2a2620;
+}
+
+.btnPrimary:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.btnOutline {
+	background: #fff;
+	border: 1px solid #d9d3c8;
+	color: #14110c;
+}
+
+.btnOutline:hover {
+	background: #f6f2ea;
+	border-color: #cfc7b8;
+}
+
+.btnGhost {
+	background: transparent;
+	border: 1px solid transparent;
+	color: #5e574d;
+}
+
+.btnGhost:hover {
+	background: #f0ece4;
+	color: #14110c;
+}
+
+.btnDanger {
+	background: #fff;
+	border: 1px solid #e0c8c1;
+	color: #8a2f24;
+}
+
+.btnDanger:hover {
+	background: #f4e6e2;
+	border-color: #d4b3ab;
+}
+
+.btnDangerSmall {
+	height: 26px;
+	padding: 0 8px;
+	font-size: 12px;
+	background: transparent;
+	border: 1px solid transparent;
+	color: #8a2f24;
+}
+
+.btnDangerSmall:hover {
+	background: #f4e6e2;
+	border-color: #e0c8c1;
+}
+
+.btnPrimary:focus-visible,
+.btnOutline:focus-visible,
+.btnGhost:focus-visible,
+.btnDanger:focus-visible,
+.btnDangerSmall:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(20, 17, 12, 0.16);
+}
+
+/* ─────────────────────────────────────────────
+   Akcje na dole
+   ───────────────────────────────────────────── */
+.actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	align-items: center;
+	padding-top: 24px;
+	border-top: 1px solid #e6e2da;
+}
+
+/* ─────────────────────────────────────────────
+   Status pill
+   ───────────────────────────────────────────── */
+.pill {
+	display: inline-flex;
+	align-items: center;
+	height: 24px;
+	padding: 0 10px;
+	border-radius: 4px;
+	font-size: 12px;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	white-space: nowrap;
+}
+
+.pill--ok {
+	color: #2f5c3a;
+	background: #e7f0e8;
+}
+
+.pill--bad {
+	color: #8a2f24;
+	background: #f4e6e2;
+}
+
+.pill--warn {
+	color: #7a5514;
+	background: #f5ecd7;
+}
+
+.pill--neutral {
+	color: #4d473e;
+	background: #edeae3;
+}
+
+/* ─────────────────────────────────────────────
+   Stany
+   ───────────────────────────────────────────── */
+.muted {
+	color: #8a8378;
+	font-size: 13px;
+}
+
+.error {
+	padding: 12px 14px;
+	background: #f4e6e2;
+	border: 1px solid #e0c8c1;
+	border-radius: 6px;
+	color: #8a2f24;
+	font-size: 13px;
+	margin: 0;
+}
+
+.empty {
+	padding: 64px 24px;
+	text-align: center;
+	border: 1px dashed #d9d3c8;
+	border-radius: 8px;
+	background: #fbfaf7;
+}
+
+.emptyTitle {
+	margin: 0 0 8px;
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 22px;
+	font-weight: 600;
+	color: #14110c;
+}
+
+.emptyText {
+	margin: 0 0 20px;
+	font-size: 14px;
+	color: #6b655b;
+	max-width: 420px;
+	margin-inline: auto;
+	line-height: 1.5;
+}
+
+/* ─────────────────────────────────────────────
+   Panel podpisów
+   ───────────────────────────────────────────── */
+.overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(20, 17, 12, 0.4);
+	z-index: 40;
+}
+
+.panel {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: min(420px, 100vw);
+	background: #fbfaf7;
+	z-index: 41;
+	display: flex;
+	flex-direction: column;
+	border-left: 1px solid #e6e2da;
+	box-shadow: -8px 0 24px rgba(20, 17, 12, 0.08);
+	animation: slideIn 200ms ease;
+}
+
+@keyframes slideIn {
+	from {
+		transform: translateX(16px);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+.panelHead {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 20px 24px;
+	border-bottom: 1px solid #e6e2da;
+}
+
+.panelTitle {
+	margin: 0;
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 20px;
+	font-weight: 600;
+	color: #14110c;
+}
+
+.panelClose {
+	appearance: none;
+	background: transparent;
+	border: none;
+	font-size: 18px;
+	color: #5e574d;
+	cursor: pointer;
+	width: 32px;
+	height: 32px;
+	border-radius: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.panelClose:hover {
+	background: #f0ece4;
+	color: #14110c;
+}
+
+.panelTotal {
+	margin: 0;
+	padding: 12px 24px;
+	font-size: 13px;
+	color: #6b655b;
+	border-bottom: 1px solid #e6e2da;
+}
+
+.panelTotal strong {
+	color: #14110c;
+}
+
+.panelList {
+	list-style: none;
+	margin: 0;
+	padding: 8px 0;
+	overflow-y: auto;
+	flex: 1;
+}
+
+.signature {
+	display: flex;
+	gap: 12px;
+	padding: 12px 24px;
+	border-bottom: 1px solid #f0ece4;
+}
+
+.signature:last-child {
+	border-bottom: none;
+}
+
+.signatureAvatar {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	background: #f0ece4;
+	color: #14110c;
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 16px;
+	font-weight: 600;
+	flex-shrink: 0;
+}
+
+.signatureInfo {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.signatureInfo strong {
+	font-size: 14px;
+	font-weight: 600;
+	color: #14110c;
+}
+
+.signatureClub {
+	font-size: 12px;
+	color: #5e574d;
+}
+
+.signatureTime {
+	font-size: 12px;
+	color: #8a8378;
+	font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────────────────────────────────────
+   Modale
+   ───────────────────────────────────────────── */
+.modalOverlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(20, 17, 12, 0.4);
+	z-index: 50;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+}
+
+.modal {
+	background: #fbfaf7;
+	border-radius: 8px;
+	padding: 28px;
+	max-width: 440px;
+	width: 100%;
+	box-shadow: 0 24px 48px rgba(20, 17, 12, 0.2);
+}
+
+.modalTitle {
+	margin: 0 0 12px;
+	font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+	font-size: 22px;
+	font-weight: 600;
+	color: #14110c;
+}
+
+.modalText {
+	margin: 0 0 24px;
+	font-size: 14px;
+	line-height: 1.55;
+	color: #3d372f;
+}
+
+.modalText strong {
+	color: #14110c;
+}
+
+.modalActions {
+	display: flex;
+	gap: 10px;
+	justify-content: flex-end;
+	flex-wrap: wrap;
+}
+
+/* ─────────────────────────────────────────────
+   Responsywność
+   ───────────────────────────────────────────── */
+@media (max-width: 720px) {
+	.page {
+		padding: 24px 16px 64px;
+	}
+
+	.title {
+		font-size: 28px;
+	}
+
+	.metaGrid {
+		grid-template-columns: 1fr;
+	}
+
+	.titleInput {
+		font-size: 24px;
+	}
+
+	.breadcrumb {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 4px;
+	}
+
+	.actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.actions > * {
+		width: 100%;
+		justify-content: center;
+	}
+
+	.panel {
+		width: 100vw;
+	}
+}
+
+/* ─────────────────────────────────────────────
+   Prefers-reduced-motion
+   ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+	.breadcrumbLink,
+	.metaValueLink,
+	.linkBtn,
+	.btnPrimary,
+	.btnOutline,
+	.btnGhost,
+	.btnDanger,
+	.btnDangerSmall {
+		transition: none;
+	}
+
+	.panel {
+		animation: none;
+	}
+}
+/* ── Wiersz: numer artykułu + przycisk poprawek ── */
+.articleHeaderRow {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 8px;
+	flex-wrap: wrap;
+}
+
+.articleHeaderRow .articleNumber {
+	margin: 0;
+}
+
+.amendmentsBtn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 28px;
+	padding: 0 10px;
+	background: transparent;
+	border: 1px solid #d9d3c8;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 500;
+	color: #5c4a1e;
+	cursor: pointer;
+	transition:
+		background 120ms ease,
+		border-color 120ms ease;
+	white-space: nowrap;
+}
+
+.amendmentsBtn:hover {
+	background: #f6f2ea;
+	border-color: #cfc7b8;
+}
+
+.amendmentsBtn:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(20, 17, 12, 0.12);
+}
+/* ── Przycisk "poprawka" przy punkcie (mały, na hover) ── */
+.pointAmendBtn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 20px;
+	height: 20px;
+	margin-left: 8px;
+	padding: 0 6px;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	font-size: 11px;
+	font-weight: 600;
+	color: #8a8378;
+	cursor: pointer;
+	opacity: 0;
+	transition:
+		opacity 120ms ease,
+		background 120ms ease,
+		color 120ms ease;
+	vertical-align: middle;
+}
+
+.articleLine:hover .pointAmendBtn,
+.pointAmendBtn:focus-visible {
+	opacity: 1;
+}
+
+.pointAmendBtn:hover {
+	background: #f0ece4;
+	color: #14110c;
+	border-color: #d9d3c8;
+}
+
+.pointAmendBtn:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(20, 17, 12, 0.12);
+}
+
+/* ── (jeśli nie masz jeszcze) ── */
+.articleHeaderRow {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 8px;
+	flex-wrap: wrap;
+}
+
+.articleHeaderRow .articleNumber {
+	margin: 0;
+}
+
+.amendmentsBtn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 28px;
+	padding: 0 10px;
+	background: transparent;
+	border: 1px solid #d9d3c8;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 500;
+	color: #5c4a1e;
+	cursor: pointer;
+	transition:
+		background 120ms ease,
+		border-color 120ms ease;
+	white-space: nowrap;
+}
+
+.amendmentsBtn:hover {
+	background: #f6f2ea;
+	border-color: #cfc7b8;
+}
+
+.amendmentsBtn:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(20, 17, 12, 0.12);
+}

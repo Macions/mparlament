@@ -1,0 +1,509 @@
+/* ─────────────────────────────────────────────
+   VotingDetailsPage — szczegóły głosowania
+   Atrament + papier + mosiądz, bez ozdób.
+   ───────────────────────────────────────────── */
+
+.page {
+	--ink: #111827;
+	--ink-soft: #374151;
+	--ink-muted: #6b7280;
+	--line: #e5e7eb;
+	--line-strong: #d1d5db;
+	--paper: #fafaf9;
+	--paper-2: #f4f3f0;
+	--accent: #7c5e10;
+
+	display: flex;
+	flex-direction: column;
+	gap: 28px;
+	color: var(--ink);
+	max-width: 900px;
+}
+
+/* ───── Topbar ───── */
+
+.topbar {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid var(--line);
+}
+
+.meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+}
+
+.metaText {
+	font-size: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--ink-muted);
+}
+
+.title {
+	margin: 0;
+	font-size: 1.6rem;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+	line-height: 1.25;
+	color: var(--ink);
+	overflow-wrap: anywhere;
+}
+
+.description {
+	margin: 6px 0 0;
+	font-size: 0.92rem;
+	color: var(--ink-soft);
+	line-height: 1.55;
+}
+
+/* ───── Info grid ───── */
+
+.infoGrid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 1px;
+	background: var(--line);
+	border: 1px solid var(--line);
+	border-radius: 2px;
+	overflow: hidden;
+}
+
+.infoCell {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 14px 18px;
+	background: var(--paper);
+}
+
+.infoLabel {
+	font-size: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--ink-muted);
+}
+
+.infoValue {
+	font-size: 0.92rem;
+	color: var(--ink);
+	font-variant-numeric: tabular-nums;
+}
+
+/* ───── Sekcje ───── */
+
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.sectionTitle {
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--ink);
+}
+
+.sectionText {
+	margin: 0;
+	font-size: 0.9rem;
+	color: var(--ink-soft);
+	line-height: 1.55;
+}
+
+/* ───── Tags ───── */
+
+.tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.tag {
+	padding: 4px 10px;
+	border: 1px solid var(--line);
+	border-radius: 2px;
+	background: var(--paper-2);
+	font-size: 0.8rem;
+	color: var(--ink-soft);
+}
+
+/* ───── Bars (wyniki) ───── */
+
+.bars {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.barRow {
+	display: grid;
+	grid-template-columns: 120px 1fr 100px;
+	gap: 12px;
+	align-items: center;
+}
+
+.barLabel {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 0.78rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	color: var(--ink-soft);
+}
+
+.barTrack {
+	height: 6px;
+	background: var(--line);
+	border-radius: 1px;
+	overflow: hidden;
+}
+
+.barFill {
+	height: 100%;
+	background: var(--ink-soft);
+}
+
+.barFor {
+	background: #166534;
+}
+.barAgainst {
+	background: #991b1b;
+}
+.barAbstain {
+	background: var(--ink-muted);
+}
+
+.barCount {
+	font-size: 0.82rem;
+	color: var(--ink-muted);
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+
+/* ───── Result / stats ───── */
+
+.result {
+	margin: 8px 0 0;
+	font-size: 0.95rem;
+	font-weight: 600;
+	color: var(--ink);
+}
+
+.statsRow {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1px;
+	background: var(--line);
+	border: 1px solid var(--line);
+	border-radius: 2px;
+	overflow: hidden;
+	margin-top: 12px;
+}
+
+.statCell {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 14px 18px;
+	background: var(--paper);
+}
+
+/* ───── Note ───── */
+
+.note {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 14px 18px;
+	background: var(--paper-2);
+	border-left: 3px solid var(--line-strong);
+	border-radius: 2px;
+	font-size: 0.88rem;
+	color: var(--ink-soft);
+	line-height: 1.5;
+}
+
+/* ───── Batch ───── */
+
+.batchList {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.batchItem {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	padding: 20px;
+	border: 1px solid var(--line);
+	border-radius: 2px;
+	background: var(--paper);
+}
+
+.batchHead {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+}
+
+.batchIdx {
+	display: grid;
+	place-items: center;
+	width: 28px;
+	height: 28px;
+	flex-shrink: 0;
+	background: var(--paper-2);
+	border: 1px solid var(--line);
+	border-radius: 2px;
+	font-size: 0.8rem;
+	font-weight: 600;
+	color: var(--ink);
+}
+
+.batchHeadBody {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	flex: 1;
+	min-width: 0;
+}
+
+.batchText {
+	margin: 0;
+	font-size: 0.95rem;
+	font-weight: 500;
+	line-height: 1.45;
+	color: var(--ink);
+}
+
+.batchLink {
+	margin: 0;
+	font-size: 0.78rem;
+	color: var(--ink-muted);
+}
+
+.batchDetails {
+	margin-top: 4px;
+	border-top: 1px solid var(--line);
+	padding-top: 12px;
+}
+
+.batchSummary {
+	cursor: pointer;
+	font-size: 0.85rem;
+	color: var(--ink-soft);
+	padding: 4px 0;
+	list-style: none;
+	outline: none;
+}
+
+.batchSummary:hover {
+	color: var(--ink);
+}
+
+.batchSummary::-webkit-details-marker {
+	display: none;
+}
+
+/* ───── Tabela ───── */
+
+.votersSection {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-top: 20px;
+}
+
+.subTitle {
+	margin: 0;
+	font-size: 0.92rem;
+	font-weight: 600;
+	color: var(--ink);
+}
+
+.table {
+	width: 100%;
+	border-collapse: collapse;
+	border: 1px solid var(--line);
+	border-radius: 2px;
+	overflow: hidden;
+	font-size: 0.85rem;
+}
+
+.th {
+	padding: 10px 14px;
+	text-align: left;
+	font-size: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--ink-muted);
+	background: var(--paper-2);
+	border-bottom: 1px solid var(--line);
+}
+
+.tr {
+	border-bottom: 1px solid var(--line);
+}
+
+.tr:last-child {
+	border-bottom: none;
+}
+
+.td {
+	padding: 10px 14px;
+	color: var(--ink-soft);
+}
+
+.tdIndex {
+	width: 40px;
+	color: var(--ink-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.voteBadge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 8px;
+	border: 1px solid transparent;
+	border-radius: 2px;
+	font-size: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+}
+
+.vote_for {
+	color: #166534;
+	background: #ecfdf5;
+	border-color: #bbf7d0;
+}
+
+.vote_against {
+	color: #991b1b;
+	background: #fef2f2;
+	border-color: #fecaca;
+}
+
+.vote_abstain {
+	color: var(--ink-muted);
+	background: var(--paper-2);
+	border-color: var(--line);
+}
+
+.vote_missing {
+	color: var(--ink-muted);
+	background: transparent;
+	border-color: var(--line);
+}
+
+/* ───── Pill ───── */
+
+.pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 3px 9px;
+	border: 1px solid transparent;
+	border-radius: 2px;
+	font-size: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.pill--ok {
+	color: #166534;
+	background: #ecfdf5;
+	border-color: #bbf7d0;
+}
+.pill--bad {
+	color: #991b1b;
+	background: #fef2f2;
+	border-color: #fecaca;
+}
+.pill--warn {
+	color: #7c5e10;
+	background: #fbf3dc;
+	border-color: #f3e4bb;
+}
+.pill--neutral {
+	color: var(--ink-muted);
+	background: var(--paper-2);
+	border-color: var(--line);
+}
+
+/* ───── Empty / error ───── */
+
+.empty {
+	padding: 48px 24px;
+	text-align: center;
+	border: 1px solid var(--line);
+	border-radius: 2px;
+}
+
+.emptyTitle {
+	margin: 0 0 4px;
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--ink);
+}
+
+.emptyText {
+	margin: 0;
+	font-size: 0.88rem;
+	color: var(--ink-muted);
+}
+
+.errorBanner {
+	padding: 14px 18px;
+	border-left: 3px solid #991b1b;
+	background: #fef2f2;
+	color: #991b1b;
+	font-size: 0.9rem;
+}
+
+.muted {
+	margin: 0;
+	font-size: 0.88rem;
+	color: var(--ink-muted);
+}
+
+/* ───── Responsywność ───── */
+
+@media (min-width: 640px) {
+	.infoGrid {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+@media (max-width: 640px) {
+	.title {
+		font-size: 1.3rem;
+	}
+	.barRow {
+		grid-template-columns: 1fr;
+		gap: 4px;
+	}
+	.barCount {
+		text-align: left;
+	}
+	.statsRow {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.barFill {
+		transition: none;
+	}
+}

@@ -1,0 +1,287 @@
+:root {
+	--color-bg-start: #ffffff;
+	--color-bg-end: #59567f;
+	--color-primary: #141644;
+	--color-white: #ffffff;
+	--color-white-85: rgba(255, 255, 255, 0.85);
+	--color-white-90: rgba(255, 255, 255, 0.9);
+	--color-white-75: rgba(255, 255, 255, 0.75);
+	--shadow-button: 0 8px 20px rgba(20, 22, 68, 0.35);
+	--radius-button: 50px;
+	--transition-fast: 0.15s ease;
+	--transition-medium: 0.2s ease;
+	--font-global-ubuntu: "Ubuntu", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+body {
+	margin: 0;
+	min-width: 320px;
+	font-family: var(--font-global-ubuntu);
+}
+
+.app {
+	min-height: 100svh;
+	display: flex;
+	flex-direction: column;
+	/* background: linear-gradient(
+		180deg,
+		var(--color-bg-start) 0%,
+		var(--color-bg-end) 100%
+	); */
+}
+
+.main {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	/* padding: 1.5rem; */
+}
+
+.menu {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1.5rem;
+	width: 100%;
+	max-width: 22rem;
+}
+
+.menu__button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	padding: 1rem 2rem;
+	border-radius: var(--radius-button);
+	background: var(--color-primary);
+	color: var(--color-white);
+	font-size: 1.5rem;
+	font-weight: 700;
+	text-decoration: none;
+	transition:
+		transform var(--transition-fast),
+		box-shadow var(--transition-fast),
+		width var(--transition-medium);
+}
+
+.menu__button:hover {
+	box-shadow: var(--shadow-button);
+	width: 110%;
+}
+
+.menu__button:active {
+	transform: scale(0.96);
+}
+
+.social-footer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1.25rem;
+	width: 100%;
+	margin-top: 20px;
+	padding: 1.5rem 0 2rem;
+}
+
+.social-footer__title {
+	margin: 0;
+	color: var(--color-white-85);
+	font-size: 0.8rem;
+	font-weight: 600;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
+}
+
+.social-footer__icons {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1.75rem;
+	flex-wrap: wrap;
+}
+
+.social-footer__link {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.35rem;
+	color: var(--color-white-90);
+	text-decoration: none;
+	transition:
+		transform var(--transition-medium),
+		opacity var(--transition-medium);
+}
+
+.social-footer__link:active {
+	transform: translateY(-2px);
+	opacity: 1;
+}
+
+.social-footer__icon {
+	font-size: 1.7rem;
+}
+
+.social-footer__label {
+	font-size: 0.65rem;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	color: var(--color-white-75);
+}
+
+.anim {
+	opacity: 0;
+	transform: translateY(-10px);
+	transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.anim.show {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+@media (max-width: 479px) {
+	.menu {
+		max-width: 100%;
+		gap: 1.2rem;
+	}
+
+	.menu__button {
+		font-size: 1.4rem;
+		padding: 0.8rem 2.5rem;
+	}
+
+	.menu__button:hover {
+		width: 100%;
+	}
+
+	.social-footer {
+		padding: 1rem 0 0.75rem;
+		margin-bottom: 1.5rem;
+		gap: 0.5rem;
+	}
+
+	.social-footer__title {
+		font-size: 0.5rem;
+	}
+
+	.social-footer__icons {
+		gap: 0.75rem;
+	}
+
+	.social-footer__icon {
+		font-size: 1rem;
+	}
+
+	.social-footer__label {
+		font-size: 0.4rem;
+	}
+}
+
+@media (min-width: 480px) and (max-width: 767px) {
+	.menu {
+		max-width: 18rem;
+		gap: 0.8rem;
+	}
+
+	.menu__button {
+		font-size: 1.1rem;
+		padding: 0.6rem 1.5rem;
+	}
+
+	.menu__button:hover {
+		width: 105%;
+	}
+
+	.social-footer__icon {
+		font-size: 1.2rem;
+	}
+
+	.social-footer__label {
+		font-size: 0.5rem;
+	}
+}
+
+@media (min-width: 768px) {
+	.menu {
+		max-width: 22rem;
+		gap: 1.25rem;
+	}
+
+	.menu__button {
+		font-size: 1.3rem;
+		padding: 0.8rem 2.5rem;
+	}
+
+	.menu__button:hover {
+		width: 108%;
+	}
+
+	.social-footer__icon {
+		font-size: 1.4rem;
+	}
+
+	.social-footer__label {
+		font-size: 0.55rem;
+	}
+}
+
+@media (min-width: 1024px) {
+	.menu {
+		max-width: 26rem;
+		gap: 1.5rem;
+	}
+
+	.menu__button {
+		font-size: 1.5rem;
+		padding: 1rem 3.5rem;
+	}
+
+	.menu__button:hover {
+		width: 108%;
+	}
+
+	.social-footer__icon {
+		font-size: 1.6rem;
+	}
+
+	.social-footer__label {
+		font-size: 0.6rem;
+	}
+}
+
+@media (min-width: 1400px) {
+	.menu {
+		max-width: 32rem;
+		gap: 2rem;
+	}
+
+	.menu__button {
+		font-size: 2rem;
+		padding: 1.2rem 5.5rem;
+	}
+
+	.menu__button:hover {
+		width: 110%;
+	}
+
+	.social-footer__icon {
+		font-size: 2.2rem;
+	}
+
+	.social-footer__label {
+		font-size: 0.75rem;
+	}
+}
