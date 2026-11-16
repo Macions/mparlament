@@ -6,7 +6,7 @@ import SuccessModal from "../../../components/SuccessModal";
 
 function parseLineBack(raw) {
 	const match = raw.match(
-		/^(\s*)(\d+\.|\d+\)|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)]|–)\s+(.*)$/i,
+		/^(\s*)(\d+\.|\d+\)|[a-z]\)|[a-z]\.|[IVXLCDM]+[.)]|–|•|§\s*\d+\.)\s+(.*)$/i,
 	);
 	if (match) {
 		const indent = match[1].replace(/\t/g, "  ").length;
@@ -19,8 +19,8 @@ function parseLineBack(raw) {
 function estimateSeconds(file) {
 	if (!file) return { min: 0, max: 0, text: "" };
 	const upload = Math.ceil(file.size / 50000);
-	const aiMin = 15;
-	const aiMax = 45;
+	const aiMin = 5;
+	const aiMax = 15;
 	const min = upload + aiMin;
 	const max = upload + aiMax;
 	return { min, max, text: `${min}–${max} s` };
@@ -58,6 +58,7 @@ export default function SubmitResolution() {
 	const [aiProgress, setAiProgress] = useState(0);
 	const [sessions, setSessions] = useState([]);
 	const [selectedSessionId, setSelectedSessionId] = useState("");
+	const [needsVerification, setNeedsVerification] = useState(false);
 
 	const estimated = useMemo(() => estimateSeconds(file), [file]);
 
@@ -113,6 +114,7 @@ export default function SubmitResolution() {
 			chapters: [],
 		}));
 		setAnalyzed(false);
+		setNeedsVerification(false);
 		setUploadProgress(0);
 		setAiElapsed(0);
 		setAiProgress(0);
@@ -170,7 +172,7 @@ export default function SubmitResolution() {
 						let message = `Błąd ${xhr.status}`;
 						try {
 							message = JSON.parse(xhr.responseText).message || message;
-						} catch {}
+						} catch { }
 						reject(new Error(message));
 					}
 				};
@@ -182,6 +184,9 @@ export default function SubmitResolution() {
 			setAiProgress(45);
 			setParsed(result);
 
+			const isRaw = result.source === "raw";
+			setNeedsVerification(isRaw);
+
 			setEditedData((prev) => {
 				const userTitle = prev?.title?.trim();
 				const userPreamble = prev?.preamble?.trim();
@@ -189,10 +194,17 @@ export default function SubmitResolution() {
 					...result,
 					title: userTitle || result.title || "",
 					preamble: userPreamble || result.preamble || "",
+					chapters: Array.isArray(result.chapters) ? result.chapters : [],
 				};
 			});
 
 			setAnalyzed(true);
+
+			if (isRaw && result.rawText) {
+				setError(
+					"Parser nie rozpoznał struktury. Uchwała zostanie zapisana ze statusem weryfikacja — popraw ją ręcznie w edytorze.",
+				);
+			}
 		} catch (err) {
 			setError("Błąd analizy: " + err.message);
 		} finally {
@@ -218,6 +230,7 @@ export default function SubmitResolution() {
 	const addChapter = () => {
 		setEditedData((prev) => {
 			const newData = structuredClone(prev);
+			if (!newData.chapters) newData.chapters = [];
 			newData.chapters.push({
 				id: Date.now(),
 				title: "Rozdział nowy",
@@ -239,6 +252,9 @@ export default function SubmitResolution() {
 	const addArticle = (chIndex) => {
 		setEditedData((prev) => {
 			const newData = structuredClone(prev);
+			if (!newData.chapters[chIndex].articles) {
+				newData.chapters[chIndex].articles = [];
+			}
 			newData.chapters[chIndex].articles.push({
 				id: Date.now(),
 				number: `Art. ${newData.chapters[chIndex].articles.length + 1}`,
@@ -286,6 +302,7 @@ export default function SubmitResolution() {
 				party: userData.club || userData.party || "Niezrzeszony",
 				sessionId:
 					selectedSessionId !== "all" ? Number(selectedSessionId) : null,
+				source: parsed?.source || "regex",
 			};
 			formData.append("data", JSON.stringify(bill));
 
@@ -303,13 +320,13 @@ export default function SubmitResolution() {
 						let data = {};
 						try {
 							data = JSON.parse(xhr.responseText);
-						} catch {}
+						} catch { }
 						resolve({ ok: true, status: xhr.status, data });
 					} else {
 						let message = `Błąd ${xhr.status}`;
 						try {
 							message = JSON.parse(xhr.responseText).message || message;
-						} catch {}
+						} catch { }
 						reject(new Error(message));
 					}
 				};
@@ -348,7 +365,7 @@ export default function SubmitResolution() {
 					<h1 className={styles.title}>Złóż uchwałę</h1>
 				</div>
 				<p className={styles.subtitle}>
-					Wgraj plik PDF – AI podzieli treść na rozdziały, artykuły i punkty.
+					Wgraj plik PDF – parser podzieli treść na rozdziały, artykuły i punkty.
 				</p>
 			</header>
 
@@ -408,9 +425,8 @@ export default function SubmitResolution() {
 				<div className={styles.field}>
 					<span className={styles.label}>Plik PDF</span>
 					<label
-						className={`${styles.drop} ${fileName ? styles.dropActive : ""} ${
-							isDragging ? styles.dropDragging : ""
-						} ${disabled ? styles.dropDisabled : ""}`}
+						className={`${styles.drop} ${fileName ? styles.dropActive : ""} ${isDragging ? styles.dropDragging : ""
+							} ${disabled ? styles.dropDisabled : ""}`}
 						onDragOver={handleDragOver}
 						onDragLeave={handleDragLeave}
 						onDrop={handleDrop}
@@ -440,6 +456,20 @@ export default function SubmitResolution() {
 
 				{error && <div className={styles.error}>{error}</div>}
 
+				{needsVerification && (
+					<div
+						className={styles.error}
+						style={{
+							background: "#fff3cd",
+							color: "#856404",
+							border: "1px solid #ffeeba",
+						}}
+					>
+						⚠️ Parser nie rozpoznał struktury. Uchwała zostanie zapisana ze
+						statusem weryfikacja — popraw ją ręcznie w edytorze poniżej.
+					</div>
+				)}
+
 				<button
 					type="button"
 					onClick={handleParse}
@@ -450,7 +480,7 @@ export default function SubmitResolution() {
 						? `Analizowanie… (${aiElapsed}s / ~${estimated.text})`
 						: analyzed
 							? "✓ Przeanalizowano – możesz edytować"
-							: "Analizuj uchwałę (AI)"}
+							: "Analizuj uchwałę"}
 				</button>
 
 				{(loading || submitting) && (
@@ -465,9 +495,7 @@ export default function SubmitResolution() {
 							{loading
 								? uploadProgress < 100
 									? `Wysyłanie pliku: ${Math.round(uploadProgress)}%`
-									: aiElapsed > estimated.max
-										? `AI analizuje… (${aiElapsed}s – to może potrwać dłużej)`
-										: `AI analizuje… (${aiElapsed}s / ~${estimated.text})`
+									: `Analizowanie… (${aiElapsed}s)`
 								: submitting
 									? `Wysyłanie uchwały: ${Math.round(uploadProgress)}%`
 									: ""}
@@ -528,7 +556,7 @@ export default function SubmitResolution() {
 									</header>
 
 									<div className={styles.articles}>
-										{chapter.articles.map((article, artIndex) => (
+										{(chapter.articles || []).map((article, artIndex) => (
 											<div key={article.id} className={styles.article}>
 												<div className={styles.articleHead}>
 													<input
@@ -571,11 +599,11 @@ export default function SubmitResolution() {
 														const normalizedLine =
 															typeof line === "string"
 																? {
-																		marker: null,
-																		text: line,
-																		level: 1,
-																		type: "paragraph",
-																	}
+																	marker: null,
+																	text: line,
+																	level: 1,
+																	type: "paragraph",
+																}
 																: line;
 
 														const indent = "  ".repeat(
