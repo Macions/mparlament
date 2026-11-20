@@ -1037,3 +1037,60 @@
 	outline: none;
 	box-shadow: 0 0 0 3px rgba(20, 17, 12, 0.12);
 }
+/* ── Poprawki mobilne: długie słowa i nazwy plików ── */
+.title,
+.chapterTitle,
+.articleLine,
+.preamble,
+.metaValueLink {
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+
+.metaValueLink {
+	display: block;
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.metaBody {
+	min-width: 0;
+}
+
+@media (max-width: 720px) {
+	.metaCard {
+		flex-wrap: wrap;
+	}
+	.metaBody {
+		width: 100%;
+	}
+	.actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.actions > * {
+		width: 100%;
+		justify-content: center;
+	}
+	.articleHeaderRow {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+	.amendmentsBtn {
+		width: 100%;
+		justify-content: center;
+	}
+	.pointAmendBtn {
+		opacity: 1; /* na mobile nie ma hovera — pokazuj zawsze */
+	}
+}
+
+/* Aktywny przycisk poprawki przy punkcie (gdy są poprawki) */
+.pointAmendBtnActive {
+	opacity: 1;
+	background: #f0ece4;
+	color: #14110c;
+	border-color: #d9d3c8;
+}

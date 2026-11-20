@@ -10,6 +10,7 @@ import {
 	FileText,
 	Users,
 	MessageSquare,
+	Undo2,
 } from "lucide-react";
 import AmendmentPanel from "../components/AmendmentPanel";
 
@@ -17,12 +18,14 @@ const STATUS_LABEL = {
 	pending: "Oczekuje",
 	accepted: "Przyjęta",
 	rejected: "Odrzucona",
+	withdrawn: "Wycofana",
 };
 
 const STATUS_TONE = {
 	pending: "warn",
 	accepted: "ok",
 	rejected: "bad",
+	withdrawn: "neutral",
 };
 
 function StatusPill({ status }) {
@@ -64,7 +67,6 @@ function parseChanges(raw) {
 	}
 }
 
-/** Bezpieczne parsowanie `target` (string JSON albo obiekt) */
 function parseTarget(raw) {
 	if (!raw) return null;
 	if (typeof raw === "object") return raw;
@@ -73,6 +75,22 @@ function parseTarget(raw) {
 	} catch {
 		return null;
 	}
+}
+
+/**
+ * Normalizuje `target` poprawek do jednego klucza.
+ * NIE używamy changes[0].articleId jako fallbacku — to zawsze artykuł,
+ * nawet dla punktu, i maskowało błąd (poprawki do punktów lądowały
+ * przy całym artykule).
+ */
+function normalizeTargetKey(target) {
+	if (!target) return "general";
+	if (target.section_id) return String(target.section_id);
+	if (target.articleId != null && target.line != null) {
+		return `${target.articleId}__line_${target.line}`;
+	}
+	if (target.articleId != null) return String(target.articleId);
+	return "general";
 }
 
 export default function ResolutionDetails() {
@@ -90,13 +108,13 @@ export default function ResolutionDetails() {
 	const [loading, setLoading] = useState(true);
 	const [errorMessage, setErrorMessage] = useState(null);
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+	const [showWithdrawConfirm, setShowWithdrawConfirm] = useState(false);
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [editedData, setEditedData] = useState(null);
 	const [saving, setSaving] = useState(false);
 	const [saveError, setSaveError] = useState(null);
 
-	// Panel poprawek – kontekst (article / point)
 	const [panelContext, setPanelContext] = useState(null);
 
 	useEffect(() => {
@@ -120,10 +138,9 @@ export default function ResolutionDetails() {
 				fetch(`/api/resolutions/${encodeURIComponent(slug)}`, {
 					headers: authHeaders,
 				}),
-				fetch(
-					`/api/resolutions/${encodeURIComponent(slug)}/amendments`,
-					{ headers: authHeaders },
-				),
+				fetch(`/api/resolutions/${encodeURIComponent(slug)}/amendments`, {
+					headers: authHeaders,
+				}),
 			]);
 
 			if (!res.ok) throw new Error("Nie znaleziono uchwały");
@@ -211,6 +228,28 @@ export default function ResolutionDetails() {
 			}
 			setShowDeleteConfirm(false);
 			navigate("/uchwaly");
+		} catch (error) {
+			setErrorMessage(error.message);
+		}
+	};
+
+	const handleWithdrawResolution = async () => {
+		try {
+			const token = localStorage.getItem("token");
+			const res = await fetch(`/api/resolutions/${resolution.id}/withdraw`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({}),
+			});
+			if (!res.ok) {
+				const data = await res.json().catch(() => ({}));
+				throw new Error(data.message || "Nie udało się wycofać uchwały");
+			}
+			setShowWithdrawConfirm(false);
+			await fetchResolution();
 		} catch (error) {
 			setErrorMessage(error.message);
 		}
@@ -390,31 +429,19 @@ export default function ResolutionDetails() {
 		}
 	};
 
-	/**
-	 * Grupowanie poprawek po `target.section_id` (albo `articleId` z `changes`).
-	 * Klucz:
-	 *  - "art_1"          → poprawki do całego artykułu
-	 *  - "art_1__line_2"  → poprawki do punktu 2 w Art. 1
-	 */
 	const amendmentsByKey = useMemo(() => {
 		const map = new Map();
 		for (const a of amendments) {
 			const target = parseTarget(a.target);
-			const changes = parseChanges(a.changes);
-
-			// Priorytet: target.section_id; fallback: changes[0].articleId
-			const key = target?.section_id ?? changes[0]?.articleId ?? "general";
-
+			const key = normalizeTargetKey(target);
 			if (!map.has(key)) map.set(key, []);
 			map.get(key).push({
 				...a,
-				changes: changes.length > 0 ? [changes[0]] : [],
+				changes: parseChanges(a.changes),
 			});
 		}
 		return map;
 	}, [amendments]);
-
-	/* ── Render ── */
 
 	if (loading) {
 		return (
@@ -444,6 +471,7 @@ export default function ResolutionDetails() {
 	const userRole = getUserRole(currentUser);
 	const isAdminOrCoordinator =
 		userRole === "admin" || userRole === "coordinator";
+	const isAdmin = userRole === "admin";
 
 	const panelAmendments = panelContext
 		? (amendmentsByKey.get(
@@ -455,7 +483,6 @@ export default function ResolutionDetails() {
 
 	return (
 		<div className={styles.page}>
-			{/* ── Breadcrumb / meta ── */}
 			<div className={styles.breadcrumb}>
 				<Link to="/uchwaly" className={styles.breadcrumbLink}>
 					← Wróć do uchwał
@@ -468,7 +495,6 @@ export default function ResolutionDetails() {
 				)}
 			</div>
 
-			{/* ── Nagłówek ── */}
 			<header className={styles.header}>
 				<div className={styles.headerMeta}>
 					<StatusPill status={resolution.status} />
@@ -496,7 +522,6 @@ export default function ResolutionDetails() {
 				</p>
 			</header>
 
-			{/* ── Preambuła ── */}
 			{isEditing ? (
 				<section className={styles.editorSection}>
 					<label className={styles.editorLabel}>Preambuła</label>
@@ -516,7 +541,6 @@ export default function ResolutionDetails() {
 				)
 			)}
 
-			{/* ── Meta: załącznik + podpisy ── */}
 			<section className={styles.metaGrid}>
 				<div className={styles.metaCard}>
 					<div className={styles.metaIcon}>
@@ -530,6 +554,7 @@ export default function ResolutionDetails() {
 								className={styles.metaValueLink}
 								target="_blank"
 								rel="noopener noreferrer"
+								title={resolution.fileName || "Pobierz plik"}
 							>
 								{resolution.fileName || "Pobierz plik"}
 							</a>
@@ -539,6 +564,7 @@ export default function ResolutionDetails() {
 								className={styles.metaValueLink}
 								target="_blank"
 								rel="noopener noreferrer"
+								title={resolution.fileName}
 							>
 								{resolution.fileName}
 							</a>
@@ -573,7 +599,6 @@ export default function ResolutionDetails() {
 				</div>
 			</section>
 
-			{/* ── Treść ── */}
 			<section className={styles.content}>
 				<div className={styles.contentHead}>
 					<h2 className={styles.contentTitle}>Treść uchwały</h2>
@@ -885,7 +910,6 @@ export default function ResolutionDetails() {
 																const marker = line.marker;
 																const text = line.text || "";
 
-																// Poprawki do punktu
 																const pointKey = `${article.id}__line_${lineIndex}`;
 																const pointAmendments =
 																	amendmentsByKey.get(pointKey) ?? [];
@@ -907,7 +931,11 @@ export default function ResolutionDetails() {
 																		{isListPoint && (
 																			<button
 																				type="button"
-																				className={styles.pointAmendBtn}
+																				className={`${styles.pointAmendBtn} ${
+																					pointAmendments.length > 0
+																						? styles.pointAmendBtnActive
+																						: ""
+																				}`}
 																				title={
 																					pointAmendments.length > 0
 																						? `Poprawki (${pointAmendments.length})`
@@ -975,7 +1003,6 @@ export default function ResolutionDetails() {
 				)}
 			</section>
 
-			{/* ── Akcje ── */}
 			<section className={styles.actions}>
 				{isEditing ? (
 					<>
@@ -1015,6 +1042,19 @@ export default function ResolutionDetails() {
 								{currentUser?.hasSigned ? "Usuń podpis" : "Podpisz uchwałę"}
 							</button>
 						)}
+
+						{/* Autor może wycofać uchwałę, dopóki jest pending */}
+						{currentUser?.isAuthor && resolution.status === "pending" && (
+							<button
+								type="button"
+								className={styles.btnOutline}
+								onClick={() => setShowWithdrawConfirm(true)}
+							>
+								<Undo2 size={16} />
+								Wycofaj uchwałę
+							</button>
+						)}
+
 						{isAdminOrCoordinator && (
 							<button
 								type="button"
@@ -1026,7 +1066,8 @@ export default function ResolutionDetails() {
 							</button>
 						)}
 
-						{isAdminOrCoordinator && (
+						{/* Twarde usunięcie — tylko admin (backend i tak wymusza) */}
+						{isAdmin && (
 							<button
 								type="button"
 								className={styles.btnDanger}
@@ -1040,7 +1081,6 @@ export default function ResolutionDetails() {
 				)}
 			</section>
 
-			{/* ── Panel poprawek ── */}
 			<AmendmentPanel
 				open={panelContext !== null}
 				onClose={() => setPanelContext(null)}
@@ -1048,10 +1088,10 @@ export default function ResolutionDetails() {
 				context={panelContext}
 				amendments={panelAmendments}
 				currentUser={currentUser}
+				isAdminOrCoordinator={isAdminOrCoordinator}
 				onCreated={fetchResolution}
 			/>
 
-			{/* Panel podpisów */}
 			{showSignatures &&
 				createPortal(
 					<>
@@ -1095,7 +1135,6 @@ export default function ResolutionDetails() {
 					document.body,
 				)}
 
-			{/* Modal podpisu */}
 			{showConfirm &&
 				createPortal(
 					<div className={styles.modalOverlay}>
@@ -1130,7 +1169,38 @@ export default function ResolutionDetails() {
 					document.body,
 				)}
 
-			{/* Modal usuwania */}
+			{showWithdrawConfirm &&
+				createPortal(
+					<div className={styles.modalOverlay}>
+						<div className={styles.modal}>
+							<h2 className={styles.modalTitle}>Wycofać uchwałę?</h2>
+							{errorMessage && <p className={styles.error}>{errorMessage}</p>}
+							<p className={styles.modalText}>
+								Czy na pewno chcesz wycofać uchwałę{" "}
+								<strong>„{resolution.title}”</strong>? Zmieni to jej status na
+								„Wycofana”.
+							</p>
+							<div className={styles.modalActions}>
+								<button
+									type="button"
+									className={styles.btnOutline}
+									onClick={handleWithdrawResolution}
+								>
+									Tak, wycofaj
+								</button>
+								<button
+									type="button"
+									className={styles.btnGhost}
+									onClick={() => setShowWithdrawConfirm(false)}
+								>
+									Anuluj
+								</button>
+							</div>
+						</div>
+					</div>,
+					document.body,
+				)}
+
 			{showDeleteConfirm &&
 				createPortal(
 					<div className={styles.modalOverlay}>

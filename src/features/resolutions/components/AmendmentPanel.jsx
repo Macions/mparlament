@@ -1,19 +1,21 @@
 // src/features/resolutions/components/AmendmentPanel.jsx
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { X } from "lucide-react";
+import { X, Trash2 } from "lucide-react";
 import styles from "./AmendmentPanel.module.css";
 
 const STATUS_LABEL = {
 	pending: "Oczekuje",
 	accepted: "Przyjęta",
 	rejected: "Odrzucona",
+	withdrawn: "Wycofana",
 };
 
 const STATUS_TONE = {
 	pending: "warn",
 	accepted: "ok",
 	rejected: "bad",
+	withdrawn: "neutral",
 };
 
 function StatusPill({ status }) {
@@ -25,18 +27,6 @@ function StatusPill({ status }) {
 	);
 }
 
-/**
- * context = {
- *   type: "article" | "point",
- *   articleId: "art_1",
- *   articleNumber: "Art. 1",
- *   chapterId: "ch_1",
- *   pointIndex?: number,      // tylko dla point
- *   pointMarker?: string,     // np. "2."
- *   pointText?: string,       // treść punktu
- *   articleText?: string,     // treść całego artykułu (dla type="article")
- * }
- */
 export default function AmendmentPanel({
 	open,
 	onClose,
@@ -44,6 +34,7 @@ export default function AmendmentPanel({
 	context,
 	amendments,
 	currentUser,
+	isAdminOrCoordinator = false,
 	onCreated,
 }) {
 	const [showForm, setShowForm] = useState(false);
@@ -51,21 +42,21 @@ export default function AmendmentPanel({
 	const [after, setAfter] = useState("");
 	const [saving, setSaving] = useState(false);
 	const [error, setError] = useState("");
+	const [withdrawingId, setWithdrawingId] = useState(null);
 
 	const isPoint = context?.type === "point";
 	const title = isPoint
 		? `${context?.articleNumber ?? ""} ${context?.pointMarker ?? ""}`.trim()
 		: (context?.articleNumber ?? "");
 
-	// Reset formularza przy zmianie kontekstu / zamknięciu
 	useEffect(() => {
 		if (!open) {
 			setShowForm(false);
 			setBefore("");
 			setAfter("");
 			setError("");
+			setWithdrawingId(null);
 		} else {
-			// Wstępne wypełnienie "before" treścią punktu / artykułu
 			setBefore(
 				isPoint ? (context?.pointText ?? "") : (context?.articleText ?? ""),
 			);
@@ -73,7 +64,6 @@ export default function AmendmentPanel({
 		}
 	}, [open, context, isPoint]);
 
-	// Escape zamyka panel
 	useEffect(() => {
 		if (!open) return;
 		const onKey = (e) => {
@@ -124,6 +114,9 @@ export default function AmendmentPanel({
 					body: JSON.stringify({
 						target,
 						changes,
+						author: currentUser?.name ?? "",
+						authorId: currentUser?.id ?? null,
+						club: currentUser?.club ?? null,
 						content: isPoint
 							? `Zmiana punktu ${context.pointMarker ?? ""} w ${context.articleNumber}`
 							: `Zmiana treści artykułu ${context.articleNumber}`,
@@ -142,6 +135,36 @@ export default function AmendmentPanel({
 			setError(err.message);
 		} finally {
 			setSaving(false);
+		}
+	};
+
+	/**
+	 * Backend nie ma DELETE /api/amendments/:id.
+	 * "Usunięcie" poprawki = POST /api/amendments/:id/withdraw
+	 * (status -> "withdrawn", rekord zostaje, autor widzi historię).
+	 */
+	const handleWithdrawAmendment = async (id) => {
+		setWithdrawingId(id);
+		setError("");
+		try {
+			const token = localStorage.getItem("token");
+			const res = await fetch(`/api/amendments/${id}/withdraw`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					...(token ? { Authorization: `Bearer ${token}` } : {}),
+				},
+				body: JSON.stringify({}),
+			});
+			if (!res.ok) {
+				const data = await res.json().catch(() => ({}));
+				throw new Error(data.message || "Nie udało się wycofać poprawki");
+			}
+			if (onCreated) onCreated();
+		} catch (err) {
+			setError(err.message);
+		} finally {
+			setWithdrawingId(null);
 		}
 	};
 
@@ -185,6 +208,10 @@ export default function AmendmentPanel({
 							{amendments.map((a) => {
 								const changes = a.changes ?? [];
 								const first = changes[0] ?? {};
+								const canWithdraw =
+									a.status === "pending" &&
+									currentUser &&
+									(currentUser.id === a.authorId || isAdminOrCoordinator);
 								return (
 									<li
 										key={a.id}
@@ -208,6 +235,26 @@ export default function AmendmentPanel({
 														<p>{first.after}</p>
 													</div>
 												)}
+											</div>
+										)}
+										{a.withdrawnReason && (
+											<p className={styles.withdrawnReason}>
+												Powód wycofania: {a.withdrawnReason}
+											</p>
+										)}
+										{canWithdraw && (
+											<div className={styles.itemActions}>
+												<button
+													type="button"
+													className={styles.btnDangerSmall}
+													onClick={() => handleWithdrawAmendment(a.id)}
+													disabled={withdrawingId === a.id}
+												>
+													<Trash2 size={13} />
+													{withdrawingId === a.id
+														? "Wycofywanie…"
+														: "Usuń poprawkę"}
+												</button>
 											</div>
 										)}
 									</li>
