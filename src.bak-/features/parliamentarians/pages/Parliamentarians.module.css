@@ -1,0 +1,1735 @@
+.parliamentariansPage {
+	width: 100%;
+	max-width: 1880px;
+	margin: 0 auto;
+	padding: 2rem 1.5rem;
+	font-family: var(--font-global-ubuntu);
+}
+
+.statsSection {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 3rem;
+}
+
+.statCard {
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 16px;
+	padding: 2rem 1.75rem;
+	text-align: center;
+	box-shadow: 0 6px 16px rgba(0, 43, 92, 0.07);
+	transition: all 0.3s ease;
+}
+
+.statCard:hover {
+	transform: translateY(-6px);
+	box-shadow: 0 12px 28px rgba(0, 43, 92, 0.12);
+}
+
+.statNumber {
+	display: block;
+	font-size: 2.8rem;
+	font-weight: 800;
+	color: #002b5c;
+	line-height: 1;
+	margin-bottom: 0.5rem;
+}
+
+.statLabel {
+	font-size: 1rem;
+	color: #475569;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+}
+
+.parliamentariansContent {
+	display: grid;
+	grid-template-columns: minmax(160px, 520px) minmax(0, 1fr);
+	gap: 1.25rem;
+}
+
+.parliamentariansContentAdmin {
+	grid-template-columns: minmax(280px, 580px) minmax(0, 1fr);
+}
+
+.clubsPanel {
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 18px;
+	padding: 2rem;
+	height: fit-content;
+	box-shadow: 0 8px 20px rgba(0, 43, 92, 0.08);
+	position: sticky;
+	top: 2rem;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.clubsPanel h2 {
+	margin: 0 0 1.75rem 0;
+	font-size: 1.45rem;
+	color: #002b5c;
+	font-weight: 700;
+}
+
+.panelHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1.75rem;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.panelHeader h2 {
+	margin: 0;
+	font-size: 1.45rem;
+	color: #002b5c;
+	font-weight: 700;
+}
+
+.panelActions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.panelHeader .clearFilter {
+	padding: 10px 20px;
+	background: #ef4444;
+	color: white;
+	border: none;
+	border-radius: 9999px;
+	font-weight: 700;
+	font-size: 0.95rem;
+	cursor: pointer;
+	transition: all 0.25s ease;
+	white-space: nowrap;
+	min-height: 44px;
+}
+
+.panelHeader .clearFilter:hover {
+	background: #dc2626;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+}
+
+.addClubBtn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 10px 20px;
+	background: linear-gradient(135deg, #002b5c, #003d80);
+	color: white;
+	border: none;
+	border-radius: 9999px;
+	font-weight: 700;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	white-space: nowrap;
+	box-shadow: 0 2px 8px rgba(0, 43, 92, 0.2);
+	letter-spacing: 0.5px;
+	min-height: 44px;
+}
+
+.addClubBtn:hover {
+	transform: translateY(-2px) scale(1.02);
+	box-shadow: 0 6px 20px rgba(0, 43, 92, 0.4);
+	background: linear-gradient(135deg, #003d80, #0055b3);
+}
+
+.addClubBtn:active {
+	transform: translateY(0) scale(0.98);
+}
+
+.clubsList {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.clubItem {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 14px 18px;
+	border-radius: 14px;
+	background: #f8fafc;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	border: 2px solid transparent;
+	position: relative;
+	min-height: 56px;
+}
+
+.clubItem:hover {
+	background: #f1f5f9;
+	border-color: #e2e8f0;
+	transform: translateX(4px);
+}
+
+.clubItemActive {
+	background: #eff6ff;
+	border-color: #2563eb;
+	box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
+.clubItemActive:hover {
+	border-color: #2563eb;
+	background: #eff6ff;
+}
+
+.clubItem .clubColor {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	border: 2px solid rgba(0, 0, 0, 0.08);
+}
+
+.clubItem .clubName {
+	flex: 1;
+	min-width: 0;
+	font-weight: 600;
+	color: #1e2937;
+	font-size: 1.05rem;
+	white-space: normal;
+	overflow-wrap: break-word;
+	word-break: break-word;
+}
+
+.clubItem .clubCount {
+	font-weight: 700;
+	color: #475569;
+	font-size: 1rem;
+	background: #e2e8f0;
+	padding: 4px 14px;
+	border-radius: 999px;
+	min-width: 32px;
+	text-align: center;
+	flex-shrink: 0;
+}
+
+.clubItemActive .clubCount {
+	background: #dbeafe;
+	color: #1e40af;
+}
+
+.clubItem .clubTypeBadge {
+	font-size: 0.8rem;
+	padding: 4px 14px;
+	background: #e2e8f0;
+	color: #475569;
+	border-radius: 9999px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	flex-shrink: 0;
+}
+
+.clubItemActive .clubTypeBadge {
+	background: #dbeafe;
+	color: #1e40af;
+}
+
+.clubAdminActions {
+	display: flex;
+	gap: 4px;
+	margin-left: 6px;
+	flex-shrink: 0;
+}
+
+.clubAdminActions button {
+	width: 32px;
+	height: 32px;
+	border: none;
+	border-radius: 50%;
+	font-size: 0.95rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+	background: transparent;
+	opacity: 0.7;
+	line-height: 1;
+	font-weight: 700;
+	flex-shrink: 0;
+}
+
+.clubItem:hover .clubAdminActions button {
+	opacity: 1;
+}
+
+.clubMembersBtn {
+	color: #7c3aed;
+	background: rgba(139, 92, 246, 0.1);
+	font-size: 1.1rem;
+	border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.clubMembersBtn:hover {
+	background: #ede9fe;
+	transform: scale(1.1);
+	opacity: 1;
+	box-shadow: 0 2px 12px rgba(139, 92, 246, 0.3);
+	border-color: #8b5cf6;
+}
+
+.clubMembersBtn:active {
+	transform: scale(0.9);
+}
+
+.clubEditBtn {
+	color: #2563eb;
+	background: rgba(37, 99, 235, 0.05);
+}
+
+.clubEditBtn:hover {
+	background: #dbeafe;
+	transform: scale(1.1);
+	opacity: 1;
+	box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+}
+
+.clubEditBtn:active {
+	transform: scale(0.9);
+}
+
+.clubDeleteBtn {
+	color: #ef4444;
+	background: rgba(239, 68, 68, 0.05);
+}
+
+.clubDeleteBtn:hover {
+	background: #fee2e2;
+	transform: scale(1.1);
+	opacity: 1;
+	box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+}
+
+.clubDeleteBtn:active {
+	transform: scale(0.9);
+}
+
+.adminToggleContainer {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 16px;
+	padding: 1.5rem 1.75rem;
+	justify-content: center;
+	box-shadow: 0 6px 16px rgba(0, 43, 92, 0.07);
+	transition: all 0.3s ease;
+}
+
+.adminToggleContainer:hover {
+	transform: translateY(-6px);
+	box-shadow: 0 12px 28px rgba(0, 43, 92, 0.12);
+}
+
+.adminToggleLabel {
+	font-size: 1rem;
+	font-weight: 600;
+	color: #475569;
+}
+
+.adminToggle {
+	position: relative;
+	width: 60px;
+	height: 34px;
+	flex-shrink: 0;
+	cursor: pointer;
+}
+
+.adminToggle input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.adminToggleSlider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: #cbd5e1;
+	transition: 0.3s;
+	border-radius: 34px;
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.adminToggleSlider:before {
+	position: absolute;
+	content: "";
+	height: 26px;
+	width: 26px;
+	left: 4px;
+	bottom: 4px;
+	background: white;
+	transition: 0.3s;
+	border-radius: 50%;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.adminToggle input:checked + .adminToggleSlider {
+	background: linear-gradient(135deg, #002b5c, #003d80);
+}
+
+.adminToggle input:checked + .adminToggleSlider:before {
+	transform: translateX(26px);
+}
+
+.adminToggle input:focus + .adminToggleSlider {
+	box-shadow: 0 0 0 3px rgba(0, 43, 92, 0.3);
+}
+
+.adminToggleSlider {
+	transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.adminToggleSlider:before {
+	transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.membersPanel {
+	display: flex;
+	flex-direction: column;
+	gap: 1.75rem;
+}
+
+.searchBar {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	background: white;
+	padding: 8px;
+	border-radius: 9999px;
+	border: 2px solid #e2e8f0;
+	box-shadow: 0 6px 16px rgba(0, 43, 92, 0.08);
+}
+
+.searchBar input {
+	flex: 1;
+	border: none;
+	outline: none;
+	padding: 14px 20px;
+	font-size: 1.1rem;
+	background: transparent;
+}
+
+.searchBar .clearFilter {
+	padding: 12px 24px;
+	background: #ef4444;
+	color: white;
+	border: none;
+	border-radius: 9999px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.25s;
+}
+
+.searchBar .clearFilter:hover {
+	background: #dc2626;
+}
+
+.addMemberBtn {
+	align-self: flex-start;
+	padding: 14px 28px;
+	background: linear-gradient(90deg, #002b5c, #003d80);
+	color: white;
+	border: none;
+	border-radius: 9999px;
+	font-weight: 700;
+	font-size: 1.1rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	box-shadow: 0 6px 16px rgba(0, 43, 92, 0.25);
+}
+
+.addMemberBtn:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 10px 24px rgba(0, 43, 92, 0.35);
+}
+
+.membersGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+	gap: 1.2rem;
+}
+
+.memberCard {
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 18px;
+	padding: 1.75rem;
+	display: flex;
+	gap: 18px;
+	cursor: pointer;
+	transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow: 0 6px 16px rgba(0, 43, 92, 0.06);
+}
+
+.memberCard:hover {
+	border-color: #94a3b8;
+	transform: translateY(-8px);
+	box-shadow: 0 16px 32px rgba(0, 43, 92, 0.14);
+}
+
+.memberCardSelected {
+	border-color: #2563eb;
+	background: #f0f7ff;
+	box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+.memberAvatar {
+	width: 78px;
+	height: 78px;
+	border-radius: 14px;
+	background: linear-gradient(135deg, #1e40af, #3b82f6);
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.65rem;
+	font-weight: 700;
+	flex-shrink: 0;
+}
+
+.memberInfo h4 {
+	margin: 0 0 10px 0;
+	font-size: 1.25rem;
+	color: #1e2937;
+}
+
+.memberClub {
+	font-weight: 700;
+	display: block;
+	margin-bottom: 12px;
+	font-size: 1.02rem;
+}
+
+.memberFunctions,
+.memberCommissions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+.functionBadge,
+.commissionBadge {
+	font-size: 0.82rem;
+	padding: 5px 14px;
+	background: #f1f5f9;
+	border-radius: 999px;
+	color: #475569;
+	font-weight: 600;
+}
+
+.adminActions {
+	margin-left: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.adminActions button {
+	padding: 7px 14px;
+	font-size: 0.85rem;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+}
+
+.adminActions button:first-child {
+	background: #3b82f6;
+	color: white;
+}
+
+.adminActions button:last-child {
+	background: #ef4444;
+	color: white;
+}
+
+.modalOverlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(15, 23, 42, 0.85);
+	-webkit-backdrop-filter: blur(16px);
+	backdrop-filter: blur(16px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	padding: 2rem;
+	animation: modalFadeIn 0.4s ease;
+}
+
+@keyframes modalFadeIn {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+.modalContent {
+	background: #ffffff;
+	border-radius: 32px;
+	max-width: 720px;
+	width: 100%;
+	max-height: 92vh;
+	overflow-y: auto;
+	box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+	position: relative;
+	animation: modalSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalSlideIn {
+	from {
+		opacity: 0;
+		transform: scale(0.9) translateY(40px);
+	}
+
+	to {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+	}
+}
+
+.modalContent::-webkit-scrollbar {
+	width: 10px;
+}
+
+.modalContent::-webkit-scrollbar-track {
+	background: #f1f5f9;
+	border-radius: 10px;
+}
+
+.modalContent::-webkit-scrollbar-thumb {
+	background: linear-gradient(to bottom, #2563eb, #002b5c);
+	border-radius: 10px;
+}
+
+.modalContent::-webkit-scrollbar-thumb:hover {
+	background: linear-gradient(to bottom, #3b82f6, #003d80);
+}
+
+.modalHeader {
+	display: flex;
+	align-items: center;
+	gap: 2rem;
+	padding: 2.5rem 3rem 2rem;
+	border-bottom: 3px solid #f1f5f9;
+	position: relative;
+	background: linear-gradient(135deg, #fafbff, #ffffff);
+}
+
+.modalAvatar {
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	background: linear-gradient(135deg, #002b5c, #2563eb);
+	color: #ffffff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 800;
+	font-size: 2.6rem;
+	flex-shrink: 0;
+	text-transform: uppercase;
+	box-shadow: 0 8px 32px rgba(37, 99, 235, 0.4);
+	border: 4px solid white;
+}
+
+.modalHeader .infoWrapper {
+	flex: 1;
+	min-width: 0;
+}
+
+.modalHeader h2 {
+	margin: 0 0 0.6rem 0;
+	font-size: 2.2rem;
+	font-weight: 800;
+	color: #0f172a;
+	line-height: 1.2;
+	letter-spacing: -0.5px;
+}
+
+.modalHeader .clubInfo {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 0;
+	padding: 8px 20px 8px 14px;
+	background: #f8fafc;
+	border-radius: 999px;
+	border: 2px solid #e2e8f0;
+	display: inline-flex;
+}
+
+.modalHeader .clubDot {
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	display: inline-block;
+	flex-shrink: 0;
+	border: 2px solid rgba(255, 255, 255, 0.9);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.modalHeader .clubName {
+	font-weight: 700;
+	font-size: 1.2rem;
+	margin: 0;
+	letter-spacing: 0.3px;
+}
+
+.modalClose {
+	position: absolute;
+	top: 1.5rem;
+	right: 1.5rem;
+	background: #f1f5f9;
+	border: none;
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	font-size: 1.8rem;
+	line-height: 1;
+	color: #64748b;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.modalClose:hover {
+	background: #fee2e2;
+	color: #ef4444;
+	transform: rotate(90deg) scale(1.1);
+	box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+}
+
+.modalClose:active {
+	transform: rotate(90deg) scale(0.9);
+}
+
+.modalBody {
+	padding: 2.5rem 3rem 3rem;
+}
+
+.modalBody h3 {
+	font-size: 1.2rem;
+	font-weight: 700;
+	color: #1e2937;
+	margin: 2.5rem 0 1.2rem;
+	padding: 10px 18px;
+	background: linear-gradient(to right, #f8fafc, transparent);
+	border-radius: 14px;
+	border-left: 6px solid #2563eb;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.modalBody h3:first-of-type {
+	margin-top: 9px;
+}
+
+.modalBody h3 .badgeCount {
+	background: #2563eb;
+	color: white;
+	padding: 4px 16px;
+	border-radius: 999px;
+	font-size: 0.9rem;
+	font-weight: 700;
+	margin-left: auto;
+}
+
+.modalBody h3 .badgeCountPurple {
+	background: #7c3aed;
+}
+
+.modalBody ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 12px;
+}
+
+.modalBody li {
+	padding: 16px 22px;
+	font-size: 1.1rem;
+	color: #1e2937;
+	background: white;
+	border-radius: 16px;
+	border: 2px solid #f1f5f9;
+	transition: all 0.3s ease;
+	font-weight: 500;
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.modalBody li:hover {
+	border-color: #2563eb;
+	transform: translateX(8px);
+	box-shadow: 0 4px 20px rgba(37, 99, 235, 0.15);
+}
+
+.modalBody li .itemContent {
+	flex: 1;
+}
+
+.modalBody li .itemBadge {
+	font-size: 0.8rem;
+	padding: 4px 16px;
+	border-radius: 999px;
+	background: #dbeafe;
+	color: #1e40af;
+	font-weight: 600;
+}
+
+.modalBody li .itemBadgeCommission {
+	background: #f3e8ff;
+	color: #6b21a5;
+}
+
+.modalBody .memberStats {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+	margin: 0 0 1.5rem;
+}
+
+.modalBody .statChip {
+	background: white;
+	border: 2px solid #e2e8f0;
+	border-radius: 16px;
+	padding: 16px 20px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	transition: all 0.3s ease;
+}
+
+.modalBody .statChip:hover {
+	border-color: #2563eb;
+	transform: translateY(-4px);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.modalBody .statChip .statLabel {
+	font-size: 0.95rem;
+	color: #64748b;
+	font-weight: 600;
+}
+
+.modalBody .statChip .statValue {
+	font-size: 1.3rem;
+	font-weight: 800;
+	color: #0f172a;
+	margin-left: auto;
+}
+
+.modalBody .noInfo {
+	text-align: center;
+	padding: 3.5rem 2rem;
+	color: #94a3b8;
+	font-size: 1.2rem;
+	background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+	border-radius: 20px;
+	border: 3px dashed #e2e8f0;
+}
+
+.modalBody .noInfo .subText {
+	font-size: 1rem;
+	color: #cbd5e1;
+	margin-top: 0.75rem;
+}
+
+.modalContent {
+	max-width: 780px !important;
+	padding: 0 !important;
+}
+
+.modalContent > h2 {
+	margin: 0 !important;
+	padding: 2rem 2.5rem 1.5rem !important;
+	font-size: 1.8rem !important;
+	color: #002b5c;
+	font-weight: 800;
+	border-bottom: 2px solid #f1f5f9;
+}
+
+.modalContent form {
+	display: flex;
+	flex-direction: column;
+	gap: 1.75rem;
+	padding: 2rem 2.5rem 2.5rem !important;
+}
+
+.modalContent form .formRow {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1.25rem;
+}
+
+.modalContent form input,
+.modalContent form select {
+	padding: 16px 20px !important;
+	border: 2px solid #e2e8f0;
+	border-radius: 14px;
+	font-size: 1.1rem !important;
+	font-family: inherit;
+	transition: all 0.3s ease;
+	background: white;
+	width: 100%;
+}
+
+.modalContent form input:focus,
+.modalContent form select:focus {
+	border-color: #2563eb;
+	box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+	outline: none;
+}
+
+.modalContent form input::placeholder {
+	color: #94a3b8;
+	font-size: 1rem;
+}
+
+.modalContent form label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: 700;
+	color: #1e2937;
+	font-size: 1.05rem;
+}
+
+.modalContent form button[type="button"] {
+	padding: 12px 24px;
+	background: #f1f5f9;
+	color: #1e2937;
+	border: 2px solid #e2e8f0;
+	border-radius: 12px;
+	font-weight: 700;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all 0.25s ease;
+	white-space: nowrap;
+}
+
+.modalContent form button[type="button"]:hover {
+	background: #e2e8f0;
+	border-color: #94a3b8;
+	transform: translateY(-2px);
+}
+
+.modalContent form button[type="button"]:active {
+	transform: scale(0.95);
+}
+
+.modalContent form .tagsContainer {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 10px;
+}
+
+.modalContent form .tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 18px;
+	border-radius: 999px;
+	font-size: 1rem;
+	font-weight: 600;
+	transition: all 0.2s ease;
+}
+
+.modalContent form .tagFunction {
+	background: #e0f2fe;
+	color: #1e40af;
+}
+
+.modalContent form .tagCommission {
+	background: #f3e8ff;
+	color: #6b21a5;
+}
+
+.modalContent form .tag .removeBtn {
+	background: none;
+	border: none;
+	color: #94a3b8;
+	font-size: 1.4rem;
+	cursor: pointer;
+	padding: 0 4px;
+	transition: all 0.2s ease;
+	line-height: 1;
+}
+
+.modalContent form .tag .removeBtn:hover {
+	color: #ef4444;
+	transform: scale(1.3);
+}
+
+.modalActions {
+	display: flex;
+	gap: 16px;
+	justify-content: flex-end;
+	padding-top: 1.5rem;
+	margin-top: 1rem;
+	border-top: 2px solid #f1f5f9;
+}
+
+.modalActions button {
+	padding: 16px 40px !important;
+	border: none;
+	border-radius: 9999px;
+	font-weight: 700;
+	font-size: 1.1rem !important;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	min-width: 140px;
+}
+
+.modalActions button:first-child {
+	background: #f1f5f9;
+	color: #1e2937;
+}
+
+.modalActions button:first-child:hover {
+	background: #e2e8f0;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.modalActions button:last-child {
+	background: linear-gradient(135deg, #002b5c, #003d80);
+	color: white;
+	box-shadow: 0 4px 16px rgba(0, 43, 92, 0.3);
+}
+
+.modalActions button:last-child:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 24px rgba(0, 43, 92, 0.4);
+}
+
+.modalActions button:active {
+	transform: scale(0.97);
+}
+
+.modalContent form select {
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 18px center;
+	padding-right: 48px;
+	cursor: pointer;
+	font-size: 1.1rem;
+}
+
+.modalContent form select option {
+	padding: 12px;
+	font-size: 1rem;
+}
+
+/* =========================================================
+   ===============  RESPONSYWNOŚĆ MOBILNA  ==================
+   ========================================================= */
+
+/* Zabezpieczenie bazowe: bez tego paddingi + width potrafią
+   wypychać kafelki poza ekran (tzw. "grid/flex blowout") */
+.parliamentariansPage *,
+.parliamentariansPage *::before,
+.parliamentariansPage *::after {
+	box-sizing: border-box;
+}
+
+.parliamentariansPage {
+	overflow-x: hidden;
+}
+
+@media (max-width: 1024px) {
+	.parliamentariansContent,
+	.parliamentariansContentAdmin {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.clubsPanel {
+		position: static;
+		top: unset;
+	}
+
+	.membersGrid {
+		grid-template-columns: repeat(auto-fill, minmax(0, 1fr));
+	}
+
+	.modalContent form .formRow {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	}
+}
+
+@media (max-width: 768px) {
+	.parliamentariansPage {
+		padding: 1.25rem 1rem;
+	}
+
+	.statsSection {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.85rem;
+		margin-bottom: 1.75rem;
+	}
+
+	.statCard {
+		padding: 1.25rem 1rem;
+		border-radius: 14px;
+		min-width: 0;
+	}
+
+	.statCard:hover {
+		transform: none;
+	}
+
+	.statNumber {
+		font-size: 1.9rem;
+	}
+
+	.statLabel {
+		font-size: 0.75rem;
+		letter-spacing: 0.03em;
+		overflow-wrap: break-word;
+	}
+
+	.parliamentariansContent {
+		gap: 1rem;
+	}
+
+	.clubsPanel {
+		padding: 1.25rem;
+		border-radius: 14px;
+	}
+
+	.clubsPanel h2,
+	.panelHeader h2 {
+		font-size: 1.15rem;
+	}
+
+	.panelHeader {
+		gap: 10px;
+		margin-bottom: 1.25rem;
+	}
+
+	.panelActions {
+		width: 100%;
+		flex-wrap: wrap;
+	}
+
+	.panelHeader .clearFilter,
+	.addClubBtn,
+	.addMemberBtn {
+		flex: 1 1 auto;
+		padding: 10px 14px;
+		font-size: 0.9rem;
+		min-height: 42px;
+		text-align: center;
+		justify-content: center;
+		white-space: normal;
+		min-width: 0;
+	}
+
+	.addMemberBtn {
+		align-self: stretch;
+		width: 100%;
+	}
+
+	.clubItem {
+		padding: 12px 14px;
+		gap: 10px;
+		min-height: 48px;
+		border-radius: 12px;
+		flex-wrap: wrap;
+		min-width: 0;
+	}
+
+	.clubItem:hover {
+		transform: none;
+	}
+
+	.clubItem .clubName {
+		font-size: 0.95rem;
+		min-width: 0;
+	}
+
+	.clubItem .clubCount {
+		font-size: 0.85rem;
+		padding: 3px 10px;
+	}
+
+	.clubItem .clubTypeBadge {
+		font-size: 0.68rem;
+		padding: 3px 10px;
+	}
+
+	.clubAdminActions {
+		flex-shrink: 0;
+	}
+
+	.clubAdminActions button {
+		width: 30px;
+		height: 30px;
+		font-size: 0.85rem;
+		opacity: 1;
+	}
+
+	.adminToggleContainer {
+		padding: 1rem 1.25rem;
+		border-radius: 14px;
+		flex-wrap: wrap;
+	}
+
+	.adminToggleContainer:hover {
+		transform: none;
+	}
+
+	.adminToggleLabel {
+		font-size: 0.9rem;
+	}
+
+	.searchBar {
+		flex-wrap: wrap;
+		border-radius: 18px;
+		padding: 6px;
+	}
+
+	.searchBar input {
+		padding: 10px 14px;
+		font-size: 1rem;
+		min-width: 0;
+	}
+
+	.searchBar .clearFilter {
+		padding: 10px 16px;
+		font-size: 0.9rem;
+	}
+
+	.membersGrid {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1rem;
+	}
+
+	.memberCard {
+		padding: 1.1rem;
+		gap: 12px;
+		border-radius: 14px;
+		min-width: 0;
+		flex-wrap: wrap;
+	}
+
+	.memberCard:hover {
+		transform: none;
+	}
+
+	.memberAvatar {
+		width: 56px;
+		height: 56px;
+		font-size: 1.2rem;
+		border-radius: 12px;
+		flex-shrink: 0;
+	}
+
+	.memberInfo {
+		flex: 1 1 0%;
+		min-width: 0;
+	}
+
+	.memberInfo h4 {
+		font-size: 1.05rem;
+		margin-bottom: 6px;
+		overflow-wrap: break-word;
+		word-break: break-word;
+	}
+
+	.memberClub {
+		font-size: 0.9rem;
+		margin-bottom: 8px;
+		overflow-wrap: break-word;
+	}
+
+	.functionBadge,
+	.commissionBadge {
+		font-size: 0.72rem;
+		padding: 4px 10px;
+	}
+
+	.adminActions {
+		gap: 6px;
+		margin-left: 0;
+		flex-direction: row;
+		flex-wrap: wrap;
+		width: 100%;
+	}
+
+	.adminActions button {
+		padding: 6px 10px;
+		font-size: 0.75rem;
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	.modalOverlay {
+		padding: 0;
+		align-items: flex-end;
+	}
+
+	.modalContent {
+		max-width: 100% !important;
+		width: 100%;
+		max-height: 94vh;
+		border-radius: 20px 20px 0 0;
+		animation: modalSlideUpMobile 0.35s ease;
+	}
+
+	@keyframes modalSlideUpMobile {
+		from {
+			opacity: 0;
+			transform: translateY(60px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.modalHeader {
+		padding: 1.5rem 1.25rem 1.25rem;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
+	.modalAvatar {
+		width: 64px;
+		height: 64px;
+		font-size: 1.6rem;
+		border-width: 3px;
+		flex-shrink: 0;
+	}
+
+	.modalHeader .infoWrapper {
+		min-width: 0;
+	}
+
+	.modalHeader h2 {
+		font-size: 1.3rem;
+		letter-spacing: -0.2px;
+		overflow-wrap: break-word;
+		word-break: break-word;
+	}
+
+	.modalHeader .clubInfo {
+		padding: 6px 14px 6px 10px;
+		max-width: 100%;
+	}
+
+	.modalHeader .clubDot {
+		width: 12px;
+		height: 12px;
+	}
+
+	.modalHeader .clubName {
+		font-size: 0.95rem;
+		overflow-wrap: break-word;
+	}
+
+	.modalClose {
+		top: 1rem;
+		right: 1rem;
+		width: 38px;
+		height: 38px;
+		font-size: 1.4rem;
+	}
+
+	.modalBody {
+		padding: 1.5rem 1.25rem 2rem;
+	}
+
+	.modalBody h3 {
+		font-size: 1rem;
+		margin: 1.75rem 0 1rem;
+		padding: 8px 14px;
+		flex-wrap: wrap;
+	}
+
+	.modalBody li {
+		padding: 12px 14px;
+		font-size: 0.95rem;
+		border-radius: 12px;
+		gap: 10px;
+		flex-wrap: wrap;
+	}
+
+	.modalBody li:hover {
+		transform: none;
+	}
+
+	.modalBody li .itemContent {
+		min-width: 0;
+		overflow-wrap: break-word;
+	}
+
+	.modalBody .memberStats {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 10px;
+	}
+
+	.modalBody .statChip {
+		padding: 12px 14px;
+		border-radius: 12px;
+		min-width: 0;
+	}
+
+	.modalBody .statChip:hover {
+		transform: none;
+	}
+
+	.modalBody .statChip .statLabel {
+		font-size: 0.85rem;
+	}
+
+	.modalBody .statChip .statValue {
+		font-size: 1.05rem;
+	}
+
+	.modalBody .noInfo {
+		padding: 2.25rem 1.25rem;
+		font-size: 1rem;
+		border-radius: 16px;
+	}
+
+	.modalContent > h2 {
+		padding: 1.5rem 1.25rem 1.1rem !important;
+		font-size: 1.3rem !important;
+		overflow-wrap: break-word;
+	}
+
+	.modalContent form {
+		gap: 1.25rem;
+		padding: 1.5rem 1.25rem 1.75rem !important;
+	}
+
+	.modalContent form .formRow {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1rem;
+	}
+
+	.modalContent form input,
+	.modalContent form select {
+		padding: 12px 14px !important;
+		font-size: 1rem !important;
+		border-radius: 12px;
+		min-width: 0;
+	}
+
+	.modalContent form label {
+		font-size: 0.95rem;
+		margin-bottom: 6px;
+	}
+
+	.modalContent form .tag {
+		padding: 8px 14px;
+		font-size: 0.9rem;
+		max-width: 100%;
+	}
+
+	.modalActions {
+		flex-direction: column-reverse;
+		gap: 10px;
+		padding-top: 1.25rem;
+	}
+
+	.modalActions button {
+		padding: 14px 24px !important;
+		font-size: 1rem !important;
+		width: 100%;
+		min-width: 0;
+	}
+}
+
+@media (max-width: 480px) {
+	.statsSection {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.6rem;
+	}
+
+	.statCard {
+		padding: 1rem 0.6rem;
+	}
+
+	.statNumber {
+		font-size: 1.5rem;
+	}
+
+	.statLabel {
+		font-size: 0.62rem;
+		letter-spacing: 0.02em;
+	}
+
+	.panelActions {
+		flex-direction: column;
+		width: 100%;
+	}
+
+	.panelHeader .clearFilter,
+	.addClubBtn {
+		width: 100%;
+	}
+
+	.clubItem .clubTypeBadge {
+		display: none;
+	}
+
+	.memberCard {
+		flex-direction: column;
+	}
+
+	.memberAvatar {
+		width: 48px;
+		height: 48px;
+		font-size: 1.05rem;
+	}
+
+	.adminActions {
+		margin-left: 0;
+		flex-direction: row;
+		width: 100%;
+	}
+
+	.adminActions button {
+		flex: 1 1 0%;
+	}
+
+	.modalHeader {
+		flex-direction: column;
+		align-items: flex-start;
+		text-align: left;
+	}
+
+	.modalHeader h2 {
+		font-size: 1.15rem;
+	}
+
+	.modalAvatar {
+		width: 56px;
+		height: 56px;
+		font-size: 1.4rem;
+	}
+}
+
+@media (hover: none) and (pointer: coarse) {
+	.clubItem,
+	.memberCard,
+	.statCard,
+	button,
+	.addClubBtn,
+	.addMemberBtn,
+	.clearFilter {
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.clubAdminActions button,
+	.modalClose {
+		opacity: 1;
+	}
+}
+
+/* ============================================
+   PRZEŁĄCZNIK WIDOKU
+   ============================================ */
+.viewToggle {
+	display: flex;
+	justify-content: center;
+	gap: 8px;
+	margin: 24px auto 32px;
+	max-width: 420px;
+	padding: 6px;
+	background: #f1f5f9;
+	border-radius: 999px;
+}
+
+.viewToggleBtn {
+	flex: 1;
+	padding: 12px 24px;
+	border: none;
+	background: transparent;
+	border-radius: 999px;
+	font-size: 15px;
+	font-weight: 700;
+	color: #475569;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.viewToggleBtn:hover {
+	color: #0f172a;
+}
+
+.viewToggleBtnActive {
+	background: #fff;
+	color: #002b5c;
+	box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+/* ============================================
+   HEMICYCLE
+   ============================================ */
+
+.hemicycleWrapper {
+	max-width: 1500px;
+	margin: 0 auto 60px;
+	padding: 32px 24px;
+	background: #ffffff;
+	border-radius: 24px;
+	box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+}
+
+.hemicycleTitle {
+	margin: 0 0 6px 0;
+	text-align: center;
+	font-size: 28px;
+	font-weight: 800;
+	color: #002b5c;
+}
+
+.hemicycleSubtitle {
+	margin: 0 0 20px 0;
+	text-align: center;
+	font-size: 15px;
+	color: #64748b;
+}
+
+.hemicycleBar {
+	max-width: 900px;
+	margin: 0 auto 24px;
+}
+
+.hemicycleBarSvg {
+	width: 100%;
+	height: 44px;
+	display: block;
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.hemicycleLegend {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 12px 20px;
+	margin: 0 auto 28px;
+	max-width: 900px;
+}
+
+.hemicycleLegendItem {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 14px;
+	color: #334155;
+}
+
+.hemicycleLegendColor {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	border-radius: 4px;
+	flex-shrink: 0;
+}
+
+.hemicycleLegendLabel strong {
+	color: #0f172a;
+}
+
+.hemicycleSvg {
+	width: 100%;
+
+	height: auto;
+	display: block;
+	margin: 0 auto;
+	shape-rendering: crispEdges;
+}
+
+.hemicycleArc {
+	fill: none;
+	stroke: #e2e8f0;
+	stroke-width: 1;
+	stroke-dasharray: 3 5;
+}
+
+.hemicycleSeat rect {
+	pointer-events: all;
+	transition:
+		stroke 0.12s ease,
+		filter 0.12s ease;
+}
+
+.hemicycleSeat:hover rect {
+	stroke: #0f172a;
+	stroke-width: 2;
+	filter: brightness(1.15) drop-shadow(0 0 4px rgba(0, 0, 0, 0.25));
+}
+
+.hemicycleSeatEmpty rect {
+	opacity: 0.7;
+	pointer-events: none;
+}
+
+@media (max-width: 768px) {
+	.hemicycleWrapper {
+		padding: 20px 12px;
+		margin-bottom: 40px;
+	}
+
+	.hemicycleTitle {
+		font-size: 20px;
+	}
+
+	.hemicycleSubtitle {
+		font-size: 13px;
+	}
+
+	.hemicycleLegend {
+		gap: 8px 12px;
+	}
+
+	.hemicycleLegendItem {
+		font-size: 12px;
+	}
+
+	.hemicycleLegendColor {
+		width: 16px;
+		height: 16px;
+	}
+}

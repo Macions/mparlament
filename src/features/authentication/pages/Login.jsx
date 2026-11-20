@@ -16,6 +16,7 @@ export default function Login() {
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
 
+	// ✅ NOWY — tylko raz przy montowaniu
 	useEffect(() => {
 		const token = localStorage.getItem("token");
 		const expiresAt = Number(localStorage.getItem("tokenExpiresAt") || 0);
@@ -30,7 +31,8 @@ export default function Login() {
 			return;
 		}
 		navigate("/panel", { replace: true });
-	}, [navigate]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []); // ← PUSTE deps — sprawdzenie tylko raz przy montowaniu
 
 	const reset = () => {
 		setError("");

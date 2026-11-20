@@ -5,7 +5,6 @@ import NotificationsModal from "../features/notifications/NotificationsModal";
 import NotificationsToast from "../features/notifications/NotificationsToast";
 import AppRoutes from "../routes/AppRoutes";
 import AppLayout from "./AppLayout";
-import { AuthProvider } from "../features/auth/AuthContext";
 import useReveal from "../hooks/useReveal";
 import { MaintenancePage } from "../components/MaintenancePage";
 import { useSystemStatus } from "../hooks/useSystemStatus";
@@ -39,22 +38,20 @@ export default function App() {
 	if (maintenance) return <MaintenancePage message={message} until={until} />;
 
 	return (
-		<AuthProvider>
-			<NotificationsProvider>
-				{isLoginPage ? (
-					<div className="app" key={location.pathname}>
+		<NotificationsProvider>
+			{isLoginPage ? (
+				<div className="app">
+					<AppRoutes />
+				</div>
+			) : (
+				<div className="app">
+					<AppLayout>
 						<AppRoutes />
-					</div>
-				) : (
-					<div className="app" key={location.pathname}>
-						<AppLayout>
-							<AppRoutes />
-						</AppLayout>
-					</div>
-				)}
-				<NotificationsModal />
-				<NotificationsToast />
-			</NotificationsProvider>
-		</AuthProvider>
+					</AppLayout>
+				</div>
+			)}
+			<NotificationsModal />
+			<NotificationsToast />
+		</NotificationsProvider>
 	);
 }

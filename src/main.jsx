@@ -4,13 +4,18 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./app/App";
 import { AuthProvider } from "./features/auth/AuthContext";
 import "./components/backButton.css";
-
+// main.jsx — na górze, przed renderem
+if ("serviceWorker" in navigator) {
+	navigator.serviceWorker.getRegistrations().then((registrations) => {
+		for (const registration of registrations) {
+			registration.unregister();
+		}
+	});
+}
 ReactDOM.createRoot(document.getElementById("root")).render(
-	<React.StrictMode>
-		<BrowserRouter>
-			<AuthProvider>
-				<App />
-			</AuthProvider>
-		</BrowserRouter>
-	</React.StrictMode>,
+	<BrowserRouter>
+		<AuthProvider>
+			<App />
+		</AuthProvider>
+	</BrowserRouter>,
 );

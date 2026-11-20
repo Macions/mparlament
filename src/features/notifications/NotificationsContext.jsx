@@ -193,6 +193,20 @@ export function NotificationsProvider({ children }) {
 		},
 		[markAsRead, navigate],
 	);
+	// ✅ NOWY — navigateRef
+	const navigateRef = useRef(navigate);
+	useEffect(() => {
+		navigateRef.current = navigate;
+	}, [navigate]);
+
+	const openVoting = useCallback(
+		(votingId) => {
+			setShowModal(false);
+			setToast(null);
+			navigateRef.current(`/glosowanie/${votingId}`);
+		},
+		[], // ← PUSTE deps — openVoting stabilne
+	);
 
 	const dismissModal = () => setShowModal(false);
 	const dismissToast = () => setToast(null);
@@ -207,6 +221,7 @@ export function NotificationsProvider({ children }) {
 				showModal,
 				dismissModal,
 				openNotification,
+				openVoting,
 				toast,
 				dismissToast,
 				refresh: () => fetchNotifications(),
